@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import OAuthButton from "@/components/auth/OAuthButton";
 import { GoogleIcon, FacebookIcon } from "@/components/auth/OAuthIcons";
+import PhoneOTPInput from "@/components/auth/PhoneOTPInput";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -29,6 +30,35 @@ export default function SignUpForm() {
   const [info, setInfo] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
+  // Phone OTP state
+  const [phoneInput, setPhoneInput] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
+
+  // Full E.164 phone = countryCode + phoneInput (digits only)
+  const e164Phone = phoneInput.trim()
+    ? `${countryCode}${phoneInput.trim().replace(/\D/g, "")}`
+    : "";
+
+  // Sign Up is allowed when:
+  // - phone is empty (optional), OR
+  // - phone was entered AND verified
+  const canSubmit = !phoneInput.trim() || phoneVerified;
+
+  function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setPhoneInput(e.target.value);
+    // Reset verification if phone changes
+    if (otpSent || phoneVerified) {
+      setOtpSent(false);
+      setPhoneVerified(false);
+    }
+  }
+
+  function handleSendCode() {
+    if (!phoneInput.trim()) return;
+    setOtpSent(true);
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -37,7 +67,6 @@ export default function SignUpForm() {
     const fd = new FormData(e.currentTarget);
     const full_name = (fd.get("name") as string).trim();
     const email = (fd.get("email") as string).trim();
-    const phone = (fd.get("phone") as string).trim();
     const password = fd.get("password") as string;
     const confirmPassword = fd.get("confirm-password") as string;
 
@@ -53,8 +82,8 @@ export default function SignUpForm() {
       setError("Password must be at least 6 characters.");
       return;
     }
-    if (phone && !/^[\d\s\-().+]+$/.test(phone)) {
-      setError("Phone number can only contain digits, spaces, and + - ( ) characters.");
+    if (phoneInput.trim() && !phoneVerified) {
+      setError("Please verify your phone number first.");
       return;
     }
 
@@ -63,7 +92,7 @@ export default function SignUpForm() {
         email,
         password,
         full_name,
-        phone: phone || undefined,
+        phone: e164Phone || undefined,
         country_code: countryCode,
         gender: gender || undefined,
       });
@@ -144,15 +173,23 @@ export default function SignUpForm() {
             />
           </div>
 
+          {/* Phone field with OTP */}
           <div>
             <label htmlFor="phone" className="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
-              Phone Number
+              Phone Number <span className="normal-case text-gray-500">(optional)</span>
             </label>
             <div className="flex rounded-lg shadow-sm">
               <select
                 value={countryCode}
-                onChange={(e) => setCountryCode(e.target.value)}
-                className="rounded-l-lg border border-r-0 border-white/10 bg-background-dark text-white focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm px-3 py-3 w-24"
+                onChange={(e) => {
+                  setCountryCode(e.target.value);
+                  if (otpSent || phoneVerified) {
+                    setOtpSent(false);
+                    setPhoneVerified(false);
+                  }
+                }}
+                disabled={otpSent}
+                className="rounded-l-lg border border-r-0 border-white/10 bg-background-dark text-white focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm px-3 py-3 w-24 disabled:opacity-50"
               >
                 {COUNTRY_CODES.map((code) => (
                   <option key={code} value={code}>
@@ -166,9 +203,37 @@ export default function SignUpForm() {
                 type="tel"
                 autoComplete="off"
                 placeholder="(555) 123-4567"
-                className="flex-1 min-w-0 block w-full px-4 py-3 rounded-r-lg border border-white/10 bg-background-dark text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm"
+                value={phoneInput}
+                onChange={handlePhoneChange}
+                disabled={otpSent}
+                className="flex-1 min-w-0 block w-full px-4 py-3 border border-white/10 bg-background-dark text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm disabled:opacity-50"
               />
+              {phoneInput.trim() && !otpSent && (
+                <button
+                  type="button"
+                  onClick={handleSendCode}
+                  className="rounded-r-lg border border-l-0 border-white/10 bg-primary hover:bg-primary-hover text-white text-xs font-semibold px-3 transition-colors whitespace-nowrap"
+                >
+                  Send Code
+                </button>
+              )}
+              {!phoneInput.trim() && (
+                <div className="rounded-r-lg border border-l-0 border-white/10 bg-background-dark w-2" />
+              )}
             </div>
+
+            {/* OTP inline step */}
+            {otpSent && !phoneVerified && (
+              <PhoneOTPInput
+                phone={e164Phone}
+                onVerified={() => setPhoneVerified(true)}
+                onReset={() => {
+                  setOtpSent(false);
+                  setPhoneVerified(false);
+                  setPhoneInput("");
+                }}
+              />
+            )}
           </div>
 
           <div>
@@ -237,11 +302,15 @@ export default function SignUpForm() {
           <div className="pt-2">
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !canSubmit}
               className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-lg text-sm font-bold text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all shadow-lg shadow-primary/25 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isLoading ? "Creating account…" : "Sign Up"}
+              {isLoading
+                ? "Creating account…"
+                : !canSubmit
+                ? "Verify phone to continue"
+                : "Sign Up"}
             </button>
           </div>
         </form>
