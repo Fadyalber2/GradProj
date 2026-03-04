@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 
 interface OAuthButtonProps {
-  provider: "google" | "github";
+  provider: "google" | "facebook";
   label: string;
   icon: React.ReactNode;
 }
