@@ -1,3 +1,5 @@
+import re
+
 from fastapi import APIRouter, HTTPException, Depends, status
 from app.auth.schemas import SignUpRequest, LoginRequest, UpdateProfileRequest, ProfileResponse, SendPhoneOTPRequest, VerifyPhoneOTPRequest
 from app.database import supabase_client, supabase_admin
@@ -128,7 +130,6 @@ async def send_phone_otp(body: SendPhoneOTPRequest):
         raise HTTPException(status_code=503, detail="Phone verification not configured")
 
     # Basic E.164 validation
-    import re
     if not re.match(r"^\+[1-9]\d{7,14}$", body.phone):
         raise HTTPException(status_code=422, detail="Phone must be in E.164 format, e.g. +201234567890")
 
@@ -151,6 +152,9 @@ async def verify_phone_otp(body: VerifyPhoneOTPRequest):
     """
     if not settings.twilio_account_sid:
         raise HTTPException(status_code=503, detail="Phone verification not configured")
+
+    if not re.match(r"^\+[1-9]\d{7,14}$", body.phone):
+        raise HTTPException(status_code=422, detail="Phone must be in E.164 format, e.g. +201234567890")
 
     try:
         from twilio.rest import Client

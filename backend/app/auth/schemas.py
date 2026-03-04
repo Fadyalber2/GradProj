@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, Any
 
 
@@ -53,4 +53,4 @@ class SendPhoneOTPRequest(BaseModel):
 
 class VerifyPhoneOTPRequest(BaseModel):
     phone: str
-    code: str
+    code: str = Field(min_length=6, max_length=6, pattern=r"^\d{6}$")
