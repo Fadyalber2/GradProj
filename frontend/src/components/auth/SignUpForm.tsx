@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import OAuthButton from "@/components/auth/OAuthButton";
-import { GoogleIcon, GitHubIcon } from "@/components/auth/OAuthIcons";
+import { GoogleIcon, FacebookIcon } from "@/components/auth/OAuthIcons";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -27,6 +27,7 @@ export default function SignUpForm() {
   const [gender, setGender] = useState<GenderType | "">("");
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -196,15 +197,26 @@ export default function SignUpForm() {
               <label htmlFor="signup-password" className="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
                 Password
               </label>
-              <input
-                id="signup-password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                placeholder="••••••••"
-                className="block w-full px-4 py-3 rounded-lg border border-white/10 bg-background-dark text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent transition-all sm:text-sm"
-              />
+              <div className="relative">
+                <input
+                  id="signup-password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  required
+                  placeholder="••••••••"
+                  className="block w-full px-4 py-3 pr-12 rounded-lg border border-white/10 bg-background-dark text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent transition-all sm:text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-white transition-colors"
+                  tabIndex={-1}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             <div>
               <label htmlFor="confirm-password" className="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
@@ -245,7 +257,7 @@ export default function SignUpForm() {
 
         <div className="grid grid-cols-2 gap-4">
           <OAuthButton provider="google" label="Google" icon={<GoogleIcon />} />
-          <OAuthButton provider="github" label="GitHub" icon={<GitHubIcon />} />
+          <OAuthButton provider="facebook" label="Facebook" icon={<FacebookIcon />} />
         </div>
 
         <div className="mt-6 text-center">

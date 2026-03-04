@@ -5,15 +5,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import OAuthButton from "@/components/auth/OAuthButton";
-import { GoogleIcon, GitHubIcon } from "@/components/auth/OAuthIcons";
+import { GoogleIcon, FacebookIcon } from "@/components/auth/OAuthIcons";
 
 export default function LoginForm() {
   const router = useRouter();
   const { login, isLoading } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -93,15 +94,26 @@ export default function LoginForm() {
             >
               Password
             </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              placeholder="••••••••"
-              className="block w-full px-4 py-3 rounded-lg border border-white/10 bg-background-dark text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent transition-all sm:text-sm"
-            />
+            <div className="relative">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                required
+                placeholder="••••••••"
+                className="block w-full px-4 py-3 pr-12 rounded-lg border border-white/10 bg-background-dark text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent transition-all sm:text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-white transition-colors"
+                tabIndex={-1}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center justify-between">
@@ -154,7 +166,7 @@ export default function LoginForm() {
         {/* Social buttons */}
         <div className="grid grid-cols-2 gap-4">
           <OAuthButton provider="google" label="Google" icon={<GoogleIcon />} />
-          <OAuthButton provider="github" label="GitHub" icon={<GitHubIcon />} />
+          <OAuthButton provider="facebook" label="Facebook" icon={<FacebookIcon />} />
         </div>
 
         {/* Sign up link */}
