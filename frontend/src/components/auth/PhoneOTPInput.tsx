@@ -71,7 +71,7 @@ export default function PhoneOTPInput({ phone, onVerified, onReset }: PhoneOTPIn
   }
 
   async function verifyCode(value: string) {
-    if (value.length < 6) return;
+    if (value.length < 6 || state === "verifying") return;
     setState("verifying");
     setErrorMsg(null);
     try {
@@ -169,16 +169,6 @@ export default function PhoneOTPInput({ phone, onVerified, onReset }: PhoneOTPIn
             </button>
           </div>
         </>
-      )}
-
-      {state === "error" && !errorMsg && (
-        <button
-          type="button"
-          onClick={sendOTP}
-          className="text-xs text-primary hover:text-primary-hover transition-colors"
-        >
-          Try again
-        </button>
       )}
     </div>
   );
