@@ -2,9 +2,9 @@
 
 ## Current Position
 
-- **Active phase:** Phases 1–4 retroactive plans ready for execution (gap-fill pass)
-- **Last completed:** Message Requests system (2026-03-09) — 63/63 tests pass
-- **Next action:** `/gsd:execute-phase 1` → `2` → `3` → `4` (gap-fill), then `5.5` and `6`
+- **Active phase:** Phase 1 complete ✅ → next: `/gsd:execute-phase 2`
+- **Last completed:** Phase 1 Auth gap-fill (2026-03-21) — 8/8 auth tests pass, 0 TS errors
+- **Next action:** `/gsd:execute-phase 2` (Listings gap-fill), then `3`, `4`, `5.5`, `6`
 
 ## Project Health
 
@@ -29,6 +29,7 @@
 | 2026-03-21 | GSD planning initialized for this project. Phases 5.5 and 6 are pending. |
 | 2026-03-21 | Created retroactive plans for Phases 1–4 (gap-fill pass). 8 PLAN files written. |
 | 2026-03-21 | Executed 01-02-PLAN.md (Frontend Auth Wiring). Added serverFetch to api.ts and OAuth store methods. Zero TS errors. |
+| 2026-03-21 | Executed 01-01-PLAN.md (Backend Auth). Gap-fill pass — all code existed. 7 tasks committed, 8/8 auth tests pass. |
 
 ## Key Decisions
 
