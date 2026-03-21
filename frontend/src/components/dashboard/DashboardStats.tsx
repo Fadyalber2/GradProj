@@ -3,6 +3,7 @@
 
 import type { ElementType } from "react";
 import { Eye, TrendingUp, MessageSquare } from "lucide-react";
+import { motion } from "framer-motion";
 import type { AnalyticsStat } from "@/types";
 
 interface DashboardStatsProps {
@@ -20,11 +21,14 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-      {stats.map((stat) => {
+      {stats.map((stat, index) => {
         const Icon = ICON_MAP[stat.icon] ?? Eye;
         return (
-          <div
+          <motion.div
             key={stat.label}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: index * 0.08, ease: "easeOut" }}
             className="bg-card-dark rounded-2xl border border-white/5 p-5 flex items-center gap-4"
           >
             <div className={`p-3 rounded-xl ${stat.iconBg}`}>
@@ -37,7 +41,7 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
                 {stat.trendUp ? "+" : "-"}{stat.trendPercent}
               </p>
             </div>
-          </div>
+          </motion.div>
         );
       })}
     </div>

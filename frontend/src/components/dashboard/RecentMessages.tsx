@@ -15,7 +15,7 @@ export default function RecentMessages({ messages }: RecentMessagesProps) {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-white">Recent Messages</h2>
         <Link
-          href="#"
+          href="/messages"
           className="text-sm text-primary hover:text-white transition-colors font-medium"
         >
           View All
@@ -25,9 +25,10 @@ export default function RecentMessages({ messages }: RecentMessagesProps) {
       <div className="bg-card-dark rounded-2xl border border-white/5 overflow-hidden h-[330px] flex flex-col">
         <div className="flex-1 overflow-y-auto hide-scrollbar divide-y divide-white/5">
           {messages.map((msg) => (
-            <div
+            <Link
               key={msg.id}
-              className="p-4 hover:bg-white/5 transition-colors cursor-pointer group relative"
+              href={`/messages?conversation=${msg.id}`}
+              className="block p-4 hover:bg-white/5 transition-colors cursor-pointer group relative"
             >
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="flex gap-4">
@@ -73,14 +74,14 @@ export default function RecentMessages({ messages }: RecentMessagesProps) {
                   </p>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
         <div className="p-4 bg-white/[0.02] border-t border-white/5 text-center mt-auto">
-          <button className="text-sm font-medium text-white hover:text-primary transition-colors flex items-center justify-center gap-2 w-full py-2 rounded-lg hover:bg-white/5">
+          <Link href="/messages" className="text-sm font-medium text-white hover:text-primary transition-colors flex items-center justify-center gap-2 w-full py-2 rounded-lg hover:bg-white/5">
             <SquarePen className="h-4 w-4" /> Compose Message
-          </button>
+          </Link>
         </div>
       </div>
     </div>
