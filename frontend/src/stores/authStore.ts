@@ -5,12 +5,23 @@ import type { AuthUser, SignUpData } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-async function fetchProfile(accessToken: string): Promise<AuthUser | null> {
+async function fetchProfile(
+  accessToken: string,
+  retries = 0,
+  delayMs = 600,
+): Promise<AuthUser | null> {
   try {
     const res = await fetch(`${API_BASE}/api/auth/me`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      // Retry on 401 — profile DB trigger may not have completed yet
+      if (res.status === 401 && retries > 0) {
+        await new Promise((r) => setTimeout(r, delayMs));
+        return fetchProfile(accessToken, retries - 1, delayMs);
+      }
+      return null;
+    }
     return res.json();
   } catch {
     return null;
@@ -25,10 +36,16 @@ interface AuthState {
 
   initialize: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
+  loginWithFacebook: () => Promise<void>;
   signup: (data: SignUpData) => Promise<void>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
+
+// Track the auth listener unsubscribe function outside the store
+// to prevent duplicate subscriptions (React StrictMode calls effects twice)
+let authListenerUnsub: (() => void) | null = null;
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
@@ -37,27 +54,79 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isInitialized: false,
 
   initialize: async () => {
+    // Guard: skip if a listener is already registered (prevents duplicate listeners in React StrictMode)
+    if (authListenerUnsub) return;
+
     const {
       data: { session },
     } = await supabase.auth.getSession();
 
     if (session) {
-      const user = await fetchProfile(session.access_token);
-      set({ session, user, isInitialized: true });
+      const user = await fetchProfile(session.access_token, 2, 600);
+      const resolvedUser: AuthUser = user ?? {
+        id: session.user.id,
+        email: session.user.email ?? "",
+        role: "user",
+        full_name: session.user.user_metadata?.full_name ?? null,
+        phone: null,
+        country_code: null,
+        gender: null,
+        avatar_url: session.user.user_metadata?.avatar_url ?? null,
+        bio: null,
+        badges: [],
+        is_verified_seller: false,
+      };
+      set({ session, user: resolvedUser, isInitialized: true });
     } else {
       set({ isInitialized: true });
     }
 
     // Keep state in sync with Supabase auth events (token refresh, OAuth, etc.)
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
-        if (session) {
-          const user = await fetchProfile(session.access_token);
-          set({ session, user });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+          // Only skip token refreshes during active login — SIGNED_IN must always sync
+          if (event === "TOKEN_REFRESHED" && get().isLoading) return;
+          if (session) {
+            const user = await fetchProfile(session.access_token, 2, 600);
+            const resolvedUser: AuthUser = user ?? {
+              id: session.user.id,
+              email: session.user.email ?? "",
+              role: "user",
+              full_name: session.user.user_metadata?.full_name ?? null,
+              phone: null,
+              country_code: null,
+              gender: null,
+              avatar_url: session.user.user_metadata?.avatar_url ?? null,
+              bio: null,
+              badges: [],
+              is_verified_seller: false,
+            };
+            set({ session, user: resolvedUser });
+          }
+        } else if (event === "SIGNED_OUT") {
+          set({ session: null, user: null });
         }
-      } else if (event === "SIGNED_OUT") {
-        set({ session: null, user: null });
-      }
+      },
+    );
+    authListenerUnsub = () => subscription.unsubscribe();
+  },
+
+  loginWithGoogle: async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback`,
+      },
+    });
+  },
+
+  loginWithFacebook: async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: "facebook",
+      options: {
+        redirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback`,
+      },
     });
   },
 
@@ -69,8 +138,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         password,
       });
       if (error) throw new Error(error.message);
-      const user = await fetchProfile(data.session.access_token);
-      set({ session: data.session, user });
+      // Retry up to 2 times — profile may lag behind auth
+      const user = await fetchProfile(data.session.access_token, 2, 600);
+      // Fall back to minimal user from session if profile fetch failed
+      const resolvedUser: AuthUser = user ?? {
+        id: data.session.user.id,
+        email: data.session.user.email ?? email,
+        role: "user",
+        full_name: data.session.user.user_metadata?.full_name ?? null,
+        phone: null,
+        country_code: null,
+        gender: null,
+        avatar_url: data.session.user.user_metadata?.avatar_url ?? null,
+        bio: null,
+        badges: [],
+        is_verified_seller: false,
+      };
+      set({ session: data.session, user: resolvedUser });
     } finally {
       set({ isLoading: false });
     }
@@ -99,7 +183,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         password,
       });
       if (error) throw new Error(error.message);
-      const user = await fetchProfile(data.session.access_token);
+      // Retry up to 3 times — the profile trigger may lag behind user creation
+      const user = await fetchProfile(data.session.access_token, 3, 800);
       set({ session: data.session, user });
     } finally {
       set({ isLoading: false });
