@@ -2,15 +2,15 @@
 
 ## Current Position
 
-- **Active phase:** Phase 2 Plan 02 complete ✅ → next: `/gsd:execute-phase 3`
-- **Last completed:** Phase 2 Plan 02 — Frontend Listings UI gap-fill (2026-03-21) — 14/14 tasks, 0 TS errors
-- **Next action:** Execute Phase 3 (Messaging + Dashboard gap-fill), then `4`, `5.5`, `6`
+- **Active phase:** Phase 2 complete ✅ (verified 11/11) → next: `/gsd:execute-phase 3`
+- **Last completed:** Phase 2 Listings — 73/73 backend tests, 0 TS errors, verified (2026-03-21)
+- **Next action:** `/gsd:execute-phase 3` (Messaging + Dashboard gap-fill), then `4`, `5.5`, `6`
 
 ## Project Health
 
 | Check | Status |
 |---|---|
-| Backend tests | 73/73 ✅ |
+| Backend tests | 73/73 ✅ (Phase 2 adds 10 listing tests) |
 | TypeScript errors | 0 ✅ |
 | Frontend wired to backend | Yes ✅ |
 | DB schema live in Supabase | 13 tables ✅ |
