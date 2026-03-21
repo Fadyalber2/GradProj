@@ -1,5 +1,54 @@
 // API response types — mirror the backend Pydantic schemas exactly
 
+// ── Auth / Profile ──
+
+export interface ApiProfileResponse {
+  id: string;
+  email: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  phone: string | null;
+  bio: string | null;
+  role: string;
+  is_verified_seller: boolean;
+  gender: string | null;
+  country_code: string | null;
+  badges: string[];
+  age: number | null;
+  occupation: string | null;
+  lifestyle_preferences: Record<string, unknown> | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+// ── Shared types ──
+
+export interface ListingLifestylePreferences {
+  gender_preference?: "male" | "female" | "mixed" | null;
+  smoking_allowed?: boolean | null;
+  pets_allowed?: boolean | null;
+  guests_policy?: "flexible" | "rarely" | "never" | null;
+  noise_level?: "quiet" | "moderate" | "lively" | null;
+  cleanliness?: "very_clean" | "average" | "relaxed" | null;
+  sleep_schedule?: "early_bird" | "night_owl" | "flexible" | null;
+  occupation_type?: "student" | "professional" | "any" | null;
+}
+
+export interface PaymentPlan {
+  type: "cash" | "installments";
+  down_payment_pct?: number | null;
+  monthly_installment?: number | null;
+  years?: number | null;
+}
+
+export interface NeighborhoodBrief {
+  id: string;
+  name: string;
+  name_ar: string | null;
+  city: string;
+  slug: string;
+}
+
 // ── Listings ──
 
 export interface HousemateResponse {
@@ -28,6 +77,9 @@ export interface ListingBrief {
   bedrooms: number | null;
   bathrooms: number | null;
   size_sqm: number | null;
+  floor_number: number | null;
+  neighborhood: string | null;
+  compound_name: string | null;
   views_count: number;
   is_new: boolean;
   created_at: string | null;
@@ -42,7 +94,19 @@ export interface ListingDetail extends ListingBrief {
   longitude: number | null;
   amenities: string[];
   updated_at: string | null;
+  // Location
+  neighborhood_id: string | null;
+  total_floors: number | null;
+  // Rental fields (for_rent + shared_housing)
+  lease_type: "monthly" | "yearly" | "daily" | null;
+  min_stay_months: number | null;
+  // Sale fields (for_sale)
+  payment_plan: PaymentPlan | null;
+  delivery_date: string | null;
+  title_deed_status: "ready" | "off_plan" | "pending" | null;
   // Shared housing fields — present when category === "shared_housing"
+  room_type: "ensuite" | "private" | "shared" | null;
+  lifestyle_preferences: ListingLifestylePreferences | null;
   total_spots: number | null;
   filled_spots: number | null;
   availability: string | null;
@@ -58,6 +122,12 @@ export interface ListingDetail extends ListingBrief {
 export interface ListingDetailWithSimilar extends ListingDetail {
   similar_listings: ListingBrief[];
 }
+
+/** Alias for plan compatibility — identical to ListingBrief */
+export type ApiListingBrief = ListingBrief;
+
+/** Alias for plan compatibility — identical to ListingDetailWithSimilar */
+export type ApiListingDetail = ListingDetailWithSimilar;
 
 export interface PaginatedListings {
   listings: ListingBrief[];
@@ -199,7 +269,7 @@ export interface ApiViewingBrief {
 }
 
 export interface DashboardResponse {
-  profile: Record<string, unknown>;
+  profile: ApiProfileResponse;
   listings: ApiDashboardListing[];
   listings_count: number;
   active_count: number;
@@ -239,16 +309,32 @@ export interface ApiSharedHousingDetail {
   housemates: HousemateResponse[];
 }
 
+// ── Notifications ──
+
+export interface ApiNotification {
+  id: string;
+  user_id: string;
+  type: string;
+  title: string;
+  body: string | null;
+  metadata: Record<string, unknown> | null;
+  is_read: boolean;
+  created_at: string;
+}
+
 // ── Messages ──
 
 export interface ConversationPreview {
-  conversation_id: string;
+  id: string;
   other_user_id: string;
   other_user_name: string | null;
   other_user_avatar: string | null;
+  listing_id: string | null;
   last_message_text: string | null;
   last_message_at: string | null;
   unread_count: number;
+  status: "pending" | "accepted" | "rejected";
+  initiated_by: string | null;
 }
 
 export interface ConversationsListResponse {

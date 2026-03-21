@@ -10,8 +10,9 @@ import type {
   BlogPostDetail,
   BlogPostBrief,
   DashboardResponse,
-  ConversationsListResponse,
-  MessagesListResponse,
+  ConversationPreview,
+  ApiMessage,
+  ApiNotification,
 } from "@/types/api";
 
 const SERVER_API_BASE =
@@ -69,6 +70,56 @@ export const listingsQueries = {
     queryKey: ["listings", id],
     queryFn: () => api.get<ListingDetailWithSimilar>(`/api/listings/${id}`),
   }),
+};
+
+export const favoritesQueries = {
+  ids: () => ({
+    queryKey: ["favorites", "ids"],
+    queryFn: async () => {
+      const res = await api.get<{ id: string }[]>("/api/listings/favorites");
+      return new Set(res.map((l) => l.id));
+    },
+  }),
+};
+
+export const favoriteMutation = {
+  mutationFn: (listingId: string) =>
+    api.post<{ favorited: boolean; listing_id: string }>(
+      `/api/listings/${listingId}/favorite`
+    ),
+};
+
+// ── Listing CRUD mutations ──
+
+export interface CreateListingInput {
+  title: string;
+  location: string;
+  full_address?: string | null;
+  city?: string;
+  property_type: string;
+  category: "for_rent" | "for_sale" | "shared_housing";
+  price: number;
+  bedrooms?: number | null;
+  bathrooms?: number | null;
+  size_sqm?: number | null;
+  description?: string | null;
+  amenities?: string[];
+  images?: string[];
+}
+
+export const createListingMutation = {
+  mutationFn: (data: CreateListingInput) =>
+    api.post<ListingDetailWithSimilar>("/api/listings", data),
+};
+
+export const updateListingMutation = {
+  mutationFn: ({ id, data }: { id: string; data: Partial<CreateListingInput> }) =>
+    api.put<ListingDetailWithSimilar>(`/api/listings/${id}`, data),
+};
+
+export const deleteListingMutation = {
+  mutationFn: (id: string) =>
+    api.delete<{ detail: string }>(`/api/listings/${id}`),
 };
 
 // ── Agencies ──
@@ -139,14 +190,59 @@ export const messagesQueries = {
   conversations: () => ({
     queryKey: ["conversations"],
     queryFn: () =>
-      api.get<ConversationsListResponse>("/api/messages/conversations"),
+      api.get<ConversationPreview[]>("/api/messages/conversations"),
   }),
 
   messages: (conversationId: string) => ({
     queryKey: ["messages", conversationId],
     queryFn: () =>
-      api.get<MessagesListResponse>(
+      api.get<ApiMessage[]>(
         `/api/messages/conversations/${conversationId}`
       ),
   }),
+};
+
+export const acceptConversationMutation = {
+  mutationFn: (conversationId: string) =>
+    api.post<{ detail: string }>(
+      `/api/messages/conversations/${conversationId}/accept`
+    ),
+};
+
+export const rejectConversationMutation = {
+  mutationFn: (conversationId: string) =>
+    api.post<{ detail: string }>(
+      `/api/messages/conversations/${conversationId}/reject`
+    ),
+};
+
+export const blockUserMutation = {
+  mutationFn: (data: { user_id: string; reason?: string }) =>
+    api.post<{ detail: string }>("/api/messages/block", data),
+};
+
+export const unblockUserMutation = {
+  mutationFn: (userId: string) =>
+    api.delete<{ detail: string }>(`/api/messages/block/${userId}`),
+};
+
+// ── Notifications ──
+
+export const notificationsQueries = {
+  list: () => ({
+    queryKey: ["notifications"],
+    queryFn: () => api.get<ApiNotification[]>("/api/notifications"),
+  }),
+};
+
+export const markNotificationReadMutation = {
+  mutationFn: (notificationId: string) =>
+    api.put<{ id: string; is_read: boolean }>(
+      `/api/notifications/${notificationId}/read`
+    ),
+};
+
+export const markAllNotificationsReadMutation = {
+  mutationFn: () =>
+    api.put<{ message: string }>("/api/notifications/read-all"),
 };
