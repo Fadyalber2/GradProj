@@ -107,8 +107,6 @@ async def update_me(
             supabase_admin.table("profiles")
             .update(update_data)
             .eq("id", user_id)
-            .select("*")
-            .single()
             .execute()
         )
     except Exception as e:
@@ -117,7 +115,7 @@ async def update_me(
     if not result.data:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-    return result.data
+    return result.data[0]
 
 
 @router.post("/send-phone-otp")
