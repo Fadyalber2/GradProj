@@ -2,10 +2,10 @@
 
 ## Current Position
 
-- **Active phase:** Phase 3 plan 1 complete ✅ → next: `/gsd:execute-phase 3` (plan 2: Frontend Messaging UI)
-- **Last completed:** Phase 3 Plan 1 — Backend Messaging, Dashboard & Notifications (2026-03-21)
-- **Next action:** Execute 03-02-PLAN.md (Frontend Messaging UI gap-fill), then `4`, `5.5`, `6`
-- **Stopped At:** Completed 03-messaging-dashboard/03-01-PLAN.md
+- **Active phase:** Phase 3 complete ✅ → next: `/gsd:execute-phase 4` (AI features gap-fill)
+- **Last completed:** Phase 3 Plan 2 — Frontend Messaging, Dashboard & Notifications UI (2026-03-21)
+- **Next action:** Execute 04 plans (AI features gap-fill), then `5.5`, `6`
+- **Stopped At:** Completed 03-messaging-dashboard/03-02-PLAN.md
 
 ## Project Health
 
@@ -34,6 +34,7 @@
 | 2026-03-21 | Executed 02-01-PLAN.md (Backend Listings). Gap-fill pass — code existed, added 10 missing tests. 8 tasks committed, 20/20 listing tests, 73/73 total. |
 | 2026-03-21 | Executed 02-02-PLAN.md (Frontend Listings UI). Gap-fill pass — most code existed. Added ApiListingBrief/ApiListingDetail aliases, listing CRUD mutations, delete action in MyListings. 0 TS errors. |
 | 2026-03-21 | Executed 03-01-PLAN.md (Backend Messaging). Gap-fill pass — all code existed except test_dashboard_returns_structure. Added missing test. 5 tasks committed. 74/74 tests pass. |
+| 2026-03-21 | Executed 03-02-PLAN.md (Frontend Messaging UI). Gap-fill pass — all 17 components existed. Fixed 3 gaps: DashboardStats Framer Motion animation, RecentMessages deep-link navigation, Messages URL param pre-selection. 0 TS errors. |
 
 ## Key Decisions
 
@@ -49,3 +50,5 @@
 - Conversation analytics computed from listings already in memory — no extra DB query for views/active/pending counts
 - get_user_conversations uses Supabase RPC; status+initiated_by fetched via single .in_() query after RPC call
 - Route ordering critical: block/accept/reject before /{conversation_id}; /read-all before /{id}/read in notifications
+- Query naming uses object-spread pattern (messagesQueries.conversations()) not hook-style names — consistent with full codebase
+- Messages page reads ?conversation=<id> URL param to pre-select conversation (for deep-linking from dashboard)
