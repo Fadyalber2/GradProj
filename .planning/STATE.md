@@ -2,15 +2,16 @@
 
 ## Current Position
 
-- **Active phase:** Phase 2 complete ✅ (verified 11/11) → next: `/gsd:execute-phase 3`
-- **Last completed:** Phase 2 Listings — 73/73 backend tests, 0 TS errors, verified (2026-03-21)
-- **Next action:** `/gsd:execute-phase 3` (Messaging + Dashboard gap-fill), then `4`, `5.5`, `6`
+- **Active phase:** Phase 3 plan 1 complete ✅ → next: `/gsd:execute-phase 3` (plan 2: Frontend Messaging UI)
+- **Last completed:** Phase 3 Plan 1 — Backend Messaging, Dashboard & Notifications (2026-03-21)
+- **Next action:** Execute 03-02-PLAN.md (Frontend Messaging UI gap-fill), then `4`, `5.5`, `6`
+- **Stopped At:** Completed 03-messaging-dashboard/03-01-PLAN.md
 
 ## Project Health
 
 | Check | Status |
 |---|---|
-| Backend tests | 73/73 ✅ (Phase 2 adds 10 listing tests) |
+| Backend tests | 74/74 ✅ (Phase 3 adds 17 messaging/dashboard/notifications tests) |
 | TypeScript errors | 0 ✅ |
 | Frontend wired to backend | Yes ✅ |
 | DB schema live in Supabase | 13 tables ✅ |
@@ -32,6 +33,7 @@
 | 2026-03-21 | Executed 01-01-PLAN.md (Backend Auth). Gap-fill pass — all code existed. 7 tasks committed, 8/8 auth tests pass. |
 | 2026-03-21 | Executed 02-01-PLAN.md (Backend Listings). Gap-fill pass — code existed, added 10 missing tests. 8 tasks committed, 20/20 listing tests, 73/73 total. |
 | 2026-03-21 | Executed 02-02-PLAN.md (Frontend Listings UI). Gap-fill pass — most code existed. Added ApiListingBrief/ApiListingDetail aliases, listing CRUD mutations, delete action in MyListings. 0 TS errors. |
+| 2026-03-21 | Executed 03-01-PLAN.md (Backend Messaging). Gap-fill pass — all code existed except test_dashboard_returns_structure. Added missing test. 5 tasks committed. 74/74 tests pass. |
 
 ## Key Decisions
 
@@ -44,3 +46,6 @@
 - LLM fraud check returns 0.0 when Ollama is unreachable — fail-open design throughout AI pipeline
 - Find Homes page implemented as client component (not server) — necessary for live filter state + AI search toggle
 - ApiListingBrief/ApiListingDetail are type aliases to ListingBrief/ListingDetailWithSimilar — no duplication
+- Conversation analytics computed from listings already in memory — no extra DB query for views/active/pending counts
+- get_user_conversations uses Supabase RPC; status+initiated_by fetched via single .in_() query after RPC call
+- Route ordering critical: block/accept/reject before /{conversation_id}; /read-all before /{id}/read in notifications
