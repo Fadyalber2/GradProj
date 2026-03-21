@@ -53,11 +53,9 @@ export default function MessageOwnerModal({
     setSending(true);
     setError("");
     try {
-      const convo = await api.post<{ id: string }>("/api/messages/conversations", {
+      await api.post<{ id: string }>("/api/messages/conversations", {
         other_user_id: ownerId,
-      });
-      await api.post(`/api/messages/conversations/${convo.id}`, {
-        content: messageText,
+        initial_message: messageText,
       });
       setSent(true);
     } catch {
