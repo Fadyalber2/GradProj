@@ -35,6 +35,7 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
             .select("id, title, location, price, images, status, views_count, created_at")
             .eq("owner_id", user_id)
             .is_("deleted_at", "null")
+            .neq("status", "rejected")
             .order("created_at", desc=True)
             .execute()
         )

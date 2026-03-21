@@ -246,14 +246,41 @@ async def admin_delete_listing(
     listing_id: str,
     _admin: str = Depends(get_admin),
 ):
-    """Soft-delete a listing."""
+    """Soft-delete a listing and notify the owner."""
     from datetime import datetime, timezone
+    # Fetch owner info before deleting so we can notify them
+    try:
+        listing_result = (
+            supabase_admin.table("listings")
+            .select("id, owner_id, title")
+            .eq("id", listing_id)
+            .single()
+            .execute()
+        )
+    except Exception:
+        listing_result = None
+
     try:
         supabase_admin.table("listings").update(
             {"deleted_at": datetime.now(timezone.utc).isoformat()}
         ).eq("id", listing_id).execute()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete listing: {e}")
+
+    # Notify owner
+    if listing_result and listing_result.data:
+        listing = listing_result.data
+        try:
+            supabase_admin.table("notifications").insert({
+                "user_id": listing["owner_id"],
+                "type": "listing_removed",
+                "title": "Listing Removed",
+                "body": f"Your listing \"{listing['title']}\" has been removed by an administrator.",
+                "metadata": {"listing_id": listing_id},
+            }).execute()
+        except Exception:
+            pass
+
     return {"message": "Listing deleted"}
 
 
