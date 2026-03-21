@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useAuthStore } from "@/stores/authStore";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 
 const QUICK_REPLIES = [
   "Hi, I'm interested in this property",
@@ -49,6 +49,10 @@ export default function MessageOwnerModal({
       router.push("/login?redirect=" + encodeURIComponent(window.location.pathname));
       return;
     }
+    if (user.id === ownerId) {
+      setError("You cannot message your own listing.");
+      return;
+    }
 
     setSending(true);
     setError("");
@@ -58,8 +62,13 @@ export default function MessageOwnerModal({
         initial_message: messageText,
       });
       setSent(true);
-    } catch {
-      setError("Failed to send message. Please try again.");
+    } catch (err) {
+      if (err instanceof ApiError) {
+        const detail = (err.body as { detail?: string })?.detail;
+        setError(detail ?? `Error ${err.status}: could not send message.`);
+      } else {
+        setError("Could not reach the server. Is the backend running?");
+      }
     } finally {
       setSending(false);
     }
