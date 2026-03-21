@@ -2,9 +2,9 @@
 
 ## Current Position
 
-- **Active phase:** Phase 2 Plan 01 complete ✅ → next: `/gsd:execute-phase 2` (Plan 02)
-- **Last completed:** Phase 2 Plan 01 — Listings backend gap-fill (2026-03-21) — 20/20 listing tests pass, 73/73 total
-- **Next action:** Execute 02-02-PLAN.md (Frontend Listings Wiring), then `3`, `4`, `5.5`, `6`
+- **Active phase:** Phase 2 Plan 02 complete ✅ → next: `/gsd:execute-phase 3`
+- **Last completed:** Phase 2 Plan 02 — Frontend Listings UI gap-fill (2026-03-21) — 14/14 tasks, 0 TS errors
+- **Next action:** Execute Phase 3 (Messaging + Dashboard gap-fill), then `4`, `5.5`, `6`
 
 ## Project Health
 
@@ -31,6 +31,7 @@
 | 2026-03-21 | Executed 01-02-PLAN.md (Frontend Auth Wiring). Added serverFetch to api.ts and OAuth store methods. Zero TS errors. |
 | 2026-03-21 | Executed 01-01-PLAN.md (Backend Auth). Gap-fill pass — all code existed. 7 tasks committed, 8/8 auth tests pass. |
 | 2026-03-21 | Executed 02-01-PLAN.md (Backend Listings). Gap-fill pass — code existed, added 10 missing tests. 8 tasks committed, 20/20 listing tests, 73/73 total. |
+| 2026-03-21 | Executed 02-02-PLAN.md (Frontend Listings UI). Gap-fill pass — most code existed. Added ApiListingBrief/ApiListingDetail aliases, listing CRUD mutations, delete action in MyListings. 0 TS errors. |
 
 ## Key Decisions
 
@@ -41,3 +42,5 @@
 - Fraud score < 0.4 auto-approves listing to active; score >= 0.4 keeps pending for manual review
 - embed_listing and score_listing run as BackgroundTasks — never block listing creation response
 - LLM fraud check returns 0.0 when Ollama is unreachable — fail-open design throughout AI pipeline
+- Find Homes page implemented as client component (not server) — necessary for live filter state + AI search toggle
+- ApiListingBrief/ApiListingDetail are type aliases to ListingBrief/ListingDetailWithSimilar — no duplication
