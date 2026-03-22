@@ -126,6 +126,28 @@ Plans:
 - [ ] 06-04-PLAN.md — Frontend polish (generateMetadata on 4 pages, ISR revalidation, image domains, npm audit)
 - [ ] 06-05-PLAN.md — Load testing + final verification (regression, coverage gate, PERFORMANCE.md)
 
+### Phase 7: AI RAG Enhancement
+**Goal**: Transform AXIOM's AI from a general LLM with system prompts into a grounded RAG system — chat answers real listing queries, NL search uses semantic similarity, and responses are always anchored in live database content
+**Depends on**: Phase 6
+**Requirements**: REQ-RAG-01, REQ-RAG-02, REQ-RAG-03, REQ-RAG-04, REQ-RAG-05, REQ-RAG-06, REQ-RAG-07, REQ-RAG-08
+**Success Criteria** (what must be TRUE):
+  1. Chat answers "What 3-bed apartments are available in New Cairo under 5M EGP?" with real listing IDs and prices from the database — zero hallucination
+  2. Embedding pipeline covers all listings, neighborhoods, and blog posts (batch embed script runs clean)
+  3. Model upgraded to Qwen2.5:7b — Arabic descriptions generate without Latin-character leakage
+  4. Hybrid search (vector + keyword) returns results within 300ms at p95
+  5. Chat responses include inline citations linking to real property IDs
+  6. RAG knowledge base updates automatically on listing create/update/delete
+  7. All AI tests still pass (74+ total backend tests, no regressions)
+  8. Zero TypeScript errors after frontend RAG UI changes
+**Plans**: 5 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Model upgrade + knowledge base schema (Qwen2.5:7b-instruct, knowledge_chunks table, hybrid_search_chunks RPC)
+- [ ] 07-02-PLAN.md — Embedding pipeline (embed_listing_chunk, delete_listing_chunk, batch_embed.py for listings + neighborhoods + blog)
+- [ ] 07-03-PLAN.md — RAG retrieval layer (RAGRetriever class, Chunk/Citation/RAGResponse schemas, unit tests)
+- [ ] 07-04-PLAN.md — RAG-powered chat + NL search (pre-stream retrieval, citations SSE event, semantic search fallback)
+- [ ] 07-05-PLAN.md — Frontend RAG UI (Citation type, citation pills in ChatDrawer, database search indicator, ragSearchMutation)
+
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
@@ -137,3 +159,4 @@ Plans:
 | 5. Supporting Features | 1/1 | Complete | 2026-03-08 |
 | 5.5. Payment Integration | 0/4 | Not started | - |
 | 6. Hardening + Launch | 0/5 | Not started | - |
+| 7. AI RAG Enhancement | 0/5 | Not started | - |
