@@ -43,15 +43,16 @@ class OllamaClient:
     async def embed(self, text: str) -> list[float]:
         """
         Generate an embedding vector for `text` using the embed model.
+        Uses the Ollama v0.5+ /api/embed endpoint.
         Returns an empty list on failure.
         """
         async with httpx.AsyncClient(timeout=15.0) as client:
             r = await client.post(
-                f"{self.base_url}/api/embeddings",
-                json={"model": self.embed_model, "prompt": text},
+                f"{self.base_url}/api/embed",
+                json={"model": self.embed_model, "input": text},
             )
             r.raise_for_status()
-            return r.json().get("embedding", [])
+            return r.json().get("embeddings", [[]])[0]
 
     async def generate_stream(self, prompt: str, system: str = ""):
         """
