@@ -146,7 +146,7 @@ Plans:
 **Plans**: 7 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — Model upgrade + knowledge base schema (Qwen2.5:7b-instruct, knowledge_chunks table, hybrid_search_chunks RPC)
+- [x] 07-01-PLAN.md — Model upgrade + knowledge base schema (qwen2.5:14b, knowledge_chunks table, hybrid_search_chunks RPC)
 - [ ] 07-02-PLAN.md — Embedding pipeline (embed_listing_chunk, delete_listing_chunk, batch_embed.py for listings + neighborhoods + blog)
 - [ ] 07-03-PLAN.md — RAG retrieval layer (RAGRetriever class, Chunk/Citation/RAGResponse schemas, unit tests)
 - [ ] 07-04-PLAN.md — RAG-powered chat + NL search (pre-stream retrieval, citations SSE event, semantic search fallback)
@@ -165,4 +165,4 @@ Plans:
 | 5. Supporting Features | 1/1 | Complete | 2026-03-08 |
 | 5.5. Payment Integration | 0/4 | Not started | - |
 | 6. Hardening + Launch | 0/5 | Not started | - |
-| 7. AI RAG Enhancement | 0/7 | Not started | - |
+| 7. AI RAG Enhancement | 1/7 | In progress | - |

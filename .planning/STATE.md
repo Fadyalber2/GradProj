@@ -2,19 +2,19 @@
 
 ## Current Position
 
-- **Active phase:** Phase 3 complete ✅ → next: `/gsd:execute-phase 4` (AI features gap-fill)
-- **Last completed:** Phase 3 Plan 2 — Frontend Messaging, Dashboard & Notifications UI (2026-03-21)
-- **Next action:** Execute 04 plans (AI features gap-fill), then `5.5`, `6`
-- **Stopped At:** Completed 03-messaging-dashboard/03-02-PLAN.md
+- **Active phase:** Phase 7 — AI RAG Enhancement (Plan 1/7 complete)
+- **Last completed:** Phase 7 Plan 01 — RAG Infrastructure Foundation (2026-03-22)
+- **Next action:** Execute 07-02-PLAN.md (batch embed script for knowledge_chunks)
+- **Stopped At:** Completed 07-ai-rag-enhancement/07-01-PLAN.md
 
 ## Project Health
 
 | Check | Status |
 |---|---|
-| Backend tests | 74/74 ✅ (Phase 3 adds 17 messaging/dashboard/notifications tests) |
+| Backend tests | 78/78 ✅ (Phase 7 adds 4 OllamaClient unit tests) |
 | TypeScript errors | 0 ✅ |
 | Frontend wired to backend | Yes ✅ |
-| DB schema live in Supabase | 13 tables ✅ |
+| DB schema live in Supabase | 13 tables ✅ (knowledge_chunks pending manual migration) |
 
 ## Key Context
 
@@ -35,6 +35,7 @@
 | 2026-03-21 | Executed 02-02-PLAN.md (Frontend Listings UI). Gap-fill pass — most code existed. Added ApiListingBrief/ApiListingDetail aliases, listing CRUD mutations, delete action in MyListings. 0 TS errors. |
 | 2026-03-21 | Executed 03-01-PLAN.md (Backend Messaging). Gap-fill pass — all code existed except test_dashboard_returns_structure. Added missing test. 5 tasks committed. 74/74 tests pass. |
 | 2026-03-21 | Executed 03-02-PLAN.md (Frontend Messaging UI). Gap-fill pass — all 17 components existed. Fixed 3 gaps: DashboardStats Framer Motion animation, RecentMessages deep-link navigation, Messages URL param pre-selection. 0 TS errors. |
+| 2026-03-22 | Executed 07-01-PLAN.md (RAG Infrastructure). Migrated embed() to /api/embed, set OLLAMA_MODEL=qwen2.5:14b, created 004_knowledge_chunks.sql with HNSW+FTS hybrid search RPC. 78/78 tests pass. |
 
 ## Key Decisions
 
@@ -52,3 +53,7 @@
 - Route ordering critical: block/accept/reject before /{conversation_id}; /read-all before /{id}/read in notifications
 - Query naming uses object-spread pattern (messagesQueries.conversations()) not hook-style names — consistent with full codebase
 - Messages page reads ?conversation=<id> URL param to pre-select conversation (for deep-linking from dashboard)
+- OLLAMA_MODEL=qwen2.5:14b chosen over 7b-instruct — user has 32GB RAM, 14b provides better Arabic language quality
+- embed() uses /api/embed with "input" key + reads embeddings[0] (Ollama v0.5+ API; old /api/embeddings deprecated)
+- hybrid_search_chunks RPC uses RRF with configurable weights — enables tuning FTS vs semantic balance per use case
+- Migration 004 requires manual application via Supabase SQL Editor (no psycopg2/asyncpg installed in project)
