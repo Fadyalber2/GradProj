@@ -13,7 +13,7 @@ from app.listings.schemas import (
 )
 from app.database import supabase_admin
 from app.dependencies import get_current_user, get_optional_user
-from app.ai.embeddings import embed_listing
+from app.ai.embeddings import embed_listing, embed_listing_chunk, delete_listing_chunk
 from app.ai.fraud import score_listing
 
 router = APIRouter()
@@ -367,6 +367,7 @@ async def create_listing(
     # Run fraud scoring + embedding generation in the background
     background_tasks.add_task(_score_and_approve, listing_id, listing_data)
     background_tasks.add_task(asyncio.run, embed_listing(listing_id))
+    background_tasks.add_task(asyncio.run, embed_listing_chunk(listing_id))
 
     return {"id": listing_id, "status": "pending"}
 
@@ -405,6 +406,7 @@ async def _score_and_approve(listing_id: str, listing_data: dict):
 async def update_listing(
     listing_id: str,
     body: UpdateListingRequest,
+    background_tasks: BackgroundTasks,
     current_user: dict = Depends(get_current_user),
 ):
     """Update a listing. Only the owner can update."""
@@ -440,6 +442,9 @@ async def update_listing(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update listing: {e}")
 
+    # Re-embed the listing chunk so RAG reflects the latest content
+    background_tasks.add_task(asyncio.run, embed_listing_chunk(listing_id))
+
     return result.data[0] if result.data else {}
 
 
@@ -448,6 +453,7 @@ async def update_listing(
 @router.delete("/{listing_id}", status_code=204)
 async def delete_listing(
     listing_id: str,
+    background_tasks: BackgroundTasks,
     current_user: dict = Depends(get_current_user),
 ):
     """Soft-delete a listing (owner only). Sets deleted_at = now()."""
@@ -473,6 +479,9 @@ async def delete_listing(
         supabase_admin.table("listings").update({"deleted_at": now}).eq("id", listing_id).execute()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete listing: {e}")
+
+    # Remove from knowledge_chunks so it no longer surfaces in RAG results
+    background_tasks.add_task(asyncio.run, delete_listing_chunk(listing_id))
 
 
 # ─── POST /api/listings/{id}/favorite ────────────────────────────────────────
