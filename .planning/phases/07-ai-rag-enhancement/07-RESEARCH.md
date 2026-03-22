@@ -37,18 +37,24 @@ Upgrade the chat/generation model to `qwen2.5:7b-instruct`. Keep `nomic-embed-te
 ---
 
 <phase_requirements>
+
 ## Phase Requirements
 
-| ID | Description | Research Support |
-|----|-------------|-----------------|
-| REQ-RAG-01 | Chat answers listing queries with real listing IDs — zero hallucination | RAG context builder injects real DB rows; LLM constrained to cite only retrieved IDs |
-| REQ-RAG-02 | Embedding pipeline covers all listings, neighborhoods, blog posts (batch embed script) | `batch_embed.py` script + `knowledge_chunks` table for multi-source embeddings |
-| REQ-RAG-03 | Model upgraded to Qwen2.5:7b — Arabic descriptions without Latin-character leakage | Qwen2.5 officially supports 29+ languages including Arabic; available on Ollama |
-| REQ-RAG-04 | Hybrid search (vector + keyword) returns results within 300ms p95 | RRF SQL function combines `tsvector` + pgvector; HNSW index already in schema |
-| REQ-RAG-05 | Chat responses include inline citations linking to real property IDs | RAG response format includes `sources` array; frontend renders as property cards |
-| REQ-RAG-06 | RAG knowledge base updates automatically on listing create/update/delete | Background task pattern already in embeddings.py; extend to cover update/delete |
-| REQ-RAG-07 | All AI tests still pass (74+ total backend tests, no regressions) | Existing 11 AI tests mock Ollama; new tests validate RAG with mock retrieval |
-| REQ-RAG-08 | Zero TypeScript errors after frontend RAG UI changes | Named exports, strict types — follow existing ChatDrawer/ChatMessage patterns |
+| ID         | Description                                                                            | Research Support                                                                     |
+| ---------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| REQ-RAG-01 | Chat answers listing queries with real listing IDs — zero hallucination                | RAG context builder injects real DB rows; LLM constrained to cite only retrieved IDs |
+| REQ-RAG-02 | Embedding pipeline covers all listings, neighborhoods, blog posts (batch embed script) | `batch_embed.py` script + `knowledge_chunks` table for multi-source embeddings       |
+| REQ-RAG-03 | Model upgraded to Qwen2.5:7b — Arabic descriptions without Latin-character leakage     | Qwen2.5 officially supports 29+ languages including Arabic; available on Ollama      |
+| REQ-RAG-04 | Hybrid search (vector + keyword) returns results within 300ms p95                      | RRF SQL function combines `tsvector` + pgvector; HNSW index already in schema        |
+| REQ-RAG-05 | Chat responses include inline citations linking to real property IDs                   | RAG response format includes `sources` array; frontend renders as property cards     |
+| REQ-RAG-06 | RAG knowledge base updates automatically on listing create/update/delete               | Background task pattern already in embeddings.py; extend to cover update/delete      |
+| REQ-RAG-07 | All AI tests still pass (82+ total backend tests, no regressions)                      | Existing 11 AI tests mock Ollama; new tests validate RAG with mock retrieval         |
+| REQ-RAG-08 | Zero TypeScript errors after frontend RAG UI changes                                   | Named exports, strict types — follow existing ChatDrawer/ChatMessage patterns        |
+| REQ-RAG-09 | Description Generator retrieves neighborhood context chunks before generating copy      | rag_retriever.retrieve(city, source_type="neighborhood", k=2) injected into prompt   |
+| REQ-RAG-10 | Fraud LLM scorer receives real market price context from knowledge_chunks               | Price context chunks for city+category injected into _llm_consistency prompt         |
+| REQ-RAG-11 | Recommendations support `?explain=true` — 1-sentence LLM match explanation per listing | Single batch LLM call after pgvector match; explanation field merged into response   |
+| REQ-RAG-12 | Compatibility scoring uses real housemates + user's stored profile from DB              | Housemates table queried; profiles table queried; body overrides stored prefs        |
+
 </phase_requirements>
 
 ---
@@ -57,32 +63,33 @@ Upgrade the chat/generation model to `qwen2.5:7b-instruct`. Keep `nomic-embed-te
 
 ### Core
 
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| qwen2.5:7b-instruct | latest (Ollama) | Chat + NL search + compatibility + description generation | Only sub-10B model with verified Arabic, JSON output, 128K context |
-| nomic-embed-text | v1.5 (Ollama) | 768-dim text embeddings | Already in production; matches existing `vector(768)` schema; keep to avoid re-embed |
-| pgvector | 0.8.x (Supabase-managed) | Vector similarity search | Already enabled on Supabase; HNSW index already in schema |
-| Supabase RPC | n/a | Hybrid search SQL function | Combines `tsvector` + pgvector in a single DB round-trip |
+| Library             | Version                  | Purpose                                                   | Why Standard                                                                         |
+| ------------------- | ------------------------ | --------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| qwen2.5:7b-instruct | latest (Ollama)          | Chat + NL search + compatibility + description generation | Only sub-10B model with verified Arabic, JSON output, 128K context                   |
+| nomic-embed-text    | v1.5 (Ollama)            | 768-dim text embeddings                                   | Already in production; matches existing `vector(768)` schema; keep to avoid re-embed |
+| pgvector            | 0.8.x (Supabase-managed) | Vector similarity search                                  | Already enabled on Supabase; HNSW index already in schema                            |
+| Supabase RPC        | n/a                      | Hybrid search SQL function                                | Combines `tsvector` + pgvector in a single DB round-trip                             |
 
 ### Supporting
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| httpx | >=0.27.0 (already installed) | Async Ollama HTTP calls | All Ollama calls in OllamaClient already use httpx |
-| asyncio | stdlib | Async batch embedding | Batch embed script uses asyncio + semaphore for concurrency control |
-| nomic-embed-text-v2-moe | (future) | Multilingual 100-language embeddings | Only if Arabic search quality is insufficient with v1.5 |
+| Library                 | Version                      | Purpose                              | When to Use                                                         |
+| ----------------------- | ---------------------------- | ------------------------------------ | ------------------------------------------------------------------- |
+| httpx                   | >=0.27.0 (already installed) | Async Ollama HTTP calls              | All Ollama calls in OllamaClient already use httpx                  |
+| asyncio                 | stdlib                       | Async batch embedding                | Batch embed script uses asyncio + semaphore for concurrency control |
+| nomic-embed-text-v2-moe | (future)                     | Multilingual 100-language embeddings | Only if Arabic search quality is insufficient with v1.5             |
 
 ### Alternatives Considered
 
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| qwen2.5:7b | llama3.1:8b | Llama 3.1 has worse multilingual/Arabic; Qwen2.5 wins on MMLU-Pro, HumanEval, Arabic |
-| qwen2.5:7b | mistral:7b | Mistral is English-primary; limited Arabic support |
-| nomic-embed-text | mxbai-embed-large | mxbai produces 1024-dim vectors — would break existing 768-dim schema |
-| Supabase RPC hybrid search | ParadeDB pg_bm25 | pg_bm25 extension not yet supported on hosted Supabase (confirmed via GitHub discussion) |
-| knowledge_chunks table | embed directly on listings | Single-table approach loses neighborhood/blog embeddings and limits chunk granularity |
+| Instead of                 | Could Use                  | Tradeoff                                                                                 |
+| -------------------------- | -------------------------- | ---------------------------------------------------------------------------------------- |
+| qwen2.5:7b                 | llama3.1:8b                | Llama 3.1 has worse multilingual/Arabic; Qwen2.5 wins on MMLU-Pro, HumanEval, Arabic     |
+| qwen2.5:7b                 | mistral:7b                 | Mistral is English-primary; limited Arabic support                                       |
+| nomic-embed-text           | mxbai-embed-large          | mxbai produces 1024-dim vectors — would break existing 768-dim schema                    |
+| Supabase RPC hybrid search | ParadeDB pg_bm25           | pg_bm25 extension not yet supported on hosted Supabase (confirmed via GitHub discussion) |
+| knowledge_chunks table     | embed directly on listings | Single-table approach loses neighborhood/blog embeddings and limits chunk granularity    |
 
 **Installation:**
+
 ```bash
 # Ollama model upgrade (run locally)
 ollama pull qwen2.5:7b-instruct
@@ -92,6 +99,7 @@ ollama pull qwen2.5:7b-instruct
 ```
 
 Config change in `.env`:
+
 ```env
 OLLAMA_MODEL=qwen2.5:7b-instruct
 OLLAMA_EMBED_MODEL=nomic-embed-text
@@ -130,6 +138,7 @@ and blog posts answer questions like "what's the rental market in Maadi?" that n
 a single listing row.
 
 **Schema:**
+
 ```sql
 -- Source: design derived from Supabase official vector column docs
 CREATE TABLE knowledge_chunks (
@@ -160,6 +169,7 @@ ranks #1 in keyword search but #50 in vector search. No need to normalize releva
 systems with different scales.
 
 **Verified pattern from Supabase official hybrid search docs:**
+
 ```sql
 -- Source: https://supabase.com/docs/guides/ai/hybrid-search
 CREATE OR REPLACE FUNCTION hybrid_search_chunks(
@@ -235,6 +245,7 @@ and then retroactively inject context. The correct pattern is: await retrieval �
 prompt → begin streaming.
 
 **Example — rag.py:**
+
 ```python
 # Source: derived from Supabase hybrid search docs + RAG multi-turn patterns
 async def retrieve_context(query: str, filters: dict | None = None) -> list[dict]:
@@ -368,6 +379,7 @@ async def embed_chunk(text: str, source_type: str, source_id: str, metadata: dic
 and returns L2-normalized vectors.
 
 **Change required in ollama_client.py:**
+
 ```python
 # OLD (legacy, single string)
 async def embed(self, text: str) -> list[float]:
@@ -396,14 +408,14 @@ by this change since the return type is the same `list[float]`.
 **What:** With RAG chunks occupying context space, the conversation history window must shrink.
 Budget allocation for a 7B model with ~8K generation limit and ~4K practical prompt limit:
 
-| Component | Token Budget |
-|-----------|-------------|
-| System prompt | ~200 tokens |
-| Retrieved chunks (5 x ~100 tokens avg) | ~500 tokens |
-| Conversation history (last 4 turns) | ~800 tokens |
-| Current user message | ~100 tokens |
-| **Total prompt** | **~1600 tokens** |
-| **Generation output** | ~8K max |
+| Component                              | Token Budget     |
+| -------------------------------------- | ---------------- |
+| System prompt                          | ~200 tokens      |
+| Retrieved chunks (5 x ~100 tokens avg) | ~500 tokens      |
+| Conversation history (last 4 turns)    | ~800 tokens      |
+| Current user message                   | ~100 tokens      |
+| **Total prompt**                       | **~1600 tokens** |
+| **Generation output**                  | ~8K max          |
 
 Reduce `conversation_history[-6:]` to `conversation_history[-4:]` when RAG context is injected.
 This leaves room for chunk context while staying well within the 4K practical prompt budget.
@@ -420,14 +432,14 @@ This leaves room for chunk context while staying well within the 4K practical pr
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Hybrid keyword + vector search | Custom score merging logic | `websearch_to_tsquery` + pgvector `<=>` + RRF SQL function | Postgres handles both natively; RRF is rank-safe without score normalization |
-| Arabic text tokenization | Custom Arabic preprocessor | Qwen2.5:7b-instruct built-in | Qwen2.5 was trained on Arabic corpora; no extra processing needed |
-| Embedding model | Fine-tuned custom model | nomic-embed-text (keep existing) | Schema already committed to 768-dim; replacing requires full re-embed of all production data |
-| RAG evaluation framework | Custom accuracy metrics | Assertion-based pytest with known ground truth | For this project scale, seeded test listings + expected citation assertions are sufficient |
-| Stream-with-metadata protocol | Binary framing or websockets | SSE with prefixed metadata event | SSE already in use; prepend a `sources` event before text tokens |
-| Context window management | LRU cache of conversation turns | Sliding window (last 4 turns) | Simple sliding window handles 99% of real estate chat sessions |
+| Problem                        | Don't Build                     | Use Instead                                                | Why                                                                                          |
+| ------------------------------ | ------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Hybrid keyword + vector search | Custom score merging logic      | `websearch_to_tsquery` + pgvector `<=>` + RRF SQL function | Postgres handles both natively; RRF is rank-safe without score normalization                 |
+| Arabic text tokenization       | Custom Arabic preprocessor      | Qwen2.5:7b-instruct built-in                               | Qwen2.5 was trained on Arabic corpora; no extra processing needed                            |
+| Embedding model                | Fine-tuned custom model         | nomic-embed-text (keep existing)                           | Schema already committed to 768-dim; replacing requires full re-embed of all production data |
+| RAG evaluation framework       | Custom accuracy metrics         | Assertion-based pytest with known ground truth             | For this project scale, seeded test listings + expected citation assertions are sufficient   |
+| Stream-with-metadata protocol  | Binary framing or websockets    | SSE with prefixed metadata event                           | SSE already in use; prepend a `sources` event before text tokens                             |
+| Context window management      | LRU cache of conversation turns | Sliding window (last 4 turns)                              | Simple sliding window handles 99% of real estate chat sessions                               |
 
 **Key insight:** pgvector + `tsvector` in a single Postgres RPC eliminates the need for any external
 search service (Elasticsearch, Pinecone, etc.). The entire RAG data path lives in Supabase.
@@ -605,15 +617,16 @@ SELECT 1 - (embedding <=> query_embedding) AS similarity FROM listings ORDER BY 
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| `/api/embeddings` with `prompt` field | `/api/embed` with `input` field (batch-capable) | Ollama 0.1.26+ (2024) | Batch embedding, L2-normalized output |
-| IVFFlat index for vector search | HNSW index | pgvector 0.5.0 (2023) | 15x better QPS at high recall; already in schema |
-| Single-pass keyword OR vector | Hybrid RRF (keyword + vector) | 2024 best practice | Balances exact match (bedrooms=3) with semantic similarity |
-| Chat with system prompt only | RAG: retrieve then generate | Current phase | Eliminates hallucination; grounds responses in live data |
-| axiom-llm:latest (unknown base) | qwen2.5:7b-instruct | This phase | Verified Arabic, structured JSON, 128K context |
+| Old Approach                          | Current Approach                                | When Changed          | Impact                                                     |
+| ------------------------------------- | ----------------------------------------------- | --------------------- | ---------------------------------------------------------- |
+| `/api/embeddings` with `prompt` field | `/api/embed` with `input` field (batch-capable) | Ollama 0.1.26+ (2024) | Batch embedding, L2-normalized output                      |
+| IVFFlat index for vector search       | HNSW index                                      | pgvector 0.5.0 (2023) | 15x better QPS at high recall; already in schema           |
+| Single-pass keyword OR vector         | Hybrid RRF (keyword + vector)                   | 2024 best practice    | Balances exact match (bedrooms=3) with semantic similarity |
+| Chat with system prompt only          | RAG: retrieve then generate                     | Current phase         | Eliminates hallucination; grounds responses in live data   |
+| axiom-llm:latest (unknown base)       | qwen2.5:7b-instruct                             | This phase            | Verified Arabic, structured JSON, 128K context             |
 
 **Deprecated/outdated:**
+
 - `/api/embeddings` endpoint: Superseded by `/api/embed`. Legacy endpoint has known empty-result bugs on some versions.
 - IVFFlat index: Project already uses HNSW (see schema `idx_listings_embedding`). No change needed.
 - Treating NL search as filter-extraction only: With RAG, NL search can use hybrid vector search for true semantic results, not just keyword-to-filter translation.
@@ -643,29 +656,30 @@ SELECT 1 - (embedding <=> query_embedding) AS similarity FROM listings ORDER BY 
 
 ### Test Framework
 
-| Property | Value |
-|----------|-------|
-| Framework | pytest (already installed) |
-| Config file | `backend/pytest.ini` or implicit |
-| Quick run command | `cd backend && python -m pytest tests/test_ai.py -x -v` |
-| Full suite command | `cd backend && python -m pytest tests/ -v` |
+| Property           | Value                                                   |
+| ------------------ | ------------------------------------------------------- |
+| Framework          | pytest (already installed)                              |
+| Config file        | `backend/pytest.ini` or implicit                        |
+| Quick run command  | `cd backend && python -m pytest tests/test_ai.py -x -v` |
+| Full suite command | `cd backend && python -m pytest tests/ -v`              |
 
 ### Phase Requirements → Test Map
 
-| Req ID | Behavior | Test Type | Automated Command | File Exists? |
-|--------|----------|-----------|-------------------|-------------|
-| REQ-RAG-01 | Chat injects retrieved chunks into prompt (no hallucination) | unit | `pytest tests/test_ai.py::test_rag_chat_injects_context -x` | ❌ Wave 0 |
-| REQ-RAG-01 | Chat response includes `sources` field with real listing IDs | unit | `pytest tests/test_ai.py::test_rag_chat_sources_in_response -x` | ❌ Wave 0 |
-| REQ-RAG-02 | Batch embed script runs clean (0 errors, all rows upserted) | integration | `python scripts/batch_embed.py --dry-run` | ❌ Wave 0 |
-| REQ-RAG-02 | knowledge_chunks populated for all 3 source types | unit | `pytest tests/test_rag.py::test_chunk_upsert_all_source_types -x` | ❌ Wave 0 |
-| REQ-RAG-03 | Qwen2.5 description endpoint produces Arabic without Latin leakage | unit | `pytest tests/test_ai.py::test_description_arabic_no_latin -x` | ❌ Wave 0 |
-| REQ-RAG-04 | hybrid_search_chunks RPC returns results in <300ms | integration | `pytest tests/test_rag.py::test_hybrid_search_latency -x` | ❌ Wave 0 |
-| REQ-RAG-05 | Chat SSE emits `sources` event before first text token | unit | `pytest tests/test_ai.py::test_rag_chat_sources_event_order -x` | ❌ Wave 0 |
-| REQ-RAG-06 | Listing update triggers knowledge_chunks re-embed | unit | `pytest tests/test_rag.py::test_chunk_auto_update_on_listing_change -x` | ❌ Wave 0 |
-| REQ-RAG-07 | All existing 11 AI tests still pass (no regressions) | regression | `pytest tests/test_ai.py -v` | ✅ exists |
-| REQ-RAG-08 | Zero TypeScript errors | build | `cd frontend && npx tsc --noEmit` | ✅ exists |
+| Req ID     | Behavior                                                           | Test Type   | Automated Command                                                       | File Exists? |
+| ---------- | ------------------------------------------------------------------ | ----------- | ----------------------------------------------------------------------- | ------------ |
+| REQ-RAG-01 | Chat injects retrieved chunks into prompt (no hallucination)       | unit        | `pytest tests/test_ai.py::test_rag_chat_injects_context -x`             | ❌ Wave 0    |
+| REQ-RAG-01 | Chat response includes `sources` field with real listing IDs       | unit        | `pytest tests/test_ai.py::test_rag_chat_sources_in_response -x`         | ❌ Wave 0    |
+| REQ-RAG-02 | Batch embed script runs clean (0 errors, all rows upserted)        | integration | `python scripts/batch_embed.py --dry-run`                               | ❌ Wave 0    |
+| REQ-RAG-02 | knowledge_chunks populated for all 3 source types                  | unit        | `pytest tests/test_rag.py::test_chunk_upsert_all_source_types -x`       | ❌ Wave 0    |
+| REQ-RAG-03 | Qwen2.5 description endpoint produces Arabic without Latin leakage | unit        | `pytest tests/test_ai.py::test_description_arabic_no_latin -x`          | ❌ Wave 0    |
+| REQ-RAG-04 | hybrid_search_chunks RPC returns results in <300ms                 | integration | `pytest tests/test_rag.py::test_hybrid_search_latency -x`               | ❌ Wave 0    |
+| REQ-RAG-05 | Chat SSE emits `sources` event before first text token             | unit        | `pytest tests/test_ai.py::test_rag_chat_sources_event_order -x`         | ❌ Wave 0    |
+| REQ-RAG-06 | Listing update triggers knowledge_chunks re-embed                  | unit        | `pytest tests/test_rag.py::test_chunk_auto_update_on_listing_change -x` | ❌ Wave 0    |
+| REQ-RAG-07 | All existing 11 AI tests still pass (no regressions)               | regression  | `pytest tests/test_ai.py -v`                                            | ✅ exists    |
+| REQ-RAG-08 | Zero TypeScript errors                                             | build       | `cd frontend && npx tsc --noEmit`                                       | ✅ exists    |
 
 ### Sampling Rate
+
 - **Per task commit:** `cd backend && python -m pytest tests/test_ai.py -x -v`
 - **Per wave merge:** `cd backend && python -m pytest tests/ -v`
 - **Phase gate:** Full suite green + `npx tsc --noEmit` clean before marking phase complete
@@ -676,7 +690,7 @@ SELECT 1 - (embedding <=> query_embedding) AS similarity FROM listings ORDER BY 
 - [ ] `backend/scripts/batch_embed.py` — batch embedding script (also tested via dry-run)
 - [ ] `docs/schema/003_knowledge_chunks.sql` — migration file for knowledge_chunks table + hybrid_search_chunks RPC
 
-*(Existing `tests/test_ai.py` covers all current endpoints — new RAG tests extend it with mocked retrieval)*
+_(Existing `tests/test_ai.py` covers all current endpoints — new RAG tests extend it with mocked retrieval)_
 
 ---
 
@@ -708,6 +722,7 @@ SELECT 1 - (embedding <=> query_embedding) AS similarity FROM listings ORDER BY 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack (Qwen2.5, nomic-embed-text): HIGH — verified via official Ollama library pages
 - Architecture (knowledge_chunks, hybrid RRF): HIGH — verified via Supabase official docs
 - Pitfalls (/api/embed migration, context overflow): HIGH — verified via GitHub issues and API docs
