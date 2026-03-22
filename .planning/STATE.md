@@ -2,10 +2,10 @@
 
 ## Current Position
 
-- **Active phase:** Phase 7 — AI RAG Enhancement (Plan 1/7 complete)
-- **Last completed:** Phase 7 Plan 01 — RAG Infrastructure Foundation (2026-03-22)
-- **Next action:** Execute 07-02-PLAN.md (batch embed script for knowledge_chunks)
-- **Stopped At:** Completed 07-ai-rag-enhancement/07-01-PLAN.md
+- **Active phase:** Phase 7 — AI RAG Enhancement (Plan 2/7 complete)
+- **Last completed:** Phase 7 Plan 02 — RAG Embedding Pipeline (2026-03-22)
+- **Next action:** Execute 07-03-PLAN.md (RAG-powered chat endpoint)
+- **Stopped At:** Completed 07-ai-rag-enhancement/07-02-PLAN.md
 
 ## Project Health
 
@@ -36,6 +36,7 @@
 | 2026-03-21 | Executed 03-01-PLAN.md (Backend Messaging). Gap-fill pass — all code existed except test_dashboard_returns_structure. Added missing test. 5 tasks committed. 74/74 tests pass. |
 | 2026-03-21 | Executed 03-02-PLAN.md (Frontend Messaging UI). Gap-fill pass — all 17 components existed. Fixed 3 gaps: DashboardStats Framer Motion animation, RecentMessages deep-link navigation, Messages URL param pre-selection. 0 TS errors. |
 | 2026-03-22 | Executed 07-01-PLAN.md (RAG Infrastructure). Migrated embed() to /api/embed, set OLLAMA_MODEL=qwen2.5:14b, created 004_knowledge_chunks.sql with HNSW+FTS hybrid search RPC. 78/78 tests pass. |
+| 2026-03-22 | Executed 07-02-PLAN.md (RAG Embedding Pipeline). Added embed_listing_chunk/delete_listing_chunk to embeddings.py. Wired auto-embed hooks on listing create/update/delete. Created batch_embed.py for all three source types. 78/78 tests pass. |
 
 ## Key Decisions
 
@@ -57,3 +58,6 @@
 - embed() uses /api/embed with "input" key + reads embeddings[0] (Ollama v0.5+ API; old /api/embeddings deprecated)
 - hybrid_search_chunks RPC uses RRF with configurable weights — enables tuning FTS vs semantic balance per use case
 - Migration 004 requires manual application via Supabase SQL Editor (no psycopg2/asyncpg installed in project)
+- embed_listing() and embed_listing_chunk() coexist: former writes listings.embedding for recommendations, latter writes knowledge_chunks for RAG
+- batch_embed.py uses set diff to skip already-embedded listings — safe for incremental re-runs
+- Blog embedding falls back to fetching all posts if status column query fails (defensive against schema variation)
