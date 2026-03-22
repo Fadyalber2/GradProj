@@ -129,7 +129,7 @@ Plans:
 ### Phase 7: AI RAG Enhancement
 **Goal**: Transform AXIOM's AI from a general LLM with system prompts into a grounded RAG system — chat answers real listing queries, NL search uses semantic similarity, and responses are always anchored in live database content
 **Depends on**: Phase 6
-**Requirements**: REQ-RAG-01, REQ-RAG-02, REQ-RAG-03, REQ-RAG-04, REQ-RAG-05, REQ-RAG-06, REQ-RAG-07, REQ-RAG-08
+**Requirements**: REQ-RAG-01, REQ-RAG-02, REQ-RAG-03, REQ-RAG-04, REQ-RAG-05, REQ-RAG-06, REQ-RAG-07, REQ-RAG-08, REQ-RAG-09, REQ-RAG-10, REQ-RAG-11, REQ-RAG-12
 **Success Criteria** (what must be TRUE):
   1. Chat answers "What 3-bed apartments are available in New Cairo under 5M EGP?" with real listing IDs and prices from the database — zero hallucination
   2. Embedding pipeline covers all listings, neighborhoods, and blog posts (batch embed script runs clean)
@@ -137,9 +137,13 @@ Plans:
   4. Hybrid search (vector + keyword) returns results within 300ms at p95
   5. Chat responses include inline citations linking to real property IDs
   6. RAG knowledge base updates automatically on listing create/update/delete
-  7. All AI tests still pass (74+ total backend tests, no regressions)
+  7. All AI tests still pass (82+ total backend tests, no regressions)
   8. Zero TypeScript errors after frontend RAG UI changes
-**Plans**: 5 plans
+  9. Description generator retrieves neighborhood context before writing copy
+  10. Fraud scorer uses real market price chunks for LLM consistency check
+  11. Recommendations support ?explain=true with 1-sentence match explanation per listing
+  12. Compatibility scoring uses real housemates and stored user profile from DB
+**Plans**: 7 plans
 
 Plans:
 - [ ] 07-01-PLAN.md — Model upgrade + knowledge base schema (Qwen2.5:7b-instruct, knowledge_chunks table, hybrid_search_chunks RPC)
@@ -147,6 +151,8 @@ Plans:
 - [ ] 07-03-PLAN.md — RAG retrieval layer (RAGRetriever class, Chunk/Citation/RAGResponse schemas, unit tests)
 - [ ] 07-04-PLAN.md — RAG-powered chat + NL search (pre-stream retrieval, citations SSE event, semantic search fallback)
 - [ ] 07-05-PLAN.md — Frontend RAG UI (Citation type, citation pills in ChatDrawer, database search indicator, ragSearchMutation)
+- [ ] 07-06-PLAN.md — Description RAG + recommendations explain (neighborhood context injection, ?explain=true flag with batch LLM call)
+- [ ] 07-07-PLAN.md — Fraud market context + compatibility housemates (price context in fraud scorer, real housemates + user profile in compatibility)
 
 ## Progress
 
@@ -159,4 +165,4 @@ Plans:
 | 5. Supporting Features | 1/1 | Complete | 2026-03-08 |
 | 5.5. Payment Integration | 0/4 | Not started | - |
 | 6. Hardening + Launch | 0/5 | Not started | - |
-| 7. AI RAG Enhancement | 0/5 | Not started | - |
+| 7. AI RAG Enhancement | 0/7 | Not started | - |
