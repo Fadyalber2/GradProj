@@ -1,17 +1,31 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: unknown
+stopped_at: Completed 07-ai-rag-enhancement/07-06-PLAN.md
+last_updated: "2026-03-23T18:57:29.018Z"
+progress:
+  total_phases: 8
+  completed_phases: 3
+  total_plans: 24
+  completed_plans: 11
+---
+
 # AXIOM V2 — GSD State
 
 ## Current Position
 
-- **Active phase:** Phase 7 — AI RAG Enhancement (Plan 4/7 complete)
-- **Last completed:** Phase 7 Plan 04 — RAG-Augmented Endpoints (2026-03-23)
-- **Next action:** Execute 07-05-PLAN.md (Frontend citations rendering)
-- **Stopped At:** Completed 07-ai-rag-enhancement/07-04-PLAN.md
+- **Active phase:** Phase 7 — AI RAG Enhancement (Plan 6/7 complete)
+- **Last completed:** Phase 7 Plan 06 — RAG-Enriched Description + Explainable Recommendations (2026-03-23)
+- **Next action:** Execute 07-07-PLAN.md (next plan in phase)
+- **Stopped At:** Completed 07-ai-rag-enhancement/07-06-PLAN.md
 
 ## Project Health
 
 | Check | Status |
 |---|---|
-| Backend tests | 90/90 ✅ (07-04 adds 4 RAG endpoint tests: chat+citations, search semantic/fallback) |
+| Backend tests | 94/94 ✅ (07-06 adds 4 tests: description RAG, recommendations explain) |
 | TypeScript errors | 0 ✅ |
 | Frontend wired to backend | Yes ✅ |
 | DB schema live in Supabase | 13 tables ✅ (knowledge_chunks pending manual migration) |
@@ -39,6 +53,7 @@
 | 2026-03-22 | Executed 07-02-PLAN.md (RAG Embedding Pipeline). Added embed_listing_chunk/delete_listing_chunk to embeddings.py. Wired auto-embed hooks on listing create/update/delete. Created batch_embed.py for all three source types. 78/78 tests pass. |
 | 2026-03-23 | Executed 07-03-PLAN.md (RAG Retrieval Module). Created schemas.py (Chunk/Citation/RAGResponse) and rag.py (RAGRetriever with retrieve/build_context/format_citations + singleton). 8 new unit tests. 86/86 tests pass. |
 | 2026-03-23 | Executed 07-04-PLAN.md (RAG-Augmented Endpoints). Rewrote chat endpoint with RAG pre-retrieval, grounded system prompt, citations SSE event. Rewrote NL search with semantic primary (3+ chunks) + keyword fallback. 4 new integration tests. 90/90 tests pass. |
+| 2026-03-23 | Executed 07-06-PLAN.md (RAG-Enriched Description + Explainable Recommendations). Injected neighborhood RAG context into generate_description() system prompt (600 char cap, fail-open). Added _explain_recommendations() helper + explain: bool = False param to get_recommendations(). 4 new tests. 94/94 tests pass. |
 
 ## Key Decisions
 
@@ -71,3 +86,6 @@
 - Citations SSE event skipped when citations list is empty — avoids unnecessary client-side parsing overhead
 - Semantic search threshold is 3+ chunks — below this LLM filter extraction provides better precision for specific queries
 - _async_iter defined at module level in test_ai.py — reusable async generator mock helper for SSE endpoint tests
+- _explain_recommendations() is a module-level async helper (not a method) — enables clean patch.object(ai_router, "_explain_recommendations") in tests
+- neighborhood context capped at 600 chars in generate_description() — avoids bloating qwen2.5:14b prompt window beyond what it handles well
+- ref query in get_recommendations() extended to include id, title, location — extra fields cost nothing at query time and enable meaningful fav_summary for explain LLM call
