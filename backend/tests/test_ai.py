@@ -331,3 +331,131 @@ def test_rag_format_citations_deduplicates():
                   chunk_text="Apartment", metadata={}, score=0.9)
     cits = r.format_citations([chunk, chunk])
     assert len(cits) == 1
+
+
+# ─── RAG-augmented chat + search tests ───────────────────────────────────────
+
+
+async def _async_iter(items):
+    for item in items:
+        yield item
+
+
+def test_rag_chat_with_context(client, mock_supabase):
+    """Chat endpoint emits citations SSE event when RAG retrieves chunks."""
+    import app.ai.router as ai_router
+    from unittest.mock import AsyncMock, MagicMock, patch
+    from app.ai.schemas import Chunk, Citation
+
+    fake_chunk = Chunk(
+        id="chunk-1",
+        source_type="listing",
+        source_id="listing-uuid-1",
+        chunk_text="3BR apartment in Maadi, 5000 EGP/month",
+        metadata={"city": "Cairo", "price": 5000.0, "title": "Maadi Apartment"},
+        score=0.9,
+    )
+    fake_citation = Citation(
+        source_type="listing",
+        source_id="listing-uuid-1",
+        title="Maadi Apartment",
+        url="/property/listing-uuid-1",
+    )
+
+    with patch.object(ai_router.rag_retriever, "retrieve", new=AsyncMock(return_value=[fake_chunk])), \
+         patch.object(ai_router.rag_retriever, "build_context", return_value="[1][listing:listing-uuid-1] 3BR apartment in Maadi"), \
+         patch.object(ai_router.rag_retriever, "format_citations", return_value=[fake_citation]):
+
+        ai_router.ollama.health = AsyncMock(return_value=True)
+        ai_router.ollama.generate_stream = MagicMock(
+            return_value=_async_iter(["Found ", "it!"])
+        )
+
+        resp = client.post("/api/ai/chat", json={"message": "3BR in Maadi?", "conversation_history": []})
+        assert resp.status_code == 200
+        body = resp.text
+        assert '"citations"' in body
+        assert "listing-uuid-1" in body
+
+
+def test_rag_chat_no_context(client, mock_supabase):
+    """Chat endpoint streams normally when RAG retrieves nothing."""
+    import app.ai.router as ai_router
+    from unittest.mock import AsyncMock, MagicMock, patch
+
+    with patch.object(ai_router.rag_retriever, "retrieve", new=AsyncMock(return_value=[])), \
+         patch.object(ai_router.rag_retriever, "build_context", return_value=""), \
+         patch.object(ai_router.rag_retriever, "format_citations", return_value=[]):
+
+        ai_router.ollama.health = AsyncMock(return_value=True)
+        ai_router.ollama.generate_stream = MagicMock(return_value=_async_iter(["Hello"]))
+
+        resp = client.post("/api/ai/chat", json={"message": "hello", "conversation_history": []})
+        assert resp.status_code == 200
+        assert "[DONE]" in resp.text
+
+
+def test_rag_search_semantic_primary(client, mock_supabase):
+    """NL search uses semantic retrieval when 3+ chunks returned."""
+    _, mock_admin = mock_supabase
+    import app.ai.router as ai_router
+    from unittest.mock import AsyncMock, patch
+    from app.ai.schemas import Chunk
+
+    chunks = [
+        Chunk(id=f"c{i}", source_type="listing", source_id=f"lid-{i}",
+              chunk_text="Apartment", metadata={}, score=0.9 - i * 0.1)
+        for i in range(3)
+    ]
+
+    fake_listing = {
+        "id": "lid-0", "title": "Apt", "location": "Cairo", "price": 5000,
+        "currency": "EGP", "price_period": "month", "category": "for_rent",
+        "property_type": "apartment", "images": [], "verified": False, "is_new": True,
+        "status": "active", "bedrooms": 2, "bathrooms": 1, "size_sqm": 80,
+        "floor_number": 1, "neighborhoods": None, "compound_name": None,
+        "views_count": 10, "created_at": "2026-01-01T00:00:00Z",
+    }
+    mock_admin.table("listings").select(
+        "*, neighborhoods(name)"
+    ).in_("id", ["lid-0", "lid-1", "lid-2"]).eq(
+        "status", "active"
+    ).is_("deleted_at", "null").execute.return_value.data = [fake_listing]
+
+    with patch.object(ai_router.rag_retriever, "retrieve", new=AsyncMock(return_value=chunks)):
+        ai_router.ollama.health = AsyncMock(return_value=True)
+        resp = client.post("/api/ai/search", json={"query": "apartment in Cairo"})
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["retrieval_method"] == "semantic"
+
+
+def test_rag_search_fallback(client, mock_supabase):
+    """NL search falls back to LLM filters when fewer than 3 chunks returned."""
+    _, mock_admin = mock_supabase
+    import app.ai.router as ai_router
+    from unittest.mock import AsyncMock, patch
+    from app.ai.schemas import Chunk
+
+    # Only 1 chunk — below threshold
+    chunks = [
+        Chunk(id="c0", source_type="listing", source_id="lid-0",
+              chunk_text="Apartment", metadata={}, score=0.9),
+    ]
+
+    mock_admin.table("listings").select(
+        "*, neighborhoods(name)"
+    ).eq("status", "active").is_(
+        "deleted_at", "null"
+    ).order("views_count", desc=True).limit(20).execute.return_value.data = []
+
+    with patch.object(ai_router.rag_retriever, "retrieve", new=AsyncMock(return_value=chunks)):
+        ai_router.ollama.health = AsyncMock(return_value=True)
+        ai_router.ollama.generate = AsyncMock(return_value='{"location": "Cairo"}')
+        resp = client.post("/api/ai/search", json={"query": "apartment in Cairo"})
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["retrieval_method"] == "keyword"
+    assert "parsed_filters" in data
