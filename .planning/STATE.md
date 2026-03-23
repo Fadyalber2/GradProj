@@ -3,29 +3,29 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 07-ai-rag-enhancement/07-06-PLAN.md
-last_updated: "2026-03-23T18:57:29.018Z"
+stopped_at: Completed 07-ai-rag-enhancement/07-07-PLAN.md
+last_updated: "2026-03-23T19:16:28.266Z"
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 24
-  completed_plans: 11
+  completed_plans: 12
 ---
 
 # AXIOM V2 — GSD State
 
 ## Current Position
 
-- **Active phase:** Phase 7 — AI RAG Enhancement (Plan 6/7 complete)
-- **Last completed:** Phase 7 Plan 06 — RAG-Enriched Description + Explainable Recommendations (2026-03-23)
-- **Next action:** Execute 07-07-PLAN.md (next plan in phase)
-- **Stopped At:** Completed 07-ai-rag-enhancement/07-06-PLAN.md
+- **Active phase:** Phase 7 — AI RAG Enhancement (Plan 7/7 complete)
+- **Last completed:** Phase 7 Plan 07 — Market-Aware Fraud + Housemate-Enriched Compatibility (2026-03-23)
+- **Next action:** Phase 7 complete. Execute Phase 5.5 (Payment Integration) or Phase 6 (Hardening)
+- **Stopped At:** Completed 07-ai-rag-enhancement/07-07-PLAN.md
 
 ## Project Health
 
 | Check | Status |
 |---|---|
-| Backend tests | 94/94 ✅ (07-06 adds 4 tests: description RAG, recommendations explain) |
+| Backend tests | 98/98 ✅ (07-07 adds 4 tests: fraud market context, compatibility housemates/profile) |
 | TypeScript errors | 0 ✅ |
 | Frontend wired to backend | Yes ✅ |
 | DB schema live in Supabase | 13 tables ✅ (knowledge_chunks pending manual migration) |
@@ -54,6 +54,7 @@ progress:
 | 2026-03-23 | Executed 07-03-PLAN.md (RAG Retrieval Module). Created schemas.py (Chunk/Citation/RAGResponse) and rag.py (RAGRetriever with retrieve/build_context/format_citations + singleton). 8 new unit tests. 86/86 tests pass. |
 | 2026-03-23 | Executed 07-04-PLAN.md (RAG-Augmented Endpoints). Rewrote chat endpoint with RAG pre-retrieval, grounded system prompt, citations SSE event. Rewrote NL search with semantic primary (3+ chunks) + keyword fallback. 4 new integration tests. 90/90 tests pass. |
 | 2026-03-23 | Executed 07-06-PLAN.md (RAG-Enriched Description + Explainable Recommendations). Injected neighborhood RAG context into generate_description() system prompt (600 char cap, fail-open). Added _explain_recommendations() helper + explain: bool = False param to get_recommendations(). 4 new tests. 94/94 tests pass. |
+| 2026-03-23 | Executed 07-07-PLAN.md (Market-Aware Fraud + Housemate-Enriched Compatibility). Added rag_retriever import + market context injection to _llm_consistency() in fraud.py. Enriched compute_compatibility() with housemates DB query + stored user profile merge. 4 new tests. 98/98 tests pass. |
 
 ## Key Decisions
 
@@ -89,3 +90,6 @@ progress:
 - _explain_recommendations() is a module-level async helper (not a method) — enables clean patch.object(ai_router, "_explain_recommendations") in tests
 - neighborhood context capped at 600 chars in generate_description() — avoids bloating qwen2.5:14b prompt window beyond what it handles well
 - ref query in get_recommendations() extended to include id, title, location — extra fields cost nothing at query time and enable meaningful fav_summary for explain LLM call
+- patch.object used for ollama singleton in fraud tests — direct attribute assignment (fraud_module.ollama.health = ...) contaminates embed_listing background tasks in subsequent listing tests
+- side_effect list used for MagicMock chain sequential returns in compatibility tests — all mock_admin.table().select().eq().single().execute() calls share one mock object regardless of arguments
+- market context in fraud.py truncated to 400 chars — compact, consistent with description RAG 600 char pattern; enough for price range reference
