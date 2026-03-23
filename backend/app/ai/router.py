@@ -1,0 +1,484 @@
+import json
+import asyncio
+from fastapi import APIRouter, HTTPException, Depends
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+from typing import Optional, Any
+from app.ai.ollama_client import ollama
+from app.ai.rag import rag_retriever
+from app.database import supabase_admin
+from app.dependencies import get_current_user, get_optional_user
+
+router = APIRouter()
+
+AI_UNAVAILABLE = {"ai_unavailable": True}
+
+
+# ─── Request Bodies ───────────────────────────────────────────────────────────
+
+class NLSearchRequest(BaseModel):
+    query: str
+    limit: int = 20
+
+
+class ChatRequest(BaseModel):
+    message: str
+    conversation_history: list[dict] = []
+
+
+class CompatibilityRequest(BaseModel):
+    listing_id: str
+    lifestyle_data: dict[str, Any]
+
+
+class DescriptionRequest(BaseModel):
+    title: str
+    property_type: str
+    category: str
+    city: str
+    bedrooms: Optional[int] = None
+    bathrooms: Optional[int] = None
+    size_sqm: Optional[float] = None
+    amenities: list[str] = []
+    price: Optional[float] = None
+    extra_notes: Optional[str] = None
+
+
+# ─── Helpers ─────────────────────────────────────────────────────────────────
+
+def _build_listing_brief(row: dict) -> dict:
+    """Shared helper — same as listings/router._build_listing_brief."""
+    nbhd = row.get("neighborhoods")
+    neighborhood_name = nbhd.get("name") if isinstance(nbhd, dict) else None
+    return {
+        "id": row["id"],
+        "title": row["title"],
+        "location": row["location"],
+        "price": float(row["price"]),
+        "currency": row.get("currency", "EGP"),
+        "price_period": row.get("price_period"),
+        "category": row["category"],
+        "property_type": row["property_type"],
+        "images": row.get("images") or [],
+        "verified": bool(row.get("verified", False)),
+        "is_new": bool(row.get("is_new", True)),
+        "status": row.get("status", "active"),
+        "bedrooms": row.get("bedrooms"),
+        "bathrooms": row.get("bathrooms"),
+        "size_sqm": float(row["size_sqm"]) if row.get("size_sqm") is not None else None,
+        "floor_number": row.get("floor_number"),
+        "neighborhood": neighborhood_name,
+        "compound_name": row.get("compound_name"),
+        "views_count": row.get("views_count", 0),
+        "created_at": row.get("created_at", ""),
+    }
+
+
+async def _extract_filters_from_query(query: str) -> dict:
+    """
+    Use Ollama to parse a natural-language query into structured filters.
+    Falls back to an empty dict if Ollama is down.
+    """
+    system = (
+        "You are a real estate search assistant for Egypt. "
+        "Extract search filters from the user's query. "
+        "Return ONLY a JSON object with these optional keys: "
+        "location (string, Egyptian city or neighborhood), "
+        "max_price (number in EGP), min_price (number), "
+        "bedrooms (number), bathrooms (number), "
+        "category (for_rent|for_sale|shared_housing), "
+        "property_type (apartment|villa|studio|duplex|penthouse|commercial|room|chalet|townhouse|twin_house|land|whole_building|office). "
+        "Output ONLY valid JSON, no explanation."
+    )
+    try:
+        raw = await ollama.generate(prompt=query, system=system)
+        # Extract JSON from response (model may add extra text)
+        start = raw.find("{")
+        end = raw.rfind("}") + 1
+        if start >= 0 and end > start:
+            return json.loads(raw[start:end])
+    except Exception:
+        pass
+    return {}
+
+
+# ─── POST /api/ai/search ─────────────────────────────────────────────────────
+
+@router.post("/search")
+async def nl_search(body: NLSearchRequest):
+    """
+    Natural language property search.
+    Primary path: semantic retrieval from knowledge_chunks (3+ results).
+    Fallback path: LLM filter extraction -> structured DB query.
+    Returns {ai_unavailable: true} if Ollama is down.
+    """
+    if not await ollama.health():
+        return AI_UNAVAILABLE
+
+    # Primary path: semantic retrieval from knowledge_chunks
+    chunks = await rag_retriever.retrieve(body.query, source_type="listing", k=body.limit)
+
+    if len(chunks) >= 3:
+        # Enough semantic results — fetch full listing details for the top chunk source_ids
+        listing_ids = list(dict.fromkeys(c.source_id for c in chunks))  # deduplicate, preserve order
+        try:
+            details_result = (
+                supabase_admin.table("listings")
+                .select("*, neighborhoods(name)")
+                .in_("id", listing_ids[:body.limit])
+                .eq("status", "active")
+                .is_("deleted_at", "null")
+                .execute()
+            )
+            listings = [_build_listing_brief(r) for r in (details_result.data or [])]
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Database error: {e}")
+
+        return {
+            "query": body.query,
+            "parsed_filters": {},
+            "results": listings,
+            "total": len(listings),
+            "retrieval_method": "semantic",
+        }
+
+    # Fallback path: LLM filter extraction -> structured DB query
+    filters = await _extract_filters_from_query(body.query)
+
+    db_query = (
+        supabase_admin.table("listings")
+        .select("*, neighborhoods(name)")
+        .eq("status", "active")
+        .is_("deleted_at", "null")
+    )
+
+    if filters.get("category"):
+        db_query = db_query.eq("category", filters["category"])
+    if filters.get("property_type"):
+        db_query = db_query.eq("property_type", filters["property_type"])
+    if filters.get("min_price") is not None:
+        db_query = db_query.gte("price", filters["min_price"])
+    if filters.get("max_price") is not None:
+        db_query = db_query.lte("price", filters["max_price"])
+    if filters.get("bedrooms") is not None:
+        db_query = db_query.eq("bedrooms", filters["bedrooms"])
+    if filters.get("bathrooms") is not None:
+        db_query = db_query.gte("bathrooms", filters["bathrooms"])
+    if filters.get("location"):
+        location = filters["location"]
+        db_query = db_query.or_(f"city.ilike.%{location}%,location.ilike.%{location}%")
+
+    try:
+        result = db_query.order("views_count", desc=True).limit(body.limit).execute()
+        listings = [_build_listing_brief(r) for r in (result.data or [])]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+
+    return {
+        "query": body.query,
+        "parsed_filters": filters,
+        "results": listings,
+        "total": len(listings),
+        "retrieval_method": "keyword",
+    }
+
+
+# ─── POST /api/ai/chat ────────────────────────────────────────────────────────
+
+@router.post("/chat")
+async def chat(
+    body: ChatRequest,
+    current_user: dict | None = Depends(get_optional_user),
+):
+    """
+    RAG-augmented streaming SSE chatbot powered by Ollama.
+    Retrieves relevant context BEFORE streaming, then emits a citations event
+    before [DONE] so the frontend can render source links.
+    Returns {ai_unavailable: true} if Ollama is down.
+    """
+    if not await ollama.health():
+        return AI_UNAVAILABLE
+
+    # Step 1: Retrieve relevant context BEFORE streaming
+    chunks = await rag_retriever.retrieve(body.message, k=5)
+    context_str = rag_retriever.build_context(chunks)
+    citations = rag_retriever.format_citations(chunks)
+
+    # Step 2: Build grounded system prompt
+    if context_str:
+        system = (
+            "You are AXIOM AI, a real estate assistant for Egypt. "
+            "Answer using ONLY the following verified listings and content from our database. "
+            "When referencing a listing, cite it as [listing:UUID]. "
+            "If asked about properties not in the records below, say you don't have that listing. "
+            "Never invent property IDs, prices, or addresses. "
+            "Be bilingual (Arabic/English) based on the user's language. "
+            "Egyptian cities: Cairo, Giza, Alexandria, New Capital, North Coast, Hurghada, Sharm El Sheikh.\n\n"
+            f"VERIFIED DATABASE RECORDS:\n{context_str}"
+        )
+    else:
+        system = (
+            "You are AXIOM AI, a helpful real estate assistant specializing in the Egyptian property market. "
+            "You help users find properties, understand lease terms, and compare neighborhoods. "
+            "Be concise, friendly, and bilingual (Arabic/English). "
+            "Note: real-time listing data is not available for this query."
+        )
+
+    # Step 3: Build prompt with conversation history (last 4 turns)
+    history_text = ""
+    for msg in body.conversation_history[-4:]:
+        role = msg.get("role", "user")
+        content = msg.get("content", "")
+        history_text += f"{role.capitalize()}: {content}\n"
+
+    full_prompt = f"{history_text}User: {body.message}\nAssistant:"
+
+    # Step 4: Stream response, emit citations as final SSE event before [DONE]
+    async def generate_sse():
+        try:
+            async for token in ollama.generate_stream(prompt=full_prompt, system=system):
+                yield f"data: {json.dumps({'token': token})}\n\n"
+            # Emit citations before DONE so frontend can parse them
+            if citations:
+                yield f"data: {json.dumps({'citations': [c.model_dump() for c in citations]})}\n\n"
+            yield "data: [DONE]\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+
+    return StreamingResponse(
+        generate_sse(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+# ─── GET /api/ai/recommendations ─────────────────────────────────────────────
+
+@router.get("/recommendations")
+async def get_recommendations(current_user: dict = Depends(get_current_user)):
+    """
+    Return property recommendations based on the user's favorited listings.
+    Uses pgvector cosine similarity if embeddings exist, otherwise falls back to
+    category/location matching.
+    Returns {ai_unavailable: true} if Ollama is down and no embeddings available.
+    """
+    user_id = current_user["id"]
+
+    # Fetch user's favorite listing IDs
+    try:
+        fav_result = (
+            supabase_admin.table("favorites")
+            .select("listing_id")
+            .eq("user_id", user_id)
+            .limit(10)
+            .execute()
+        )
+        fav_ids = [r["listing_id"] for r in (fav_result.data or [])]
+    except Exception:
+        fav_ids = []
+
+    if not fav_ids:
+        # No favorites — return newest active listings
+        try:
+            result = (
+                supabase_admin.table("listings")
+                .select("*, neighborhoods(name)")
+                .eq("status", "active")
+                .is_("deleted_at", "null")
+                .order("created_at", desc=True)
+                .limit(8)
+                .execute()
+            )
+            return [_build_listing_brief(r) for r in (result.data or [])]
+        except Exception:
+            return []
+
+    # Fetch one of the favorited listings to use as reference for category/city
+    try:
+        ref_result = (
+            supabase_admin.table("listings")
+            .select("category, city, embedding")
+            .eq("id", fav_ids[0])
+            .single()
+            .execute()
+        )
+        ref = ref_result.data or {}
+    except Exception:
+        ref = {}
+
+    # Try vector similarity first (if embedding exists)
+    if ref.get("embedding") and await ollama.health():
+        try:
+            sim_result = supabase_admin.rpc(
+                "match_listings",
+                {
+                    "query_embedding": ref["embedding"],
+                    "match_threshold": 0.5,
+                    "match_count": 12,
+                    "filter_category": ref.get("category"),
+                    "filter_city": ref.get("city"),
+                },
+            ).execute()
+            # Get full listing details for matched IDs
+            if sim_result.data:
+                matched_ids = [r["id"] for r in sim_result.data if r["id"] not in fav_ids]
+                if matched_ids:
+                    details_result = (
+                        supabase_admin.table("listings")
+                        .select("*, neighborhoods(name)")
+                        .in_("id", matched_ids[:8])
+                        .execute()
+                    )
+                    return [_build_listing_brief(r) for r in (details_result.data or [])]
+        except Exception:
+            pass
+
+    # Fallback: same category + city, excluding already favorited
+    try:
+        fb_result = (
+            supabase_admin.table("listings")
+            .select("*, neighborhoods(name)")
+            .eq("status", "active")
+            .is_("deleted_at", "null")
+            .not_.in_("id", fav_ids)
+        )
+        if ref.get("category"):
+            fb_result = fb_result.eq("category", ref["category"])
+        if ref.get("city"):
+            fb_result = fb_result.ilike("city", f"%{ref['city']}%")
+
+        final = fb_result.order("views_count", desc=True).limit(8).execute()
+        return [_build_listing_brief(r) for r in (final.data or [])]
+    except Exception:
+        return []
+
+
+# ─── POST /api/ai/compatibility ──────────────────────────────────────────────
+
+@router.post("/compatibility")
+async def compute_compatibility(
+    body: CompatibilityRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Compute a roommate compatibility score (0-100) between the current user
+    and a shared housing listing based on lifestyle preferences.
+    Returns {ai_unavailable: true} if Ollama is down.
+    """
+    if not await ollama.health():
+        return AI_UNAVAILABLE
+
+    # Fetch listing lifestyle preferences
+    try:
+        listing_result = (
+            supabase_admin.table("listings")
+            .select("category, lifestyle_preferences, title")
+            .eq("id", body.listing_id)
+            .single()
+            .execute()
+        )
+    except Exception:
+        raise HTTPException(status_code=404, detail="Listing not found")
+
+    if not listing_result.data:
+        raise HTTPException(status_code=404, detail="Listing not found")
+
+    listing = listing_result.data
+    if listing.get("category") != "shared_housing":
+        raise HTTPException(status_code=400, detail="Not a shared housing listing")
+
+    listing_prefs = listing.get("lifestyle_preferences") or {}
+    user_prefs = body.lifestyle_data
+
+    system = (
+        "You are a roommate compatibility expert. "
+        "Score compatibility between two people's lifestyle preferences from 0-100. "
+        "Consider: gender preference, smoking, pets, guests policy, noise level, "
+        "cleanliness, sleep schedule, occupation. "
+        "Return ONLY a JSON object: {\"score\": <0-100>, \"reasons\": [\"...\", \"...\"]}"
+    )
+    prompt = (
+        f"Listing preferences: {json.dumps(listing_prefs)}\n"
+        f"Applicant preferences: {json.dumps(user_prefs)}\n"
+        "Compute compatibility score."
+    )
+
+    try:
+        raw = await ollama.generate(prompt=prompt, system=system)
+        start = raw.find("{")
+        end = raw.rfind("}") + 1
+        if start >= 0 and end > start:
+            parsed = json.loads(raw[start:end])
+            score = max(0, min(100, int(parsed.get("score", 50))))
+            reasons = parsed.get("reasons", [])
+        else:
+            score = 50
+            reasons = []
+    except Exception:
+        score = 50
+        reasons = []
+
+    return {
+        "listing_id": body.listing_id,
+        "compatibility_score": score,
+        "reasons": reasons,
+    }
+
+
+# ─── POST /api/ai/description ────────────────────────────────────────────────
+
+@router.post("/description")
+async def generate_description(
+    body: DescriptionRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Generate a bilingual (English + Arabic) listing description using Ollama.
+    Returns {ai_unavailable: true} if Ollama is down.
+    """
+    if not await ollama.health():
+        return AI_UNAVAILABLE
+
+    amenities_str = ", ".join(body.amenities) if body.amenities else "none listed"
+    price_str = f"EGP {body.price:,.0f}" if body.price else "price not specified"
+
+    system = (
+        "You are a professional real estate copywriter specializing in Egyptian property listings. "
+        "Write compelling, accurate descriptions in both English and Arabic. "
+        "Be specific to Egyptian market context and culture. "
+        "Return ONLY JSON: {\"english\": \"...\", \"arabic\": \"...\"}"
+    )
+    prompt = (
+        f"Property details:\n"
+        f"- Title: {body.title}\n"
+        f"- Type: {body.property_type}\n"
+        f"- Category: {body.category}\n"
+        f"- City: {body.city}\n"
+        f"- Bedrooms: {body.bedrooms or 'N/A'}\n"
+        f"- Bathrooms: {body.bathrooms or 'N/A'}\n"
+        f"- Size: {body.size_sqm or 'N/A'} sqm\n"
+        f"- Price: {price_str}\n"
+        f"- Amenities: {amenities_str}\n"
+        f"- Extra notes: {body.extra_notes or 'none'}\n\n"
+        "Write a 3-4 sentence property description in both English and Arabic."
+    )
+
+    try:
+        raw = await ollama.generate(prompt=prompt, system=system)
+        start = raw.find("{")
+        end = raw.rfind("}") + 1
+        if start >= 0 and end > start:
+            parsed = json.loads(raw[start:end])
+            return {
+                "english": parsed.get("english", ""),
+                "arabic": parsed.get("arabic", ""),
+            }
+    except Exception:
+        pass
+
+    # Fallback if JSON parse fails — return raw text as English only
+    return {"english": raw if "raw" in dir() else "", "arabic": ""}
