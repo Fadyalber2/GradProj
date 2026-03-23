@@ -2,16 +2,16 @@
 
 ## Current Position
 
-- **Active phase:** Phase 7 — AI RAG Enhancement (Plan 2/7 complete)
-- **Last completed:** Phase 7 Plan 02 — RAG Embedding Pipeline (2026-03-22)
-- **Next action:** Execute 07-03-PLAN.md (RAG-powered chat endpoint)
-- **Stopped At:** Completed 07-ai-rag-enhancement/07-02-PLAN.md
+- **Active phase:** Phase 7 — AI RAG Enhancement (Plan 3/7 complete)
+- **Last completed:** Phase 7 Plan 03 — RAG Retrieval Module (2026-03-23)
+- **Next action:** Execute 07-04-PLAN.md (RAG-augmented chat endpoint)
+- **Stopped At:** Completed 07-ai-rag-enhancement/07-03-PLAN.md
 
 ## Project Health
 
 | Check | Status |
 |---|---|
-| Backend tests | 78/78 ✅ (Phase 7 adds 4 OllamaClient unit tests) |
+| Backend tests | 86/86 ✅ (07-03 adds 8 RAG unit tests: 4 schema + 4 retrieval) |
 | TypeScript errors | 0 ✅ |
 | Frontend wired to backend | Yes ✅ |
 | DB schema live in Supabase | 13 tables ✅ (knowledge_chunks pending manual migration) |
@@ -37,6 +37,7 @@
 | 2026-03-21 | Executed 03-02-PLAN.md (Frontend Messaging UI). Gap-fill pass — all 17 components existed. Fixed 3 gaps: DashboardStats Framer Motion animation, RecentMessages deep-link navigation, Messages URL param pre-selection. 0 TS errors. |
 | 2026-03-22 | Executed 07-01-PLAN.md (RAG Infrastructure). Migrated embed() to /api/embed, set OLLAMA_MODEL=qwen2.5:14b, created 004_knowledge_chunks.sql with HNSW+FTS hybrid search RPC. 78/78 tests pass. |
 | 2026-03-22 | Executed 07-02-PLAN.md (RAG Embedding Pipeline). Added embed_listing_chunk/delete_listing_chunk to embeddings.py. Wired auto-embed hooks on listing create/update/delete. Created batch_embed.py for all three source types. 78/78 tests pass. |
+| 2026-03-23 | Executed 07-03-PLAN.md (RAG Retrieval Module). Created schemas.py (Chunk/Citation/RAGResponse) and rag.py (RAGRetriever with retrieve/build_context/format_citations + singleton). 8 new unit tests. 86/86 tests pass. |
 
 ## Key Decisions
 
@@ -61,3 +62,7 @@
 - embed_listing() and embed_listing_chunk() coexist: former writes listings.embedding for recommendations, latter writes knowledge_chunks for RAG
 - batch_embed.py uses set diff to skip already-embedded listings — safe for incremental re-runs
 - Blog embedding falls back to fetching all posts if status column query fails (defensive against schema variation)
+- RAGRetriever is a class (not module functions) to enable easy mock injection in tests
+- retrieve() never raises — silently returns [] on embed failure or RPC exception (fail-open consistent with AI pipeline)
+- Citation URL scheme: /property/{id} for listings, /find-homes?location={name} for neighborhoods, /blog/{id} for blog
+- rag_retriever singleton exported at module level for clean import in router.py
