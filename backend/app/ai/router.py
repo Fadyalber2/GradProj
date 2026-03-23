@@ -258,8 +258,58 @@ async def chat(
 
 # ─── GET /api/ai/recommendations ─────────────────────────────────────────────
 
+async def _explain_recommendations(
+    fav_listings: list[dict],
+    candidate_listings: list[dict],
+) -> dict[str, str]:
+    """
+    Single-batch LLM call that returns a dict of listing_id -> 1-sentence explanation.
+    Fail-open: returns {} if Ollama call fails.
+    """
+    if not fav_listings or not candidate_listings:
+        return {}
+
+    fav_summary = "; ".join(
+        f"{l.get('title', '')} in {l.get('location', '')} ({l.get('category', '')})"
+        for l in fav_listings[:3]
+    )
+    candidates_text = "\n".join(
+        f"ID:{l['id']} | {l.get('title', '')} | {l.get('location', '')} | {l.get('category', '')} | {l.get('price', '')} EGP"
+        for l in candidate_listings
+    )
+
+    system = (
+        "You are a real estate recommendation assistant. "
+        "Given a user's favorites and a list of candidate listings, "
+        "write a single sentence explaining why each candidate matches the user's preferences. "
+        "Return ONLY a JSON object mapping listing ID to explanation string. "
+        "Example: {\"uuid-1\": \"Similar to your Maadi favorites — same area and price range.\"}"
+    )
+    prompt = (
+        f"User's favorites: {fav_summary}\n\n"
+        f"Candidate listings:\n{candidates_text}\n\n"
+        "Return a JSON object with an explanation for each candidate ID."
+    )
+
+    try:
+        raw = await ollama.generate(prompt=prompt, system=system)
+        start = raw.find("{")
+        end = raw.rfind("}") + 1
+        if start >= 0 and end > start:
+            result = json.loads(raw[start:end])
+            # Ensure all values are strings
+            return {k: str(v) for k, v in result.items() if isinstance(k, str)}
+    except Exception:
+        pass
+
+    return {}
+
+
 @router.get("/recommendations")
-async def get_recommendations(current_user: dict = Depends(get_current_user)):
+async def get_recommendations(
+    current_user: dict = Depends(get_current_user),
+    explain: bool = False,
+):
     """
     Return property recommendations based on the user's favorited listings.
     Uses pgvector cosine similarity if embeddings exist, otherwise falls back to
@@ -298,10 +348,11 @@ async def get_recommendations(current_user: dict = Depends(get_current_user)):
             return []
 
     # Fetch one of the favorited listings to use as reference for category/city
+    # Extended select includes id, title, location for _explain_recommendations() fav_summary
     try:
         ref_result = (
             supabase_admin.table("listings")
-            .select("category, city, embedding")
+            .select("id, title, location, category, city, embedding")
             .eq("id", fav_ids[0])
             .single()
             .execute()
@@ -333,7 +384,13 @@ async def get_recommendations(current_user: dict = Depends(get_current_user)):
                         .in_("id", matched_ids[:8])
                         .execute()
                     )
-                    return [_build_listing_brief(r) for r in (details_result.data or [])]
+                    candidates = [_build_listing_brief(r) for r in (details_result.data or [])]
+                    if explain and fav_ids:
+                        fav_details = [ref] if ref else []
+                        explanations = await _explain_recommendations(fav_details, candidates)
+                        for listing in candidates:
+                            listing["explanation"] = explanations.get(listing["id"], "")
+                    return candidates
         except Exception:
             pass
 
@@ -352,7 +409,13 @@ async def get_recommendations(current_user: dict = Depends(get_current_user)):
             fb_result = fb_result.ilike("city", f"%{ref['city']}%")
 
         final = fb_result.order("views_count", desc=True).limit(8).execute()
-        return [_build_listing_brief(r) for r in (final.data or [])]
+        candidates = [_build_listing_brief(r) for r in (final.data or [])]
+        if explain and fav_ids:
+            fav_details = [ref] if ref else []
+            explanations = await _explain_recommendations(fav_details, candidates)
+            for listing in candidates:
+                listing["explanation"] = explanations.get(listing["id"], "")
+        return candidates
     except Exception:
         return []
 
@@ -366,13 +429,13 @@ async def compute_compatibility(
 ):
     """
     Compute a roommate compatibility score (0-100) between the current user
-    and a shared housing listing based on lifestyle preferences.
+    and a shared housing listing, using real housemates and stored user profile.
     Returns {ai_unavailable: true} if Ollama is down.
     """
     if not await ollama.health():
         return AI_UNAVAILABLE
 
-    # Fetch listing lifestyle preferences
+    # Step 1: Fetch listing
     try:
         listing_result = (
             supabase_admin.table("listings")
@@ -392,21 +455,102 @@ async def compute_compatibility(
         raise HTTPException(status_code=400, detail="Not a shared housing listing")
 
     listing_prefs = listing.get("lifestyle_preferences") or {}
-    user_prefs = body.lifestyle_data
 
+    # Step 2: Query housemates for this listing
+    housemates: list[dict] = []
+    try:
+        housemates_result = (
+            supabase_admin.table("housemates")
+            .select("name, age, occupation, tags, user_id")
+            .eq("listing_id", body.listing_id)
+            .limit(10)
+            .execute()
+        )
+        housemates = housemates_result.data or []
+    except Exception:
+        pass  # fail-open: proceed without housemate data
+
+    # Step 3: For housemates with user_id, fetch their lifestyle_preferences
+    housemate_profiles: dict[str, dict] = {}
+    housemate_user_ids = [h["user_id"] for h in housemates if h.get("user_id")]
+    if housemate_user_ids:
+        try:
+            hp_result = (
+                supabase_admin.table("profiles")
+                .select("id, lifestyle_preferences")
+                .in_("id", housemate_user_ids)
+                .execute()
+            )
+            for row in (hp_result.data or []):
+                if row.get("lifestyle_preferences"):
+                    housemate_profiles[row["id"]] = row["lifestyle_preferences"]
+        except Exception:
+            pass  # fail-open
+
+    # Step 4: Fetch current user's stored profile
+    stored_user_prefs: dict = {}
+    try:
+        profile_result = (
+            supabase_admin.table("profiles")
+            .select("lifestyle_preferences, age, occupation, gender")
+            .eq("id", current_user["id"])
+            .single()
+            .execute()
+        )
+        if profile_result.data:
+            p = profile_result.data
+            stored_user_prefs = {
+                "age": p.get("age"),
+                "occupation": p.get("occupation"),
+                "gender": p.get("gender"),
+                **(p.get("lifestyle_preferences") or {}),
+            }
+    except Exception:
+        pass  # fail-open
+
+    # Step 5: Merge — body.lifestyle_data overrides stored prefs
+    merged_user_prefs = {**stored_user_prefs, **body.lifestyle_data}
+
+    # Step 6: Build housemate context string
+    housemate_lines = []
+    for h in housemates:
+        parts = [h.get("name", "Unknown")]
+        if h.get("age"):
+            parts.append(f"age {h['age']}")
+        if h.get("occupation"):
+            parts.append(h["occupation"])
+        if h.get("tags"):
+            parts.append(f"tags: {', '.join(h['tags'])}")
+        uid = h.get("user_id")
+        if uid and uid in housemate_profiles:
+            lp = housemate_profiles[uid]
+            parts.append(f"lifestyle: {json.dumps(lp)}")
+        housemate_lines.append(" | ".join(parts))
+
+    housemate_context = (
+        "\n\nCURRENT HOUSEMATES:\n" + "\n".join(f"- {line}" for line in housemate_lines)
+        if housemate_lines
+        else ""
+    )
+
+    # Step 7: LLM call with enriched prompt
     system = (
         "You are a roommate compatibility expert. "
-        "Score compatibility between two people's lifestyle preferences from 0-100. "
+        "Score compatibility between a person's lifestyle preferences and a shared housing listing. "
         "Consider: gender preference, smoking, pets, guests policy, noise level, "
         "cleanliness, sleep schedule, occupation. "
-        "Return ONLY a JSON object: {\"score\": <0-100>, \"reasons\": [\"...\", \"...\"]}"
+        "If housemate information is provided, also note compatibility with current residents. "
+        "Return ONLY a JSON object: "
+        "{\"score\": <0-100>, \"reasons\": [\"...\", \"...\"], \"housemate_notes\": [\"...\"]}"
+        f"{housemate_context}"
     )
     prompt = (
         f"Listing preferences: {json.dumps(listing_prefs)}\n"
-        f"Applicant preferences: {json.dumps(user_prefs)}\n"
+        f"Applicant preferences: {json.dumps(merged_user_prefs)}\n"
         "Compute compatibility score."
     )
 
+    # Step 8: Parse response
     try:
         raw = await ollama.generate(prompt=prompt, system=system)
         start = raw.find("{")
@@ -415,17 +559,23 @@ async def compute_compatibility(
             parsed = json.loads(raw[start:end])
             score = max(0, min(100, int(parsed.get("score", 50))))
             reasons = parsed.get("reasons", [])
+            housemate_notes = parsed.get("housemate_notes", [])
+            if not isinstance(housemate_notes, list):
+                housemate_notes = []
         else:
             score = 50
             reasons = []
+            housemate_notes = []
     except Exception:
         score = 50
         reasons = []
+        housemate_notes = []
 
     return {
         "listing_id": body.listing_id,
         "compatibility_score": score,
         "reasons": reasons,
+        "housemate_notes": housemate_notes,
     }
 
 

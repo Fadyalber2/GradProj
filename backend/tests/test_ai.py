@@ -459,3 +459,240 @@ def test_rag_search_fallback(client, mock_supabase):
     data = resp.json()
     assert data["retrieval_method"] == "keyword"
     assert "parsed_filters" in data
+
+
+# ─── Description RAG tests (REQ-RAG-09) ──────────────────────────────────────
+
+def test_description_rag_with_neighborhood_context(client, mock_supabase, auth_header):
+    """generate_description injects neighborhood chunk text into system prompt."""
+    _, mock_admin = mock_supabase
+    import app.ai.router as ai_router
+    from unittest.mock import AsyncMock, patch
+    from app.ai.schemas import Chunk
+
+    mock_admin.table("profiles").select("*").eq(
+        "id", FAKE_USER_ID
+    ).single().execute.return_value.data = FAKE_PROFILE
+
+    fake_chunk = Chunk(
+        id="nbhd-chunk-1",
+        source_type="neighborhood",
+        source_id="nbhd-new-cairo",
+        chunk_text="New Cairo is a planned satellite city east of Cairo known for gated compounds.",
+        metadata={"city": "New Cairo"},
+        score=0.88,
+    )
+
+    captured_system = {}
+
+    async def fake_generate(prompt, system=""):
+        captured_system["value"] = system
+        return '{"english": "A great apartment.", "arabic": "شقة رائعة."}'
+
+    with patch.object(ai_router.rag_retriever, "retrieve", new=AsyncMock(return_value=[fake_chunk])):
+        ai_router.ollama.health = AsyncMock(return_value=True)
+        ai_router.ollama.generate = fake_generate
+
+        resp = client.post(
+            "/api/ai/description",
+            json={
+                "title": "2BR Apartment",
+                "property_type": "apartment",
+                "category": "for_rent",
+                "city": "New Cairo",
+                "bedrooms": 2,
+            },
+            headers=auth_header,
+        )
+
+    assert resp.status_code == 200
+    assert "english" in resp.json()
+    assert "New Cairo is a planned satellite city" in captured_system.get("value", "")
+
+
+def test_description_rag_no_chunks_fallback(client, mock_supabase, auth_header):
+    """generate_description proceeds normally when RAG returns no chunks."""
+    _, mock_admin = mock_supabase
+    import app.ai.router as ai_router
+    from unittest.mock import AsyncMock, patch
+
+    mock_admin.table("profiles").select("*").eq(
+        "id", FAKE_USER_ID
+    ).single().execute.return_value.data = FAKE_PROFILE
+
+    with patch.object(ai_router.rag_retriever, "retrieve", new=AsyncMock(return_value=[])):
+        ai_router.ollama.health = AsyncMock(return_value=True)
+        ai_router.ollama.generate = AsyncMock(
+            return_value='{"english": "A lovely apartment.", "arabic": "شقة رائعة."}'
+        )
+
+        resp = client.post(
+            "/api/ai/description",
+            json={
+                "title": "Studio",
+                "property_type": "studio",
+                "category": "for_rent",
+                "city": "Alexandria",
+            },
+            headers=auth_header,
+        )
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["english"] == "A lovely apartment."
+    assert data["arabic"] == "شقة رائعة."
+
+
+# ─── Recommendations explain tests (REQ-RAG-11) ───────────────────────────────
+
+def test_recommendations_with_explain(client, mock_supabase, auth_header):
+    """get_recommendations?explain=true merges explanation field into each listing."""
+    _, mock_admin = mock_supabase
+    import app.ai.router as ai_router
+    from unittest.mock import AsyncMock, patch
+
+    mock_admin.table("profiles").select("*").eq(
+        "id", FAKE_USER_ID
+    ).single().execute.return_value.data = FAKE_PROFILE
+
+    # Has one favorite
+    mock_admin.table("favorites").select("listing_id").eq(
+        "user_id", FAKE_USER_ID
+    ).limit(10).execute.return_value.data = [{"listing_id": "fav-listing-1"}]
+
+    # Reference listing — extended select includes id, title, location
+    ref_listing = {
+        "id": "fav-listing-1",
+        "title": "Cozy 2BR in Maadi",
+        "location": "Maadi, Cairo",
+        "category": "for_rent",
+        "city": "Cairo",
+        "embedding": None,  # no vector — forces fallback path
+    }
+    mock_admin.table("listings").select(
+        "id, title, location, category, city, embedding"
+    ).eq("id", "fav-listing-1").single().execute.return_value.data = ref_listing
+
+    # Fallback path result
+    candidate = {
+        "id": "candidate-1",
+        "title": "Nice Apartment",
+        "location": "Cairo",
+        "price": 6000,
+        "currency": "EGP",
+        "price_period": "month",
+        "category": "for_rent",
+        "property_type": "apartment",
+        "images": [],
+        "verified": False,
+        "is_new": True,
+        "status": "active",
+        "bedrooms": 2,
+        "bathrooms": 1,
+        "size_sqm": 90.0,
+        "floor_number": 2,
+        "neighborhoods": None,
+        "compound_name": None,
+        "views_count": 5,
+        "created_at": "2026-01-01T00:00:00Z",
+    }
+    mock_admin.table("listings").select(
+        "*, neighborhoods(name)"
+    ).eq("status", "active").is_(
+        "deleted_at", "null"
+    ).not_.in_(
+        "id", ["fav-listing-1"]
+    ).eq("category", "for_rent").ilike(
+        "city", "%Cairo%"
+    ).order("views_count", desc=True).limit(8).execute.return_value.data = [candidate]
+
+    with patch.object(
+        ai_router,
+        "_explain_recommendations",
+        new=AsyncMock(return_value={"candidate-1": "Matches your Cairo rental preference."}),
+    ):
+        ai_router.ollama.health = AsyncMock(return_value=True)
+        resp = client.get("/api/ai/recommendations?explain=true", headers=auth_header)
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert isinstance(data, list)
+    assert len(data) == 1
+    assert data[0]["explanation"] == "Matches your Cairo rental preference."
+
+
+def test_recommendations_without_explain_unchanged(client, mock_supabase, auth_header):
+    """get_recommendations without explain=true returns listings with no explanation field, even when favorites exist."""
+    _, mock_admin = mock_supabase
+    import app.ai.router as ai_router
+    from unittest.mock import AsyncMock, patch
+
+    mock_admin.table("profiles").select("*").eq(
+        "id", FAKE_USER_ID
+    ).single().execute.return_value.data = FAKE_PROFILE
+
+    # Has one favorite — exercises the has-favorites path, not the early-return
+    mock_admin.table("favorites").select("listing_id").eq(
+        "user_id", FAKE_USER_ID
+    ).limit(10).execute.return_value.data = [{"listing_id": "fav-listing-2"}]
+
+    # Reference listing — no embedding so fallback path is taken
+    mock_admin.table("listings").select(
+        "id, title, location, category, city, embedding"
+    ).eq("id", "fav-listing-2").single().execute.return_value.data = {
+        "id": "fav-listing-2",
+        "title": "Old Flat",
+        "location": "Heliopolis",
+        "category": "for_rent",
+        "city": "Cairo",
+        "embedding": None,
+    }
+
+    candidate = {
+        "id": "candidate-2",
+        "title": "Another Apartment",
+        "location": "Cairo",
+        "price": 5000,
+        "currency": "EGP",
+        "price_period": "month",
+        "category": "for_rent",
+        "property_type": "apartment",
+        "images": [],
+        "verified": False,
+        "is_new": False,
+        "status": "active",
+        "bedrooms": 1,
+        "bathrooms": 1,
+        "size_sqm": 70.0,
+        "floor_number": 1,
+        "neighborhoods": None,
+        "compound_name": None,
+        "views_count": 3,
+        "created_at": "2026-01-01T00:00:00Z",
+    }
+    mock_admin.table("listings").select(
+        "*, neighborhoods(name)"
+    ).eq("status", "active").is_(
+        "deleted_at", "null"
+    ).not_.in_(
+        "id", ["fav-listing-2"]
+    ).eq("category", "for_rent").ilike(
+        "city", "%Cairo%"
+    ).order("views_count", desc=True).limit(8).execute.return_value.data = [candidate]
+
+    ai_router.ollama.health = AsyncMock(return_value=True)
+    # _explain_recommendations must NOT be called when explain=False
+    with patch.object(
+        ai_router,
+        "_explain_recommendations",
+        new=AsyncMock(return_value={}),
+    ) as mock_explain:
+        resp = client.get("/api/ai/recommendations", headers=auth_header)
+        mock_explain.assert_not_called()
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert isinstance(data, list)
+    assert len(data) == 1
+    # No explanation field — explain=False (default) must never enrich
+    assert "explanation" not in data[0]
