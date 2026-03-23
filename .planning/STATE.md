@@ -3,23 +3,23 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 07-ai-rag-enhancement/07-07-PLAN.md
-last_updated: "2026-03-23T19:16:28.266Z"
+stopped_at: Completed 07-ai-rag-enhancement/07-05-PLAN.md (awaiting human-verify checkpoint)
+last_updated: "2026-03-23T19:29:27.501Z"
 progress:
   total_phases: 8
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 24
-  completed_plans: 12
+  completed_plans: 13
 ---
 
 # AXIOM V2 — GSD State
 
 ## Current Position
 
-- **Active phase:** Phase 7 — AI RAG Enhancement (Plan 7/7 complete)
-- **Last completed:** Phase 7 Plan 07 — Market-Aware Fraud + Housemate-Enriched Compatibility (2026-03-23)
-- **Next action:** Phase 7 complete. Execute Phase 5.5 (Payment Integration) or Phase 6 (Hardening)
-- **Stopped At:** Completed 07-ai-rag-enhancement/07-07-PLAN.md
+- **Active phase:** Phase 7 — AI RAG Enhancement (Plan 5/7 — awaiting human-verify checkpoint)
+- **Last completed:** Phase 7 Plan 05 — RAG Frontend Citation UI (2026-03-23)
+- **Next action:** User approves citation UI checkpoint → Phase 7 fully complete. Then execute Phase 5.5 (Payment Integration) or Phase 6 (Hardening)
+- **Stopped At:** Completed 07-ai-rag-enhancement/07-05-PLAN.md (awaiting human-verify checkpoint)
 
 ## Project Health
 
@@ -55,6 +55,7 @@ progress:
 | 2026-03-23 | Executed 07-04-PLAN.md (RAG-Augmented Endpoints). Rewrote chat endpoint with RAG pre-retrieval, grounded system prompt, citations SSE event. Rewrote NL search with semantic primary (3+ chunks) + keyword fallback. 4 new integration tests. 90/90 tests pass. |
 | 2026-03-23 | Executed 07-06-PLAN.md (RAG-Enriched Description + Explainable Recommendations). Injected neighborhood RAG context into generate_description() system prompt (600 char cap, fail-open). Added _explain_recommendations() helper + explain: bool = False param to get_recommendations(). 4 new tests. 94/94 tests pass. |
 | 2026-03-23 | Executed 07-07-PLAN.md (Market-Aware Fraud + Housemate-Enriched Compatibility). Added rag_retriever import + market context injection to _llm_consistency() in fraud.py. Enriched compute_compatibility() with housemates DB query + stored user profile merge. 4 new tests. 98/98 tests pass. |
+| 2026-03-23 | Executed 07-05-PLAN.md (RAG Frontend Citation UI). Added Citation/CitationSourceType types, extended ChatMessageData with citations, added isSearching indicator to ChatDrawer, citation pill rendering, ragSearchMutation. Zero TS errors. Awaiting human-verify checkpoint. |
 
 ## Key Decisions
 
@@ -93,3 +94,6 @@ progress:
 - patch.object used for ollama singleton in fraud tests — direct attribute assignment (fraud_module.ollama.health = ...) contaminates embed_listing background tasks in subsequent listing tests
 - side_effect list used for MagicMock chain sequential returns in compatibility tests — all mock_admin.table().select().eq().single().execute() calls share one mock object regardless of arguments
 - market context in fraud.py truncated to 400 chars — compact, consistent with description RAG 600 char pattern; enough for price range reference
+- Citation pills use anchor tags not Link — citations can point to external or non-router paths (neighborhood /find-homes?location=..., blog /blog/{id})
+- isSearching resets in finally block to guarantee cleanup on SSE error or normal completion
+- Citation rendering in ChatDrawer not ChatMessage — keeps ChatMessage stateless, focused on text bubbles and listing_refs
