@@ -7,6 +7,7 @@ Fail-open: if Ollama is down, returns 0.0 so listings are auto-approved.
 
 import json
 from app.ai.ollama_client import ollama
+from app.ai.rag import rag_retriever
 from app.database import supabase_admin
 
 
@@ -104,6 +105,7 @@ async def _owner_reputation(owner_id: str) -> float:
 async def _llm_consistency(listing: dict) -> float:
     """
     Ask Ollama whether the description is consistent with attributes.
+    Retrieves real market price context from knowledge_chunks before scoring.
     Returns 0.0 if Ollama is down (fail-open).
     """
     if not await ollama.health():
@@ -113,12 +115,36 @@ async def _llm_consistency(listing: dict) -> float:
     if not description:
         return 0.0
 
+    # Step 1: Retrieve market price context (fail-open)
+    market_context = ""
+    try:
+        city = listing.get("city", "")
+        category = listing.get("category", "")
+        if city and category:
+            price_chunks = await rag_retriever.retrieve(
+                f"{city} {category} price range market",
+                source_type="listing",
+                k=3,
+            )
+            if price_chunks:
+                raw = " ".join(c.chunk_text for c in price_chunks)
+                market_context = raw[:400]
+    except Exception:
+        pass  # fail-open: proceed without market context
+
+    # Step 2: Build system prompt with optional market clause
+    market_clause = (
+        f"\n\nMARKET CONTEXT (real listings for reference):\n{market_context}"
+        if market_context
+        else ""
+    )
     system = (
         "You are a fraud detection system for a real estate platform. "
         "Evaluate whether the listing description is consistent with its attributes. "
         "Look for: unrealistic claims, mismatch between description and attributes, "
         "suspicious urgency, requests for off-platform payment. "
         "Return ONLY a JSON object: {\"fraud_score\": <0.0-1.0>, \"reason\": \"...\"}"
+        f"{market_clause}"
     )
 
     attrs = {
