@@ -2,16 +2,16 @@
 
 ## Current Position
 
-- **Active phase:** Phase 7 — AI RAG Enhancement (Plan 3/7 complete)
-- **Last completed:** Phase 7 Plan 03 — RAG Retrieval Module (2026-03-23)
-- **Next action:** Execute 07-04-PLAN.md (RAG-augmented chat endpoint)
-- **Stopped At:** Completed 07-ai-rag-enhancement/07-03-PLAN.md
+- **Active phase:** Phase 7 — AI RAG Enhancement (Plan 4/7 complete)
+- **Last completed:** Phase 7 Plan 04 — RAG-Augmented Endpoints (2026-03-23)
+- **Next action:** Execute 07-05-PLAN.md (Frontend citations rendering)
+- **Stopped At:** Completed 07-ai-rag-enhancement/07-04-PLAN.md
 
 ## Project Health
 
 | Check | Status |
 |---|---|
-| Backend tests | 86/86 ✅ (07-03 adds 8 RAG unit tests: 4 schema + 4 retrieval) |
+| Backend tests | 90/90 ✅ (07-04 adds 4 RAG endpoint tests: chat+citations, search semantic/fallback) |
 | TypeScript errors | 0 ✅ |
 | Frontend wired to backend | Yes ✅ |
 | DB schema live in Supabase | 13 tables ✅ (knowledge_chunks pending manual migration) |
@@ -38,6 +38,7 @@
 | 2026-03-22 | Executed 07-01-PLAN.md (RAG Infrastructure). Migrated embed() to /api/embed, set OLLAMA_MODEL=qwen2.5:14b, created 004_knowledge_chunks.sql with HNSW+FTS hybrid search RPC. 78/78 tests pass. |
 | 2026-03-22 | Executed 07-02-PLAN.md (RAG Embedding Pipeline). Added embed_listing_chunk/delete_listing_chunk to embeddings.py. Wired auto-embed hooks on listing create/update/delete. Created batch_embed.py for all three source types. 78/78 tests pass. |
 | 2026-03-23 | Executed 07-03-PLAN.md (RAG Retrieval Module). Created schemas.py (Chunk/Citation/RAGResponse) and rag.py (RAGRetriever with retrieve/build_context/format_citations + singleton). 8 new unit tests. 86/86 tests pass. |
+| 2026-03-23 | Executed 07-04-PLAN.md (RAG-Augmented Endpoints). Rewrote chat endpoint with RAG pre-retrieval, grounded system prompt, citations SSE event. Rewrote NL search with semantic primary (3+ chunks) + keyword fallback. 4 new integration tests. 90/90 tests pass. |
 
 ## Key Decisions
 
@@ -66,3 +67,7 @@
 - retrieve() never raises — silently returns [] on embed failure or RPC exception (fail-open consistent with AI pipeline)
 - Citation URL scheme: /property/{id} for listings, /find-homes?location={name} for neighborhoods, /blog/{id} for blog
 - rag_retriever singleton exported at module level for clean import in router.py
+- Conversation history trimmed from 6 to 4 turns in chat endpoint — leaves room for RAG context in LLM window
+- Citations SSE event skipped when citations list is empty — avoids unnecessary client-side parsing overhead
+- Semantic search threshold is 3+ chunks — below this LLM filter extraction provides better precision for specific queries
+- _async_iter defined at module level in test_ai.py — reusable async generator mock helper for SSE endpoint tests
