@@ -283,3 +283,51 @@ def test_schemas_chunk_invalid_source_type():
         assert False, "Should have raised ValidationError"
     except ValidationError:
         pass
+
+
+# ─── RAG retrieval layer tests ────────────────────────────────────────────────
+
+
+def test_rag_build_context_empty():
+    from app.ai.rag import RAGRetriever
+    from app.ai.schemas import Chunk  # noqa: F401
+    r = RAGRetriever()
+    assert r.build_context([]) == ""
+
+
+def test_rag_build_context_formats_chunks():
+    from app.ai.rag import RAGRetriever
+    from app.ai.schemas import Chunk
+    r = RAGRetriever()
+    chunks = [
+        Chunk(id="a1", source_type="listing", source_id="uuid-1",
+              chunk_text="Nice apartment in Maadi", metadata={}, score=0.9),
+        Chunk(id="a2", source_type="neighborhood", source_id="uuid-2",
+              chunk_text="Maadi is a leafy suburb", metadata={}, score=0.7),
+    ]
+    ctx = r.build_context(chunks)
+    assert "[1][listing:uuid-1]" in ctx
+    assert "[2][neighborhood:uuid-2]" in ctx
+    assert "Nice apartment in Maadi" in ctx
+
+
+def test_rag_format_citations_listing():
+    from app.ai.rag import RAGRetriever
+    from app.ai.schemas import Chunk
+    r = RAGRetriever()
+    chunk = Chunk(id="c1", source_type="listing", source_id="prop-uuid",
+                  chunk_text="3BR villa", metadata={"title": "Villa in Cairo"}, score=0.8)
+    cits = r.format_citations([chunk])
+    assert len(cits) == 1
+    assert cits[0].url == "/property/prop-uuid"
+    assert cits[0].title == "Villa in Cairo"
+
+
+def test_rag_format_citations_deduplicates():
+    from app.ai.rag import RAGRetriever
+    from app.ai.schemas import Chunk
+    r = RAGRetriever()
+    chunk = Chunk(id="c1", source_type="listing", source_id="same-id",
+                  chunk_text="Apartment", metadata={}, score=0.9)
+    cits = r.format_citations([chunk, chunk])
+    assert len(cits) == 1
