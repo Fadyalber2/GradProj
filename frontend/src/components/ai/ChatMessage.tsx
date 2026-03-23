@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Sparkles, User, BedDouble, Maximize2, ArrowRight } from "lucide-react";
+import type { Citation } from "@/types";
 
 export interface ListingRef {
   id: string;
@@ -20,6 +21,7 @@ export interface ChatMessageData {
   role: "user" | "assistant";
   content: string;
   listing_refs?: ListingRef[];
+  citations?: Citation[];
   timestamp: Date;
 }
 

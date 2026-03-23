@@ -3,22 +3,16 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Sparkles, RotateCcw } from "lucide-react";
-import { api } from "@/lib/api";
+import { API_BASE_URL } from "@/lib/api";
+import { useAuthStore } from "@/stores/authStore";
 import ChatMessage, {
   TypingIndicator,
   type ChatMessageData,
-  type ListingRef,
 } from "./ChatMessage";
+import type { Citation } from "@/types";
 
 // ── Storage key ─────────────────────────────────────────────────────────────
 const STORAGE_KEY = "axiom_chat_session";
-
-// ── API shapes ────────────────────────────────────────────────────────────────
-interface ChatApiResponse {
-  response: string;
-  session_id: string;
-  listing_references?: ListingRef[];
-}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function loadSession(): { messages: ChatMessageData[]; sessionId: string | null } {
@@ -65,9 +59,9 @@ interface ChatDrawerProps {
 
 export default function ChatDrawer({ isOpen, onClose }: ChatDrawerProps) {
   const [messages, setMessages] = useState<ChatMessageData[]>([]);
-  const [sessionId, setSessionId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const isLoadedRef = useRef(false);
@@ -76,25 +70,24 @@ export default function ChatDrawer({ isOpen, onClose }: ChatDrawerProps) {
   useEffect(() => {
     if (isOpen && !isLoadedRef.current) {
       isLoadedRef.current = true;
-      const { messages: saved, sessionId: sid } = loadSession();
+      const { messages: saved } = loadSession();
       if (saved.length > 0) {
         setMessages(saved);
       } else {
         setMessages([WELCOME_MESSAGE]);
       }
-      setSessionId(sid);
     }
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 300);
     }
   }, [isOpen]);
 
-  // Persist to localStorage whenever messages or sessionId change
+  // Persist to localStorage whenever messages change
   useEffect(() => {
     if (isLoadedRef.current) {
-      saveSession(messages, sessionId);
+      saveSession(messages, null);
     }
-  }, [messages, sessionId]);
+  }, [messages]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -103,7 +96,6 @@ export default function ChatDrawer({ isOpen, onClose }: ChatDrawerProps) {
 
   const handleClear = useCallback(() => {
     setMessages([WELCOME_MESSAGE]);
-    setSessionId(null);
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
@@ -121,36 +113,128 @@ export default function ChatDrawer({ isOpen, onClose }: ChatDrawerProps) {
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsTyping(true);
+    setIsSearching(true);
+
+    // Build conversation_history from recent messages (last 6)
+    const recentMsgs = [...messages, userMsg]
+      .filter((m) => m.id !== "welcome")
+      .slice(-6);
+    const conversation_history = recentMsgs.map((m) => ({
+      role: m.role,
+      content: m.content,
+    }));
+
+    const assistantMsgId = makeId();
 
     try {
-      const res = await api.post<ChatApiResponse>("/api/ai/chat", {
-        message: text,
-        session_id: sessionId,
+      const token = useAuthStore.getState().session?.access_token;
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+
+      const res = await fetch(`${API_BASE_URL}/api/ai/chat`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ message: text, conversation_history }),
       });
 
-      const assistantMsg: ChatMessageData = {
-        id: makeId(),
-        role: "assistant",
-        content: res.response,
-        listing_refs: res.listing_references,
-        timestamp: new Date(),
-      };
+      const contentType = res.headers.get("content-type") ?? "";
 
-      setMessages((prev) => [...prev, assistantMsg]);
-      if (res.session_id) setSessionId(res.session_id);
+      // Handle JSON fallback (ai_unavailable or error)
+      if (contentType.includes("application/json")) {
+        const json = await res.json();
+        const content = json.ai_unavailable
+          ? "AI is currently unavailable. Please try again later."
+          : json.response ?? "Sorry, I couldn't generate a response.";
+        setMessages((prev) => [
+          ...prev,
+          { id: assistantMsgId, role: "assistant", content, timestamp: new Date() },
+        ]);
+        return;
+      }
+
+      // SSE streaming
+      if (!res.body) throw new Error("No response body");
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+      let buffer = "";
+
+      // Add empty assistant message to accumulate into
+      setMessages((prev) => [
+        ...prev,
+        { id: assistantMsgId, role: "assistant", content: "", timestamp: new Date() },
+      ]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const payload = line.slice(6).trim();
+          if (payload === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(payload);
+            if (parsed.token) {
+              setIsSearching(false);
+              accumulated += parsed.token;
+              const snap = accumulated;
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantMsgId ? { ...m, content: snap } : m,
+                ),
+              );
+            }
+            if (parsed.citations) {
+              // Map snake_case from backend to camelCase for frontend
+              const mappedCitations: Citation[] = (parsed.citations as Array<{
+                source_type: string;
+                source_id: string;
+                title: string;
+                url: string;
+              }>).map((c) => ({
+                sourceType: c.source_type as Citation["sourceType"],
+                sourceId: c.source_id,
+                title: c.title,
+                url: c.url,
+              }));
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantMsgId ? { ...m, citations: mappedCitations } : m,
+                ),
+              );
+            }
+          } catch {
+            // skip malformed chunks
+          }
+        }
+      }
     } catch {
-      const errMsg: ChatMessageData = {
-        id: makeId(),
-        role: "assistant",
-        content:
-          "Sorry, I'm having trouble connecting right now. Please try again in a moment.",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errMsg]);
+      setMessages((prev) => {
+        // If we already added an empty assistant message, replace it
+        const hasEmpty = prev.some((m) => m.id === assistantMsgId);
+        const errContent = "Sorry, I'm having trouble connecting right now. Please try again in a moment.";
+        if (hasEmpty) {
+          return prev.map((m) =>
+            m.id === assistantMsgId ? { ...m, content: errContent } : m,
+          );
+        }
+        return [
+          ...prev,
+          { id: assistantMsgId, role: "assistant", content: errContent, timestamp: new Date() },
+        ];
+      });
     } finally {
       setIsTyping(false);
+      setIsSearching(false);
     }
-  }, [input, isTyping, sessionId]);
+  }, [input, isTyping, messages]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -191,7 +275,7 @@ export default function ChatDrawer({ isOpen, onClose }: ChatDrawerProps) {
                   AXIOM AI
                 </p>
                 <p className="text-xs text-white/70 mt-0.5 leading-none">
-                  Your Egyptian property expert
+                  {isSearching ? "Searching database..." : "Your Egyptian property expert"}
                 </p>
               </div>
               <div className="flex items-center gap-1">
@@ -215,7 +299,28 @@ export default function ChatDrawer({ isOpen, onClose }: ChatDrawerProps) {
             {/* ── Messages ── */}
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 custom-scrollbar min-h-0">
               {messages.map((msg) => (
-                <ChatMessage key={msg.id} message={msg} />
+                <div key={msg.id}>
+                  <ChatMessage message={msg} />
+                  {msg.role === "assistant" && msg.citations && msg.citations.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-1.5 ml-2">
+                      {msg.citations.slice(0, 3).map((citation) => (
+                        <a
+                          key={citation.sourceId}
+                          href={citation.url}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-xs font-medium transition-colors border border-primary/20 truncate max-w-[160px]"
+                          title={citation.title}
+                        >
+                          <span className="truncate">{citation.title}</span>
+                        </a>
+                      ))}
+                      {msg.citations.length > 3 && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full bg-muted text-muted-foreground text-xs">
+                          +{msg.citations.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
               ))}
               {isTyping && <TypingIndicator />}
               <div ref={messagesEndRef} />
