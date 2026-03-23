@@ -438,20 +438,44 @@ async def generate_description(
 ):
     """
     Generate a bilingual (English + Arabic) listing description using Ollama.
+    Retrieves neighborhood context from knowledge_chunks before generating.
     Returns {ai_unavailable: true} if Ollama is down.
     """
     if not await ollama.health():
         return AI_UNAVAILABLE
 
+    # Step 1: Retrieve neighborhood context (fail-open — proceed even if this fails)
+    neighborhood_context = ""
+    try:
+        nbhd_chunks = await rag_retriever.retrieve(
+            f"{body.city} neighborhood real estate",
+            source_type="neighborhood",
+            k=2,
+        )
+        if nbhd_chunks:
+            # Build context string capped at 600 chars to avoid bloating the prompt
+            raw_context = " ".join(c.chunk_text for c in nbhd_chunks)
+            neighborhood_context = raw_context[:600]
+    except Exception:
+        pass  # fail-open: proceed without neighborhood context
+
     amenities_str = ", ".join(body.amenities) if body.amenities else "none listed"
     price_str = f"EGP {body.price:,.0f}" if body.price else "price not specified"
 
+    # Step 2: Build system prompt with optional context clause
+    context_clause = (
+        f"\n\nNEIGHBORHOOD CONTEXT:\n{neighborhood_context}"
+        if neighborhood_context
+        else ""
+    )
     system = (
         "You are a professional real estate copywriter specializing in Egyptian property listings. "
         "Write compelling, accurate descriptions in both English and Arabic. "
         "Be specific to Egyptian market context and culture. "
         "Return ONLY JSON: {\"english\": \"...\", \"arabic\": \"...\"}"
+        f"{context_clause}"
     )
+
     prompt = (
         f"Property details:\n"
         f"- Title: {body.title}\n"
