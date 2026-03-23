@@ -147,12 +147,12 @@ Plans:
 
 Plans:
 - [x] 07-01-PLAN.md — Model upgrade + knowledge base schema (qwen2.5:14b, knowledge_chunks table, hybrid_search_chunks RPC)
-- [ ] 07-02-PLAN.md — Embedding pipeline (embed_listing_chunk, delete_listing_chunk, batch_embed.py for listings + neighborhoods + blog)
-- [ ] 07-03-PLAN.md — RAG retrieval layer (RAGRetriever class, Chunk/Citation/RAGResponse schemas, unit tests)
-- [ ] 07-04-PLAN.md — RAG-powered chat + NL search (pre-stream retrieval, citations SSE event, semantic search fallback)
-- [ ] 07-05-PLAN.md — Frontend RAG UI (Citation type, citation pills in ChatDrawer, database search indicator, ragSearchMutation)
-- [ ] 07-06-PLAN.md — Description RAG + recommendations explain (neighborhood context injection, ?explain=true flag with batch LLM call)
-- [ ] 07-07-PLAN.md — Fraud market context + compatibility housemates (price context in fraud scorer, real housemates + user profile in compatibility)
+- [x] 07-02-PLAN.md — Embedding pipeline (embed_listing_chunk, delete_listing_chunk, batch_embed.py for listings + neighborhoods + blog)
+- [x] 07-03-PLAN.md — RAG retrieval layer (RAGRetriever class, Chunk/Citation/RAGResponse schemas, unit tests)
+- [x] 07-04-PLAN.md — RAG-powered chat + NL search (pre-stream retrieval, citations SSE event, semantic search fallback)
+- [x] 07-05-PLAN.md — Frontend RAG UI (Citation type, citation pills in ChatDrawer, database search indicator, ragSearchMutation)
+- [x] 07-06-PLAN.md — Description RAG + recommendations explain (neighborhood context injection, ?explain=true flag with batch LLM call)
+- [x] 07-07-PLAN.md — Fraud market context + compatibility housemates (price context in fraud scorer, real housemates + user profile in compatibility)
 
 ## Progress
 
