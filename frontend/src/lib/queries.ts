@@ -226,6 +226,13 @@ export const unblockUserMutation = {
     api.delete<{ detail: string }>(`/api/messages/block/${userId}`),
 };
 
+export const deleteConversationMutation = {
+  mutationFn: (conversationId: string) =>
+    api.delete<{ detail: string }>(
+      `/api/messages/conversations/${conversationId}`
+    ),
+};
+
 // ── Notifications ──
 
 export const notificationsQueries = {
@@ -245,4 +252,37 @@ export const markNotificationReadMutation = {
 export const markAllNotificationsReadMutation = {
   mutationFn: () =>
     api.put<{ message: string }>("/api/notifications/read-all"),
+};
+
+// ── AI / RAG search ──
+
+export interface RAGSearchResponse {
+  query: string;
+  parsed_filters: Record<string, unknown>;
+  results: Array<{
+    id: string;
+    title: string;
+    location: string;
+    price: number;
+    currency: string;
+    price_period: string | null;
+    category: string;
+    property_type: string;
+    images: string[];
+    verified: boolean;
+    is_new: boolean;
+    status: string;
+    bedrooms: number | null;
+    bathrooms: number | null;
+    size_sqm: number | null;
+    neighborhood: string | null;
+    views_count: number;
+  }>;
+  total: number;
+  retrieval_method: "semantic" | "keyword";
+}
+
+export const ragSearchMutation = {
+  mutationFn: (data: { query: string; limit?: number }) =>
+    api.post<RAGSearchResponse>("/api/ai/search", data),
 };

@@ -1,7 +1,36 @@
+// ── RAG citation types ──
+
+export type CitationSourceType = "listing" | "neighborhood" | "blog";
+
+export interface Citation {
+  sourceType: CitationSourceType;
+  sourceId: string;
+  title: string;
+  url: string;
+}
+
 // ── Auth types (match backend auth/schemas.py) ──
 
 export type UserRole = "user" | "admin";
 export type GenderType = "male" | "female" | "other";
+
+export interface LifestylePreferences {
+  gender_preference?: "male" | "female" | "mixed";
+  smoking_allowed?: boolean;
+  pets_allowed?: boolean;
+  guests_policy?: "flexible" | "rarely" | "never";
+  noise_level?: "quiet" | "moderate" | "lively";
+  cleanliness?: "very_clean" | "average" | "relaxed";
+  sleep_schedule?: "early_bird" | "night_owl" | "flexible";
+  occupation_type?: "student" | "professional" | "any";
+}
+
+export interface PaymentPlan {
+  type: "cash" | "installments";
+  downPaymentPct?: number;
+  monthlyInstallment?: number;
+  years?: number;
+}
 
 export interface AuthUser {
   id: string;
@@ -15,6 +44,9 @@ export interface AuthUser {
   bio: string | null;
   badges: string[];
   is_verified_seller: boolean;
+  age?: number | null;
+  occupation?: string | null;
+  lifestyle_preferences?: LifestylePreferences | null;
 }
 
 export interface SignUpData {
@@ -24,6 +56,27 @@ export interface SignUpData {
   phone?: string;
   country_code?: string;
   gender?: GenderType;
+}
+
+// ── Notification types ──
+
+export type NotificationType =
+  | "new_message"
+  | "listing_approved"
+  | "listing_rejected"
+  | "viewing_confirmed"
+  | "application_received"
+  | "application_approved"
+  | "application_rejected";
+
+export interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  is_read: boolean;
+  metadata?: Record<string, unknown>;
+  created_at: string;
 }
 
 // ── UI / mock-data types ──
@@ -341,8 +394,22 @@ export interface PropertyDetail {
   similarProperties: SimilarProperty[];
   latitude?: number | null;
   longitude?: number | null;
+  // Location
+  neighborhood?: string | null;
+  compoundName?: string | null;
+  floorNumber?: number | null;
+  totalFloors?: number | null;
+  // Rental fields
+  leaseType?: "monthly" | "yearly" | "daily" | null;
+  minStayMonths?: number | null;
+  // Sale fields
+  paymentPlan?: PaymentPlan | null;
+  deliveryDate?: string | null;
+  titleDeedStatus?: "ready" | "off_plan" | "pending" | null;
   // Shared housing extras (null for regular listings)
   category?: "for_rent" | "for_sale" | "shared_housing";
+  roomType?: "ensuite" | "private" | "shared" | null;
+  lifestylePreferences?: LifestylePreferences | null;
   totalSpots?: number;
   filledSpots?: number;
   availability?: string;
@@ -400,6 +467,8 @@ export interface InboxContact {
   time: string;
   online?: boolean;
   active?: boolean;
+  status?: "pending" | "accepted" | "rejected";
+  isIncomingRequest?: boolean;
 }
 
 export interface ChatMessage {
@@ -407,6 +476,7 @@ export interface ChatMessage {
   sender: "them" | "me";
   text: string;
   time: string;
+  rawDate?: string;
   attachment?: {
     name: string;
     size: string;
