@@ -1,6 +1,7 @@
 """Tests for /api/ai endpoints — all mock Ollama."""
 
 import asyncio
+import pytest
 from unittest.mock import AsyncMock
 
 from tests.conftest import FAKE_USER_ID, FAKE_PROFILE
@@ -696,3 +697,186 @@ def test_recommendations_without_explain_unchanged(client, mock_supabase, auth_h
     assert len(data) == 1
     # No explanation field — explain=False (default) must never enrich
     assert "explanation" not in data[0]
+
+
+# ─── Fraud market context tests (REQ-RAG-10) ─────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_fraud_llm_market_context_injected(mock_supabase):
+    """_llm_consistency injects market price context into system prompt when chunks available."""
+    import app.ai.fraud as fraud_module
+    from unittest.mock import AsyncMock, patch
+    from app.ai.schemas import Chunk
+
+    fake_chunk = Chunk(
+        id="price-chunk-1",
+        source_type="listing",
+        source_id="listing-ref-1",
+        chunk_text="Cairo for_rent apartments typically range from 3000 to 8000 EGP/month.",
+        metadata={"city": "Cairo", "category": "for_rent"},
+        score=0.85,
+    )
+
+    captured_system = {}
+
+    async def fake_generate(prompt, system=""):
+        captured_system["value"] = system
+        return '{"fraud_score": 0.1, "reason": "Looks normal"}'
+
+    listing = {
+        "title": "Nice 2BR",
+        "description": "Spacious 2BR apartment in central Cairo.",
+        "price": 5000,
+        "category": "for_rent",
+        "city": "Cairo",
+        "property_type": "apartment",
+        "bedrooms": 2,
+        "bathrooms": 1,
+        "size_sqm": 90,
+    }
+
+    # Use patch.object on the ollama singleton to avoid contaminating other tests
+    with patch.object(fraud_module.rag_retriever, "retrieve", new=AsyncMock(return_value=[fake_chunk])), \
+         patch.object(fraud_module.ollama, "health", new=AsyncMock(return_value=True)), \
+         patch.object(fraud_module.ollama, "generate", new=fake_generate):
+        score = await fraud_module._llm_consistency(listing)
+
+    assert 0.0 <= score <= 1.0
+    assert "3000 to 8000 EGP" in captured_system.get("value", "")
+
+
+@pytest.mark.asyncio
+async def test_fraud_llm_no_market_context_fallback(mock_supabase):
+    """_llm_consistency returns a valid score when RAG returns no chunks."""
+    import app.ai.fraud as fraud_module
+    from unittest.mock import AsyncMock, patch
+
+    with patch.object(fraud_module.rag_retriever, "retrieve", new=AsyncMock(return_value=[])), \
+         patch.object(fraud_module.ollama, "health", new=AsyncMock(return_value=True)), \
+         patch.object(fraud_module.ollama, "generate", new=AsyncMock(return_value='{"fraud_score": 0.2, "reason": "Seems fine"}')):
+        score = await fraud_module._llm_consistency({
+            "title": "Apt",
+            "description": "A basic apartment.",
+            "price": 4000,
+            "category": "for_rent",
+            "city": "Cairo",
+        })
+
+    assert 0.0 <= score <= 1.0
+
+
+# ─── Compatibility housemates + profile tests (REQ-RAG-12) ───────────────────
+
+def test_compatibility_with_housemates(client, mock_supabase, auth_header):
+    """compute_compatibility returns housemate_notes field from LLM response."""
+    _, mock_admin = mock_supabase
+    import app.ai.router as ai_router
+    from unittest.mock import AsyncMock, MagicMock
+
+    # The MagicMock chain for .single().execute() is shared across all table/select calls.
+    # Use side_effect to return the correct data in call order:
+    #   call 1: get_current_user -> FAKE_PROFILE
+    #   call 2: listing query   -> shared_housing listing
+    #   call 3: user profile    -> lifestyle_preferences
+    def _r(data):
+        m = MagicMock()
+        m.data = data
+        return m
+
+    listing_data = {
+        "category": "shared_housing",
+        "lifestyle_preferences": {"smoking_allowed": False},
+        "title": "Shared 3BR",
+    }
+    user_profile_data = {
+        "lifestyle_preferences": {"smoking_allowed": False, "pets_allowed": True},
+        "age": 27,
+        "occupation": "Designer",
+        "gender": "female",
+    }
+
+    mock_admin.table().select().eq().single().execute.side_effect = [
+        _r(FAKE_PROFILE),
+        _r(listing_data),
+        _r(user_profile_data),
+    ]
+
+    # Housemates query uses .limit() not .single() — set its own chain
+    mock_admin.table().select().eq().limit().execute.return_value.data = [
+        {"name": "Ahmed", "age": 25, "occupation": "Engineer", "tags": ["quiet"], "user_id": None}
+    ]
+
+    ai_router.ollama.health = AsyncMock(return_value=True)
+    ai_router.ollama.generate = AsyncMock(
+        return_value='{"score": 82, "reasons": ["Non-smoker match"], "housemate_notes": ["Ahmed seems compatible — both quiet professionals"]}'
+    )
+
+    resp = client.post(
+        "/api/ai/compatibility",
+        json={"listing_id": "listing-sh-1", "lifestyle_data": {}},
+        headers=auth_header,
+    )
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["compatibility_score"] == 82
+    assert isinstance(data["housemate_notes"], list)
+    assert len(data["housemate_notes"]) == 1
+    assert "Ahmed" in data["housemate_notes"][0]
+
+
+def test_compatibility_user_profile_merges_with_body(client, mock_supabase, auth_header):
+    """Body lifestyle_data overrides stored profile preferences in the prompt."""
+    _, mock_admin = mock_supabase
+    import app.ai.router as ai_router
+    from unittest.mock import AsyncMock, MagicMock
+
+    # Same side_effect approach: call order is auth, listing, user_profile
+    def _r(data):
+        m = MagicMock()
+        m.data = data
+        return m
+
+    listing_data = {
+        "category": "shared_housing",
+        "lifestyle_preferences": {"pets_allowed": False},
+        "title": "Studio Share",
+    }
+    user_profile_data = {
+        "lifestyle_preferences": {"pets_allowed": False, "smoking_allowed": False},
+        "age": 30,
+        "occupation": "Teacher",
+        "gender": "male",
+    }
+
+    mock_admin.table().select().eq().single().execute.side_effect = [
+        _r(FAKE_PROFILE),
+        _r(listing_data),
+        _r(user_profile_data),
+    ]
+
+    # No housemates
+    mock_admin.table().select().eq().limit().execute.return_value.data = []
+
+    captured_prompt = {}
+
+    async def fake_generate(prompt, system=""):
+        captured_prompt["value"] = prompt
+        return '{"score": 70, "reasons": ["Reasonable match"], "housemate_notes": []}'
+
+    ai_router.ollama.health = AsyncMock(return_value=True)
+    ai_router.ollama.generate = fake_generate
+
+    # body.lifestyle_data overrides pets_allowed to True
+    resp = client.post(
+        "/api/ai/compatibility",
+        json={"listing_id": "listing-sh-2", "lifestyle_data": {"pets_allowed": True}},
+        headers=auth_header,
+    )
+
+    assert resp.status_code == 200
+    # The merged prompt should contain pets_allowed: true (body overrode stored false)
+    prompt_text = captured_prompt.get("value", "")
+    assert "pets_allowed" in prompt_text
+    # housemate_notes returned as empty list when LLM returns []
+    assert resp.json()["housemate_notes"] == []
