@@ -51,6 +51,21 @@ const WELCOME_MESSAGE: ChatMessageData = {
   timestamp: new Date(0),
 };
 
+const SUGGESTION_CHIPS = [
+  {
+    label: "🏠 Apartments in New Cairo",
+    message: "Show me apartments for rent in New Cairo",
+  },
+  {
+    label: "💰 Under 10,000 EGP/month",
+    message: "What's available for rent under 10,000 EGP per month?",
+  },
+  {
+    label: "🏘️ Compare neighborhoods",
+    message: "What are the best neighborhoods in Cairo to live in?",
+  },
+] as const;
+
 // ── Component ─────────────────────────────────────────────────────────────────
 interface ChatDrawerProps {
   isOpen: boolean;
@@ -301,6 +316,23 @@ export default function ChatDrawer({ isOpen, onClose }: ChatDrawerProps) {
               {messages.map((msg) => (
                 <div key={msg.id}>
                   <ChatMessage message={msg} />
+
+                  {/* Suggestion chips — only on fresh/cleared sessions */}
+                  {msg.id === "welcome" && messages.length === 1 && (
+                    <div className="flex flex-wrap gap-2 ml-9 mt-2">
+                      {SUGGESTION_CHIPS.map((chip) => (
+                        <button
+                          key={chip.label}
+                          onClick={() => sendMessage(chip.message)}
+                          className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-xs font-medium border border-primary/20 transition-colors"
+                        >
+                          {chip.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Citation pills (existing — keep exactly as-is) */}
                   {msg.role === "assistant" && msg.citations && msg.citations.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-1.5 ml-2">
                       {msg.citations.slice(0, 3).map((citation) => (
