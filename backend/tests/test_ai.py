@@ -880,3 +880,29 @@ def test_compatibility_user_profile_merges_with_body(client, mock_supabase, auth
     assert "pets_allowed" in prompt_text
     # housemate_notes returned as empty list when LLM returns []
     assert resp.json()["housemate_notes"] == []
+
+
+# ─── _detect_property_search unit tests ──────────────────────────────────────
+
+from app.ai.router import _detect_property_search
+
+
+def test_detect_property_search_city_and_category():
+    assert _detect_property_search("apartment in cairo") >= 40
+
+
+def test_detect_property_search_price_signal():
+    assert _detect_property_search("flat under 2m egp") >= 40
+
+
+def test_detect_property_search_question_only():
+    assert _detect_property_search("how does renting work in egypt") < 40
+
+
+def test_detect_property_search_arabic():
+    assert _detect_property_search("شقة في القاهرة") >= 40
+
+
+def test_detect_property_search_vague():
+    # No city, no category, no price → below threshold
+    assert _detect_property_search("I need a place") < 40

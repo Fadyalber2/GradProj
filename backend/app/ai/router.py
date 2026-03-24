@@ -102,6 +102,48 @@ async def _extract_filters_from_query(query: str) -> dict:
     return {}
 
 
+def _detect_property_search(message: str) -> int:
+    """
+    Score a message for property search intent.
+    Returns int score; >= 40 means run listing search.
+    """
+    import re
+    msg = message.lower()
+    score = 0
+
+    cities = [
+        "cairo", "giza", "alexandria", "new cairo", "new capital", "maadi",
+        "zamalek", "heliopolis", "nasr city", "sheikh zayed", "6th october",
+        "6th of october", "october city", "north coast", "hurghada", "sharm",
+        "dokki", "mohandessin", "rehab", "mostakbal",
+        # Arabic city names
+        "القاهرة", "الجيزة", "الإسكندرية", "المعادي", "الزمالك",
+        "مدينة نصر", "الشيخ زايد", "أكتوبر", "الرحاب", "المستقبل",
+    ]
+    if any(city in msg for city in cities):
+        score += 40
+
+    category_words = [
+        "apartment", "flat", "villa", "rent", "sale", "room", "studio",
+        "شقة", "فيلا", "إيجار", "للبيع", "للإيجار",
+    ]
+    if any(w in msg for w in category_words):
+        score += 30
+
+    if re.search(r'\b\d[\d,]*\s*(k|m|egp|pound|جنيه)\b|\begp\b', msg):
+        score += 25
+
+    bedroom_words = ["bedroom", "bed", " br ", "غرف", "أوض"]
+    if any(w in msg for w in bedroom_words):
+        score += 20
+
+    question_words = ["how ", "what is", "explain", "كيف", "ما هو"]
+    if any(w in msg for w in question_words) and score == 0:
+        score -= 30
+
+    return score
+
+
 # ─── POST /api/ai/search ─────────────────────────────────────────────────────
 
 @router.post("/search")
