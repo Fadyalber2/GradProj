@@ -99,8 +99,8 @@ export default function ChatDrawer({ isOpen, onClose }: ChatDrawerProps) {
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
-  const sendMessage = useCallback(async () => {
-    const text = input.trim();
+  const sendMessage = useCallback(async (override?: string) => {
+    const text = (override ?? input).trim();
     if (!text || isTyping) return;
 
     const userMsg: ChatMessageData = {
@@ -340,7 +340,7 @@ export default function ChatDrawer({ isOpen, onClose }: ChatDrawerProps) {
                   className="flex-1 bg-secondary text-foreground text-sm rounded-full px-4 py-2.5 border border-border focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 placeholder:text-muted-foreground disabled:opacity-50 transition-all"
                 />
                 <button
-                  onClick={sendMessage}
+                  onClick={() => sendMessage()}
                   disabled={!input.trim() || isTyping}
                   className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:scale-105 active:scale-95 shadow-md shadow-primary/30"
                 >
