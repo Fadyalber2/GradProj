@@ -906,3 +906,22 @@ def test_detect_property_search_arabic():
 def test_detect_property_search_vague():
     # No city, no category, no price → below threshold
     assert _detect_property_search("I need a place") < 40
+
+
+def test_chat_listing_search_score_threshold():
+    """High-intent query should score >= 40."""
+    score = _detect_property_search("apartment in cairo under 1500000 egp")
+    assert score >= 40
+
+
+def test_build_listing_refs_shape():
+    from app.ai.router import _build_listing_refs
+    rows = [{
+        "id": "abc", "title": "Test", "location": "Cairo",
+        "price": 1000000, "currency": "EGP", "bedrooms": 2,
+        "size_sqm": 100.0, "images": [], "views_count": 5,
+    }]
+    refs = _build_listing_refs(rows)
+    assert refs[0]["id"] == "abc"
+    assert refs[0]["price"] == 1000000.0
+    assert "embedding" not in refs[0]

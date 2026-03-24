@@ -144,6 +144,145 @@ def _detect_property_search(message: str) -> int:
     return score
 
 
+def _build_listing_refs(candidates: list[dict]) -> list[dict]:
+    """Build the listing_refs SSE payload from DB rows. Strips embeddings."""
+    return [
+        {
+            "id": row["id"],
+            "title": row["title"],
+            "location": row["location"],
+            "price": float(row["price"]),
+            "currency": row.get("currency", "EGP"),
+            "bedrooms": row.get("bedrooms"),
+            "size_sqm": float(row["size_sqm"]) if row.get("size_sqm") else None,
+            "images": row.get("images") or [],
+        }
+        for row in candidates
+    ]
+
+
+async def _search_listings_for_chat(
+    message: str,
+    filters: dict,
+    current_user: dict | None,
+) -> tuple[list[dict], str]:
+    """
+    Returns (listing_refs, source). source is "search" or "personalized".
+    Total budget: 3 seconds. Returns ([], "search") on any failure or timeout.
+    """
+    import math
+
+    async def _do_search() -> tuple[list[dict], str]:
+        # ── Personalized path (logged-in users with favorites) ────────────────
+        if current_user:
+            try:
+                fav_result = (
+                    supabase_admin.table("favorites")
+                    .select("listing_id")
+                    .eq("user_id", current_user["id"])
+                    .order("created_at", desc=True)
+                    .limit(5)
+                    .execute()
+                )
+                fav_ids = [r["listing_id"] for r in (fav_result.data or [])]
+                for fav_id in fav_ids:
+                    ref = (
+                        supabase_admin.table("listings")
+                        .select("embedding")
+                        .eq("id", fav_id)
+                        .single()
+                        .execute()
+                    )
+                    if ref.data and ref.data.get("embedding"):
+                        rpc_result = supabase_admin.rpc("match_listings", {
+                            "query_embedding": ref.data["embedding"],
+                            "match_threshold": 0.5,
+                            "match_count": 10,
+                            "filter_category": filters.get("category"),
+                            # IMPORTANT: RPC param is filter_city; extractor key is location (not city)
+                            "filter_city": filters.get("location"),
+                        }).execute()
+                        candidates = rpc_result.data or []
+                        # Post-filter price (RPC has no max_price/min_price params)
+                        if filters.get("max_price"):
+                            candidates = [
+                                c for c in candidates
+                                if c.get("price", float("inf")) <= filters["max_price"]
+                            ]
+                        if filters.get("min_price"):
+                            candidates = [
+                                c for c in candidates
+                                if c.get("price", 0) >= filters["min_price"]
+                            ]
+                        for c in candidates:
+                            c.pop("embedding", None)
+                        if candidates:
+                            return _build_listing_refs(candidates[:3]), "personalized"
+            except Exception:
+                pass  # fall through to structured search
+
+        # ── Structured search path ─────────────────────────────────────────────
+        db_query = (
+            supabase_admin.table("listings")
+            .select(
+                "id, title, location, city, price, currency, "
+                "bedrooms, size_sqm, images, views_count, embedding"
+            )
+            .eq("status", "active")
+            .is_("deleted_at", "null")
+        )
+        if filters.get("category"):
+            db_query = db_query.eq("category", filters["category"])
+        if filters.get("min_price") is not None:
+            db_query = db_query.gte("price", filters["min_price"])
+        if filters.get("max_price") is not None:
+            db_query = db_query.lte("price", filters["max_price"])
+        if filters.get("bedrooms") is not None:
+            db_query = db_query.eq("bedrooms", filters["bedrooms"])
+        if filters.get("location"):
+            loc = filters["location"]
+            db_query = db_query.or_(f"city.ilike.%{loc}%,location.ilike.%{loc}%")
+
+        result = db_query.order("views_count", desc=True).limit(10).execute()
+        candidates = result.data or []
+
+        # Semantic re-rank (only if Ollama healthy and candidates non-empty)
+        if candidates and await ollama.health():
+            try:
+                msg_embedding = await ollama.embed(message)
+
+                def cosine_sim(a: list[float], b: list[float]) -> float:
+                    dot = sum(x * y for x, y in zip(a, b))
+                    mag = math.sqrt(sum(x * x for x in a)) * math.sqrt(sum(x * x for x in b))
+                    return dot / mag if mag else 0.0
+
+                scored = [
+                    (cosine_sim(msg_embedding, c["embedding"]), c)
+                    for c in candidates
+                    if c.get("embedding")
+                ]
+                if len(scored) >= 3:
+                    scored.sort(key=lambda x: x[0], reverse=True)
+                    candidates = [c for _, c in scored[:3]]
+                else:
+                    candidates = candidates[:3]
+            except Exception:
+                candidates = candidates[:3]
+        else:
+            candidates = candidates[:3]
+
+        # Strip embedding vectors before building refs
+        for c in candidates:
+            c.pop("embedding", None)
+
+        return _build_listing_refs(candidates), "search"
+
+    try:
+        return await asyncio.wait_for(_do_search(), timeout=3.0)
+    except Exception:
+        return [], "search"
+
+
 # ─── POST /api/ai/search ─────────────────────────────────────────────────────
 
 @router.post("/search")
@@ -246,6 +385,18 @@ async def chat(
     context_str = rag_retriever.build_context(chunks)
     citations = rag_retriever.format_citations(chunks)
 
+    # ── Property search injection ────────────────────────────────────────────────
+    listing_refs: list[dict] = []
+    listing_source = "search"
+    if _detect_property_search(body.message) >= 40:
+        try:
+            search_filters = await _extract_filters_from_query(body.message)
+            listing_refs, listing_source = await _search_listings_for_chat(
+                body.message, search_filters, current_user
+            )
+        except Exception:
+            pass  # fail-open: chat continues without listing cards
+
     # Step 2: Build grounded system prompt
     if context_str:
         system = (
@@ -291,11 +442,13 @@ async def chat(
 
     full_prompt = f"{history_text}User: {body.message}\nAssistant:"
 
-    # Step 4: Stream response, emit citations as final SSE event before [DONE]
+    # Step 4: Stream response, emit listing_refs + citations as final SSE events before [DONE]
     async def generate_sse():
         try:
             async for token in ollama.generate_stream(prompt=full_prompt, system=system):
                 yield f"data: {json.dumps({'token': token})}\n\n"
+            if listing_refs:
+                yield f"data: {json.dumps({'listing_refs': listing_refs, 'source': listing_source})}\n\n"
             # Emit citations before DONE so frontend can parse them
             if citations:
                 yield f"data: {json.dumps({'citations': [c.model_dump() for c in citations]})}\n\n"
