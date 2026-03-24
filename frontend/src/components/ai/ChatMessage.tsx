@@ -1,9 +1,77 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Sparkles, User, BedDouble, Maximize2, ArrowRight } from "lucide-react";
 import type { Citation } from "@/types";
+
+// ── Markdown helpers (internal) ───────────────────────────────────────────────
+
+function renderInline(text: string): ReactNode {
+  // Handles **bold** — streaming-safe: unclosed ** falls through as plain text
+  const parts = text.split(/(\*\*[^*]+\*\*)/);
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.startsWith("**") && part.endsWith("**") ? (
+          <strong key={i}>{part.slice(2, -2)}</strong>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  );
+}
+
+function MessageContent({ content }: { content: string }): ReactNode {
+  const lines = content.split("\n");
+  type Group =
+    | { type: "bullet"; items: string[] }
+    | { type: "text"; text: string }
+    | { type: "br" };
+
+  const groups: Group[] = [];
+
+  for (const line of lines) {
+    if (line.startsWith("- ") || line.startsWith("* ")) {
+      const last = groups[groups.length - 1];
+      if (last?.type === "bullet") {
+        last.items.push(line.slice(2));
+      } else {
+        groups.push({ type: "bullet", items: [line.slice(2)] });
+      }
+    } else if (line === "") {
+      if (groups.length > 0 && groups[groups.length - 1].type !== "br") {
+        groups.push({ type: "br" });
+      }
+    } else {
+      groups.push({ type: "text", text: line });
+    }
+  }
+
+  return (
+    <>
+      {groups.map((group, i) => {
+        if (group.type === "bullet") {
+          return (
+            <ul key={i} className="list-disc list-inside space-y-0.5 mt-1 mb-1">
+              {group.items.map((item, j) => (
+                <li key={j}>{renderInline(item)}</li>
+              ))}
+            </ul>
+          );
+        }
+        if (group.type === "br") return <br key={i} />;
+        return (
+          <span key={i} className="block">
+            {renderInline(group.text)}
+          </span>
+        );
+      })}
+    </>
+  );
+}
 
 export interface ListingRef {
   id: string;
@@ -121,7 +189,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
               : "bg-secondary text-foreground rounded-tl-sm"
           }`}
         >
-          {message.content}
+          <MessageContent content={message.content} />
         </div>
 
         {/* Inline listing reference cards */}
