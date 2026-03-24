@@ -1,5 +1,6 @@
 import json
 import asyncio
+import re
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -107,7 +108,6 @@ def _detect_property_search(message: str) -> int:
     Score a message for property search intent.
     Returns int score; >= 40 means run listing search.
     """
-    import re
     msg = message.lower()
     score = 0
 
@@ -133,8 +133,8 @@ def _detect_property_search(message: str) -> int:
     if re.search(r'\b\d[\d,]*\s*(k|m|egp|pound|جنيه)\b|\begp\b', msg):
         score += 25
 
-    bedroom_words = ["bedroom", "bed", " br ", "غرف", "أوض"]
-    if any(w in msg for w in bedroom_words):
+    bedroom_words = ["bedroom", "beds", "غرف", "أوض"]
+    if any(w in msg for w in bedroom_words) or re.search(r'\bbr\b', msg):
         score += 20
 
     question_words = ["how ", "what is", "explain", "كيف", "ما هو"]
