@@ -157,7 +157,7 @@ interface ChatMessageProps {
   message: ChatMessageData;
 }
 
-export default function ChatMessage({ message }: ChatMessageProps) {
+export function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === "user";
 
   return (

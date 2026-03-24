@@ -6,9 +6,10 @@ import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
 
 // Lazy-load the drawer so it doesn't bloat the initial bundle
-const ChatDrawer = dynamic(() => import("@/components/ai/ChatDrawer"), {
-  ssr: false,
-});
+const ChatDrawer = dynamic(
+  () => import("@/components/ai/ChatDrawer").then((m) => ({ default: m.ChatDrawer })),
+  { ssr: false }
+);
 
 export default function FloatingAIButton() {
   const [isOpen, setIsOpen] = useState(false);

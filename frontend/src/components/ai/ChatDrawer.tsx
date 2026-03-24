@@ -5,10 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Sparkles, RotateCcw } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api";
 import { useAuthStore } from "@/stores/authStore";
-import ChatMessage, {
-  TypingIndicator,
-  type ChatMessageData,
-} from "./ChatMessage";
+import { ChatMessage, TypingIndicator, type ChatMessageData } from "./ChatMessage";
 import type { Citation } from "@/types";
 
 // ── Storage key ─────────────────────────────────────────────────────────────
@@ -72,7 +69,7 @@ interface ChatDrawerProps {
   onClose: () => void;
 }
 
-export default function ChatDrawer({ isOpen, onClose }: ChatDrawerProps) {
+export function ChatDrawer({ isOpen, onClose }: ChatDrawerProps) {
   const [messages, setMessages] = useState<ChatMessageData[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
