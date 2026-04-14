@@ -3,7 +3,7 @@ import asyncio
 import re
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, Any
 from app.ai.ollama_client import ollama
 from app.ai.rag import rag_retriever
@@ -46,7 +46,7 @@ class DescriptionRequest(BaseModel):
 
 
 class AmenityValidationRequest(BaseModel):
-    amenity: str
+    amenity: str = Field(..., max_length=200)
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -876,7 +876,10 @@ async def generate_description(
 # ─── POST /api/ai/validate-amenity ───────────────────────────────────────────
 
 @router.post("/validate-amenity")
-async def validate_amenity(body: AmenityValidationRequest):
+async def validate_amenity(
+    body: AmenityValidationRequest,
+    current_user: dict = Depends(get_current_user),
+):
     """
     Check whether a custom amenity string is appropriate for a property listing.
     Fail-open: returns ok=True if Ollama is unavailable.
