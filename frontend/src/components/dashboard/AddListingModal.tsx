@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import {
   X,
@@ -196,11 +197,6 @@ export default function AddListingModal({
   async function generateDescription() {
     setGeneratingDesc(true);
     try {
-      const categoryMap: Record<string, string> = {
-        for_rent: "rent",
-        for_sale: "buy",
-        shared_housing: "shared",
-      };
       const res = await api.post<{
         english?: string;
         arabic?: string;
@@ -208,7 +204,8 @@ export default function AddListingModal({
       }>("/api/ai/generate-description", {
         title: form.title || null,
         full_address: form.full_address || null,
-        property_type: categoryMap[form.category] ?? "rent",
+        category: form.category,
+        property_type: form.property_type,
         price: form.price ? Number(form.price) : null,
         size_sqm: form.size_sqm ? Number(form.size_sqm) : null,
         bedrooms: form.bedrooms,
@@ -720,11 +717,12 @@ export default function AddListingModal({
                       key={i}
                       className="relative group rounded-xl overflow-hidden aspect-video bg-black/20"
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <Image
                         src={src}
                         alt={`Photo ${i + 1}`}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        unoptimized
                       />
                       <button
                         type="button"
