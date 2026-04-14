@@ -45,6 +45,10 @@ class DescriptionRequest(BaseModel):
     extra_notes: Optional[str] = None
 
 
+class AmenityValidationRequest(BaseModel):
+    amenity: str
+
+
 # ─── Helpers ─────────────────────────────────────────────────────────────────
 
 def _build_listing_brief(row: dict) -> dict:
@@ -867,3 +871,45 @@ async def generate_description(
 
     # Fallback if JSON parse fails — return raw text as English only
     return {"english": raw if "raw" in dir() else "", "arabic": ""}
+
+
+# ─── POST /api/ai/validate-amenity ───────────────────────────────────────────
+
+@router.post("/validate-amenity")
+async def validate_amenity(body: AmenityValidationRequest):
+    """
+    Check whether a custom amenity string is appropriate for a property listing.
+    Fail-open: returns ok=True if Ollama is unavailable.
+    """
+    value = body.amenity.strip()
+    if not value:
+        return {"ok": False, "reason": "Amenity name cannot be empty"}
+
+    if not await ollama.health():
+        return {"ok": True, "reason": ""}
+
+    system = (
+        "You are a content moderation system for a real estate platform in Egypt. "
+        "Determine whether the given amenity name is appropriate for a property listing. "
+        "Flag anything that is: offensive, sexual, discriminatory, harmful, or entirely unrelated to real estate. "
+        "Legitimate examples: 'Rooftop Terrace', 'Private Entrance', 'Solar Panels', 'Maid's Room'. "
+        "Return ONLY valid JSON with no extra text: "
+        '{\"appropriate\": true, \"reason\": \"\"} '
+        'or {\"appropriate\": false, \"reason\": \"short reason\"}'
+    )
+    prompt = f'Is this amenity appropriate for a real estate listing? Amenity: "{value}"'
+
+    try:
+        raw = await ollama.generate(prompt=prompt, system=system)
+        start = raw.find("{")
+        end = raw.rfind("}") + 1
+        if start >= 0 and end > start:
+            parsed = json.loads(raw[start:end])
+            ok = bool(parsed.get("appropriate", True))
+            reason = str(parsed.get("reason", ""))
+            return {"ok": ok, "reason": reason}
+    except Exception:
+        pass
+
+    # Fail-open on any parse error
+    return {"ok": True, "reason": ""}
