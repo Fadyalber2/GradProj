@@ -830,12 +830,41 @@ export const DASHBOARD_MESSAGES: DashboardMessage[] = [
   },
 ];
 
+export const LISTING_CATEGORIES = [
+  { value: "for_rent", label: "For Rent" },
+  { value: "for_sale", label: "For Sale" },
+  { value: "shared_housing", label: "Shared Housing" },
+] as const;
+
+export const PROPERTY_TYPES = [
+  "Apartment",
+  "Villa",
+  "Studio",
+  "Penthouse",
+  "Duplex",
+  "Townhouse",
+  "Chalet",
+  "Office",
+  "Shop",
+] as const;
+
+export const FURNISHING_OPTIONS = [
+  "Furnished",
+  "Semi-Furnished",
+  "Unfurnished",
+] as const;
+
 export const LISTING_AMENITIES = [
   "Parking",
   "Swimming Pool",
   "Gym",
   "Garden",
   "Security",
+  "Elevator",
+  "Central AC",
+  "Balcony",
+  "Storage Room",
+  "Maid's Room",
 ];
 
 /* ── User Dashboard ───────────────────────────────────── */
