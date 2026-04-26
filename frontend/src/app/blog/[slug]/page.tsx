@@ -4,7 +4,7 @@ import ArticleBody from "@/components/blog-article/ArticleBody";
 import ArticleSidebar from "@/components/blog-article/ArticleSidebar";
 import NewsletterCTA from "@/components/blog-article/NewsletterCTA";
 import RelatedArticles from "@/components/blog-article/RelatedArticles";
-import { serverFetch } from "@/lib/queries";
+import { getBlogPost } from "@/lib/supabase-queries";
 import type { BlogPostDetail, BlogPostBrief } from "@/types/api";
 import type { BlogArticle, RelatedArticle, ArticleBlock } from "@/types";
 
@@ -55,15 +55,12 @@ export default async function BlogArticlePage({
 }) {
   const { slug } = await params;
 
-  const [post, related] = await Promise.all([
-    serverFetch<BlogPostDetail>(`/api/blog/${slug}`),
-    serverFetch<BlogPostBrief[]>(`/api/blog/${slug}/related`),
-  ]);
+  const { data: post } = await getBlogPost(slug);
 
   if (!post) notFound();
 
   const article = mapArticle(post);
-  const relatedArticles = (related ?? []).map(mapRelated);
+  const relatedArticles: ReturnType<typeof mapRelated>[] = [];
 
   return (
     <>
