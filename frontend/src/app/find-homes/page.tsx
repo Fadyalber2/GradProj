@@ -8,10 +8,44 @@ import FilterSidebar from "@/components/find-homes/FilterSidebar";
 import SearchListingCard from "@/components/find-homes/SearchListingCard";
 import SearchListingRow from "@/components/find-homes/SearchListingRow";
 import Pagination from "@/components/find-homes/Pagination";
-import { listingsQueries } from "@/lib/queries";
+import { getListings } from "@/lib/supabase-queries";
 import { api } from "@/lib/api";
 import type { Listing } from "@/types";
 import type { ListingBrief } from "@/types/api";
+
+// ── Extracted to module scope so React never sees a new component type on re-render ──
+function ListingGrid({ items, viewMode }: { items: Listing[]; viewMode: "grid" | "list" }) {
+  if (viewMode === "list") {
+    return (
+      <div className="flex flex-col gap-4">
+        {items.map((listing, i) => (
+          <motion.div
+            key={listing.id}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: Math.min(i, 4) * 0.03, duration: 0.25 }}
+          >
+            <SearchListingRow listing={listing} />
+          </motion.div>
+        ))}
+      </div>
+    );
+  }
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      {items.map((listing, i) => (
+        <motion.div
+          key={listing.id}
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: Math.min(i, 5) * 0.035, duration: 0.28 }}
+        >
+          <SearchListingCard listing={listing} />
+        </motion.div>
+      ))}
+    </div>
+  );
+}
 
 const SORT_OPTIONS = [
   { label: "Recommended", value: "newest" },
@@ -21,6 +55,12 @@ const SORT_OPTIONS = [
 ];
 
 function mapToListing(l: ListingBrief): Listing {
+  const tags: string[] = [];
+  if (l.bedrooms != null) tags.push(`${l.bedrooms} Bed${l.bedrooms !== 1 ? "s" : ""}`);
+  if (l.bathrooms != null) tags.push(`${l.bathrooms} Bath${l.bathrooms !== 1 ? "s" : ""}`);
+  if (l.size_sqm != null) tags.push(`${l.size_sqm} m²`);
+  if (l.property_type) tags.push(l.property_type);
+
   return {
     id: l.id,
     title: l.title,
@@ -29,11 +69,16 @@ function mapToListing(l: ListingBrief): Listing {
     image: l.images[0] ?? "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800",
     matchPercent: 0,
     verified: l.verified,
-    filledSpots: 0,
-    totalSpots: 1,
-    tags: [],
+    filledSpots: l.category === "shared_housing" ? 0 : 0,
+    totalSpots: l.category === "shared_housing" ? 1 : 1,
+    tags,
     avatars: [],
     liked: false,
+    category: l.category,
+    bedrooms: l.bedrooms,
+    bathrooms: l.bathrooms,
+    property_type: l.property_type,
+    is_new: l.is_new,
   };
 }
 
@@ -69,7 +114,8 @@ export default function FindHomesPage() {
   const [aiError, setAiError] = useState("");
 
   const { data, isLoading, isError } = useQuery({
-    ...listingsQueries.list({ sort_by: sortBy, page: currentPage, per_page: 12 }),
+    queryKey: ["listings", { sort_by: sortBy, page: currentPage }],
+    queryFn: () => getListings({ sort_by: sortBy, page: currentPage, per_page: 12 }),
     enabled: !aiMode,
   });
 
@@ -106,39 +152,6 @@ export default function FindHomesPage() {
 
   const aiListings = (aiResults?.results ?? []).map(mapToListing);
   const parsedFilters = aiResults?.parsed_filters;
-
-  function ListingGrid({ items }: { items: Listing[] }) {
-    if (viewMode === "list") {
-      return (
-        <div className="flex flex-col gap-4">
-          {items.map((listing, i) => (
-            <motion.div
-              key={listing.id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.04, duration: 0.35 }}
-            >
-              <SearchListingRow listing={listing} />
-            </motion.div>
-          ))}
-        </div>
-      );
-    }
-    return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {items.map((listing, i) => (
-          <motion.div
-            key={listing.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05, duration: 0.4 }}
-          >
-            <SearchListingCard listing={listing} />
-          </motion.div>
-        ))}
-      </div>
-    );
-  }
 
   return (
     <main className="flex h-[calc(100vh-64px)] overflow-hidden w-full">
@@ -337,7 +350,7 @@ export default function FindHomesPage() {
             {listings.length === 0 ? (
               <p className="text-center text-gray-500 py-20">No listings found.</p>
             ) : (
-              <ListingGrid items={listings} />
+              <ListingGrid items={listings} viewMode={viewMode} />
             )}
             <Pagination
               currentPage={currentPage}
@@ -355,7 +368,7 @@ export default function FindHomesPage() {
                 No listings matched your query. Try rephrasing.
               </p>
             ) : (
-              <ListingGrid items={aiListings} />
+              <ListingGrid items={aiListings} viewMode={viewMode} />
             )}
           </>
         )}
