@@ -4,7 +4,7 @@ import ProjectHero from "@/components/project-details/ProjectHero";
 import ProjectInfo from "@/components/project-details/ProjectInfo";
 import ResidencesGrid from "@/components/project-details/ResidencesGrid";
 import ProjectSidebar from "@/components/project-details/ProjectSidebar";
-import { serverFetch } from "@/lib/queries";
+import { getProject } from "@/lib/supabase-queries";
 import type { ApiProjectDetail } from "@/types/api";
 import type { ProjectDetail } from "@/types";
 
@@ -37,11 +37,11 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const data = await serverFetch<ApiProjectDetail>(`/api/projects/${id}`);
-  if (!data) return { title: "Project — Aqary" };
+  const { data } = await getProject(id).catch(() => ({ data: null }));
+  const project = data ? mapProject(data) : null;
   return {
-    title: `${data.title} — Aqary`,
-    description: data.subtitle ?? data.title,
+    title: `${project?.title ?? "Project"} — Axiom`,
+    description: project?.subtitle ?? "",
   };
 }
 
@@ -51,15 +51,18 @@ export default async function ProjectDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const data = await serverFetch<ApiProjectDetail>(`/api/projects/${id}`);
-  if (!data) notFound();
 
-  const project = mapProject(data);
+  const { data } = await getProject(id);
+  const project = data ? mapProject(data) : null;
+  if (!project) notFound();
 
+  return <ProjectPage project={project} />;
+}
+
+function ProjectPage({ project }: { project: ProjectDetail }) {
   return (
     <>
       <ProjectHero project={project} />
-
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col lg:flex-row gap-12">
           <div className="flex-1 space-y-12">
