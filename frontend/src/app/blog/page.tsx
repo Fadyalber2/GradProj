@@ -4,11 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import BlogHero from "@/components/blog/BlogHero";
 import BlogGrid from "@/components/blog/BlogGrid";
 import BlogSidebar from "@/components/blog/BlogSidebar";
-import { blogQueries } from "@/lib/queries";
+import { getBlogPosts } from "@/lib/supabase-queries";
 
 export default function BlogPage() {
   const { data, isLoading } = useQuery({
-    ...blogQueries.list({ per_page: 20 }),
+    queryKey: ["blog"],
+    queryFn: () => getBlogPosts({ per_page: 20 }),
   });
 
   return (
