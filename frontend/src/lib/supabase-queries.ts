@@ -125,6 +125,8 @@ export async function getAgency(slug: string) {
       .limit(6),
   ]);
 
+  const subError = projectsRes.error ?? listingsRes.error ?? null;
+
   const apiAgency: ApiAgencyDetail = {
     id: agency.id,
     slug: agency.slug,
@@ -152,7 +154,7 @@ export async function getAgency(slug: string) {
     status: p.status ?? "planned",
   }));
 
-  return { agency: apiAgency, projects, listings: listingsRes.data ?? [], error: null };
+  return { agency: apiAgency, projects, listings: listingsRes.data ?? [], error: subError };
 }
 
 // ── Projects ──────────────────────────────────────────────────────────────────
