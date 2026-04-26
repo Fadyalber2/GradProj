@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { Calendar } from "lucide-react";
 import PropertyHero from "@/components/property/PropertyHero";
 import PropertyInfo from "@/components/property/PropertyInfo";
 import PropertySidebar from "@/components/property/PropertySidebar";
@@ -9,7 +8,8 @@ import AboutHouse from "@/components/shared-housing/AboutHouse";
 import HousematesSection from "@/components/shared-housing/HousematesSection";
 import SharedAmenities from "@/components/shared-housing/SharedAmenities";
 import SharedHousingSidebar from "@/components/shared-housing/SharedHousingSidebar";
-import { serverFetch } from "@/lib/queries";
+import MobilePropertyCTA from "@/components/property/MobilePropertyCTA";
+import { getListing } from "@/lib/supabase-queries";
 import type { ListingDetailWithSimilar } from "@/types/api";
 import type { PropertyDetail, SharedHousingDetail, SharedAmenity } from "@/types";
 
@@ -102,7 +102,7 @@ export default async function PropertyDetailPage({
 }) {
   const { id } = await params;
 
-  const data = await serverFetch<ListingDetailWithSimilar>(`/api/listings/${id}`);
+  const { data } = await getListing(id);
   if (!data) notFound();
 
   const property = mapProperty(data);
@@ -111,7 +111,7 @@ export default async function PropertyDetailPage({
   if (property.category === "shared_housing") {
     const housing = mapSharedHousing(property);
     return (
-      <div className="max-w-[1600px] mx-auto pb-20">
+      <div className="max-w-[1600px] mx-auto pb-28 md:pb-20">
         <SharedHousingHero housing={housing} />
         <div className="px-4 sm:px-6 lg:px-8 mt-8">
           <div className="flex flex-col lg:flex-row gap-12">
@@ -129,32 +129,22 @@ export default async function PropertyDetailPage({
             </div>
           </div>
         </div>
-        <div className="fixed bottom-6 right-6 z-50 lg:hidden">
-          <button className="bg-primary text-white w-14 h-14 rounded-full shadow-2xl shadow-primary/40 flex items-center justify-center hover:scale-110 transition-transform">
-            <Calendar className="h-6 w-6" />
-          </button>
-        </div>
+        <MobilePropertyCTA price={property.price} category={property.category} ownerId={property.ownerId} propertyTitle={property.title} />
       </div>
     );
   }
 
   // Regular property layout
   return (
-    <>
-      <main className="max-w-[1600px] mx-auto pb-20">
-        <PropertyHero property={property} />
-        <div className="px-4 sm:px-6 lg:px-8 mt-8">
-          <div className="flex flex-col lg:flex-row gap-12">
-            <PropertyInfo property={property} />
-            <PropertySidebar property={property} />
-          </div>
+    <main className="max-w-[1600px] mx-auto pb-28 md:pb-20">
+      <PropertyHero property={property} />
+      <div className="px-4 sm:px-6 lg:px-8 mt-8">
+        <div className="flex flex-col lg:flex-row gap-12">
+          <PropertyInfo property={property} />
+          <PropertySidebar property={property} />
         </div>
-      </main>
-      <div className="fixed bottom-6 right-6 z-50 lg:hidden">
-        <button className="bg-primary text-white w-14 h-14 rounded-full shadow-2xl shadow-primary/40 flex items-center justify-center hover:scale-110 transition-transform">
-          <Calendar className="h-5 w-5" />
-        </button>
       </div>
-    </>
+      <MobilePropertyCTA price={property.price} category={property.category} ownerId={property.ownerId} propertyTitle={property.title} />
+    </main>
   );
 }
