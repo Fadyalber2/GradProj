@@ -4,20 +4,18 @@ import { useQuery } from "@tanstack/react-query";
 import AgenciesHero from "@/components/agencies/AgenciesHero";
 import DevelopersSection from "@/components/agencies/DevelopersSection";
 import UniversitiesSection from "@/components/agencies/UniversitiesSection";
-import { agenciesQueries } from "@/lib/queries";
+import { getAgencies } from "@/lib/supabase-queries";
 
 export default function AgenciesPage() {
   const { data, isLoading } = useQuery({
-    ...agenciesQueries.list({ per_page: 12 }),
+    queryKey: ["agencies"],
+    queryFn: () => getAgencies(),
   });
 
   return (
     <>
       <AgenciesHero />
-      <DevelopersSection
-        agencies={data?.agencies ?? []}
-        isLoading={isLoading}
-      />
+      <DevelopersSection agencies={data?.agencies ?? []} isLoading={isLoading} />
       <UniversitiesSection />
     </>
   );
