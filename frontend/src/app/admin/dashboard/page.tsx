@@ -510,6 +510,7 @@ function SectionView({ sectionId }: { sectionId: string }) {
   const [modalLoading, setModalLoading] = useState(false);
   const [error, setError] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<Record<string, unknown> | null>(null);
+  const [deleteCountdown, setDeleteCountdown] = useState(0);
   const [viewRow, setViewRow] = useState<Record<string, unknown> | null>(null);
 
   const load = useCallback(async () => {
@@ -531,6 +532,18 @@ function SectionView({ sectionId }: { sectionId: string }) {
   }, [config.apiSection, page, search, filters]);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    if (!deleteTarget) { setDeleteCountdown(0); return; }
+    setDeleteCountdown(3);
+    const interval = setInterval(() => {
+      setDeleteCountdown((n) => {
+        if (n <= 1) { clearInterval(interval); return 0; }
+        return n - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [deleteTarget]);
 
   async function handleSave(formData: Record<string, unknown>) {
     setModalLoading(true);
@@ -701,10 +714,14 @@ function SectionView({ sectionId }: { sectionId: string }) {
           </button>
           <button
             onClick={handleDelete}
-            disabled={modalLoading}
-            className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white font-semibold rounded-lg text-sm transition"
+            disabled={modalLoading || deleteCountdown > 0}
+            className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg text-sm transition"
           >
-            {modalLoading ? "Deleting…" : "Yes, Delete"}
+            {modalLoading
+              ? "Deleting…"
+              : deleteCountdown > 0
+              ? `Wait (${deleteCountdown})`
+              : "Yes, Delete"}
           </button>
         </div>
       </AdminModal>
