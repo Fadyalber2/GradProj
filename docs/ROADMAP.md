@@ -1,100 +1,84 @@
 # AXIOM V2 — Roadmap & Current Status
 
-Last updated: 2026-02-28
+Last updated: 2026-04-27
 
 ---
 
 ## Current State
 
-| Layer | Status | Notes |
-|-------|--------|-------|
-| Frontend (Next.js) | ✅ Built | All pages exist, zero TypeScript errors, builds clean |
-| Backend (FastAPI) | ✅ Built | All routers implemented, server starts successfully |
-| Database schema | ✅ Designed | 11-table schema, enums, indexes, RLS policies defined |
-| AI models | ✅ Registered | `axiom-llm:latest` + `nomic-embed-text` in Ollama |
-| API wiring | ❌ Not done | Frontend uses mock data — no live backend calls yet |
-| Authentication | ❌ Not wired | Auth store built, Supabase not configured |
-| Deployment | ❌ Not done | No CI/CD, no production environment |
+| Layer                           | Status        | Notes                                                                     |
+| ------------------------------- | ------------- | ------------------------------------------------------------------------- |
+| Frontend (Next.js)              | ✅ Built      | All pages, zero TypeScript errors, builds clean                           |
+| Backend (FastAPI)               | ✅ Built      | All routers implemented, server starts successfully                       |
+| Database schema                 | ✅ Designed   | 11-table schema, enums, indexes, RLS policies defined                     |
+| AI models                       | ✅ Registered | `axiom-llm:latest` + `nomic-embed-text` in Ollama                         |
+| Authentication                  | ✅ Wired      | Supabase auth + JWT middleware protection                                 |
+| AI Chatbot                      | ✅ Wired      | SSE streaming RAG chat, property intent detection, inline listing cards   |
+| AI Search                       | ✅ Wired      | Natural language filter extraction + hybrid vector/structured search      |
+| Dashboard AddListingModal       | ✅ Enhanced   | Map picker (Nominatim), property types, furnishing, AI amenity validation |
+| Agency pages                    | ✅ Enhanced   | Premium dark mode, developer cards, stats bar                             |
+| Agency detail                   | ✅ Enhanced   | Sidebar, project filter tabs, correct project/listing routing             |
+| Project detail                  | ✅ Enhanced   | Sortable residence cards, sales agent sidebar                             |
+| Public pages Supabase wiring    | ✅ Done       | find-homes, property, agencies, project, blog, dashboard — all direct Supabase queries, no mock data |
+| Admin CRUD overhaul             | ✅ Done       | EntityPicker, RichTextEditor, PendingApprovalsView, required-field validation, 3-second delete countdown |
+| API wiring (messages)           | ❌ Not done   | Messages page still uses mock data                                        |
+| Deployment                      | ❌ Not done   | No CI/CD, no production environment                                       |
 
 ---
 
-## Frontend Pages — Status
+## Frontend Pages
 
-| Route | Built | API Wired | Notes |
-|-------|-------|-----------|-------|
-| `/` | ✅ | ❌ | Uses mock listings + testimonials |
-| `/find-homes` | ✅ | ❌ | Full-screen layout, filter sidebar, AI search UI |
-| `/property/[id]` | ✅ | ❌ | Handles regular + shared_housing category |
-| `/shared-housing/[id]` | ✅ | — | Redirects to `/property/[id]` |
-| `/dashboard` | ✅ | ❌ | Unified: profile, stats, listings, liked, viewings, messages |
-| `/messages` | ✅ | ❌ | Real-time UI built, Supabase Realtime not connected |
-| `/login` | ✅ | ❌ | Form built, auth store ready |
-| `/signup` | ✅ | ❌ | No role selector (single role model) |
-| `/forgot-password` | ✅ | ❌ | |
-| `/agencies` | ✅ | ❌ | |
-| `/agencies/[slug]` | ✅ | ❌ | |
-| `/blog` | ✅ | ❌ | |
-| `/blog/[slug]` | ✅ | ❌ | |
-| `/project/[id]` | ✅ | ❌ | |
-| `/about` | ✅ | — | Static content |
-| `/admin/dashboard` | ✅ | ❌ | Separate admin auth |
-
----
-
-## Next Steps (Priority Order)
-
-### Step 1 — Connect Authentication
-- Set up Supabase project (URL + anon key in `.env.local`)
-- Test signup flow → verify profile row is created in DB
-- Test login flow → verify JWT cookie is set
-- Test middleware → `/dashboard` redirects to login when unauthenticated
-
-### Step 2 — Wire Core API Calls
-Priority order based on critical user flows:
-
-1. `GET /api/listings` → Find Homes page (replace mock data)
-2. `GET /api/listings/{id}` → Property detail page
-3. `GET /api/dashboard/me` → Dashboard page
-4. `POST /api/messages/conversations` → MessageOwnerModal send
-5. `GET /api/messages/conversations` → Messages page inbox
-6. `POST /api/listings` → AddListingModal (from dashboard)
-
-### Step 3 — Real-time Features
-- Connect Supabase Realtime to messages page (live updates)
-- Connect Supabase Realtime to notifications
-
-### Step 4 — AI Features
-- Wire AI chatbot (floating button → ChatDrawer → SSE stream)
-- Wire natural language search (`POST /api/ai/search`)
-- Wire AI listing description generator (in AddListingModal)
-
-### Step 5 — Testing & Quality
-- Add unit tests for mapper functions in dashboard page
-- Add E2E tests for auth flow and listing creation flow
-- Set up ESLint CI check
-
-### Step 6 — Deployment
-- Frontend → Vercel
-- Backend → Railway
-- Ollama → GPU server (or swap for Claude API)
-- CI/CD → GitHub Actions
+| Route                  | Built | API Wired | Notes                                        |
+| ---------------------- | ----- | --------- | -------------------------------------------- |
+| `/`                    | ✅    | ❌        | Mock listings + testimonials                 |
+| `/find-homes`          | ✅    | ✅        | Direct Supabase query via `supabase-queries` |
+| `/property/[id]`       | ✅    | ✅        | Direct Supabase — handles regular + shared_housing |
+| `/shared-housing/[id]` | ✅    | —         | Redirects to `/property/[id]`                |
+| `/dashboard`           | ✅    | ✅        | `getDashboardListings` via Supabase          |
+| `/messages`            | ✅    | ❌        | Real-time UI built, API wiring pending       |
+| `/login`               | ✅    | ✅        | Supabase auth wired                          |
+| `/signup`              | ✅    | ✅        | Single role, Supabase wired                  |
+| `/forgot-password`     | ✅    | ✅        | Supabase reset wired                         |
+| `/agencies`            | ✅    | ✅        | Direct Supabase query, no mock fallback      |
+| `/agencies/[slug]`     | ✅    | ✅        | Direct Supabase query, no mock fallback      |
+| `/project/[id]`        | ✅    | ✅        | Direct Supabase query                        |
+| `/blog`                | ✅    | ✅        | Direct Supabase query                        |
+| `/blog/[slug]`         | ✅    | ✅        | Direct Supabase query                        |
+| `/about`               | ✅    | —         | Static                                       |
+| `/admin/dashboard`     | ✅    | ✅        | EntityPicker, RichTextEditor, PendingApprovalsView, delete countdown |
 
 ---
 
-## Architecture Decisions Already Locked
+## AI Features
 
-These are NOT up for reconsideration without a strong reason:
-
-| Decision | Why it's locked |
-|----------|----------------|
-| Single `user` role (no broker) | All types, components, and API shapes depend on this |
-| `owner_id` not `broker_id` | Consistent across DB, backend, and frontend types |
-| Unified `/property/[id]` for all listing types | Shared housing redirects here; simpler routing |
-| `/api/dashboard/me` single endpoint | Dashboard page mapper functions built around this shape |
-| `listing_status`: pending before active | UI shows pending/rejected states in MyListings table |
+| Feature                 | Endpoint                        | Status                                         |
+| ----------------------- | ------------------------------- | ---------------------------------------------- |
+| RAG Chatbot             | `POST /api/ai/chat`             | ✅ Live — SSE streaming + inline listing cards |
+| Natural Language Search | `POST /api/ai/search`           | ✅ Live — filter extraction + pgvector         |
+| Recommendations         | `GET /api/ai/recommendations`   | ✅ Built                                       |
+| Roommate Compatibility  | `POST /api/ai/compatibility`    | ✅ Built                                       |
+| Description Generator   | `POST /api/ai/description`      | ✅ Built — bilingual AR/EN                     |
+| Amenity Validation      | `POST /api/ai/validate-amenity` | ✅ Built — wired in AddListingModal            |
+| Fraud Detection         | Internal                        | ✅ Built                                       |
 
 ---
 
-## Rule: Update This File When Tasks Complete
+## Next Steps
 
-When you finish a task tracked here, mark it with ✅ and update the "Last updated" date at the top.
+1. **Wire messages API** — conversations inbox, Supabase Realtime for live updates
+2. **Wire homepage listings** — replace mock listings on `/` with Supabase query
+3. **Testing** — AI unit tests, auth E2E tests
+4. **Deployment** — Vercel (frontend), Railway (backend), GitHub Actions (CI)
+
+---
+
+## Locked Architecture Decisions
+
+| Decision                                       | Reason                                               |
+| ---------------------------------------------- | ---------------------------------------------------- |
+| Single `user` role (no broker)                 | All types, components, and API shapes depend on this |
+| `owner_id` not `broker_id`                     | Consistent across DB, backend, and frontend          |
+| Unified `/property/[id]` for all listing types | Shared housing redirects here                        |
+| `/api/dashboard/me` single endpoint            | Dashboard mapper functions built around this shape   |
+| `listing_status`: pending before active        | UI shows pending/rejected states                     |
+| Local Ollama for AI                            | `axiom-llm:latest` — no external AI API calls        |
