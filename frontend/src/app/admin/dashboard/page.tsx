@@ -241,7 +241,7 @@ const SECTIONS: Record<string, SectionConfig> = {
     searchPlaceholder: "Search by name…",
     canCreate: true,
     columns: [
-      { key: "name", label: "Project Name" },
+      { key: "title", label: "Project Name" },
       { key: "location", label: "Location" },
       { key: "min_price", label: "Min Price", render: (v) => formatPrice(v) },
       { key: "max_price", label: "Max Price", render: (v) => formatPrice(v) },
@@ -253,7 +253,7 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "created_at", label: "Created", render: (v) => formatDate(v) },
     ],
     editFields: [
-      { key: "name", label: "Name" },
+      { key: "title", label: "Title" },
       { key: "description", label: "Description", type: "textarea" },
       { key: "location", label: "Location" },
       { key: "min_price", label: "Min Price (EGP)", type: "number" },
@@ -263,7 +263,7 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "delivery_date", label: "Delivery Date" },
     ],
     createFields: [
-      { key: "name", label: "Name" },
+      { key: "title", label: "Title" },
       { key: "location", label: "Location" },
       { key: "agency_id", label: "Agency", type: "picker", pickerSection: "agencies", required: true },
       { key: "description", label: "Description", type: "textarea" },
