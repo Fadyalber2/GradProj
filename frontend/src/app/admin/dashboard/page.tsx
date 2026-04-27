@@ -745,6 +745,218 @@ function SectionView({ sectionId }: { sectionId: string }) {
   );
 }
 
+// ── Pending Approvals View ─────────────────────────────────────────────────────
+
+function PendingApprovalsView() {
+  const [data, setData] = useState<Record<string, unknown>[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [actioning, setActioning] = useState<string | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await listItems<Record<string, unknown>>("listings", {
+        status: "pending",
+        page,
+        per_page: 15,
+      });
+      setData(res.data);
+      setTotal(res.total);
+      setTotalPages(res.total_pages);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to load");
+    } finally {
+      setLoading(false);
+    }
+  }, [page]);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function handleApprove(id: string) {
+    setActioning(id);
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/admin/listings/${id}/approve`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("admin_token") ?? ""}`,
+        },
+      });
+      load();
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Approve failed");
+    } finally {
+      setActioning(null);
+    }
+  }
+
+  async function handleReject(id: string) {
+    if (!rejectReason.trim()) return;
+    setActioning(id);
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/admin/listings/${id}/reject`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("admin_token") ?? ""}`,
+        },
+        body: JSON.stringify({ reason: rejectReason }),
+      });
+      setRejectTarget(null);
+      setRejectReason("");
+      load();
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Reject failed");
+    } finally {
+      setActioning(null);
+    }
+  }
+
+  const columns: Column[] = [
+    { key: "title", label: "Listing" },
+    { key: "price", label: "Price", render: (v) => formatPrice(v) },
+    { key: "location", label: "Location" },
+    { key: "property_type", label: "Type", render: (v) => <Badge color="purple">{String(v ?? "")}</Badge> },
+    { key: "created_at", label: "Submitted", render: (v) => formatDate(v) },
+  ];
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold text-slate-900">Pending Approvals</h2>
+          {!loading && total > 0 && (
+            <span className="text-xs font-semibold text-orange-600 bg-orange-50 border border-orange-100 px-2.5 py-1 rounded-full">
+              {total} pending
+            </span>
+          )}
+        </div>
+      </div>
+
+      {error && (
+        <div className="flex items-center gap-3 bg-red-50 border border-red-100 text-red-700 text-sm px-4 py-3 rounded-xl">
+          <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200">
+                {columns.map((col) => (
+                  <th key={col.key} className="text-left px-4 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">{col.label}</th>
+                ))}
+                <th className="text-right px-4 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    {columns.map((c) => (
+                      <td key={c.key} className="px-4 py-3.5"><div className="h-4 bg-slate-100 rounded-full w-3/4" /></td>
+                    ))}
+                    <td className="px-4 py-3.5"><div className="h-7 bg-slate-100 rounded-lg w-36 ml-auto" /></td>
+                  </tr>
+                ))
+              ) : data.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length + 1} className="px-4 py-16 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-5 h-5 text-emerald-500" />
+                      </div>
+                      <div>
+                        <p className="text-slate-600 font-medium text-sm">No pending listings</p>
+                        <p className="text-slate-400 text-xs mt-0.5">All caught up!</p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                data.map((row) => (
+                  <tr key={String(row.id)} className="hover:bg-slate-50 transition-colors">
+                    {columns.map((col) => (
+                      <td key={col.key} className="px-4 py-3.5 text-slate-700">
+                        {col.render ? col.render(row[col.key], row) : String(row[col.key] ?? "—")}
+                      </td>
+                    ))}
+                    <td className="px-4 py-3.5">
+                      {rejectTarget === String(row.id) ? (
+                        <div className="flex items-center gap-2 justify-end">
+                          <input
+                            value={rejectReason}
+                            onChange={(e) => setRejectReason(e.target.value)}
+                            placeholder="Reason…"
+                            className="px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-red-400 w-36"
+                          />
+                          <button
+                            onClick={() => handleReject(String(row.id))}
+                            disabled={!rejectReason.trim() || actioning === String(row.id)}
+                            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg disabled:opacity-60 transition"
+                          >
+                            Confirm
+                          </button>
+                          <button
+                            onClick={() => { setRejectTarget(null); setRejectReason(""); }}
+                            className="px-2 py-1.5 text-xs text-slate-500 hover:text-slate-700 transition"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleApprove(String(row.id))}
+                            disabled={actioning === String(row.id)}
+                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg disabled:opacity-60 transition"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => setRejectTarget(String(row.id))}
+                            disabled={actioning === String(row.id)}
+                            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg disabled:opacity-60 transition"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/60">
+            <span className="text-xs text-slate-500">{total} pending listings</span>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setPage((p) => p - 1)} disabled={page <= 1} className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-white disabled:opacity-40 transition">
+                <ChevronRight className="w-3.5 h-3.5 rotate-180" />
+              </button>
+              <span className="text-xs text-slate-600 font-medium">{page} / {totalPages}</span>
+              <button onClick={() => setPage((p) => p + 1)} disabled={page >= totalPages} className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-white disabled:opacity-40 transition">
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Fraud Queue View ───────────────────────────────────────────────────────────
 
 function FraudView() {
@@ -1014,6 +1226,7 @@ export default function AdminDashboardPage() {
   function renderSection() {
     if (activeSection === "dashboard") return <DashboardOverview onNavigate={setActiveSection} />;
     if (activeSection === "fraud") return <FraudView />;
+    if (activeSection === "pending-approvals") return <PendingApprovalsView />;
     if (SECTIONS[activeSection]) return <SectionView sectionId={activeSection} />;
     return <p className="text-slate-400">Section not found</p>;
   }
