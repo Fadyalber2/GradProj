@@ -14,7 +14,7 @@ import {
   Users, Home, Building2, Briefcase, FolderOpen,
   TrendingUp, AlertTriangle, Clock, CheckCircle,
   Search, Plus, RefreshCw, X, ChevronRight, Trash2,
-  BedDouble, Upload, Loader2,
+  BedDouble, Upload, Loader2, PhoneCall,
 } from "lucide-react";
 import type { ElementType } from "react";
 
@@ -374,6 +374,36 @@ const SECTIONS: Record<string, SectionConfig> = {
       {
         key: "is_read", label: "Read",
         render: (v) => <Badge color={v ? "gray" : "blue"}>{v ? "Read" : "Unread"}</Badge>,
+      },
+      { key: "created_at", label: "Date", render: (v) => formatDate(v) },
+    ],
+    editFields: [],
+  },
+  leads: {
+    title: "Leads",
+    apiSection: "leads",
+    searchPlaceholder: "Search by buyer name…",
+    readOnly: true,
+    extraFilters: [
+      { key: "source", label: "Source", type: "select", options: ["whatsapp_click", "schedule_viewing"] },
+      { key: "is_billable", label: "Billable", type: "select", options: ["true", "false"] },
+    ],
+    columns: [
+      { key: "contact_name", label: "Buyer Name" },
+      { key: "contact_phone", label: "Phone" },
+      { key: "listing_title", label: "Listing" },
+      { key: "agency_name", label: "Agency" },
+      {
+        key: "source", label: "Source",
+        render: (v) => (
+          <Badge color={v === "schedule_viewing" ? "green" : "blue"}>
+            {v === "schedule_viewing" ? "Viewing" : "Contact"}
+          </Badge>
+        ),
+      },
+      {
+        key: "is_billable", label: "Billable",
+        render: (v) => <Badge color={v ? "green" : "gray"}>{v ? "Yes" : "No"}</Badge>,
       },
       { key: "created_at", label: "Date", render: (v) => formatDate(v) },
     ],

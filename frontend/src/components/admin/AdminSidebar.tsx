@@ -17,6 +17,7 @@ import {
   LogOut,
   ShieldCheck,
   BedDouble,
+  PhoneCall,
 } from "lucide-react";
 
 type NavItem = {
@@ -56,6 +57,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: "agencies", label: "Agencies", icon: Building2 },
       { id: "transactions", label: "Transactions", icon: ArrowLeftRight },
+      { id: "leads", label: "Leads", icon: PhoneCall },
     ],
   },
   {
