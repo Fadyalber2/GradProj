@@ -1,6 +1,6 @@
 # AXIOM V2 — Roadmap & Current Status
 
-Last updated: 2026-04-27
+Last updated: 2026-05-01
 
 ---
 
@@ -21,7 +21,7 @@ Last updated: 2026-04-27
 | Project detail                  | ✅ Enhanced   | Sortable residence cards, sales agent sidebar                             |
 | Public pages Supabase wiring    | ✅ Done       | find-homes, property, agencies, project, blog, dashboard — all direct Supabase queries, no mock data |
 | Admin CRUD overhaul             | ✅ Done       | EntityPicker, RichTextEditor, PendingApprovalsView, required-field validation, 3-second delete countdown |
-| API wiring (messages)           | ❌ Not done   | Messages page still uses mock data                                        |
+| WhatsApp lead capture           | ✅ Done       | Messaging system removed; WhatsApp CTAs + leads table + admin view live   |
 | Deployment                      | ❌ Not done   | No CI/CD, no production environment                                       |
 
 ---
@@ -35,7 +35,7 @@ Last updated: 2026-04-27
 | `/property/[id]`       | ✅    | ✅        | Direct Supabase — handles regular + shared_housing |
 | `/shared-housing/[id]` | ✅    | —         | Redirects to `/property/[id]`                |
 | `/dashboard`           | ✅    | ✅        | `getDashboardListings` via Supabase          |
-| `/messages`            | ✅    | ❌        | Real-time UI built, API wiring pending       |
+| `/messages`            | —     | —         | Removed — replaced by WhatsApp lead capture  |
 | `/login`               | ✅    | ✅        | Supabase auth wired                          |
 | `/signup`              | ✅    | ✅        | Single role, Supabase wired                  |
 | `/forgot-password`     | ✅    | ✅        | Supabase reset wired                         |
@@ -65,10 +65,9 @@ Last updated: 2026-04-27
 
 ## Next Steps
 
-1. **Wire messages API** — conversations inbox, Supabase Realtime for live updates
-2. **Wire homepage listings** — replace mock listings on `/` with Supabase query
-3. **Testing** — AI unit tests, auth E2E tests
-4. **Deployment** — Vercel (frontend), Railway (backend), GitHub Actions (CI)
+1. **Wire homepage listings** — replace mock listings on `/` with Supabase query
+2. **Testing** — AI unit tests, auth E2E tests
+3. **Deployment** — Vercel (frontend), Railway (backend), GitHub Actions (CI)
 
 ---
 

@@ -107,11 +107,15 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
   "bathroom_type": null,
   "private_amenities": null,
   "shared_amenities": null,
-  "housemates": null
+  "housemates": null,
+
+  "contact_phone": "201234567890",
+  "contact_name": "Agency or Owner Name"
 }
 ```
 
 > Shared housing fields (`total_spots`, `housemates`, etc.) are `null` for non-shared listings.
+> `contact_phone` is stripped of the leading `+` for direct use in `wa.me/` URLs. `null` if no phone is on record.
 
 ---
 
@@ -137,7 +141,6 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
     { "label": "Total Views", "value": "1,234", "trend_percent": 12.5, "trend_up": true }
   ],
   "listings": [ApiDashboardListing],
-  "recent_messages": [ApiDashboardMessage],
   "liked_properties": [LikedPropertyBrief],
   "upcoming_viewings": [ApiViewingBrief]
 }
@@ -154,19 +157,6 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
   "images": ["url"],
   "status": "active|pending|rejected|draft",
   "views_count": 120
-}
-```
-
-### ApiDashboardMessage
-
-```json
-{
-  "conversation_id": "uuid",
-  "other_user_name": "string",
-  "other_user_avatar": "url",
-  "last_message_text": "string",
-  "last_message_at": "ISO8601",
-  "unread_count": 2
 }
 ```
 
@@ -200,22 +190,51 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
 
 ---
 
-## Messages
+## Leads
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| GET | `/api/messages/conversations` | Yes | List all conversations for current user. |
-| POST | `/api/messages/conversations` | Yes | Start or get existing conversation with another user. |
-| GET | `/api/messages/conversations/{id}` | Yes | Get messages in a conversation. |
-| POST | `/api/messages/conversations/{id}` | Yes | Send a message. |
+| POST | `/api/leads` | Yes | Record a WhatsApp lead click and return the `wa.me` deep-link URL. |
+| GET | `/api/admin/leads` | Admin | List all leads with filtering and pagination. |
 
-### POST /api/messages/conversations — body
+### POST /api/leads — body
 
 ```json
-{ "other_user_id": "uuid" }
+{ "listing_id": "uuid", "source": "whatsapp_click|schedule_viewing" }
 ```
 
-Response: `{ "id": "conversation-uuid" }`
+Response:
+```json
+{ "whatsapp_url": "https://wa.me/201234567890?text=...", "already_existed": false }
+```
+
+Deduped by `(user_id, listing_id)` — repeat clicks return `already_existed: true` but still return the URL.
+Requires the authenticated user to have a phone number on their profile.
+
+### GET /api/admin/leads — query params
+
+`agency_id?`, `source?`, `is_billable?`, `date_from?`, `date_to?`, `page?`, `per_page?`
+
+Response:
+```json
+{
+  "leads": [
+    {
+      "id": "uuid",
+      "contact_name": "Buyer Name",
+      "contact_phone": "201234567890",
+      "listing_title": "Luxury Apartment",
+      "agency_name": "Cairo Realty",
+      "source": "whatsapp_click",
+      "is_billable": true,
+      "created_at": "ISO8601"
+    }
+  ],
+  "total": 42,
+  "page": 1,
+  "per_page": 20
+}
+```
 
 ---
 
