@@ -3,7 +3,7 @@
 import time
 import pytest
 import jwt
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 from fastapi.testclient import TestClient
 
 from app.config import settings
@@ -53,6 +53,10 @@ def mock_supabase():
     mock_admin = MagicMock()
 
     mock_ollama = MagicMock()
+    mock_ollama.health = AsyncMock(return_value=False)
+    mock_ollama.embed = AsyncMock(return_value=[])
+    mock_ollama.generate = AsyncMock(return_value="")
+    mock_ollama.generate_stream = AsyncMock(return_value=iter([]))
 
     with (
         patch("app.database.supabase_client", mock_client),
@@ -64,7 +68,8 @@ def mock_supabase():
         patch("app.uploads.router.supabase_admin", mock_admin),
         patch("app.ai.router.supabase_admin", mock_admin),
         patch("app.ai.router.ollama", mock_ollama),
-        patch("app.messages.router.supabase_admin", mock_admin),
+        patch("app.ai.embeddings.supabase_admin", mock_admin),
+        patch("app.ai.embeddings.ollama", mock_ollama),
         patch("app.notifications.router.supabase_admin", mock_admin),
         patch("app.dashboard.router.supabase_admin", mock_admin),
         patch("app.agencies.router.supabase_admin", mock_admin),
@@ -73,6 +78,7 @@ def mock_supabase():
         patch("app.admin.router.supabase_admin", mock_admin),
         patch("app.applications.router.supabase_admin", mock_admin),
         patch("app.projects.router.supabase_admin", mock_admin),
+        patch("app.leads.router.supabase_admin", mock_admin),
     ):
         yield mock_client, mock_admin
 

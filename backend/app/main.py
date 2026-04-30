@@ -13,6 +13,7 @@ from app.ai.router import router as ai_router
 from app.uploads.router import router as uploads_router
 from app.applications.router import router as applications_router
 from app.projects.router import router as projects_router
+from app.leads.router import router as leads_router
 
 app = FastAPI(
     title="AXIOM V2 API",
@@ -46,3 +47,4 @@ app.include_router(ai_router, prefix="/api/ai", tags=["ai"])
 app.include_router(uploads_router, prefix="/api/uploads", tags=["uploads"])
 app.include_router(applications_router, prefix="/api/applications", tags=["applications"])
 app.include_router(projects_router, prefix="/api/projects", tags=["projects"])
+app.include_router(leads_router, prefix="/api", tags=["leads"])
