@@ -3,18 +3,22 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { isLoggedIn, getStats, listItems, deleteItem, updateItem, createItem, reviewFraud } from "@/lib/admin/api";
+import { supabase } from "@/lib/supabase";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminTable, { Column } from "@/components/admin/AdminTable";
 import AdminModal from "@/components/admin/AdminModal";
 import EntityPicker from "@/components/admin/EntityPicker";
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import Image from "next/image";
 import {
   Users, Home, Building2, Briefcase, FolderOpen,
   TrendingUp, AlertTriangle, Clock, CheckCircle,
   Search, Plus, RefreshCw, X, ChevronRight, Trash2,
-  BedDouble,
+  BedDouble, Upload, Loader2,
 } from "lucide-react";
 import type { ElementType } from "react";
+
+const STORAGE_BUCKET = "agency-images";
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -94,7 +98,7 @@ function formatPrice(val: unknown): string {
 type FieldDef = {
   key: string;
   label: string;
-  type?: string;
+  type?: "text" | "number" | "url" | "textarea" | "select" | "richtext" | "picker" | "image_url";
   options?: string[];
   pickerSection?: "users" | "agencies";
   required?: boolean;
@@ -149,6 +153,13 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "price", label: "Price", render: (v) => formatPrice(v) },
       { key: "location", label: "Location" },
       { key: "property_type", label: "Type", render: (v) => <Badge color="purple">{String(v ?? "")}</Badge> },
+      {
+        key: "category", label: "Category",
+        render: (v) => {
+          const map: Record<string, string> = { for_rent: "For Rent", for_sale: "For Sale", shared_housing: "Shared" };
+          return <Badge color={v === "for_rent" ? "blue" : v === "for_sale" ? "green" : "yellow"}>{map[String(v)] ?? String(v ?? "")}</Badge>;
+        },
+      },
       { key: "bedrooms", label: "Beds" },
       {
         key: "status", label: "Status",
@@ -162,9 +173,9 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "location", label: "Location" },
       { key: "bedrooms", label: "Bedrooms", type: "number" },
       { key: "bathrooms", label: "Bathrooms", type: "number" },
-      { key: "area", label: "Area (m²)", type: "number" },
+      { key: "size_sqm", label: "Area (m²)", type: "number" },
       { key: "property_type", label: "Type", type: "select", options: ["apartment", "villa", "studio", "duplex", "penthouse", "chalet", "land", "commercial"] },
-      { key: "category", label: "Category", type: "select", options: ["rent", "buy", "shared"] },
+      { key: "category", label: "Category", type: "select", options: ["for_rent", "for_sale", "shared_housing"] },
       { key: "status", label: "Status", type: "select", options: ["active", "pending", "draft", "sold", "rented"] },
       { key: "description", label: "Description", type: "textarea" },
     ],
@@ -174,9 +185,9 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "location", label: "Location" },
       { key: "bedrooms", label: "Bedrooms", type: "number" },
       { key: "bathrooms", label: "Bathrooms", type: "number" },
-      { key: "area", label: "Area (m²)", type: "number" },
+      { key: "size_sqm", label: "Area (m²)", type: "number" },
       { key: "property_type", label: "Type", type: "select", options: ["apartment", "villa", "studio", "duplex", "penthouse", "chalet", "land", "commercial"] },
-      { key: "category", label: "Category", type: "select", options: ["rent", "buy", "shared"] },
+      { key: "category", label: "Category", type: "select", options: ["for_rent", "for_sale", "shared_housing"] },
       { key: "owner_id", label: "Owner", type: "picker", pickerSection: "users", required: true },
       { key: "description", label: "Description", type: "textarea" },
     ],
@@ -190,29 +201,34 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "name", label: "Name" },
       { key: "email", label: "Email" },
       { key: "phone", label: "Phone" },
-      { key: "address", label: "Address" },
+      { key: "city", label: "City" },
       {
-        key: "is_verified", label: "Verified",
+        key: "verified", label: "Verified",
         render: (v) => <Badge color={v ? "green" : "gray"}>{v ? "Verified" : "Unverified"}</Badge>,
       },
       { key: "created_at", label: "Created", render: (v) => formatDate(v) },
     ],
     editFields: [
       { key: "name", label: "Name" },
+      { key: "slug", label: "Slug" },
       { key: "description", label: "Description", type: "textarea" },
+      { key: "logo_url", label: "Logo Image URL", type: "image_url" },
+      { key: "banner_url", label: "Banner Image URL", type: "image_url" },
       { key: "phone", label: "Phone" },
       { key: "email", label: "Email" },
-      { key: "address", label: "Address" },
+      { key: "city", label: "City" },
       { key: "website", label: "Website" },
-      { key: "is_verified", label: "Verified", type: "select", options: ["true", "false"] },
+      { key: "verified", label: "Verified", type: "select", options: ["true", "false"] },
     ],
     createFields: [
       { key: "name", label: "Name" },
-      { key: "slug", label: "Slug (URL-safe)" },
+      { key: "slug", label: "Slug (leave blank to auto-generate)" },
       { key: "description", label: "Description", type: "textarea" },
+      { key: "logo_url", label: "Logo Image URL", type: "image_url" },
+      { key: "banner_url", label: "Banner Image URL", type: "image_url" },
       { key: "phone", label: "Phone" },
       { key: "email", label: "Email" },
-      { key: "address", label: "Address" },
+      { key: "city", label: "City" },
       { key: "website", label: "Website" },
     ],
   },
@@ -242,35 +258,34 @@ const SECTIONS: Record<string, SectionConfig> = {
     canCreate: true,
     columns: [
       { key: "title", label: "Project Name" },
-      { key: "location", label: "Location" },
-      { key: "min_price", label: "Min Price", render: (v) => formatPrice(v) },
-      { key: "max_price", label: "Max Price", render: (v) => formatPrice(v) },
+      { key: "starting_price", label: "Starting Price", render: (v) => formatPrice(v) },
+      { key: "units_total", label: "Units" },
       {
         key: "status", label: "Status",
-        render: (v) => <Badge color={v === "ready" ? "green" : v === "under_construction" ? "yellow" : "gray"}>{String(v ?? "")}</Badge>,
+        render: (v) => <Badge color={v === "completed" ? "green" : v === "in_progress" ? "yellow" : "gray"}>{String(v ?? "")}</Badge>,
       },
-      { key: "total_units", label: "Units" },
       { key: "created_at", label: "Created", render: (v) => formatDate(v) },
     ],
     editFields: [
       { key: "title", label: "Title" },
+      { key: "slug", label: "Slug" },
       { key: "description", label: "Description", type: "textarea" },
-      { key: "location", label: "Location" },
-      { key: "min_price", label: "Min Price (EGP)", type: "number" },
-      { key: "max_price", label: "Max Price (EGP)", type: "number" },
-      { key: "total_units", label: "Total Units", type: "number" },
-      { key: "status", label: "Status", type: "select", options: ["under_construction", "ready", "selling", "sold_out"] },
-      { key: "delivery_date", label: "Delivery Date" },
+      { key: "image_url", label: "Cover Image URL", type: "image_url" },
+      { key: "starting_price", label: "Starting Price (EGP)", type: "number" },
+      { key: "units_total", label: "Total Units", type: "number" },
+      { key: "completion_pct", label: "Completion %", type: "number" },
+      { key: "status", label: "Status", type: "select", options: ["upcoming", "in_progress", "completed"] },
     ],
     createFields: [
       { key: "title", label: "Title" },
-      { key: "location", label: "Location" },
+      { key: "slug", label: "Slug (leave blank to auto-generate)" },
       { key: "agency_id", label: "Agency", type: "picker", pickerSection: "agencies", required: true },
       { key: "description", label: "Description", type: "textarea" },
-      { key: "min_price", label: "Min Price (EGP)", type: "number" },
-      { key: "max_price", label: "Max Price (EGP)", type: "number" },
-      { key: "total_units", label: "Total Units", type: "number" },
-      { key: "status", label: "Status", type: "select", options: ["under_construction", "ready", "selling", "sold_out"] },
+      { key: "image_url", label: "Cover Image URL", type: "image_url" },
+      { key: "starting_price", label: "Starting Price (EGP)", type: "number" },
+      { key: "units_total", label: "Total Units", type: "number" },
+      { key: "completion_pct", label: "Completion %", type: "number" },
+      { key: "status", label: "Status", type: "select", options: ["upcoming", "in_progress", "completed"] },
     ],
   },
   "shared-housing": {
@@ -316,17 +331,17 @@ const SECTIONS: Record<string, SectionConfig> = {
     ],
     editFields: [
       { key: "title", label: "Title" },
-      { key: "summary", label: "Summary", type: "textarea" },
+      { key: "lead", label: "Lead / Summary", type: "textarea" },
       { key: "content", label: "Content", type: "richtext" },
       { key: "category", label: "Category" },
       { key: "is_published", label: "Published", type: "select", options: ["true", "false"] },
     ],
     createFields: [
       { key: "title", label: "Title" },
-      { key: "summary", label: "Summary", type: "textarea" },
+      { key: "author_id", label: "Author", type: "picker", pickerSection: "users", required: true },
+      { key: "lead", label: "Lead / Summary", type: "textarea" },
       { key: "content", label: "Content", type: "richtext" },
       { key: "category", label: "Category" },
-      { key: "author_id", label: "Author", type: "picker", pickerSection: "users" },
       { key: "is_published", label: "Published", type: "select", options: ["true", "false"] },
     ],
   },
@@ -383,9 +398,30 @@ function EntityForm({
 }) {
   const [form, setForm] = useState<Record<string, unknown>>(initial ?? {});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [uploading, setUploading] = useState<Record<string, boolean>>({});
+  const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
 
   function set(key: string, value: unknown) {
     setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  async function handleFileUpload(fieldKey: string, file: File) {
+    setUploading((u) => ({ ...u, [fieldKey]: true }));
+    setUploadErrors((e) => ({ ...e, [fieldKey]: "" }));
+    try {
+      const ext = file.name.split(".").pop() ?? "jpg";
+      const path = `${fieldKey}-${Date.now()}.${ext}`;
+      const { data, error } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(data.path);
+      set(fieldKey, publicUrl);
+    } catch (err) {
+      setUploadErrors((e) => ({ ...e, [fieldKey]: err instanceof Error ? err.message : "Upload failed" }));
+    } finally {
+      setUploading((u) => ({ ...u, [fieldKey]: false }));
+    }
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -433,6 +469,51 @@ function EntityForm({
                 value={String(form[field.key] ?? "")}
                 onChange={(html) => set(field.key, html)}
               />
+            ) : field.type === "image_url" ? (
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={String(form[field.key] ?? "")}
+                    onChange={(e) => set(field.key, e.target.value)}
+                    placeholder="https://..."
+                    className={`flex-1 px-3 py-2.5 rounded-lg border bg-white text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition placeholder:text-slate-400 ${fieldError ? "border-red-400" : "border-slate-200"}`}
+                  />
+                  <label className={`flex items-center gap-1.5 px-3 py-2.5 rounded-lg border text-sm font-semibold cursor-pointer transition ${uploading[field.key] ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed" : "bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200"}`}>
+                    {uploading[field.key] ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4" />
+                    )}
+                    <span>{uploading[field.key] ? "Uploading…" : "Upload"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploading[field.key]}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileUpload(field.key, file);
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
+                </div>
+                {uploadErrors[field.key] && (
+                  <p className="text-xs text-red-500">{uploadErrors[field.key]}</p>
+                )}
+                {String(form[field.key] ?? "").startsWith("http") && (
+                  <div className="relative h-24 w-full rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
+                    <Image
+                      src={String(form[field.key])}
+                      alt="Preview"
+                      fill
+                      className="object-contain"
+                      unoptimized
+                    />
+                  </div>
+                )}
+              </div>
             ) : field.type === "picker" && field.pickerSection ? (
               <EntityPicker
                 value={String(form[field.key] ?? "")}
@@ -668,7 +749,12 @@ function SectionView({ sectionId }: { sectionId: string }) {
       />
 
       {/* Edit Modal */}
-      <AdminModal title={`Edit ${singularTitle}`} open={!!editRow} onClose={() => setEditRow(null)}>
+      <AdminModal
+        title={`Edit ${singularTitle}`}
+        open={!!editRow}
+        onClose={() => setEditRow(null)}
+        width={sectionId === "agencies" || sectionId === "projects" ? "max-w-2xl" : "max-w-lg"}
+      >
         {editRow && (
           <EntityForm
             fields={config.editFields}
@@ -681,7 +767,12 @@ function SectionView({ sectionId }: { sectionId: string }) {
       </AdminModal>
 
       {/* Create Modal */}
-      <AdminModal title={`Add New ${singularTitle}`} open={creating} onClose={() => setCreating(false)}>
+      <AdminModal
+        title={`Add New ${singularTitle}`}
+        open={creating}
+        onClose={() => setCreating(false)}
+        width={sectionId === "agencies" || sectionId === "projects" ? "max-w-2xl" : "max-w-lg"}
+      >
         <EntityForm
           fields={config.createFields ?? config.editFields}
           onSave={handleSave}

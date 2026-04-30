@@ -19,6 +19,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "i.pravatar.cc",
+      },
+      {
+        protocol: "https",
         hostname: "bwfdsubllkuozroymcui.supabase.co",
         pathname: "/storage/v1/object/public/**",
       },
@@ -45,7 +49,6 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: [
       "lucide-react",
-      "framer-motion",
       "date-fns",
       "@tanstack/react-query",
       "sonner",

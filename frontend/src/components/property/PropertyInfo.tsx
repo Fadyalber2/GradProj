@@ -24,6 +24,9 @@ import {
   Wind,
   Coffee,
   CheckCircle,
+  Maximize2,
+  Sofa,
+  Home,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import type { PropertyDetail } from "@/types";
@@ -45,7 +48,7 @@ const LABEL_ICON_MAP: [RegExp, React.ElementType][] = [
   [/storage|archive|store/i, Archive],
   [/generator|power|electric|backup/i, Zap],
   [/maid|housekeeper/i, UserCheck],
-  [/garden|flower|outdoor/i, Flower2],
+  [/flower|outdoor/i, Flower2],
   [/tv|netflix|cable|media|theater/i, Tv],
   [/bath|shower/i, Bath],
   [/bed|room/i, BedDouble],
@@ -61,11 +64,28 @@ function getIcon(label: string): React.ElementType {
   return CheckCircle;
 }
 
+interface Stat {
+  label: string;
+  value: string;
+  Icon: React.ElementType;
+}
+
 interface PropertyInfoProps {
   property: PropertyDetail;
 }
 
 export default function PropertyInfo({ property }: PropertyInfoProps) {
+  const stats: Stat[] = [
+    { label: "Type", value: property.type, Icon: Home },
+    { label: "Size", value: property.size, Icon: Maximize2 },
+    { label: "Bedrooms", value: property.bedrooms, Icon: BedDouble },
+    { label: "Bathrooms", value: property.bathrooms, Icon: Bath },
+  ];
+
+  if (property.furnishing) {
+    stats.push({ label: "Furnishing", value: property.furnishing, Icon: Sofa });
+  }
+
   return (
     <div className="lg:w-[70%] space-y-12">
       {/* Quick stats */}
@@ -73,40 +93,40 @@ export default function PropertyInfo({ property }: PropertyInfoProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 bg-card-dark rounded-2xl border border-white/5"
+        className="grid grid-cols-2 sm:grid-cols-4 gap-3"
       >
-        <div className="flex flex-col gap-1">
-          <span className="text-gray-400 text-xs uppercase tracking-wider">Type</span>
-          <span className="text-white font-semibold">{property.type}</span>
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="text-gray-400 text-xs uppercase tracking-wider">Size</span>
-          <span className="text-white font-semibold">{property.size}</span>
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="text-gray-400 text-xs uppercase tracking-wider">Bedrooms</span>
-          <span className="text-white font-semibold">{property.bedrooms}</span>
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="text-gray-400 text-xs uppercase tracking-wider">Bathrooms</span>
-          <span className="text-white font-semibold">{property.bathrooms}</span>
-        </div>
+        {stats.map(({ label, value, Icon }) => (
+          <div
+            key={label}
+            className="flex flex-col gap-2 p-5 bg-card-dark rounded-2xl border border-white/5 hover:border-white/10 transition-colors"
+          >
+            <Icon className="h-4 w-4 text-primary" />
+            <span className="text-gray-400 text-xs uppercase tracking-wider font-medium">
+              {label}
+            </span>
+            <span className="text-white font-semibold text-sm leading-tight">
+              {value}
+            </span>
+          </div>
+        ))}
       </motion.div>
 
       {/* About */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1, duration: 0.4 }}
-        className="space-y-6"
-      >
-        <h2 className="text-2xl font-bold text-white">About this property</h2>
-        <div className="prose prose-invert prose-lg text-gray-300 max-w-none font-light leading-relaxed space-y-4">
-          {property.description.map((paragraph, i) => (
-            <p key={i}>{paragraph}</p>
-          ))}
-        </div>
-      </motion.div>
+      {property.description.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
+          className="space-y-4"
+        >
+          <h2 className="text-2xl font-bold text-white">About this property</h2>
+          <div className="text-gray-300 font-light leading-relaxed space-y-4 text-base">
+            {property.description.map((paragraph, i) => (
+              <p key={i}>{paragraph}</p>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* Amenities */}
       {property.amenities.length > 0 && (
@@ -122,7 +142,7 @@ export default function PropertyInfo({ property }: PropertyInfoProps) {
               return (
                 <div
                   key={amenity.label}
-                  className="flex items-center gap-3 p-4 bg-card-dark rounded-xl border border-white/5 hover:border-white/10 transition-colors"
+                  className="flex items-center gap-3 p-4 bg-card-dark rounded-xl border border-white/5 hover:border-primary/30 transition-colors"
                 >
                   <Icon className="h-4 w-4 text-primary flex-shrink-0" />
                   <span className="text-gray-300 text-sm">{amenity.label}</span>

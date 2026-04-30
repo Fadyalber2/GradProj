@@ -210,12 +210,15 @@ async def admin_create_listing(
     _admin: str = Depends(get_admin),
 ):
     """Admin-create a listing (bypasses normal flow)."""
+    body.pop("id", None)
+    body.pop("neighborhoods", None)
+    body.pop("profiles", None)
     body.setdefault("status", "active")
     try:
-        result = supabase_admin.table("listings").insert(body).select("*").single().execute()
+        result = supabase_admin.table("listings").insert(body).execute()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create listing: {e}")
-    return result.data
+    return result.data[0]
 
 
 @router.put("/listings/{listing_id}")
@@ -227,6 +230,8 @@ async def admin_update_listing(
     """Admin-update any listing field."""
     body.pop("id", None)
     body.pop("owner_id", None)
+    body.pop("neighborhoods", None)
+    body.pop("profiles", None)
     try:
         result = (
             supabase_admin.table("listings")
@@ -502,13 +507,16 @@ async def admin_create_agency(
     _admin: str = Depends(get_admin),
 ):
     """Admin-create an agency."""
-    body.setdefault("subscription_plan", "none")
-    body.setdefault("listing_quota", 0)
+    if not body.get("slug") and body.get("name"):
+        import re
+        body["slug"] = re.sub(r"[^a-z0-9]+", "-", body["name"].lower()).strip("-")
+    _AGENCY_FIELDS = {"name", "slug", "description", "logo_url", "banner_url", "website", "phone", "email", "city", "verified"}
+    body = {k: v for k, v in body.items() if k in _AGENCY_FIELDS}
     try:
-        result = supabase_admin.table("agencies").insert(body).select("*").single().execute()
+        result = supabase_admin.table("agencies").insert(body).execute()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create agency: {e}")
-    return result.data
+    return result.data[0]
 
 
 @router.put("/agencies/{agency_id}")
@@ -519,6 +527,10 @@ async def admin_update_agency(
 ):
     """Admin-update an agency."""
     body.pop("id", None)
+    _AGENCY_FIELDS = {"name", "slug", "description", "logo_url", "banner_url", "website", "phone", "email", "city", "verified"}
+    body = {k: v for k, v in body.items() if k in _AGENCY_FIELDS}
+    if not body:
+        raise HTTPException(status_code=400, detail="No valid fields to update")
     try:
         result = (
             supabase_admin.table("agencies")
@@ -575,11 +587,16 @@ async def admin_create_project(
     _admin: str = Depends(get_admin),
 ):
     """Admin-create a project."""
+    if not body.get("slug") and body.get("title"):
+        import re
+        body["slug"] = re.sub(r"[^a-z0-9]+", "-", body["title"].lower()).strip("-")
+    _PROJECT_FIELDS = {"agency_id", "title", "slug", "description", "image_url", "starting_price", "units_total", "completion_pct", "status", "key_features"}
+    body = {k: v for k, v in body.items() if k in _PROJECT_FIELDS}
     try:
-        result = supabase_admin.table("projects").insert(body).select("*").single().execute()
+        result = supabase_admin.table("projects").insert(body).execute()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create project: {e}")
-    return result.data
+    return result.data[0]
 
 
 @router.put("/projects/{project_id}")
@@ -590,6 +607,10 @@ async def admin_update_project(
 ):
     """Admin-update a project."""
     body.pop("id", None)
+    _PROJECT_FIELDS = {"agency_id", "title", "slug", "description", "image_url", "starting_price", "units_total", "completion_pct", "status", "key_features"}
+    body = {k: v for k, v in body.items() if k in _PROJECT_FIELDS}
+    if not body:
+        raise HTTPException(status_code=400, detail="No valid fields to update")
     try:
         result = (
             supabase_admin.table("projects")
@@ -651,19 +672,24 @@ async def admin_create_blog_post(
     _admin: str = Depends(get_admin),
 ):
     """Admin-create a blog post."""
-    # Generate slug from title if not provided
-    if "slug" not in body and "title" in body:
+    if not body.get("slug") and body.get("title"):
         import re
         body["slug"] = re.sub(r"[^a-z0-9]+", "-", body["title"].lower()).strip("-")
-    body.setdefault("content", [])
+    # content must be valid jsonb — HTML string is fine, empty string is not
+    if not body.get("content"):
+        body["content"] = []
     body.setdefault("tags", [])
     body.setdefault("is_published", False)
-
+    # Strip empty-string UUID so NOT NULL FK constraint fails with a clear error
+    if body.get("author_id") == "":
+        body.pop("author_id", None)
+    _BLOG_FIELDS = {"author_id", "title", "slug", "lead", "category", "image_url", "content", "tags", "read_time", "is_published", "published_at"}
+    body = {k: v for k, v in body.items() if k in _BLOG_FIELDS}
     try:
-        result = supabase_admin.table("blog_posts").insert(body).select("*").single().execute()
+        result = supabase_admin.table("blog_posts").insert(body).execute()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create blog post: {e}")
-    return result.data
+    return result.data[0]
 
 
 @router.put("/blog/{post_id}")
@@ -674,6 +700,10 @@ async def admin_update_blog_post(
 ):
     """Admin-update a blog post."""
     body.pop("id", None)
+    if not body.get("content"):
+        body["content"] = []
+    _BLOG_FIELDS = {"author_id", "title", "slug", "lead", "category", "image_url", "content", "tags", "read_time", "is_published", "published_at"}
+    body = {k: v for k, v in body.items() if k in _BLOG_FIELDS}
     try:
         result = (
             supabase_admin.table("blog_posts")

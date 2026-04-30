@@ -10,6 +10,16 @@ from app.ai.rag import rag_retriever
 from app.database import supabase_admin
 from app.dependencies import get_current_user, get_optional_user
 
+
+def _extract_json(raw: str) -> str | None:
+    """Extract a JSON object from LLM output, tolerating markdown code fences."""
+    raw = re.sub(r"```(?:json)?\s*", "", raw)
+    start = raw.find("{")
+    end = raw.rfind("}") + 1
+    if start >= 0 and end > start:
+        return raw[start:end]
+    return None
+
 router = APIRouter()
 
 AI_UNAVAILABLE = {"ai_unavailable": True}
@@ -23,7 +33,7 @@ class NLSearchRequest(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    message: str
+    message: str = Field(..., max_length=2000)
     conversation_history: list[dict] = []
 
 
@@ -88,20 +98,24 @@ async def _extract_filters_from_query(query: str) -> dict:
         "You are a real estate search assistant for Egypt. "
         "Extract search filters from the user's query. "
         "Return ONLY a JSON object with these optional keys: "
-        "location (string, Egyptian city or neighborhood), "
+        "location (string, Egyptian city or neighborhood — 'alex' means Alexandria), "
         "max_price (number in EGP), min_price (number), "
-        "bedrooms (number), bathrooms (number), "
+        "bedrooms (number — '3bd' means 3), "
+        "bathrooms (number — '2ba' means 2), "
+        "size_sqm (number — exact size in sqm; '300m2' or '300sqm' means 300), "
+        "min_size_sqm (number), max_size_sqm (number), "
+        "amenities (array of strings — map user terms to the closest values from: "
+        "Parking, Swimming Pool, Gym, Garden, Security, Elevator, Central AC, "
+        "Balcony, Storage Room, Maid's Room), "
         "category (for_rent|for_sale|shared_housing), "
         "property_type (apartment|villa|studio|duplex|penthouse|commercial|room|chalet|townhouse|twin_house|land|whole_building|office). "
         "Output ONLY valid JSON, no explanation."
     )
     try:
         raw = await ollama.generate(prompt=query, system=system)
-        # Extract JSON from response (model may add extra text)
-        start = raw.find("{")
-        end = raw.rfind("}") + 1
-        if start >= 0 and end > start:
-            return json.loads(raw[start:end])
+        json_str = _extract_json(raw)
+        if json_str:
+            return json.loads(json_str)
     except Exception:
         pass
     return {}
@@ -116,7 +130,7 @@ def _detect_property_search(message: str) -> int:
     score = 0
 
     cities = [
-        "cairo", "giza", "alexandria", "new cairo", "new capital", "maadi",
+        "cairo", "giza", "alexandria", "alex", "new cairo", "new capital", "maadi",
         "zamalek", "heliopolis", "nasr city", "sheikh zayed", "6th october",
         "6th of october", "october city", "north coast", "hurghada", "sharm",
         "dokki", "mohandessin", "rehab", "mostakbal",
@@ -127,25 +141,86 @@ def _detect_property_search(message: str) -> int:
     if any(city in msg for city in cities):
         score += 40
 
-    category_words = [
-        "apartment", "flat", "villa", "rent", "sale", "room", "studio",
-        "شقة", "فيلا", "إيجار", "للبيع", "للإيجار",
+    property_words = [
+        "apartment", "flat", "villa", "rent", "sale", "buy", "buying", "purchase",
+        "for sale", "for rent", "room", "studio",
+        "penthouse", "duplex", "chalet", "townhouse", "office", "land",
+        "twin house", "commercial", "whole building",
+        "شقة", "فيلا", "إيجار", "للبيع", "للإيجار", "بنتهاوس", "دوبلكس", "شراء",
     ]
-    if any(w in msg for w in category_words):
+    if any(w in msg for w in property_words):
         score += 30
+
+    intent_phrases = [
+        "show me", "find me", "looking for", "i want", "i need",
+        "i'm looking", "search for", "any ", "budget",
+        "أريد", "أبحث", "ابحث", "دور على", "ابحث عن",
+    ]
+    if any(p in msg for p in intent_phrases):
+        score += 25
 
     if re.search(r'\b\d[\d,]*\s*(k|m|egp|pound|جنيه)\b|\begp\b', msg):
         score += 25
 
-    bedroom_words = ["bedroom", "beds", "غرف", "أوض"]
-    if any(w in msg for w in bedroom_words) or re.search(r'\bbr\b', msg):
+    # Bedroom/bathroom/size shorthand patterns (e.g. "3bd", "2ba", "300m2", "300sqm")
+    if re.search(r'\b\d+\s*bd\b|\bbedroom|\bbeds\b|غرف|أوض', msg) or re.search(r'\bbr\b', msg):
+        score += 20
+    if re.search(r'\b\d+\s*ba\b|\bbathroom', msg):
+        score += 15
+    if re.search(r'\b\d+\s*(sqm|m2|m²)\b', msg):
+        score += 15
+
+    amenity_words = [
+        "pool", "swimming", "gym", "parking", "garden", "security", "elevator",
+        "ac", "air condition", "balcony", "storage", "maid", "rooftop",
+        "حمام سباحة", "جيم", "موقف", "حديقة", "أمن", "مصعد", "بلكونة",
+    ]
+    if any(w in msg for w in amenity_words):
         score += 20
 
     question_words = ["how ", "what is", "explain", "كيف", "ما هو"]
-    if any(w in msg for w in question_words) and score == 0:
+    if any(w in msg for w in question_words) and score <= 40:
         score -= 30
 
     return score
+
+
+def _compute_match_score(candidate: dict, filters: dict) -> int | None:
+    """
+    0–100 score: fraction of requested spec filters the candidate satisfies.
+    Returns None when no spec filters were in the query (score would be meaningless).
+    """
+    total = 0
+    matched = 0
+
+    if filters.get("bedrooms") is not None:
+        total += 1
+        if candidate.get("bedrooms") == filters["bedrooms"]:
+            matched += 1
+
+    if filters.get("bathrooms") is not None:
+        total += 1
+        if candidate.get("bathrooms") == filters["bathrooms"]:
+            matched += 1
+
+    if filters.get("size_sqm") is not None:
+        total += 1
+        size = candidate.get("size_sqm")
+        if size is not None:
+            tol = filters["size_sqm"] * 0.20
+            if abs(float(size) - filters["size_sqm"]) <= tol:
+                matched += 1
+
+    if filters.get("amenities"):
+        for a in filters["amenities"]:
+            total += 1
+            if a in (candidate.get("amenities") or []):
+                matched += 1
+
+    if total == 0:
+        return None  # no spec filters — badge would be misleading
+
+    return round((matched / total) * 100)
 
 
 def _build_listing_refs(candidates: list[dict]) -> list[dict]:
@@ -155,11 +230,14 @@ def _build_listing_refs(candidates: list[dict]) -> list[dict]:
             "id": row["id"],
             "title": row["title"],
             "location": row["location"],
+            "city": row.get("city") or "",
             "price": float(row["price"]),
             "currency": row.get("currency", "EGP"),
             "bedrooms": row.get("bedrooms"),
+            "bathrooms": row.get("bathrooms"),
             "size_sqm": float(row["size_sqm"]) if row.get("size_sqm") else None,
             "images": row.get("images") or [],
+            "property_type": row.get("property_type") or "",
         }
         for row in candidates
     ]
@@ -207,7 +285,7 @@ async def _search_listings_for_chat(
                             "filter_city": filters.get("location"),
                         }).execute()
                         candidates = rpc_result.data or []
-                        # Post-filter price (RPC has no max_price/min_price params)
+                        # Post-filter: price, bedrooms, property_type (RPC only filters category/city)
                         if filters.get("max_price"):
                             candidates = [
                                 c for c in candidates
@@ -218,10 +296,25 @@ async def _search_listings_for_chat(
                                 c for c in candidates
                                 if c.get("price", 0) >= filters["min_price"]
                             ]
+                        if filters.get("bedrooms") is not None:
+                            candidates = [
+                                c for c in candidates
+                                if c.get("bedrooms") == filters["bedrooms"]
+                            ]
+                        if filters.get("property_type"):
+                            candidates = [
+                                c for c in candidates
+                                if c.get("property_type") == filters["property_type"]
+                            ]
                         for c in candidates:
                             c.pop("embedding", None)
                         if candidates:
-                            return _build_listing_refs(candidates[:3]), "personalized"
+                            refs = _build_listing_refs(candidates[:3])
+                            for ref, c in zip(refs, candidates[:3]):
+                                score = _compute_match_score(c, filters)
+                                if score is not None:
+                                    ref["match_score"] = score
+                            return refs, "personalized"
             except Exception:
                 pass  # fall through to structured search
 
@@ -230,22 +323,31 @@ async def _search_listings_for_chat(
             supabase_admin.table("listings")
             .select(
                 "id, title, location, city, price, currency, "
-                "bedrooms, size_sqm, images, views_count, embedding"
+                "bedrooms, bathrooms, size_sqm, images, views_count, embedding, property_type, amenities"
             )
             .eq("status", "active")
             .is_("deleted_at", "null")
         )
         if filters.get("category"):
             db_query = db_query.eq("category", filters["category"])
+        if filters.get("property_type"):
+            db_query = db_query.eq("property_type", filters["property_type"])
         if filters.get("min_price") is not None:
             db_query = db_query.gte("price", filters["min_price"])
         if filters.get("max_price") is not None:
             db_query = db_query.lte("price", filters["max_price"])
         if filters.get("bedrooms") is not None:
             db_query = db_query.eq("bedrooms", filters["bedrooms"])
+        if filters.get("bathrooms") is not None:
+            db_query = db_query.eq("bathrooms", filters["bathrooms"])
         if filters.get("location"):
             loc = filters["location"]
             db_query = db_query.or_(f"city.ilike.%{loc}%,location.ilike.%{loc}%")
+        # size_sqm and amenities are soft filters — applied via match_score, not DB filter
+        if filters.get("min_size_sqm") is not None:
+            db_query = db_query.gte("size_sqm", filters["min_size_sqm"])
+        if filters.get("max_size_sqm") is not None:
+            db_query = db_query.lte("size_sqm", filters["max_size_sqm"])
 
         result = db_query.order("views_count", desc=True).limit(10).execute()
         candidates = result.data or []
@@ -279,7 +381,12 @@ async def _search_listings_for_chat(
         for c in candidates:
             c.pop("embedding", None)
 
-        return _build_listing_refs(candidates), "search"
+        refs = _build_listing_refs(candidates)
+        for ref, c in zip(refs, candidates):
+            score = _compute_match_score(c, filters)
+            if score is not None:
+                ref["match_score"] = score
+        return refs, "search"
 
     try:
         return await asyncio.wait_for(_do_search(), timeout=3.0)
@@ -384,81 +491,207 @@ async def chat(
     if not await ollama.health():
         return AI_UNAVAILABLE
 
-    # Step 1: Retrieve relevant context BEFORE streaming
-    chunks = await rag_retriever.retrieve(body.message, k=5)
-    context_str = rag_retriever.build_context(chunks)
-    citations = rag_retriever.format_citations(chunks)
+    # Step 1: Retrieve context + listing cards in parallel so RAG never blocks cards
+    is_property_query = _detect_property_search(body.message) >= 40
+    search_filters: dict = {}
 
-    # ── Property search injection ────────────────────────────────────────────────
-    listing_refs: list[dict] = []
-    listing_source = "search"
-    if _detect_property_search(body.message) >= 40:
+    async def _run_listing_search() -> tuple[list[dict], str]:
+        nonlocal search_filters
+        if not is_property_query:
+            return [], "search"
         try:
             search_filters = await _extract_filters_from_query(body.message)
-            listing_refs, listing_source = await _search_listings_for_chat(
-                body.message, search_filters, current_user
-            )
+            return await _search_listings_for_chat(body.message, search_filters, current_user)
         except Exception:
-            pass  # fail-open: chat continues without listing cards
+            return [], "search"
+
+    chunks, (listing_refs, listing_source) = await asyncio.gather(
+        rag_retriever.retrieve(body.message, k=5),
+        _run_listing_search(),
+    )
+
+    # Non-listing chunks (neighborhoods, blog) come from RAG as-is.
+    # Listing chunks are dropped — they may be stale snapshots.
+    # Fresh listing context is built directly from the live DB results above.
+    non_listing_chunks = [c for c in chunks if c.source_type != "listing"]
+    citations = rag_retriever.format_citations(non_listing_chunks)
+
+    rag_context = rag_retriever.build_context(non_listing_chunks)
+
+    # Detect proximity mismatch: requested city not in any returned listing
+    proximity_notice: str | None = None
+    if listing_refs and search_filters.get("location"):
+        requested_loc = search_filters["location"].lower()
+        has_local_match = any(
+            requested_loc in (r.get("city") or "").lower() or
+            requested_loc in (r.get("location") or "").lower()
+            for r in listing_refs
+        )
+        if not has_local_match:
+            cap = search_filters["location"].title()
+            proximity_notice = (
+                f"No exact matches in {cap} — showing the closest available results from nearby areas."
+            )
+
+    if listing_refs:
+        listing_lines = []
+        for r in listing_refs:
+            beds = f"{r['bedrooms']}BR " if r.get("bedrooms") else ""
+            baths = f"{r['bathrooms']}ba " if r.get("bathrooms") else ""
+            size = f"{r['size_sqm']}sqm " if r.get("size_sqm") else ""
+            price = f"{r['price']:,.0f} {r.get('currency','EGP')}"
+            ptype = r.get("property_type") or "property"
+            listing_lines.append(
+                f"- {r['title']} | {r.get('location','')} | type:{ptype} | {beds}{baths}{size}| {price}"
+            )
+        count_line = f"RESULT COUNT: {len(listing_refs)}\n"
+        fresh_listing_context = "LIVE LISTINGS FROM DATABASE:\n" + count_line + "\n".join(listing_lines)
+        context_str = fresh_listing_context + ("\n\n" + rag_context if rag_context else "")
+    elif is_property_query:
+        context_str = (
+            "LIVE LISTINGS FROM DATABASE:\n"
+            "RESULT COUNT: 0\n"
+            "(No listings found matching this search query)\n"
+            + ("\n\n" + rag_context if rag_context else "")
+        )
+    else:
+        context_str = rag_context
 
     # Step 2: Build grounded system prompt
     if context_str:
         system = (
-            "You are AXIOM AI — the assistant built into AXIOM, Egypt's real estate platform.\n"
-            "Users are already on the AXIOM website browsing properties.\n\n"
-            "PLATFORM:\n"
-            "- AXIOM lists properties across Egypt: Cairo, Giza, Alexandria, New Capital, "
-            "North Coast, Hurghada, Sharm El Sheikh\n"
-            "- Categories: apartments for rent, homes for sale, shared housing rooms\n"
-            "- Users can message landlords, save favorites, and apply to listings\n\n"
-            "BEHAVIOR:\n"
-            "- Answer from the verified database records below ONLY\n"
-            "- When a listing is relevant, describe it naturally (title, location, price) "
-            "— do NOT expose raw UUIDs to the user\n"
-            "- If the user's need isn't in the records, say 'I don't see that in our listings "
-            "right now' — never send them to another website\n"
-            "- Ask one clarifying question if the query is vague (e.g. no city or budget given)\n\n"
-            "STYLE — CRITICAL:\n"
-            "- Short and conversational: 1-2 sentences for simple questions\n"
-            "- Use bullet points ONLY when listing 3+ properties or features\n"
-            "- Never use numbered lists, markdown headers (##), or bold (**) for chat replies\n"
-            "- Never open with 'Great question!' or 'Of course!' or any filler phrase\n"
-            "- Match the user's language (Arabic or English)\n\n"
+            "You are AXIOM AI, the assistant inside AXIOM — Egypt's real estate platform.\n"
+            "The user is already on the site. Help them find a home using ONLY the verified\n"
+            "live data below. A separate UI layer renders matched listings as tappable\n"
+            "cards under your reply, and each card links to its full details page — you\n"
+            "never need to describe a listing exhaustively or output IDs, URLs, or images.\n\n"
+            "HARD RULES — NON-NEGOTIABLE:\n\n"
+            "1. GROUNDING. Every factual claim about a listing, neighborhood, price,\n"
+            "   size, amenity, or availability MUST come from the VERIFIED DATABASE\n"
+            "   RECORDS below. If a detail is not in the records, you do not know it.\n"
+            "   Do not infer, estimate, average, or fill gaps from general knowledge.\n\n"
+            "2. NO HALLUCINATION. Never invent listings, prices, addresses, compound\n"
+            "   names, landlord names, phone numbers, square meters, bedroom counts,\n"
+            "   or amenities. If the records don't contain it, say so plainly in one\n"
+            "   sentence.\n\n"
+            "3. NO QUESTIONS BACK. Do not ask the user for clarification, budget,\n"
+            "   city, bedroom count, or preferences. Answer using whatever is already\n"
+            "   in their message plus the records. If the query is vague, give the\n"
+            "   best short answer possible from what is available and stop.\n\n"
+            "4. NO RAW IDs OR LINKS. Never output UUIDs, database IDs, embedding\n"
+            "   values, internal field names, or URLs. The card UI handles all of that.\n\n"
+            "5. NO OFF-PLATFORM REFERRALS. Never mention or link to Aqarmap, Bayut,\n"
+            "   Property Finder, OLX, Dubizzle, or any external site. Keep the user\n"
+            "   on AXIOM.\n\n"
+            "6. LANGUAGE. Reply in the same language as the user's last message\n"
+            "   (Arabic or English). If mixed, match the dominant language.\n\n"
+            "FRESHNESS RULES:\n\n"
+            "7. The VERIFIED DATABASE RECORDS below are a live snapshot pulled from\n"
+            "   Supabase at the moment this message was sent. They are the ONLY\n"
+            "   source of truth — they override previous assistant replies in this\n"
+            "   conversation, anything the user quotes back at you, and any general\n"
+            "   assumptions about the market.\n\n"
+            "8. If this turn's records show a listing with a different price,\n"
+            "   bedroom count, size, or availability than you stated in an earlier\n"
+            "   turn, USE THIS TURN'S VALUES silently. Do not apologize or explain\n"
+            "   the mismatch — the earlier reply is outdated, this one is current.\n\n"
+            "9. Only describe listings that appear in THIS turn's records. If the\n"
+            "   user references a listing from an earlier turn and it's not in the\n"
+            "   current records, say it's no longer available or no longer matches\n"
+            "   their search. Do not restate its old details.\n\n"
+            "10. Never describe a listing as 'available' or 'still on the market' —\n"
+            "    its presence in the records already means it is. Conversely, never\n"
+            "    claim a listing is unavailable unless it literally isn't in the\n"
+            "    records.\n\n"
+            "11. CONVERSATION HISTORY. The conversation history may contain lines like\n"
+            "    '[Listings shown: ...]'. Those listings are from PAST searches and are\n"
+            "    COMPLETELY OUTDATED. NEVER re-cite, repeat, or reference them as\n"
+            "    current results. The ONLY valid listings are those in THIS turn's\n"
+            "    VERIFIED DATABASE RECORDS below. If this turn's RESULT COUNT is 0,\n"
+            "    there are NO listings — period. Do not invent any.\n\n"
+            "WHEN LISTINGS MATCH:\n"
+            "- Matched listings will appear as cards right below your message.\n"
+            "- Write EXACTLY ONE sentence using the RESULT COUNT and the exact\n"
+            "  property_type values from the LIVE LISTINGS records above.\n"
+            "  Example format: 'Here is 1 penthouse in Alexandria:'\n"
+            "  or 'Here are 2 villas in Giza:'\n"
+            "  Use the EXACT number from RESULT COUNT — never guess or round.\n"
+            "  Use the EXACT property_type from the records — never substitute\n"
+            "  a generic word like 'apartment' or 'property' unless that is\n"
+            "  literally the property_type in the records.\n"
+            "- After that ONE sentence, STOP COMPLETELY.\n"
+            "- NEVER output bullet points, dashes, or any listing details in text.\n"
+            "  The cards already show everything — do not repeat any field.\n\n"
+            "WHEN NO LISTINGS MATCH (RESULT COUNT is 0 in the records above):\n"
+            "- Your ENTIRE response MUST be one plain sentence stating there are no\n"
+            "  listings at the moment. Examples:\n"
+            "  'There are no listings in Cairo at the moment.'\n"
+            "  'I don't see any apartments in our current listings right now.'\n"
+            "  'We have no villas in Sheikh Zayed listed at the moment.'\n"
+            "- NEVER invent listings. NEVER cite listings from the conversation history.\n"
+            "- Do not apologize, do not promise to search later, do not redirect.\n\n"
+            "STYLE:\n"
+            "- 1–2 sentences for almost every reply. Maximum 3.\n"
+            "- No markdown headers, no bold, no numbered lists, no emojis.\n"
+            "- No filler openers ('Great question!', 'Of course!', 'Sure thing!',\n"
+            "  'بكل تأكيد', 'بالطبع').\n"
+            "- Plain, direct, conversational Arabic or English.\n\n"
             f"VERIFIED DATABASE RECORDS:\n{context_str}"
         )
     else:
         system = (
-            "You are AXIOM AI — the assistant built into AXIOM, Egypt's real estate platform.\n"
-            "Answer general Egyptian real estate questions (pricing norms, neighborhood guides, "
-            "lease terms, buying process). Stay focused on helping the user find what they need "
-            "on AXIOM. Never mention or link to Aqarmap, Bayut, Property Finder, or any other "
-            "platform. Do not assert specific listing availability, prices, or addresses — "
-            "you don't have live listing data for this query. "
-            "Keep answers to 2-3 sentences. Match the user's language."
+            "You are AXIOM AI, the assistant inside AXIOM — Egypt's real estate platform.\n"
+            "No verified listing data was retrieved from Supabase for this query.\n\n"
+            "HARD RULES:\n"
+            "- Do NOT claim any specific listing, price, address, or availability\n"
+            "  exists. You have no live data for this query.\n"
+            "- Do NOT ask the user clarifying questions. Answer briefly from general\n"
+            "  Egyptian real estate knowledge (lease norms, neighborhood character,\n"
+            "  buying/renting process, typical price ranges as ranges only) and stop.\n"
+            "- Do NOT mention Aqarmap, Bayut, Property Finder, or any external\n"
+            "  platform.\n"
+            "- No UUIDs, no URLs, no markdown, no filler openers.\n"
+            "- Reply in the user's language (Arabic or English).\n"
+            "- Maximum 2–3 sentences."
         )
 
-    # Step 3: Build prompt with conversation history (last 4 turns)
-    history_text = ""
+    # Step 3: Build chat messages array (proper role-separated format for /api/chat)
+    chat_messages: list[dict] = [{"role": "system", "content": system}]
     for msg in body.conversation_history[-4:]:
         role = msg.get("role", "user")
         content = msg.get("content", "")
-        history_text += f"{role.capitalize()}: {content}\n"
+        if role in ("user", "assistant") and content:
+            chat_messages.append({"role": role, "content": content})
+    chat_messages.append({"role": "user", "content": body.message})
 
-    full_prompt = f"{history_text}User: {body.message}\nAssistant:"
+    # Step 4: Stream response with per-token timeout; emit listing_refs + proximity_notice + citations before [DONE]
+    _TOKEN_TIMEOUT = 30.0  # seconds to wait for the next token before aborting
 
-    # Step 4: Stream response, emit listing_refs + citations as final SSE events before [DONE]
     async def generate_sse():
+        token_gen = ollama.chat_stream(chat_messages)
         try:
-            async for token in ollama.generate_stream(prompt=full_prompt, system=system):
-                yield f"data: {json.dumps({'token': token})}\n\n"
-            if listing_refs:
-                yield f"data: {json.dumps({'listing_refs': listing_refs, 'source': listing_source})}\n\n"
-            # Emit citations before DONE so frontend can parse them
-            if citations:
-                yield f"data: {json.dumps({'citations': [c.model_dump() for c in citations]})}\n\n"
-            yield "data: [DONE]\n\n"
-        except Exception as e:
-            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            while True:
+                try:
+                    token = await asyncio.wait_for(token_gen.__anext__(), timeout=_TOKEN_TIMEOUT)
+                    yield f"data: {json.dumps({'token': token})}\n\n"
+                except asyncio.TimeoutError:
+                    yield f"data: {json.dumps({'error': 'Generation timed out — please try again.'})}\n\n"
+                    return
+                except StopAsyncIteration:
+                    break
+                except Exception as e:
+                    yield f"data: {json.dumps({'error': str(e)})}\n\n"
+                    return
+        finally:
+            await token_gen.aclose()
+
+        if listing_refs:
+            yield f"data: {json.dumps({'listing_refs': listing_refs, 'source': listing_source, 'search_filters': search_filters})}\n\n"
+        if proximity_notice:
+            yield f"data: {json.dumps({'proximity_notice': proximity_notice})}\n\n"
+        if citations:
+            yield f"data: {json.dumps({'citations': [c.model_dump() for c in citations]})}\n\n"
+        yield "data: [DONE]\n\n"
 
     return StreamingResponse(
         generate_sse(),
@@ -508,11 +741,9 @@ async def _explain_recommendations(
 
     try:
         raw = await ollama.generate(prompt=prompt, system=system)
-        start = raw.find("{")
-        end = raw.rfind("}") + 1
-        if start >= 0 and end > start:
-            result = json.loads(raw[start:end])
-            # Ensure all values are strings
+        json_str = _extract_json(raw)
+        if json_str:
+            result = json.loads(json_str)
             return {k: str(v) for k, v in result.items() if isinstance(k, str)}
     except Exception:
         pass
@@ -768,10 +999,9 @@ async def compute_compatibility(
     # Step 8: Parse response
     try:
         raw = await ollama.generate(prompt=prompt, system=system)
-        start = raw.find("{")
-        end = raw.rfind("}") + 1
-        if start >= 0 and end > start:
-            parsed = json.loads(raw[start:end])
+        json_str = _extract_json(raw)
+        if json_str:
+            parsed = json.loads(json_str)
             score = max(0, min(100, int(parsed.get("score", 50))))
             reasons = parsed.get("reasons", [])
             housemate_notes = parsed.get("housemate_notes", [])
@@ -858,10 +1088,9 @@ async def generate_description(
 
     try:
         raw = await ollama.generate(prompt=prompt, system=system)
-        start = raw.find("{")
-        end = raw.rfind("}") + 1
-        if start >= 0 and end > start:
-            parsed = json.loads(raw[start:end])
+        json_str = _extract_json(raw)
+        if json_str:
+            parsed = json.loads(json_str)
             return {
                 "english": parsed.get("english", ""),
                 "arabic": parsed.get("arabic", ""),
@@ -904,10 +1133,9 @@ async def validate_amenity(
 
     try:
         raw = await ollama.generate(prompt=prompt, system=system)
-        start = raw.find("{")
-        end = raw.rfind("}") + 1
-        if start >= 0 and end > start:
-            parsed = json.loads(raw[start:end])
+        json_str = _extract_json(raw)
+        if json_str:
+            parsed = json.loads(json_str)
             ok = bool(parsed.get("appropriate", True))
             reason = str(parsed.get("reason", ""))
             return {"ok": ok, "reason": reason}

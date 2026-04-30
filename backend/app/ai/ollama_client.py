@@ -85,5 +85,34 @@ class OllamaClient:
                         except json.JSONDecodeError:
                             continue
 
+    async def chat_stream(self, messages: list[dict]):
+        """
+        Async generator using Ollama's /api/chat endpoint with proper role-separated messages.
+        messages: list of {"role": "system"|"user"|"assistant", "content": str}
+        Yields string token chunks; raises on HTTP errors.
+        """
+        import json as _json
+        payload: dict = {
+            "model": self.model,
+            "messages": messages,
+            "stream": True,
+        }
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            async with client.stream(
+                "POST", f"{self.base_url}/api/chat", json=payload
+            ) as response:
+                response.raise_for_status()
+                async for line in response.aiter_lines():
+                    if line.strip():
+                        try:
+                            data = _json.loads(line)
+                            token = (data.get("message") or {}).get("content", "")
+                            if token:
+                                yield token
+                            if data.get("done"):
+                                break
+                        except _json.JSONDecodeError:
+                            continue
+
 
 ollama = OllamaClient()

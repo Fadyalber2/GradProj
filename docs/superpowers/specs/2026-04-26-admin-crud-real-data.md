@@ -9,6 +9,7 @@
 ## Goal
 
 Two parallel improvements:
+
 1. Replace all mock/hardcoded data on public-facing pages with real data queried directly from Supabase.
 2. Overhaul the admin panel CRUD experience — better forms, a pending approvals queue, rich text for blog, autocomplete pickers, validation, and safer deletes.
 
@@ -20,22 +21,23 @@ Two parallel improvements:
 
 Create `frontend/src/lib/supabase-queries.ts` with TanStack Query hooks that query Supabase JS client directly (no FastAPI hop). Each hook returns `{ data, isLoading, error }`.
 
-| Hook | Supabase table(s) | Consumer page |
-|------|-------------------|---------------|
-| `useListings(filters)` | `listings` | `/find-homes` |
-| `useListing(id)` | `listings` | `/property/[id]` |
-| `useAgencies(search?)` | `agencies` | `/agencies` |
-| `useAgency(slug)` | `agencies` + join `projects`, `listings` | `/agencies/[slug]` |
-| `useProject(id)` | `projects` | `/project/[id]` |
-| `useBlogPosts(filters)` | `blog_posts` | `/blog` |
-| `useBlogPost(slug)` | `blog_posts` | `/blog/[slug]` |
-| `useDashboardData()` | `listings` filtered by `auth.user().id` | `/dashboard` |
+| Hook                    | Supabase table(s)                        | Consumer page      |
+| ----------------------- | ---------------------------------------- | ------------------ |
+| `useListings(filters)`  | `listings`                               | `/find-homes`      |
+| `useListing(id)`        | `listings`                               | `/property/[id]`   |
+| `useAgencies(search?)`  | `agencies`                               | `/agencies`        |
+| `useAgency(slug)`       | `agencies` + join `projects`, `listings` | `/agencies/[slug]` |
+| `useProject(id)`        | `projects`                               | `/project/[id]`    |
+| `useBlogPosts(filters)` | `blog_posts`                             | `/blog`            |
+| `useBlogPost(slug)`     | `blog_posts`                             | `/blog/[slug]`     |
+| `useDashboardData()`    | `listings` filtered by `auth.user().id`  | `/dashboard`       |
 
 Filters for `useListings`: `category`, `property_type`, `min_price`, `max_price`, `bedrooms`, `search` (text search on title + location).
 
 ### 1.2 Page wiring
 
 For each page:
+
 - Remove the mock data import from `constants.ts`
 - Add the corresponding hook
 - Replace static array references with `data ?? []`
@@ -43,6 +45,7 @@ For each page:
 - Show an error message if `error` is set
 
 Pages to update:
+
 - `frontend/src/app/find-homes/page.tsx`
 - `frontend/src/app/property/[id]/page.tsx`
 - `frontend/src/app/agencies/page.tsx`
@@ -78,17 +81,19 @@ New view `PendingApprovalsView` component inside `frontend/src/app/admin/dashboa
 New reusable component `frontend/src/components/admin/EntityPicker.tsx`.
 
 Props:
+
 - `value: string` — current UUID
 - `onChange: (id: string, label: string) => void`
 - `section: "users" | "agencies"` — which admin endpoint to search
 - `placeholder: string`
 
 Behaviour:
+
 - Debounced search (300ms) against the admin list endpoint
 - Dropdown shows up to 8 results with name + truncated ID
 - Selecting an option sets the UUID in the form
 - Displays the selected name next to the hidden UUID value
-- Clears with an ×  button
+- Clears with an × button
 
 Used in `EntityForm` for fields: `owner_id`, `author_id`, `agency_id`.
 
@@ -119,6 +124,7 @@ Add `required?: boolean` to the `FieldDef` type and mark required fields in the 
 ### 2.5 Safer Delete — Countdown Confirm
 
 In the delete confirmation modal:
+
 - The "Yes, Delete" button is disabled and shows a countdown `(3)`, `(2)`, `(1)` for 3 seconds
 - After countdown completes, button becomes active and turns red
 - Uses `useEffect` with a 1-second interval, cleared on modal close
@@ -136,6 +142,7 @@ In the delete confirmation modal:
 ### 3.2 Fix projects search
 
 In `backend/app/admin/router.py` line ~563:
+
 ```python
 # Before
 query = query.ilike("title", f"%{search}%")
@@ -152,11 +159,13 @@ Run `npx tsc --noEmit` inside `frontend/` — must pass with zero errors before 
 ## File Change Summary
 
 ### New files
+
 - `frontend/src/lib/supabase-queries.ts`
 - `frontend/src/components/admin/EntityPicker.tsx`
 - `frontend/src/components/admin/RichTextEditor.tsx`
 
 ### Modified files
+
 - `frontend/src/app/find-homes/page.tsx`
 - `frontend/src/app/property/[id]/page.tsx`
 - `frontend/src/app/agencies/page.tsx`
@@ -170,6 +179,7 @@ Run `npx tsc --noEmit` inside `frontend/` — must pass with zero errors before 
 - `backend/app/admin/router.py`
 
 ### Packages to install
+
 - `@tiptap/react`
 - `@tiptap/pm`
 - `@tiptap/starter-kit`

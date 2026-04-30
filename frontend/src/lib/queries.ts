@@ -10,8 +10,6 @@ import type {
   BlogPostDetail,
   BlogPostBrief,
   DashboardResponse,
-  ConversationPreview,
-  ApiMessage,
   ApiNotification,
 } from "@/types/api";
 
@@ -182,55 +180,6 @@ export const dashboardQueries = {
     queryKey: ["dashboard", "me"],
     queryFn: () => api.get<DashboardResponse>("/api/dashboard/me"),
   }),
-};
-
-// ── Messages ──
-
-export const messagesQueries = {
-  conversations: () => ({
-    queryKey: ["conversations"],
-    queryFn: () =>
-      api.get<ConversationPreview[]>("/api/messages/conversations"),
-  }),
-
-  messages: (conversationId: string) => ({
-    queryKey: ["messages", conversationId],
-    queryFn: () =>
-      api.get<ApiMessage[]>(
-        `/api/messages/conversations/${conversationId}`
-      ),
-  }),
-};
-
-export const acceptConversationMutation = {
-  mutationFn: (conversationId: string) =>
-    api.post<{ detail: string }>(
-      `/api/messages/conversations/${conversationId}/accept`
-    ),
-};
-
-export const rejectConversationMutation = {
-  mutationFn: (conversationId: string) =>
-    api.post<{ detail: string }>(
-      `/api/messages/conversations/${conversationId}/reject`
-    ),
-};
-
-export const blockUserMutation = {
-  mutationFn: (data: { user_id: string; reason?: string }) =>
-    api.post<{ detail: string }>("/api/messages/block", data),
-};
-
-export const unblockUserMutation = {
-  mutationFn: (userId: string) =>
-    api.delete<{ detail: string }>(`/api/messages/block/${userId}`),
-};
-
-export const deleteConversationMutation = {
-  mutationFn: (conversationId: string) =>
-    api.delete<{ detail: string }>(
-      `/api/messages/conversations/${conversationId}`
-    ),
 };
 
 // ── Notifications ──

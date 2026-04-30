@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import {
@@ -104,6 +104,7 @@ export default function AddListingModal({
   // Photo state
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
+  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
 
   // AI description state
   const [generatingDesc, setGeneratingDesc] = useState(false);
@@ -115,6 +116,14 @@ export default function AddListingModal({
   // Nominatim
   const { query, setQuery, suggestions, setSuggestions, loading: nominatimLoading } =
     useNominatim();
+
+  // Auto-select the top suggestion when results arrive and user hasn't manually selected yet
+  useEffect(() => {
+    if (suggestions.length > 0 && !addressSelected) {
+      handleSelectSuggestion(suggestions[0]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [suggestions]);
 
   function setField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -185,25 +194,73 @@ export default function AddListingModal({
 
   function handleFileSelect(files: FileList | null) {
     if (!files) return;
-    const newPreviews = Array.from(files).map((f) => URL.createObjectURL(f));
+    const arr = Array.from(files);
+    const newPreviews = arr.map((f) => URL.createObjectURL(f));
     setPhotoPreviews((prev) => [...prev, ...newPreviews]);
+    setPhotoFiles((prev) => [...prev, ...arr]);
   }
 
   function removePhoto(index: number) {
     URL.revokeObjectURL(photoPreviews[index]);
     setPhotoPreviews((prev) => prev.filter((_, i) => i !== index));
+    setPhotoFiles((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  async function uploadPhotos(): Promise<string[]> {
+    const urls: string[] = [];
+    for (const file of photoFiles) {
+      try {
+        const { upload_url, public_url } = await api.post<{
+          upload_url: string;
+          public_url: string;
+        }>("/api/uploads/signed-url", {
+          bucket: "listing-images",
+          filename: file.name,
+        });
+        await fetch(upload_url, {
+          method: "PUT",
+          body: file,
+          headers: { "Content-Type": file.type },
+        });
+        urls.push(public_url);
+      } catch {
+        // skip failed uploads — listing still saves without that photo
+      }
+    }
+    return urls;
+  }
+
+  function extractCityFromAddress(address: string): string {
+    const knownCities = [
+      "Alexandria", "Cairo", "Giza", "Luxor", "Aswan", "Hurghada",
+      "Sharm El Sheikh", "Sharm el-Sheikh", "Port Said", "Suez",
+      "Mansoura", "Tanta", "Zagazig", "Ismailia", "Damietta",
+      "Asyut", "Sohag", "Qena", "Minya", "Beni Suef", "Fayoum",
+      "New Cairo", "6th of October", "Maadi", "Heliopolis", "Nasr City",
+    ];
+    for (const city of knownCities) {
+      if (address.toLowerCase().includes(city.toLowerCase())) return city;
+    }
+    return "Cairo";
   }
 
   async function generateDescription() {
     setGeneratingDesc(true);
     try {
+      const city = form.city || extractCityFromAddress(form.full_address);
+      const extraParts: string[] = [];
+      if (form.furnishing) extraParts.push(`Furnishing: ${form.furnishing}`);
+      if (form.floor_number) extraParts.push(`Floor: ${form.floor_number}`);
+      if (form.full_address) extraParts.push(`Address: ${form.full_address}`);
+      extraParts.push(`Language preference: ${form.descLang}`);
+
       const res = await api.post<{
         english?: string;
         arabic?: string;
         description?: string;
-      }>("/api/ai/generate-description", {
-        title: form.title || null,
-        full_address: form.full_address || null,
+      }>("/api/ai/description", {
+        title: form.title || "Untitled",
+        city,
         category: form.category,
         property_type: form.property_type,
         price: form.price ? Number(form.price) : null,
@@ -211,7 +268,7 @@ export default function AddListingModal({
         bedrooms: form.bedrooms,
         bathrooms: form.bathrooms,
         amenities: form.amenities,
-        notes: `Language preference: ${form.descLang}`,
+        extra_notes: extraParts.join(". "),
       });
       const parts: string[] = [];
       if (form.descLang === "english" || form.descLang === "both") {
@@ -232,8 +289,8 @@ export default function AddListingModal({
   function validate(): boolean {
     const newErrors: FormErrors = {};
     if (!form.title.trim()) newErrors.title = "Listing name is required";
-    if (!form.full_address.trim() || !addressSelected)
-      newErrors.full_address = "Select an address from the suggestions";
+    if (!form.full_address.trim())
+      newErrors.full_address = "Address is required";
     if (!form.price || Number(form.price) <= 0)
       newErrors.price = "Enter a price greater than 0";
     setErrors(newErrors);
@@ -246,6 +303,7 @@ export default function AddListingModal({
     setSubmitting(true);
     setSubmitError("");
     try {
+      const images = await uploadPhotos();
       await api.post("/api/listings", {
         title: form.title.trim(),
         full_address: form.full_address,
@@ -256,20 +314,21 @@ export default function AddListingModal({
         price: Number(form.price),
         size_sqm: form.size_sqm ? Number(form.size_sqm) : null,
         category: form.category,
-        property_type: form.property_type,
+        property_type: form.property_type.toLowerCase(),
         bedrooms: form.bedrooms,
         bathrooms: form.bathrooms,
         floor_number: form.floor_number ? Number(form.floor_number) : null,
-        furnishing: form.furnishing || null,
+        furnishing: form.furnishing ? form.furnishing.toLowerCase() : null,
         description: form.description,
         amenities: form.amenities,
-        images: [],
+        images,
       });
       onSuccess?.();
       onClose();
       setForm(INITIAL_FORM);
       setAddressSelected(false);
       setPhotoPreviews([]);
+      setPhotoFiles([]);
       setQuery("");
     } catch {
       setSubmitError("Failed to save listing. Make sure the backend is running.");

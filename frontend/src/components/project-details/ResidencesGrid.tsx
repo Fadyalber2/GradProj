@@ -1,16 +1,89 @@
 "use client";
 
-import { CheckCircle, Clock, CalendarClock } from "lucide-react";
+import { useState, useMemo } from "react";
+import { CheckCircle, Clock, CalendarClock, ChevronDown } from "lucide-react";
+import { motion } from "framer-motion";
 import type { ProjectDetail } from "@/types";
+import ResidenceCard from "./ResidenceCard";
+
+const SORT_OPTIONS = [
+  { value: "price_asc", label: "Sort by Price: Low to High" },
+  { value: "price_desc", label: "Sort by Price: High to Low" },
+  { value: "size_asc", label: "Sort by Size: Small to Large" },
+  { value: "size_desc", label: "Sort by Size: Large to Small" },
+];
+
+function parsePrice(price: string): number {
+  const lower = price.toLowerCase();
+  const num = parseFloat(price.replace(/[^0-9.]/g, ""));
+  if (lower.includes("m")) return num * 1_000_000;
+  if (lower.includes("k")) return num * 1_000;
+  return num;
+}
+
+function parseSize(size: string): number {
+  return parseFloat(size.replace(/[^0-9.]/g, "")) || 0;
+}
 
 interface ResidencesGridProps {
   project: ProjectDetail;
 }
 
 export default function ResidencesGrid({ project }: ResidencesGridProps) {
+  const [sort, setSort] = useState("price_asc");
   const status = project.status?.toLowerCase() ?? "";
 
-  // in_progress — Unit Plans & Pricing
+  const sortedResidences = useMemo(() => {
+    const res = [...project.residences];
+    if (sort === "price_asc") res.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
+    else if (sort === "price_desc") res.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
+    else if (sort === "size_asc") res.sort((a, b) => parseSize(a.size) - parseSize(b.size));
+    else if (sort === "size_desc") res.sort((a, b) => parseSize(b.size) - parseSize(a.size));
+    return res;
+  }, [project.residences, sort]);
+
+  // Show card grid when residences are available
+  if (project.residences.length > 0) {
+    return (
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.4 }}
+      >
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div>
+            <h3 className="text-2xl font-bold text-white mb-1">Available Residences</h3>
+            <p className="text-sm text-gray-400">
+              Explore floor plans and pricing for this development
+            </p>
+          </div>
+          <div className="relative shrink-0">
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              className="appearance-none bg-card-dark border border-white/10 text-white text-sm rounded-lg py-2.5 pl-4 pr-10 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer"
+            >
+              {SORT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {sortedResidences.map((residence, index) => (
+            <ResidenceCard key={residence.id} residence={residence} index={index} />
+          ))}
+        </div>
+      </motion.section>
+    );
+  }
+
+  // In-progress / under construction
   if (status === "in_progress" || status === "under_construction") {
     return (
       <section>
@@ -21,7 +94,6 @@ export default function ResidencesGrid({ project }: ResidencesGridProps) {
           </p>
         </div>
 
-        {/* Starting price + completion */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="bg-card-dark rounded-2xl p-6 border border-white/5">
             <p className="text-gray-400 text-xs uppercase tracking-wider mb-2">Starting Price</p>
@@ -45,7 +117,6 @@ export default function ResidencesGrid({ project }: ResidencesGridProps) {
           </div>
         </div>
 
-        {/* Key features */}
         {project.keyFeatures.length > 0 && (
           <div className="bg-card-dark rounded-2xl p-6 border border-white/5">
             <h4 className="text-white font-bold mb-4">Included Features</h4>
@@ -63,7 +134,7 @@ export default function ResidencesGrid({ project }: ResidencesGridProps) {
     );
   }
 
-  // upcoming — Coming Soon teaser
+  // Upcoming — teaser
   if (status === "upcoming") {
     return (
       <section>
@@ -85,7 +156,7 @@ export default function ResidencesGrid({ project }: ResidencesGridProps) {
     );
   }
 
-  // completed (or any other status) — show key features and price
+  // Completed — show price summary
   return (
     <section>
       <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-8 gap-4">

@@ -61,7 +61,6 @@ export interface SignUpData {
 // ── Notification types ──
 
 export type NotificationType =
-  | "new_message"
   | "listing_approved"
   | "listing_rejected"
   | "viewing_confirmed"
@@ -94,6 +93,12 @@ export interface Listing {
   tags: string[];
   avatars: string[];
   liked?: boolean;
+  // Real listing fields from backend
+  category?: "for_rent" | "for_sale" | "shared_housing";
+  bedrooms?: number | null;
+  bathrooms?: number | null;
+  property_type?: string | null;
+  is_new?: boolean;
 }
 
 export interface Feature {
@@ -321,17 +326,6 @@ export interface AnalyticsStat {
   trendUp: boolean;
 }
 
-export interface DashboardMessage {
-  id: string;
-  name: string;
-  avatar?: string;
-  initials?: string;
-  preview: string;
-  time: string;
-  online?: boolean;
-  unread?: boolean;
-}
-
 // Dashboard listing — represents a listing owned by the current user
 export interface DashboardListing {
   id: string;
@@ -456,30 +450,3 @@ export interface RelatedArticle {
   readTime: string;
 }
 
-export interface InboxContact {
-  id: string;
-  name: string;
-  avatar?: string;
-  initials?: string;
-  initialsBg?: string;
-  initialsColor?: string;
-  preview: string;
-  time: string;
-  online?: boolean;
-  active?: boolean;
-  status?: "pending" | "accepted" | "rejected";
-  isIncomingRequest?: boolean;
-}
-
-export interface ChatMessage {
-  id: string;
-  sender: "them" | "me";
-  text: string;
-  time: string;
-  rawDate?: string;
-  attachment?: {
-    name: string;
-    size: string;
-  };
-  showAvatar?: boolean;
-}

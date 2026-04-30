@@ -10,7 +10,7 @@ This repository contains the **V2 frontend** — a Next.js 16 app that talks to 
 ## Project Structure
 
 ```
-G:\AI\AXIOM-V2\
+e:\GradProject\AXIOM-V2\
 ├── CLAUDE.md                   ← you are here
 ├── frontend/                   ← Next.js 16 app (the entire frontend)
 │   ├── src/
@@ -26,13 +26,11 @@ G:\AI\AXIOM-V2\
 │   ├── tailwind.config.ts
 │   └── tsconfig.json
 └── docs/
-    ├── GREENFIELD.md           ← Full system architecture spec (read this first)
-    ├── ARCHITECTURE.md         ← Quick-reference architecture cheat sheet
     ├── SETUP.md                ← How to run the project locally
     ├── ROADMAP.md              ← Current status and what's next
     ├── API_REFERENCE.md        ← Backend API contract (endpoints + shapes)
-    └── plans/
-        └── v2-frontend-implementation.md  ← Completed implementation plan
+    ├── BACKEND.md              ← Backend architecture reference
+    └── AI_FEATURES.md          ← AI feature specs
 ```
 
 ---
@@ -78,7 +76,7 @@ The backend runs separately at `http://localhost:8000` (FastAPI).
 | `frontend/src/types/api.ts` | API response TypeScript types |
 | `frontend/src/app/dashboard/page.tsx` | Unified dashboard page |
 | `frontend/src/app/property/[id]/page.tsx` | Property detail (handles shared housing too) |
-| `frontend/src/components/dashboard/` | 7 dashboard components |
+| `frontend/src/components/dashboard/` | Dashboard components incl. AddListingModal |
 | `frontend/src/components/layout/Navbar.tsx` | Top navigation |
 | `frontend/middleware.ts` | Auth route protection |
 
@@ -100,7 +98,7 @@ The backend runs separately at `http://localhost:8000` (FastAPI).
 
 ## Current Frontend Status
 
-All pages are built and use **mock data / API-ready structure**. The backend API is not yet wired to a live database. Pages that need live data:
+All pages are built. Auth is wired to Supabase. AI features are live (chatbot, NLP search, recommendations). Listings, dashboard, messages, and agency pages still use mock data pending API wiring.
 
 | Page | API endpoint needed |
 |------|-------------------|
@@ -109,7 +107,6 @@ All pages are built and use **mock data / API-ready structure**. The backend API
 | `/property/[id]` | `GET /api/listings/{id}` |
 | `/messages` | `GET /api/messages/conversations` |
 | `/agencies` | `GET /api/agencies` |
-| `/blog` | `GET /api/blog` |
 
 See `docs/API_REFERENCE.md` for full endpoint shapes.
 
@@ -140,14 +137,14 @@ See `docs/API_REFERENCE.md` for full endpoint shapes.
 
 ---
 
-## Backend (for reference — not in this repo)
+## Backend (in this repo at `backend/`)
 
-The backend lives at `G:\AI\Newstart\backend\` (FastAPI, Python).
+The backend lives at `backend/` (FastAPI, Python).
 
-- Runs on port **8000**
+- Runs on port **8000** — `cd backend && uvicorn app.main:app --reload`
 - Auth: Supabase JWT validated on every protected endpoint
-- AI: Ollama at port **11434**, model `axiom-llm:latest`
+- AI: Ollama at port **11434**, model `axiom-llm`
 - DB: Supabase (PostgreSQL + pgvector)
 
 See `docs/API_REFERENCE.md` for endpoint contracts.
-See `docs/GREENFIELD.md` for full system architecture.
+See `FULLknowledge.md` for the complete learning guide (novice to expert).

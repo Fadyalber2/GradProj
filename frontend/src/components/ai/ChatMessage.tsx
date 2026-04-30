@@ -3,13 +3,12 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Sparkles, User, BedDouble, Maximize2, ArrowRight } from "lucide-react";
+import { Sparkles, User, BedDouble, Bath, Maximize2, ArrowRight, AlertTriangle, RotateCcw } from "lucide-react";
 import type { Citation } from "@/types";
 
-// ── Markdown helpers (internal) ───────────────────────────────────────────────
+// ── Markdown helpers ──────────────────────────────────────────────────────────
 
 function renderInline(text: string): ReactNode {
-  // Handles **bold** — streaming-safe: unclosed ** falls through as plain text
   const parts = text.split(/(\*\*[^*]+\*\*)/);
   return (
     <>
@@ -73,15 +72,21 @@ function MessageContent({ content }: { content: string }): ReactNode {
   );
 }
 
+// ── Types ─────────────────────────────────────────────────────────────────────
+
 export interface ListingRef {
   id: string;
   title: string;
   location: string;
+  city?: string;
   price: number;
   currency: string;
   bedrooms: number | null;
+  bathrooms: number | null;
   size_sqm: number | null;
   images: string[];
+  property_type?: string;
+  match_score?: number;
 }
 
 export interface ChatMessageData {
@@ -89,22 +94,42 @@ export interface ChatMessageData {
   role: "user" | "assistant";
   content: string;
   listing_refs?: ListingRef[];
+  search_filters?: Record<string, unknown>;
+  proximity_notice?: string;
   citations?: Citation[];
   timestamp: Date;
+  isError?: boolean;
+  retryPayload?: string;
 }
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatPrice(price: number, currency: string) {
   return `${price.toLocaleString("en-EG")} ${currency}`;
 }
 
+function buildSearchUrl(filters: Record<string, unknown>): string {
+  const params = new URLSearchParams();
+  if (filters.category) params.set("category", String(filters.category));
+  if (filters.location) params.set("city", String(filters.location));
+  if (filters.property_type) params.set("property_type", String(filters.property_type));
+  if (filters.min_price != null) params.set("min_price", String(filters.min_price));
+  if (filters.max_price != null) params.set("max_price", String(filters.max_price));
+  if (filters.bedrooms != null) params.set("bedrooms", String(filters.bedrooms));
+  const qs = params.toString();
+  return `/find-homes${qs ? `?${qs}` : ""}`;
+}
+
+// ── Listing card ──────────────────────────────────────────────────────────────
+
 function ListingRefCard({ listing }: { listing: ListingRef }) {
   return (
     <Link
       href={`/property/${listing.id}`}
-      className="flex items-center gap-3 bg-card border border-border rounded-lg p-2.5 hover:border-primary/50 hover:shadow-md hover:shadow-primary/10 transition-all group"
+      className="flex items-center gap-3 bg-card border border-border rounded-xl p-2.5 hover:border-primary/50 hover:shadow-md hover:shadow-primary/10 transition-all group"
     >
       {/* Thumbnail */}
-      <div className="relative w-16 h-14 rounded-md overflow-hidden flex-shrink-0 bg-muted">
+      <div className="relative w-16 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
         {listing.images?.[0] ? (
           <Image
             src={listing.images[0]}
@@ -122,21 +147,45 @@ function ListingRefCard({ listing }: { listing: ListingRef }) {
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-semibold text-foreground truncate group-hover:text-primary transition-colors">
-          {listing.title}
-        </p>
-        <p className="text-xs text-muted-foreground truncate mt-0.5">
+        <div className="flex items-center gap-1.5">
+          <p className="text-xs font-semibold text-foreground truncate group-hover:text-primary transition-colors flex-1">
+            {listing.title}
+          </p>
+          {/* Match score badge — only shown when meaningful (spec filters were present) */}
+          {listing.match_score !== undefined && listing.match_score < 100 && (
+            <span className={`flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${
+              listing.match_score >= 70
+                ? "text-amber-400 bg-amber-400/10 border-amber-400/30"
+                : "text-muted-foreground bg-secondary border-border"
+            }`}>
+              {listing.match_score}%
+            </span>
+          )}
+          {listing.match_score === 100 && (
+            <span className="flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-full border text-green-400 bg-green-400/10 border-green-400/30">
+              ✓ Match
+            </span>
+          )}
+        </div>
+        <p className="text-[11px] text-muted-foreground truncate mt-0.5">
           {listing.location}
         </p>
-        <div className="flex items-center gap-2 mt-1">
+        {/* Specs row */}
+        <div className="flex items-center gap-2.5 mt-1.5">
           {listing.bedrooms != null && (
-            <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
+            <span className="flex items-center gap-0.5 text-[11px] text-muted-foreground">
               <BedDouble className="w-3 h-3" />
-              {listing.bedrooms}
+              {listing.bedrooms}bd
+            </span>
+          )}
+          {listing.bathrooms != null && (
+            <span className="flex items-center gap-0.5 text-[11px] text-muted-foreground">
+              <Bath className="w-3 h-3" />
+              {listing.bathrooms}ba
             </span>
           )}
           {listing.size_sqm != null && (
-            <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
+            <span className="flex items-center gap-0.5 text-[11px] text-muted-foreground">
               <Maximize2 className="w-3 h-3" />
               {listing.size_sqm}m²
             </span>
@@ -153,12 +202,19 @@ function ListingRefCard({ listing }: { listing: ListingRef }) {
   );
 }
 
+// ── ChatMessage ───────────────────────────────────────────────────────────────
+
 interface ChatMessageProps {
   message: ChatMessageData;
+  onRetry?: () => void;
 }
 
-export function ChatMessage({ message }: ChatMessageProps) {
+export function ChatMessage({ message, onRetry }: ChatMessageProps) {
   const isUser = message.role === "user";
+  const hasListings = (message.listing_refs?.length ?? 0) > 0;
+  const seeAllHref = message.search_filters
+    ? buildSearchUrl(message.search_filters)
+    : "/find-homes";
 
   return (
     <div className={`flex gap-2.5 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
@@ -177,7 +233,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
         )}
       </div>
 
-      {/* Bubble + listing cards */}
+      {/* Bubble + cards */}
       <div
         className={`flex flex-col gap-2 max-w-[82%] ${isUser ? "items-end" : "items-start"}`}
       >
@@ -192,12 +248,40 @@ export function ChatMessage({ message }: ChatMessageProps) {
           <MessageContent content={message.content} />
         </div>
 
-        {/* Inline listing reference cards */}
-        {message.listing_refs && message.listing_refs.length > 0 && (
+        {/* Retry button — only on error assistant messages */}
+        {!isUser && message.isError && onRetry && (
+          <button
+            onClick={onRetry}
+            className="flex items-center gap-1.5 text-xs font-medium text-primary hover:underline ml-0.5"
+          >
+            <RotateCcw className="w-3 h-3" />
+            Retry
+          </button>
+        )}
+
+        {/* Proximity notice banner */}
+        {message.proximity_notice && (
+          <div className="flex items-start gap-2 w-full px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-400 text-[11px] leading-snug">
+            <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+            <span>{message.proximity_notice}</span>
+          </div>
+        )}
+
+        {/* Listing cards */}
+        {hasListings && (
           <div className="flex flex-col gap-2 w-full">
-            {message.listing_refs.map((listing) => (
+            {message.listing_refs!.map((listing) => (
               <ListingRefCard key={listing.id} listing={listing} />
             ))}
+
+            {/* See all — carries extracted filters as query params */}
+            <Link
+              href={seeAllHref}
+              className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border border-primary/30 text-primary text-xs font-semibold hover:bg-primary/10 transition-colors"
+            >
+              See all matching listings
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         )}
       </div>

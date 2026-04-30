@@ -35,7 +35,7 @@ export async function getListings(filters?: ListingFilters) {
   let query = supabase
     .from("listings")
     .select(
-      "id, title, location, price, currency, price_period, category, property_type, images, verified, status, bedrooms, bathrooms, size_sqm, floor_number, neighborhood, compound_name, views_count, is_new, created_at",
+      "id, title, location, price, currency, price_period, category, property_type, images, verified, status, bedrooms, bathrooms, size_sqm, floor_number, compound_name, views_count, is_new, created_at",
       { count: "exact" }
     )
     .is("deleted_at", null)
@@ -82,21 +82,24 @@ export async function getListing(id: string) {
 export async function getAgencies(search?: string) {
   let query = supabase
     .from("agencies")
-    .select("id, slug, name, subtitle, logo_url, is_verified", { count: "exact" })
+    .select("id, slug, name, logo_url, banner_url, verified, description, projects(count), listings(count)")
     .order("name", { ascending: true });
 
   if (search) query = query.ilike("name", `%${search}%`);
 
   const { data, error } = await query;
-  const agencies: AgencyBrief[] = (data ?? []).map((a) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const agencies: AgencyBrief[] = ((data ?? []) as any[]).map((a) => ({
     id: a.id,
     slug: a.slug,
     name: a.name,
-    subtitle: a.subtitle ?? null,
+    subtitle: null,
+    description: a.description ?? null,
     logo_url: a.logo_url ?? null,
-    verified: a.is_verified ?? false,
-    active_projects: 0,
-    listings_count: 0,
+    banner_url: a.banner_url ?? null,
+    verified: a.verified ?? false,
+    active_projects: (a.projects as { count: number }[] | null)?.[0]?.count ?? 0,
+    listings_count: (a.listings as { count: number }[] | null)?.[0]?.count ?? 0,
   }));
   return { agencies, error };
 }
@@ -104,7 +107,7 @@ export async function getAgencies(search?: string) {
 export async function getAgency(slug: string) {
   const { data: agency, error } = await supabase
     .from("agencies")
-    .select("id, slug, name, subtitle, description, logo_url, banner_url, is_verified, created_at, phone, email, address, website")
+    .select("id, slug, name, description, logo_url, banner_url, verified, created_at, phone, email, city, website")
     .eq("slug", slug)
     .single();
 
@@ -113,7 +116,7 @@ export async function getAgency(slug: string) {
   const [projectsRes, listingsRes] = await Promise.all([
     supabase
       .from("projects")
-      .select("id, agency_id, title, subtitle, image_url, completion_pct, starting_price, status")
+      .select("id, agency_id, title, image_url, completion_pct, starting_price, status")
       .eq("agency_id", agency.id)
       .limit(6),
     supabase
@@ -131,11 +134,11 @@ export async function getAgency(slug: string) {
     id: agency.id,
     slug: agency.slug,
     name: agency.name,
-    subtitle: agency.subtitle ?? null,
+    subtitle: null,
     description: agency.description ?? null,
     logo_url: agency.logo_url ?? null,
     banner_url: agency.banner_url ?? null,
-    verified: agency.is_verified ?? false,
+    verified: agency.verified ?? false,
     active_projects: projectsRes.data?.length ?? 0,
     listings_count: listingsRes.data?.length ?? 0,
     trust_score: 95,
@@ -147,7 +150,7 @@ export async function getAgency(slug: string) {
     id: p.id,
     agency_id: p.agency_id,
     title: p.title,
-    subtitle: p.subtitle ?? null,
+    subtitle: null,
     image_url: p.image_url ?? null,
     completion_pct: p.completion_pct ?? 0,
     starting_price: p.starting_price ? Number(p.starting_price) : null,
@@ -162,7 +165,7 @@ export async function getAgency(slug: string) {
 export async function getProject(id: string) {
   const { data, error } = await supabase
     .from("projects")
-    .select("*, agencies!projects_agency_id_fkey(name, slug, logo_url, is_verified)")
+    .select("*, agencies!projects_agency_id_fkey(name, slug, logo_url, verified)")
     .eq("id", id)
     .single();
 
@@ -187,7 +190,7 @@ export async function getProject(id: string) {
     agency_name: (agency.name as string | null) ?? null,
     agency_slug: (agency.slug as string | null) ?? null,
     agency_logo: (agency.logo_url as string | null) ?? null,
-    agency_verified: Boolean(agency.is_verified),
+    agency_verified: Boolean(agency.verified),
   };
   return { data: project, error: null };
 }
@@ -209,7 +212,7 @@ export async function getBlogPosts(filters?: BlogFilters) {
   let query = supabase
     .from("blog_posts")
     .select(
-      "id, slug, title, subtitle, cover_image, category, tags, created_at, is_published",
+      "id, slug, title, lead, image_url, category, tags, created_at, is_published",
       { count: "exact" }
     )
     .eq("is_published", true)
@@ -222,8 +225,8 @@ export async function getBlogPosts(filters?: BlogFilters) {
     id: p.id,
     slug: p.slug,
     title: p.title,
-    subtitle: p.subtitle ?? null,
-    image_url: p.cover_image ?? null,
+    subtitle: p.lead ?? null,
+    image_url: p.image_url ?? null,
     category: p.category ?? null,
     author_name: null,
     author_avatar: null,
@@ -248,8 +251,8 @@ export async function getBlogPost(slug: string) {
     id: data.id as string,
     slug: data.slug as string,
     title: data.title as string,
-    subtitle: (data as Record<string, unknown>).subtitle as string | null ?? null,
-    image_url: (data as Record<string, unknown>).cover_image as string | null ?? null,
+    subtitle: (data as Record<string, unknown>).lead as string | null ?? null,
+    image_url: (data as Record<string, unknown>).image_url as string | null ?? null,
     category: (data as Record<string, unknown>).category as string | null ?? null,
     author_name: (author.full_name as string | null) ?? null,
     author_avatar: (author.avatar_url as string | null) ?? null,

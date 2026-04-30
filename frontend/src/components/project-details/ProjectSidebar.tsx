@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { FileText, Receipt } from "lucide-react";
+import { FileText, Receipt, MessageCircle } from "lucide-react";
 import type { ProjectDetail } from "@/types";
 
 const DOC_ICONS: Record<string, React.ElementType> = {
@@ -15,6 +15,13 @@ interface ProjectSidebarProps {
 }
 
 export default function ProjectSidebar({ project }: ProjectSidebarProps) {
+  const agentInitials = project.salesAgent.name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -29,19 +36,31 @@ export default function ProjectSidebar({ project }: ProjectSidebarProps) {
         </h3>
 
         <div className="flex items-center gap-4 mb-6">
-          <Image
-            src={project.salesAgent.avatar}
-            alt={project.salesAgent.name}
-            width={48}
-            height={48}
-            className="rounded-full border border-white/10 object-cover"
-          />
-          <div>
+          <div className="relative shrink-0">
+            {project.salesAgent.avatar ? (
+              <Image
+                src={project.salesAgent.avatar}
+                alt={project.salesAgent.name}
+                width={48}
+                height={48}
+                className="rounded-full border border-white/10 object-cover"
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-bold text-sm">
+                {agentInitials}
+              </div>
+            )}
+            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-card-dark" />
+          </div>
+          <div className="flex-1 min-w-0">
             <p className="text-white font-medium text-sm">
               {project.salesAgent.name}
             </p>
             <p className="text-gray-500 text-xs">{project.salesAgent.role}</p>
           </div>
+          <button className="w-9 h-9 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30 shrink-0 hover:bg-primary-hover transition-colors">
+            <MessageCircle className="h-4 w-4 text-white" />
+          </button>
         </div>
 
         <form

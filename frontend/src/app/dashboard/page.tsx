@@ -10,7 +10,6 @@ import MyListings from "@/components/dashboard/MyListings";
 import dynamic from "next/dynamic";
 const AddListingModal = dynamic(() => import("@/components/dashboard/AddListingModal"), { ssr: false });
 import LikedProperties from "@/components/dashboard/LikedProperties";
-import RecentMessages from "@/components/dashboard/RecentMessages";
 import MyViewings from "@/components/dashboard/MyViewings";
 import { getDashboardListings } from "@/lib/supabase-queries";
 import { useAuthStore } from "@/stores/authStore";
@@ -19,7 +18,6 @@ import type {
   UserProfile,
   AnalyticsStat,
   DashboardListing,
-  DashboardMessage,
   LikedProperty,
   DashboardViewingBrief,
 } from "@/types";
@@ -118,7 +116,6 @@ export default function DashboardPage() {
   ];
 
   const listings = (data?.listings ?? []).map(mapListing);
-  const messages: DashboardMessage[] = [];
   const likedProperties: LikedProperty[] = [];
   const viewings: DashboardViewingBrief[] = [];
 
@@ -131,13 +128,8 @@ export default function DashboardPage() {
       <DashboardProfile user={profile} />
       <DashboardStats stats={analyticsStats} />
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
-        <div className="xl:col-span-2">
-          <LikedProperties properties={likedProperties} />
-        </div>
-        <div className="xl:col-span-1">
-          <RecentMessages messages={messages} />
-        </div>
+      <div className="mb-8">
+        <LikedProperties properties={likedProperties} />
       </div>
 
       <div className="mb-8">

@@ -15,14 +15,12 @@ import type {
   SharedHousingDetail,
   ProjectDetail,
   AnalyticsStat,
-  DashboardMessage,
   UserProfile,
   LikedProperty,
-  InboxContact,
-  ChatMessage,
   BlogArticle,
   RelatedArticle,
 } from "@/types";
+import type { AgencyBrief } from "@/types/api";
 
 export const NAV_ITEMS: NavItem[] = [
   { label: "Find Homes", href: "/find-homes" },
@@ -299,6 +297,222 @@ export const AGENCIES: Agency[] = [
     listings: "300+",
   },
 ];
+
+export const MOCK_AGENCIES: AgencyBrief[] = [
+  {
+    id: "emaar-misr",
+    slug: "emaar-misr",
+    name: "Emaar Misr",
+    subtitle: "Premium Developer",
+    description:
+      "Pioneering luxury lifestyles and vibrant communities that redefine modern living standards across Egypt.",
+    logo_url:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuBumw6lAGggH7DHD_FLgnoRaX0mYhdN5irB86UZDza7C_sqaI8bYzCJR6ceE57hiM5-i7jJb5BWS3H9tCZT0G0whF-9aZdzKJuZruB6yWb35TdEjJT9m89WXSXQNS6os2lBwPqHGFHPyH4cEYc7z3Y3qs5aGVbW7dy1oVjb5QnqqRBoWO3eQB_Lk1zzV-qEJXuP7CDCL_FW_6uVq42wjkd1PIoNG-h_uydw7mf3YUwA5BX3Ket5a23sziGbo2H67JA9Mvxldp_1D6yv",
+    verified: true,
+    active_projects: 12,
+    listings_count: 150,
+  },
+  {
+    id: "sodic",
+    slug: "sodic",
+    name: "SODIC",
+    subtitle: "Real Estate",
+    description:
+      "Creating award-winning residential, commercial, and retail developments in Egypt's finest locations.",
+    logo_url:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuCTtR5WrDPIc6P08fHmEOmmQ-_bPUvkCEnWzFBnnVA1NitUBt30VBEMja0WhnaZkhztgx4jhquYNqFn5geJ3kEfGPwj3q1e6TaDkzH11iePwmyfL8iZCau2yQSUZzIDWFQ_ascjK1c-NtMc5QM6fXVftW-WL3gFII9UiFE3rKd9wPEGEVD1serwwRQOsHJ9Ak3wgFLiQoyrBd5sK0OmR-WJGeuxncY5bPvOxNzlLgccfJfgMB-bWHB_8obAAnOgCT0SJf3Odoh0HlVo",
+    verified: true,
+    active_projects: 8,
+    listings_count: 85,
+  },
+  {
+    id: "mountain-view",
+    slug: "mountain-view",
+    name: "Mountain View",
+    subtitle: "Community Living",
+    description:
+      "Delivering a life of happiness through innovative design and world-class integrated communities across Egypt.",
+    logo_url: null,
+    verified: true,
+    active_projects: 15,
+    listings_count: 210,
+  },
+  {
+    id: "palm-hills",
+    slug: "palm-hills",
+    name: "Palm Hills",
+    subtitle: "Developments",
+    description:
+      "A leading real estate company primarily developing integrated residential communities for modern families.",
+    logo_url: null,
+    verified: false,
+    active_projects: 10,
+    listings_count: 120,
+  },
+  {
+    id: "ora-developers",
+    slug: "ora-developers",
+    name: "Ora Developers",
+    subtitle: "Luxury Living",
+    description:
+      "Bringing a new dimension to modern living with projects that blend exceptional lifestyle and bold design.",
+    logo_url: null,
+    verified: true,
+    active_projects: 4,
+    listings_count: 45,
+  },
+  {
+    id: "talaat-moustafa",
+    slug: "talaat-moustafa",
+    name: "Talaat Moustafa",
+    subtitle: "Urban Development",
+    description:
+      "The largest listed real estate developer in Egypt, creating fully integrated cities and communities at scale.",
+    logo_url: null,
+    verified: false,
+    active_projects: 6,
+    listings_count: 300,
+  },
+];
+
+// Keyed by slug — shown when the backend returns 404 for an agency detail page
+export const MOCK_AGENCY_DETAILS: Record<string, AgencyDetail> = {
+  "emaar-misr": {
+    slug: "emaar-misr",
+    name: "Emaar Misr",
+    logoText: "EM",
+    badge: "Verified Developer",
+    location: "Cairo, Egypt",
+    bannerImage:
+      "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1600&q=80",
+    description:
+      "Pioneering luxury lifestyles and vibrant communities that redefine modern living standards across Egypt. Emaar Misr has been delivering iconic real estate projects since 2005, combining world-class design with sustainable community living.",
+    trustScore: "98",
+    projectsForSale: "12",
+    developmentHistory: "19 Years",
+    awards: [
+      { title: "Best Developer 2023", subtitle: "Egypt Real Estate Awards", gold: true },
+      { title: "Sustainability Award", subtitle: "Green Building Council", gold: false },
+    ],
+    featuredProjects: [
+      {
+        id: "uptown-cairo",
+        title: "Uptown Cairo",
+        location: "Mokattam Hills, Cairo",
+        image:
+          "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80",
+        price: "EGP 4,500,000",
+        priceLabel: "Starting from",
+        beds: "2–4",
+        area: "120–280 m²",
+        status: "active",
+        statusColor: "text-green-400",
+        progressPercent: 85,
+        progressColor: "bg-primary",
+        progressLabel: "85% Complete",
+        completionLabel: "85%",
+        cta: "Learn More",
+      },
+      {
+        id: "mivida",
+        title: "Mivida",
+        location: "New Cairo",
+        image:
+          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80",
+        price: "EGP 3,200,000",
+        priceLabel: "Starting from",
+        beds: "2–5",
+        area: "100–320 m²",
+        status: "active",
+        statusColor: "text-green-400",
+        progressPercent: 100,
+        progressColor: "bg-green-500",
+        progressLabel: "100% Complete",
+        completionLabel: "100%",
+        cta: "Learn More",
+      },
+      {
+        id: "cairo-festival-city",
+        title: "Cairo Festival City",
+        location: "New Cairo",
+        image:
+          "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80",
+        price: "EGP 6,000,000",
+        priceLabel: "Starting from",
+        beds: "3–6",
+        area: "180–450 m²",
+        status: "under_construction",
+        statusColor: "text-yellow-400",
+        progressPercent: 55,
+        progressColor: "bg-yellow-500",
+        progressLabel: "55% Complete",
+        completionLabel: "55%",
+        cta: "Learn More",
+      },
+    ],
+    topListings: [
+      {
+        id: "mock-l1",
+        title: "Luxury Villa — Uptown Cairo",
+        location: "Mokattam Hills, Cairo",
+        image:
+          "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80",
+        price: "EGP 25,000",
+        priceLabel: "/month",
+        beds: "4",
+        area: "280 m²",
+        status: "active",
+        statusColor: "text-green-400",
+        progressPercent: 100,
+        progressColor: "bg-primary",
+        progressLabel: "Active",
+        completionLabel: "Active",
+        cta: "View Listing",
+      },
+      {
+        id: "mock-l2",
+        title: "Modern Apartment — Mivida",
+        location: "New Cairo",
+        image:
+          "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80",
+        price: "EGP 12,000",
+        priceLabel: "/month",
+        beds: "2",
+        area: "120 m²",
+        status: "active",
+        statusColor: "text-green-400",
+        progressPercent: 100,
+        progressColor: "bg-primary",
+        progressLabel: "Active",
+        completionLabel: "Active",
+        cta: "View Listing",
+      },
+    ],
+    totalListings: 150,
+    totalCities: 3,
+  },
+  "sodic": {
+    slug: "sodic",
+    name: "SODIC",
+    logoText: "SD",
+    badge: "Verified Developer",
+    location: "Cairo, Egypt",
+    bannerImage:
+      "https://images.unsplash.com/photo-1600607686527-6fb886090705?w=1600&q=80",
+    description:
+      "Creating award-winning residential, commercial, and retail developments in Egypt's finest locations. SODIC has consistently delivered premium communities that set the benchmark for quality and innovation.",
+    trustScore: "95",
+    projectsForSale: "8",
+    developmentHistory: "26 Years",
+    awards: [
+      { title: "Best Residential Project", subtitle: "Africa Real Estate Summit", gold: true },
+    ],
+    featuredProjects: [],
+    topListings: [],
+    totalListings: 85,
+    totalCities: 2,
+  },
+};
 
 export const UNIVERSITIES: University[] = [
   {
@@ -802,34 +1016,6 @@ export const ANALYTICS_STATS: AnalyticsStat[] = [
   },
 ];
 
-export const DASHBOARD_MESSAGES: DashboardMessage[] = [
-  {
-    id: "1",
-    name: "David - Lead",
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDahSqwHuUwpGgeqZjJvepifTLfPOsU72PmnzYthgNkIr820Wv3e4wqu884PZ_MUvtCOsz7bZCfZd6gNme246VRdOr_GW0Rmpx77TLABQU24B43YYi61a_XpeUiWEi2cHjJAgGmDguzpeLf6yS9oUuWCiSEXcqdhRE6Hsff_Za1zDdc7uZ3TXO8qF0jwc2pdd5UuafW1zBvUBuVk9tHz090Kz_nJdb7kUSskdPt-YRQ5OHav7iLgDlR21i39OXHYtzD43EcYYQ8Vi4d",
-    preview: "I saw the listing for the Hayes Valley loft...",
-    time: "10:42 AM",
-    online: true,
-    unread: true,
-  },
-  {
-    id: "2",
-    name: "Elena Rodriguez",
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuD9dVkaS4zjKTsaQDVypFOhzpmOAHtFHHMnx55zq4VhbBlkfAh0SnpHZssRMwlZetPk8-mItqowdyLYF3seuuK0lnFS9T8ct3jQSUP7f9iX5S8KVflGbqX7M5ReX5evaymuADNSZg9Sek77gohJcmW6Wf8lnvyBcUU0_mpukWd7O99kitNKwRWFGO6A-4VBOOjzZ63R5ic1RzqAjYU34TTJeoRtp70fdtX65-NYRphe5F6MRddeAjx0c7-oTe2ZG2eC2wqxQWJEnfO7",
-    preview: "When is the next open house scheduled?",
-    time: "Yesterday",
-  },
-  {
-    id: "3",
-    name: "Marcus Johnson",
-    initials: "MJ",
-    preview: "Offer submitted for 123 Main St.",
-    time: "Oct 12",
-  },
-];
-
 export const LISTING_CATEGORIES = [
   { value: "for_rent", label: "For Rent" },
   { value: "for_sale", label: "For Sale" },
@@ -845,7 +1031,8 @@ export const PROPERTY_TYPES = [
   "Townhouse",
   "Chalet",
   "Office",
-  "Shop",
+  "Commercial",
+  "Land",
 ] as const;
 
 export const FURNISHING_OPTIONS = [
@@ -910,136 +1097,6 @@ export const LIKED_PROPERTIES: LikedProperty[] = [
     priceSuffix: "/month",
     specs: ["1 Bed", "Shared"],
     addedAgo: "Added 5 days ago",
-  },
-];
-
-export const USER_MESSAGES: DashboardMessage[] = [
-  {
-    id: "1",
-    name: "David from Mission Loft",
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDahSqwHuUwpGgeqZjJvepifTLfPOsU72PmnzYthgNkIr820Wv3e4wqu884PZ_MUvtCOsz7bZCfZd6gNme246VRdOr_GW0Rmpx77TLABQU24B43YYi61a_XpeUiWEi2cHjJAgGmDguzpeLf6yS9oUuWCiSEXcqdhRE6Hsff_Za1zDdc7uZ3TXO8qF0jwc2pdd5UuafW1zBvUBuVk9tHz090Kz_nJdb7kUSskdPt-YRQ5OHav7iLgDlR21i39OXHYtzD43EcYYQ8Vi4d",
-    preview:
-      "Hey Sarah! We loved your profile. Would you be free to chat sometime this...",
-    time: "10:42 AM",
-    online: true,
-    unread: true,
-  },
-  {
-    id: "2",
-    name: "Elena Rodriguez",
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuD9dVkaS4zjKTsaQDVypFOhzpmOAHtFHHMnx55zq4VhbBlkfAh0SnpHZssRMwlZetPk8-mItqowdyLYF3seuuK0lnFS9T8ct3jQSUP7f9iX5S8KVflGbqX7M5ReX5evaymuADNSZg9Sek77gohJcmW6Wf8lnvyBcUU0_mpukWd7O99kitNKwRWFGO6A-4VBOOjzZ63R5ic1RzqAjYU34TTJeoRtp70fdtX65-NYRphe5F6MRddeAjx0c7-oTe2ZG2eC2wqxQWJEnfO7",
-    preview: "Is the room still available? I'm looking to move in by next month.",
-    time: "Yesterday",
-  },
-  {
-    id: "3",
-    name: "Marcus Johnson",
-    initials: "MJ",
-    preview: "Application status update: Approved!",
-    time: "Oct 12",
-  },
-  {
-    id: "4",
-    name: "Skyline Management",
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuA3NBcgn5tNDlZemxp_zFAydpReYVPOG93ZwywoFZhhDT4gXhh4ocsOMgtJZVaHLmYVRIoPTVZIBCd58xRlR-hl5ocQTg8qoqWSiBiTuBB90XWU0a7fOP368BMyQfWX7AxKDAu0ShxBUPWJujYjbGxjXlQCkKrvBWaxS7UuCncMK0aSBObBA6jkCrNAlYF76PXke1CPRoL299b1y4NILgsz06UQLfip3OX4E2d_K4RmPhL2NzXjxuzprNNhDE7lJEjLmcXaWHt5fT5v",
-    preview: "Thank you for your inquiry about the...",
-    time: "Oct 10",
-  },
-];
-
-/* ── Messages / Inbox ─────────────────────────────────── */
-
-const DAVID_AVATAR =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuDahSqwHuUwpGgeqZjJvepifTLfPOsU72PmnzYthgNkIr820Wv3e4wqu884PZ_MUvtCOsz7bZCfZd6gNme246VRdOr_GW0Rmpx77TLABQU24B43YYi61a_XpeUiWEi2cHjJAgGmDguzpeLf6yS9oUuWCiSEXcqdhRE6Hsff_Za1zDdc7uZ3TXO8qF0jwc2pdd5UuafW1zBvUBuVk9tHz090Kz_nJdb7kUSskdPt-YRQ5OHav7iLgDlR21i39OXHYtzD43EcYYQ8Vi4d";
-
-export const INBOX_CONTACTS: InboxContact[] = [
-  {
-    id: "david",
-    name: "David - Lead",
-    avatar: DAVID_AVATAR,
-    preview: "Sounds good! Let me verify the details...",
-    time: "10:42 AM",
-    online: true,
-    active: true,
-  },
-  {
-    id: "elena",
-    name: "Elena Rodriguez",
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuD9dVkaS4zjKTsaQDVypFOhzpmOAHtFHHMnx55zq4VhbBlkfAh0SnpHZssRMwlZetPk8-mItqowdyLYF3seuuK0lnFS9T8ct3jQSUP7f9iX5S8KVflGbqX7M5ReX5evaymuADNSZg9Sek77gohJcmW6Wf8lnvyBcUU0_mpukWd7O99kitNKwRWFGO6A-4VBOOjzZ63R5ic1RzqAjYU34TTJeoRtp70fdtX65-NYRphe5F6MRddeAjx0c7-oTe2ZG2eC2wqxQWJEnfO7",
-    preview: "Is the room still available? I'm looking to...",
-    time: "Yesterday",
-  },
-  {
-    id: "skyline",
-    name: "Skyline Management",
-    initials: "SM",
-    initialsBg: "bg-primary/10",
-    initialsColor: "text-primary",
-    preview: "Please review the lease agreement attached...",
-    time: "Oct 12",
-  },
-  {
-    id: "marcus",
-    name: "Marcus Johnson",
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuA3NBcgn5tNDlZemxp_zFAydpReYVPOG93ZwywoFZhhDT4gXhh4ocsOMgtJZVaHLmYVRIoPTVZIBCd58xRlR-hl5ocQTg8qoqWSiBiTuBB90XWU0a7fOP368BMyQfWX7AxKDAu0ShxBUPWJujYjbGxjXlQCkKrvBWaxS7UuCncMK0aSBObBA6jkCrNAlYF76PXke1CPRoL299b1y4NILgsz06UQLfip3OX4E2d_K4RmPhL2NzXjxuzprNNhDE7lJEjLmcXaWHt5fT5v",
-    preview: "Thanks for the tour today!",
-    time: "Oct 10",
-  },
-  {
-    id: "axiom",
-    name: "Axiom Support",
-    initials: "AI",
-    initialsBg: "bg-purple-500/10",
-    initialsColor: "text-purple-400",
-    preview: "Welcome to Axiom! Let us know if you need...",
-    time: "Oct 05",
-  },
-];
-
-export const CHAT_MESSAGES: ChatMessage[] = [
-  {
-    id: "1",
-    sender: "them",
-    text: "Hey Sarah! We loved your profile. Would you be free to chat sometime this week about the Mission Loft listing?",
-    time: "10:30 AM",
-    showAvatar: true,
-  },
-  {
-    id: "2",
-    sender: "me",
-    text: "Hi David! Thanks for reaching out. Yes, I'm definitely interested. The industrial vibe looks amazing.",
-    time: "10:35 AM",
-    showAvatar: true,
-  },
-  {
-    id: "3",
-    sender: "me",
-    text: "I'm free Tuesday afternoon or Thursday morning. Does either work for you?",
-    time: "10:36 AM",
-    showAvatar: false,
-  },
-  {
-    id: "4",
-    sender: "them",
-    text: "Thursday morning at 10 AM works perfectly. I can show you the common areas and the specific unit.",
-    time: "10:40 AM",
-    showAvatar: true,
-  },
-  {
-    id: "5",
-    sender: "them",
-    text: "Sending over the floor plan beforehand!",
-    time: "10:42 AM",
-    showAvatar: false,
-    attachment: {
-      name: "Floor_Plan_Unit_4B.pdf",
-      size: "2.4 MB",
-    },
   },
 ];
 

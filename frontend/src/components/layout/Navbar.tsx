@@ -10,7 +10,6 @@ import {
   UserPlus,
   Menu,
   LayoutDashboard,
-  MessageSquare,
   LogOut,
   ChevronDown,
 } from "lucide-react";
@@ -218,16 +217,6 @@ export default function Navbar({ variant = "overlay" }: NavbarProps) {
                       </Link>
                     </DropdownMenuItem>
 
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href="/messages"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-200 hover:text-white hover:bg-white/5 cursor-pointer transition-colors"
-                      >
-                        <MessageSquare className="h-4 w-4 text-primary" />
-                        Messages
-                      </Link>
-                    </DropdownMenuItem>
-
                     <DropdownMenuSeparator className="bg-white/5 mx-2" />
 
                     <DropdownMenuItem
@@ -280,13 +269,6 @@ export default function Navbar({ variant = "overlay" }: NavbarProps) {
                         className="text-white flex items-center gap-2 text-sm font-medium py-2"
                       >
                         <LayoutDashboard className="h-4 w-4" /> Dashboard
-                      </Link>
-                      <Link
-                        href="/messages"
-                        onClick={() => setOpen(false)}
-                        className="text-white flex items-center gap-2 text-sm font-medium py-2"
-                      >
-                        <MessageSquare className="h-4 w-4" /> Messages
                       </Link>
                       <button
                         onClick={() => { setOpen(false); handleLogout(); }}

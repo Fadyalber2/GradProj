@@ -15,9 +15,18 @@ Auth: `Authorization: Bearer <supabase-jwt>` on all protected endpoints.
 | PUT | `/api/auth/me` | Yes | Update profile (name, phone, avatar, bio). |
 
 ### POST /api/auth/signup — body
+
 ```json
-{ "email": "...", "password": "...", "full_name": "...", "phone": "...", "country_code": "+20", "gender": "male|female|other" }
+{
+  "email": "...",
+  "password": "...",
+  "full_name": "...",
+  "phone": "...",
+  "country_code": "+20",
+  "gender": "male|female|other"
+}
 ```
+
 Response: `201` on success, `202` if email confirmation required.
 
 ---
@@ -33,6 +42,7 @@ Response: `201` on success, `202` if email confirmation required.
 | DELETE | `/api/listings/{id}` | Yes | Soft-delete listing (owner only). |
 
 ### GET /api/listings — query params
+
 ```
 page=1&per_page=12&sort_by=newest|price_asc|price_desc|most_viewed
 category=for_rent|for_sale|shared_housing
@@ -40,11 +50,13 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
 ```
 
 ### GET /api/listings — response
+
 ```json
 { "listings": [ListingBrief], "total": 120, "page": 1, "per_page": 12 }
 ```
 
 ### ListingBrief shape
+
 ```json
 {
   "id": "uuid",
@@ -60,6 +72,7 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
 ```
 
 ### GET /api/listings/{id} — response (ListingDetailWithSimilar)
+
 ```json
 {
   "id": "uuid",
@@ -81,6 +94,8 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
   "latitude": 30.05,
   "longitude": 31.23,
   "property_type": "apartment",
+  "furnishing": "furnished|semi_furnished|unfurnished",
+  "floor": 3,
   "views_count": 450,
   "similar_listings": [ListingBrief],
 
@@ -88,7 +103,6 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
   "filled_spots": null,
   "availability": null,
   "available_date": null,
-  "furnishing": null,
   "utilities_included": null,
   "bathroom_type": null,
   "private_amenities": null,
@@ -96,6 +110,7 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
   "housemates": null
 }
 ```
+
 > Shared housing fields (`total_spots`, `housemates`, etc.) are `null` for non-shared listings.
 
 ---
@@ -107,6 +122,7 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
 | GET | `/api/dashboard/me` | Yes | Unified dashboard data for the current user. |
 
 ### GET /api/dashboard/me — response (DashboardResponse)
+
 ```json
 {
   "profile": {
@@ -128,23 +144,58 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
 ```
 
 ### ApiDashboardListing
+
 ```json
-{ "id": "uuid", "title": "string", "location": "string", "price": 8000, "images": ["url"], "status": "active|pending|rejected|draft", "views_count": 120 }
+{
+  "id": "uuid",
+  "title": "string",
+  "location": "string",
+  "price": 8000,
+  "images": ["url"],
+  "status": "active|pending|rejected|draft",
+  "views_count": 120
+}
 ```
 
 ### ApiDashboardMessage
+
 ```json
-{ "conversation_id": "uuid", "other_user_name": "string", "other_user_avatar": "url", "last_message_text": "string", "last_message_at": "ISO8601", "unread_count": 2 }
+{
+  "conversation_id": "uuid",
+  "other_user_name": "string",
+  "other_user_avatar": "url",
+  "last_message_text": "string",
+  "last_message_at": "ISO8601",
+  "unread_count": 2
+}
 ```
 
 ### LikedPropertyBrief
+
 ```json
-{ "listing_id": "uuid", "title": "string", "location": "string", "images": ["url"], "price": 8000, "bedrooms": 2, "bathrooms": 1, "property_type": "apartment", "created_at": "ISO8601" }
+{
+  "listing_id": "uuid",
+  "title": "string",
+  "location": "string",
+  "images": ["url"],
+  "price": 8000,
+  "bedrooms": 2,
+  "bathrooms": 1,
+  "property_type": "apartment",
+  "created_at": "ISO8601"
+}
 ```
 
 ### ApiViewingBrief
+
 ```json
-{ "id": "uuid", "listing_title": "string", "listing_image": "url", "scheduled_at": "ISO8601", "status": "pending|confirmed|cancelled" }
+{
+  "id": "uuid",
+  "listing_title": "string",
+  "listing_image": "url",
+  "scheduled_at": "ISO8601",
+  "status": "pending|confirmed|cancelled"
+}
 ```
 
 ---
@@ -159,9 +210,11 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
 | POST | `/api/messages/conversations/{id}` | Yes | Send a message. |
 
 ### POST /api/messages/conversations — body
+
 ```json
 { "other_user_id": "uuid" }
 ```
+
 Response: `{ "id": "conversation-uuid" }`
 
 ---
@@ -189,12 +242,14 @@ Response: `{ "id": "conversation-uuid" }`
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | POST | `/api/ai/search` | No | Natural language search → structured filters + results. |
-| POST | `/api/ai/chat` | No | Streaming chatbot (SSE). |
+| POST | `/api/ai/chat` | No | Streaming chatbot (SSE). Emits `listing_refs` event with matched properties. |
 | GET | `/api/ai/recommendations` | Yes | Property recommendations based on favorites. |
 | POST | `/api/ai/compatibility` | Yes | Roommate compatibility score for a listing application. |
 | POST | `/api/ai/description` | Yes | Generate bilingual listing description. |
+| POST | `/api/ai/validate-amenity` | Yes | Validate and classify an amenity string. |
 
 ### POST /api/ai/search — body & response
+
 ```json
 // Body
 { "query": "quiet 2-bedroom near Maadi under 8000 EGP", "limit": 20 }
@@ -208,11 +263,17 @@ Response: `{ "id": "conversation-uuid" }`
 }
 ```
 
+### POST /api/ai/chat — SSE events
+
+```
+data: {"type": "token", "content": "Here are some..."}
+data: {"type": "listing_refs", "listings": [ListingBrief], "source": "search"}
+data: {"type": "done"}
+```
+
 ---
 
 ## Admin (separate auth)
-
-Admin endpoints use a different token (not Supabase JWT). See `G:\AI\Newstart\backend\app\admin\` for the auth scheme.
 
 | Method | Path | Description |
 |--------|------|-------------|
@@ -227,6 +288,7 @@ Admin endpoints use a different token (not Supabase JWT). See `G:\AI\Newstart\ba
 ## Error Responses
 
 All errors follow FastAPI's default format:
+
 ```json
 { "detail": "Human-readable error message" }
 ```

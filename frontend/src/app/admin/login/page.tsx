@@ -111,9 +111,10 @@ export default function AdminLoginPage() {
           </form>
 
           {/* Warning */}
-          <p className="mt-6 text-center text-xs text-slate-400">
-            ⚠️ Restricted access — administrators only
-          </p>
+          <div className="mt-6 flex items-center justify-center gap-1.5 text-xs text-slate-400">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            Restricted access — administrators only
+          </div>
         </div>
       </div>
     </div>

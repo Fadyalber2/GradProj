@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Building2 } from "lucide-react";
 import type { AgencyProject } from "@/types";
 import ProjectCard from "./ProjectCard";
 
@@ -14,7 +14,6 @@ interface TopListingsProps {
 export default function TopListings({
   listings,
   totalListings,
-  totalCities,
 }: TopListingsProps) {
   return (
     <div className="space-y-8 pt-8 border-t border-white/5">
@@ -29,7 +28,7 @@ export default function TopListings({
         </div>
         <Link
           href="/find-homes"
-          className="text-primary hover:text-white text-sm font-medium flex items-center gap-1 transition-colors"
+          className="text-primary hover:text-white text-sm font-medium flex items-center gap-1 transition-colors shrink-0"
         >
           View all listings <ArrowRight className="h-4 w-4" />
         </Link>
@@ -42,6 +41,26 @@ export default function TopListings({
           {listings.map((listing, i) => (
             <ProjectCard key={listing.id} project={listing} index={i} />
           ))}
+
+          {/* View All Sale Listings CTA card */}
+          <div className="bg-card-dark rounded-2xl border border-white/5 overflow-hidden flex flex-col items-center justify-center p-10 text-center min-h-[300px]">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
+              <Building2 className="h-8 w-8 text-primary" />
+            </div>
+            <h3 className="text-white font-bold text-lg mb-2">
+              View All Sale Listings
+            </h3>
+            <p className="text-gray-400 text-sm mb-6 max-w-[220px] leading-relaxed">
+              Browse our complete portfolio of {totalListings} ownership
+              opportunities.
+            </p>
+            <Link
+              href="/find-homes"
+              className="px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-all text-sm cursor-pointer"
+            >
+              Load More Properties
+            </Link>
+          </div>
         </div>
       )}
     </div>

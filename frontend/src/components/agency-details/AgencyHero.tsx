@@ -17,14 +17,18 @@ export default function AgencyHero({ agency }: AgencyHeroProps) {
       transition={{ duration: 0.5 }}
       className="relative w-full h-[50vh] overflow-hidden"
     >
-      <Image
-        src={agency.bannerImage}
-        alt={`${agency.name} Banner`}
-        fill
-        className="object-cover"
-        priority
-        sizes="100vw"
-      />
+      {agency.bannerImage ? (
+        <Image
+          src={agency.bannerImage}
+          alt={`${agency.name} Banner`}
+          fill
+          className="object-cover"
+          priority
+          sizes="100vw"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-background-dark via-card-dark to-black" />
+      )}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background-dark/40 to-background-dark/95 pointer-events-none" />
 
       <div className="absolute bottom-0 left-0 w-full p-8 md:p-12 z-10">

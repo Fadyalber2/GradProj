@@ -9,6 +9,12 @@ import type { Listing } from "@/types";
 import type { ListingBrief } from "@/types/api";
 
 function mapToListing(l: ListingBrief): Listing {
+  const tags: string[] = [];
+  if (l.bedrooms != null) tags.push(`${l.bedrooms} Bed${l.bedrooms !== 1 ? "s" : ""}`);
+  if (l.bathrooms != null) tags.push(`${l.bathrooms} Bath${l.bathrooms !== 1 ? "s" : ""}`);
+  if (l.size_sqm != null) tags.push(`${l.size_sqm} m²`);
+  if (l.property_type) tags.push(l.property_type);
+
   return {
     id: l.id,
     title: l.title,
@@ -19,9 +25,14 @@ function mapToListing(l: ListingBrief): Listing {
     verified: l.verified,
     filledSpots: 0,
     totalSpots: 1,
-    tags: [],
+    tags,
     avatars: [],
     liked: false,
+    category: l.category,
+    bedrooms: l.bedrooms,
+    bathrooms: l.bathrooms,
+    property_type: l.property_type,
+    is_new: l.is_new,
   };
 }
 

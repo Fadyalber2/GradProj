@@ -11,17 +11,15 @@
 
 ---
 
-## 1. Frontend Setup
+## 1. Frontend
 
 ```bash
-cd G:\AI\AXIOM-V2\frontend
+cd frontend
 npm install
 npm run dev
 ```
 
 Opens at `http://localhost:3000`.
-
-### Environment variables
 
 Create `frontend/.env.local`:
 
@@ -31,29 +29,26 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
-> If `.env.local` is missing, the app still builds and runs — API calls will fail but pages render.
+> If `.env.local` is missing, the app still builds — API calls will fail but pages render with mock data.
 
 ---
 
-## 2. Backend Setup (separate repo / directory)
+## 2. Backend
 
 Backend lives at `G:\AI\Newstart\backend\` (not in this repository).
 
 ```bash
 cd G:\AI\Newstart\backend
 python -m venv venv
-venv\Scripts\activate       # Windows
+venv\Scripts\activate
 pip install -r requirements.txt
-
-# Copy and fill environment variables
 copy .env.example .env
-
 uvicorn app.main:app --reload --port 8000
 ```
 
-Backend docs at `http://localhost:8000/docs` (Swagger UI).
+Swagger UI at `http://localhost:8000/docs`.
 
-### Backend `.env` keys needed:
+Backend `.env` keys:
 
 ```env
 SUPABASE_URL=https://your-project.supabase.co
@@ -68,49 +63,41 @@ UPSTASH_REDIS_TOKEN=...
 
 ---
 
-## 3. Ollama / AI Setup
+## 3. Ollama / AI
 
 ```bash
-# Install Ollama from https://ollama.ai, then:
 ollama pull nomic-embed-text
-
-# Register the AXIOM model (model file at G:\AI\Newstart\ai-training\AXIOM-gguf_gguf\)
-# A Modelfile should already exist in that directory
 ollama create axiom-llm -f G:\AI\Newstart\ai-training\AXIOM-gguf_gguf\Modelfile
-
-# Verify
 ollama list
 # Should show: axiom-llm:latest and nomic-embed-text:latest
 ```
 
 Ollama runs on `http://localhost:11434`. The backend calls it automatically.
 
-> AI is optional — if Ollama is not running, all non-AI endpoints still work.
+> AI is optional — all non-AI endpoints work without Ollama.
 
 ---
 
-## 4. Supabase Setup
+## 4. Supabase
 
 1. Create a project at https://supabase.com
-2. Run the schema migration from `G:\AI\Newstart\backend\migrations\schema.sql`
+2. Run schema migration from `G:\AI\Newstart\backend\migrations\schema.sql`
 3. Enable Row-Level Security on all user-data tables
 4. Copy URL and keys into `.env` files
 
 ---
 
-## 5. Verify Everything Works
+## 5. Verify
 
 ```bash
-# Frontend TypeScript check
-cd G:\AI\AXIOM-V2\frontend
-npx tsc --noEmit
-# Expected: no output (zero errors)
+# TypeScript check
+cd frontend
+npx tsc --noEmit        # Expected: no output
 
-# Frontend build check
-npm run build
-# Expected: all 20 routes compile successfully
+# Build check
+npm run build           # Expected: all routes compile
 
-# Backend import check (from backend directory)
+# Backend import check
 cd G:\AI\Newstart\backend
 python -c "from app.main import app; print('OK')"
 ```
@@ -122,7 +109,7 @@ python -c "from app.main import app; print('OK')"
 | Problem | Fix |
 |---------|-----|
 | `Module not found: @/...` | Run `npm install` in `frontend/` |
-| API calls return 401 | Supabase JWT not set up — check `.env.local` |
-| AI endpoints return 503 | Ollama not running — start with `ollama serve` |
-| `npx tsc` errors | Read error output carefully — usually a missing type import |
-| Port 3000 in use | Kill the process or use `npm run dev -- -p 3001` |
+| API calls return 401 | Check `.env.local` Supabase keys |
+| AI endpoints return 503 | Start Ollama: `ollama serve` |
+| `npx tsc` errors | Read error output — usually a missing type import |
+| Port 3000 in use | `npm run dev -- -p 3001` |

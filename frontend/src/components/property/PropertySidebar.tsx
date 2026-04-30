@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Star, ShieldCheck } from "lucide-react";
+import { ShieldCheck, CalendarDays, MessageSquare } from "lucide-react";
 import { motion } from "framer-motion";
 import type { PropertyDetail } from "@/types";
 import { useAuthStore } from "@/stores/authStore";
@@ -13,9 +13,15 @@ import MessageOwnerModal from "@/components/property/MessageOwnerModal";
 
 interface PropertySidebarProps {
   property: PropertyDetail;
+  onSchedule?: () => void;
 }
 
-export default function PropertySidebar({ property }: PropertySidebarProps) {
+function priceSuffix(category?: string): string {
+  if (category === "for_sale") return "";
+  return "/month";
+}
+
+export default function PropertySidebar({ property, onSchedule }: PropertySidebarProps) {
   const { user } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
@@ -29,6 +35,8 @@ export default function PropertySidebar({ property }: PropertySidebarProps) {
     action();
   }
 
+  const suffix = priceSuffix(property.category);
+
   return (
     <div className="lg:w-[30%]">
       <div className="sticky top-24 space-y-6">
@@ -39,45 +47,43 @@ export default function PropertySidebar({ property }: PropertySidebarProps) {
           transition={{ delay: 0.15, duration: 0.4 }}
           className="bg-card-dark rounded-2xl p-6 border border-white/10 shadow-2xl shadow-black/50"
         >
-          <div className="flex justify-between items-end mb-6 pb-6 border-b border-white/5">
-            <div>
+          {/* Price */}
+          <div className="pb-5 mb-5 border-b border-white/5">
+            <div className="flex items-baseline gap-1">
               <span className="text-3xl font-bold text-white">
                 {formatEGP(property.price)}
               </span>
-              <span className="text-gray-400 text-sm font-medium">/month</span>
+              {suffix && (
+                <span className="text-gray-400 text-sm font-medium">{suffix}</span>
+              )}
             </div>
-            <div className="flex items-center gap-1 text-primary text-sm font-medium">
-              <Star className="h-3.5 w-3.5 fill-current" />
-              <span>
-                {property.rating} ({property.reviewCount})
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-4 mb-6">
             {property.available && (
-              <div className="flex items-center gap-2 mb-4">
-                <span className="flex h-2 w-2 rounded-full bg-green-500" />
-                <span className="text-sm font-medium text-green-500">
-                  Available Now
-                </span>
+              <div className="flex items-center gap-1.5 mt-2">
+                <span className="h-2 w-2 rounded-full bg-green-500 block" />
+                <span className="text-sm font-medium text-green-400">Available Now</span>
               </div>
             )}
+          </div>
+
+          {/* CTAs */}
+          <div className="space-y-3">
             <button
-              onClick={() => requireAuth(() => {})}
-              className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              onClick={() => requireAuth(() => onSchedule ? onSchedule() : setMsgOpen(true))}
+              className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white font-bold py-3.5 rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
+              <CalendarDays className="h-4 w-4" />
               Schedule Viewing
             </button>
             <button
               onClick={() => requireAuth(() => setMsgOpen(true))}
-              className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold py-3 rounded-xl transition-all"
+              className="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold py-3 rounded-xl transition-all cursor-pointer"
             >
+              <MessageSquare className="h-4 w-4" />
               Send Message
             </button>
           </div>
 
-          <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+          <div className="flex items-center justify-center gap-2 text-xs text-gray-500 mt-4">
             <ShieldCheck className="h-3.5 w-3.5" />
             <span>Secure transaction with Axiom Shield</span>
           </div>
@@ -92,9 +98,7 @@ export default function PropertySidebar({ property }: PropertySidebarProps) {
             className="bg-card-dark rounded-2xl border border-white/10 overflow-hidden"
           >
             <div className="p-4 border-b border-white/10">
-              <h3 className="text-white font-bold text-sm">
-                Similar Properties
-              </h3>
+              <h3 className="text-white font-bold text-sm">Similar Properties</h3>
             </div>
             <div className="divide-y divide-white/5">
               {property.similarProperties.map((sp) => (
@@ -109,7 +113,7 @@ export default function PropertySidebar({ property }: PropertySidebarProps) {
                       alt={sp.title}
                       width={64}
                       height={64}
-                      className="rounded-lg object-cover w-16 h-16"
+                      className="rounded-lg object-cover w-16 h-16 flex-shrink-0"
                     />
                   )}
                   <div className="flex-1 min-w-0">
@@ -118,7 +122,8 @@ export default function PropertySidebar({ property }: PropertySidebarProps) {
                     </h4>
                     <p className="text-gray-400 text-xs">{sp.location}</p>
                     <p className="text-white text-sm font-bold mt-1">
-                      {formatEGP(sp.price)}/mo
+                      {formatEGP(sp.price)}
+                      {property.category !== "for_sale" && "/mo"}
                     </p>
                   </div>
                 </Link>

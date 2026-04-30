@@ -78,7 +78,7 @@ export interface ListingBrief {
   bathrooms: number | null;
   size_sqm: number | null;
   floor_number: number | null;
-  neighborhood: string | null;
+  neighborhood_id: string | null;
   compound_name: string | null;
   views_count: number;
   is_new: boolean;
@@ -143,7 +143,9 @@ export interface AgencyBrief {
   slug: string;
   name: string;
   subtitle: string | null;
+  description?: string | null;
   logo_url: string | null;
+  banner_url?: string | null;
   verified: boolean;
   active_projects: number;
   listings_count: number;
@@ -220,15 +222,6 @@ export interface PaginatedBlogPosts {
 
 // ── Dashboard (unified) ──
 
-export interface ApiDashboardMessage {
-  conversation_id: string;
-  other_user_name: string | null;
-  other_user_avatar: string | null;
-  last_message_text: string | null;
-  last_message_at: string | null;
-  unread_count: number;
-}
-
 export interface LikedPropertyBrief {
   id: string;
   listing_id: string;
@@ -246,6 +239,8 @@ export interface ApiDashboardListing {
   id: string;
   title: string;
   location: string;
+  full_address?: string | null;
+  category?: string | null;
   price: number;
   status: string;
   views_count: number;
@@ -277,8 +272,6 @@ export interface DashboardResponse {
   analytics: ApiAnalyticsStat[];
   liked_properties: LikedPropertyBrief[];
   liked_count: number;
-  recent_messages: ApiDashboardMessage[];
-  unread_messages: number;
   upcoming_viewings: ApiViewingBrief[];
 }
 
@@ -322,39 +315,3 @@ export interface ApiNotification {
   created_at: string;
 }
 
-// ── Messages ──
-
-export interface ConversationPreview {
-  id: string;
-  other_user_id: string;
-  other_user_name: string | null;
-  other_user_avatar: string | null;
-  listing_id: string | null;
-  last_message_text: string | null;
-  last_message_at: string | null;
-  unread_count: number;
-  status: "pending" | "accepted" | "rejected";
-  initiated_by: string | null;
-}
-
-export interface ConversationsListResponse {
-  conversations: ConversationPreview[];
-}
-
-export interface ApiMessage {
-  id: string;
-  conversation_id: string;
-  sender_id: string;
-  text: string | null;
-  attachment_url: string | null;
-  attachment_name: string | null;
-  attachment_size: string | null;
-  created_at: string | null;
-}
-
-export interface MessagesListResponse {
-  messages: ApiMessage[];
-  total: number;
-  page: number;
-  per_page: number;
-}
