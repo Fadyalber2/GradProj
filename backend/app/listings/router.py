@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime, timezone
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends, Query
 from app.listings.schemas import (
@@ -251,6 +250,42 @@ async def get_listing(
         except Exception:
             pass
 
+    # ── Resolve WhatsApp contact info ─────────────────────────────────────────
+    contact_phone: str | None = None
+    contact_name: str | None = None
+    agency_id = listing.get("agency_id")
+
+    if agency_id:
+        try:
+            ag = (
+                supabase_admin.table("agencies")
+                .select("name, phone")
+                .eq("id", agency_id)
+                .single()
+                .execute()
+            )
+            if ag.data and ag.data.get("phone"):
+                contact_phone = ag.data["phone"].lstrip("+")
+                contact_name = ag.data.get("name")
+        except Exception:
+            pass
+    else:
+        owner_id = listing.get("owner_id")
+        if owner_id:
+            try:
+                ow = (
+                    supabase_admin.table("profiles")
+                    .select("full_name, phone")
+                    .eq("id", owner_id)
+                    .single()
+                    .execute()
+                )
+                if ow.data and ow.data.get("phone"):
+                    contact_phone = ow.data["phone"].lstrip("+")
+                    contact_name = ow.data.get("full_name")
+            except Exception:
+                pass
+
     # Fetch similar listings (same category + city, limit 6, exclude self)
     similar: list[dict] = []
     try:
@@ -334,6 +369,8 @@ async def get_listing(
             for h in housemates
         ],
         "created_at": listing.get("created_at", ""),
+        "contact_phone": contact_phone,
+        "contact_name": contact_name,
     }
 
 
@@ -366,8 +403,8 @@ async def create_listing(
 
     # Run fraud scoring + embedding generation in the background
     background_tasks.add_task(_score_and_approve, listing_id, listing_data)
-    background_tasks.add_task(asyncio.run, embed_listing(listing_id))
-    background_tasks.add_task(asyncio.run, embed_listing_chunk(listing_id))
+    background_tasks.add_task(embed_listing, listing_id)
+    background_tasks.add_task(embed_listing_chunk, listing_id)
 
     return {"id": listing_id, "status": "pending"}
 
@@ -443,7 +480,7 @@ async def update_listing(
         raise HTTPException(status_code=500, detail=f"Failed to update listing: {e}")
 
     # Re-embed the listing chunk so RAG reflects the latest content
-    background_tasks.add_task(asyncio.run, embed_listing_chunk(listing_id))
+    background_tasks.add_task(embed_listing_chunk, listing_id)
 
     return result.data[0] if result.data else {}
 
@@ -481,7 +518,7 @@ async def delete_listing(
         raise HTTPException(status_code=500, detail=f"Failed to delete listing: {e}")
 
     # Remove from knowledge_chunks so it no longer surfaces in RAG results
-    background_tasks.add_task(asyncio.run, delete_listing_chunk(listing_id))
+    background_tasks.add_task(delete_listing_chunk, listing_id)
 
 
 # ─── POST /api/listings/{id}/favorite ────────────────────────────────────────

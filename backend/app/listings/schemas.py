@@ -183,6 +183,8 @@ class ListingDetailResponse(BaseModel):
     shared_amenities: list[str] = []
     housemates: list[HousemateResponse] = []
     created_at: str
+    contact_phone: Optional[str] = None
+    contact_name: Optional[str] = None
 
 
 class ListingsPageResponse(BaseModel):
