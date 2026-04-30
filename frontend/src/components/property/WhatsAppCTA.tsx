@@ -1,0 +1,111 @@
+"use client";
+
+import { useState } from "react";
+import { MessageCircle, CalendarDays, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useAuthStore } from "@/stores/authStore";
+import { useRouter, usePathname } from "next/navigation";
+import { api } from "@/lib/api";
+
+interface WhatsAppCTAProps {
+  listingId: string;
+  contactPhone: string | null | undefined;
+  contactName: string | null | undefined;
+  showSchedule?: boolean;
+}
+
+async function openWhatsApp(
+  listingId: string,
+  source: "whatsapp_click" | "schedule_viewing",
+): Promise<void> {
+  const data = await api.post<{ whatsapp_url: string; already_existed: boolean }>(
+    "/api/leads",
+    { listing_id: listingId, source },
+  );
+  window.open(data.whatsapp_url, "_blank", "noopener,noreferrer");
+}
+
+export default function WhatsAppCTA({
+  listingId,
+  contactPhone,
+  contactName,
+  showSchedule = true,
+}: WhatsAppCTAProps) {
+  const { user } = useAuthStore();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [loading, setLoading] = useState<"contact" | "schedule" | null>(null);
+
+  if (!contactPhone) {
+    return (
+      <div className="text-center text-sm text-gray-500 py-3">
+        Contact information unavailable
+      </div>
+    );
+  }
+
+  function requireAuth(action: () => void) {
+    if (!user) {
+      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+      return;
+    }
+    if (!user.phone) {
+      toast.error("Please add your phone number in your profile to contact listings.", {
+        action: { label: "Go to Profile", onClick: () => router.push("/dashboard") },
+      });
+      return;
+    }
+    action();
+  }
+
+  async function handleClick(source: "whatsapp_click" | "schedule_viewing") {
+    requireAuth(async () => {
+      setLoading(source === "whatsapp_click" ? "contact" : "schedule");
+      try {
+        await openWhatsApp(listingId, source);
+      } catch {
+        toast.error("Could not open WhatsApp. Please try again.");
+      } finally {
+        setLoading(null);
+      }
+    });
+  }
+
+  return (
+    <div className="space-y-3">
+      {contactName && (
+        <p className="text-xs text-gray-500 text-center">
+          Contacting: <span className="text-gray-300">{contactName}</span>
+        </p>
+      )}
+
+      {showSchedule && (
+        <button
+          onClick={() => handleClick("schedule_viewing")}
+          disabled={loading !== null}
+          className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover disabled:opacity-60 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+        >
+          {loading === "schedule" ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <CalendarDays className="h-4 w-4" />
+          )}
+          Schedule a Viewing
+        </button>
+      )}
+
+      <button
+        onClick={() => handleClick("whatsapp_click")}
+        disabled={loading !== null}
+        className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+      >
+        {loading === "contact" ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <MessageCircle className="h-4 w-4" />
+        )}
+        Contact via WhatsApp
+      </button>
+    </div>
+  );
+}
