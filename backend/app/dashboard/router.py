@@ -12,7 +12,6 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
     - profile summary
     - analytics (views, active/pending listings, favorites count)
     - user's own listings
-    - recent message conversations (last 5)
     - favorited properties
     - upcoming viewings
     """
@@ -32,7 +31,7 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
     try:
         listings_result = (
             supabase_admin.table("listings")
-            .select("id, title, location, price, images, status, views_count, created_at")
+            .select("id, title, location, full_address, category, price, images, status, views_count, created_at")
             .eq("owner_id", user_id)
             .is_("deleted_at", "null")
             .neq("status", "rejected")
@@ -93,6 +92,8 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
             "id": l["id"],
             "title": l["title"],
             "location": l["location"],
+            "full_address": l.get("full_address"),
+            "category": l.get("category"),
             "price": float(l["price"]),
             "images": l.get("images") or [],
             "status": l["status"],
@@ -100,57 +101,6 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
         }
         for l in user_listings
     ]
-
-    # ── Recent Messages ───────────────────────────────────────────────────────
-    recent_messages = []
-    try:
-        conv_result = supabase_admin.rpc(
-            "get_user_conversations", {"p_user_id": user_id}
-        ).execute()
-        conversations = (conv_result.data or [])[:5]
-
-        for conv in conversations:
-            other_user_id = conv.get("other_user_id")
-            if not other_user_id:
-                continue
-
-            # Fetch other user's profile
-            try:
-                other_profile_result = (
-                    supabase_admin.table("profiles")
-                    .select("full_name, avatar_url")
-                    .eq("id", other_user_id)
-                    .single()
-                    .execute()
-                )
-                other_profile = other_profile_result.data or {}
-            except Exception:
-                other_profile = {}
-
-            # Fetch last message in conversation
-            try:
-                last_msg_result = (
-                    supabase_admin.table("messages")
-                    .select("text, created_at")
-                    .eq("conversation_id", conv["conversation_id"])
-                    .order("created_at", desc=True)
-                    .limit(1)
-                    .execute()
-                )
-                last_msg = (last_msg_result.data or [{}])[0]
-            except Exception:
-                last_msg = {}
-
-            recent_messages.append({
-                "conversation_id": conv["conversation_id"],
-                "other_user_name": other_profile.get("full_name", "Unknown"),
-                "other_user_avatar": other_profile.get("avatar_url"),
-                "last_message_text": last_msg.get("text", ""),
-                "last_message_at": last_msg.get("created_at") or conv.get("last_message_at"),
-                "unread_count": int(conv.get("unread_count", 0)),
-            })
-    except Exception:
-        pass
 
     # ── Liked Properties ──────────────────────────────────────────────────────
     liked_properties = []
@@ -212,7 +162,6 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
         "profile": profile,
         "analytics": analytics,
         "listings": dashboard_listings,
-        "recent_messages": recent_messages,
         "liked_properties": liked_properties,
         "upcoming_viewings": upcoming_viewings,
     }

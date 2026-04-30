@@ -4,7 +4,6 @@ from app.config import settings
 from app.auth.router import router as auth_router
 from app.listings.router import router as listings_router
 from app.dashboard.router import router as dashboard_router
-from app.messages.router import router as messages_router
 from app.notifications.router import router as notifications_router
 from app.agencies.router import router as agencies_router
 from app.viewings.router import router as viewings_router
@@ -38,7 +37,6 @@ async def health():
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 app.include_router(listings_router, prefix="/api/listings", tags=["listings"])
 app.include_router(dashboard_router, prefix="/api/dashboard", tags=["dashboard"])
-app.include_router(messages_router, prefix="/api/messages", tags=["messages"])
 app.include_router(notifications_router, prefix="/api/notifications", tags=["notifications"])
 app.include_router(agencies_router, prefix="/api/agencies", tags=["agencies"])
 app.include_router(viewings_router, prefix="/api/viewings", tags=["viewings"])
