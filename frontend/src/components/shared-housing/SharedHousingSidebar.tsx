@@ -2,36 +2,24 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
 import type { SharedHousingDetail } from "@/types";
 import CompatibilityScore from "@/components/shared-housing/CompatibilityScore";
-import MessageOwnerModal from "@/components/property/MessageOwnerModal";
-import { useAuthStore } from "@/stores/authStore";
+import WhatsAppCTA from "@/components/property/WhatsAppCTA";
 import { formatEGP } from "@/lib/utils";
 
 interface SharedHousingSidebarProps {
   housing: SharedHousingDetail;
+  contactPhone?: string | null;
+  contactName?: string | null;
 }
 
 export default function SharedHousingSidebar({
   housing,
+  contactPhone,
+  contactName,
 }: SharedHousingSidebarProps) {
-  const { user } = useAuthStore();
-  const router = useRouter();
-  const pathname = usePathname();
-  const [msgOpen, setMsgOpen] = useState(false);
-
-  function requireAuth(action: () => void) {
-    if (!user) {
-      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
-      return;
-    }
-    action();
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -66,18 +54,12 @@ export default function SharedHousingSidebar({
             </div>
           </div>
 
-          <button
-            onClick={() => requireAuth(() => {})}
-            className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-          >
-            Apply to Room
-          </button>
-          <button
-            onClick={() => requireAuth(() => setMsgOpen(true))}
-            className="w-full bg-transparent hover:bg-white/5 border border-white/20 text-white font-semibold py-3 rounded-xl transition-all"
-          >
-            Message Owner
-          </button>
+          <WhatsAppCTA
+            listingId={housing.id}
+            contactPhone={contactPhone}
+            contactName={contactName}
+            showSchedule={false}
+          />
         </div>
 
         <div className="flex items-center justify-center gap-2 text-xs text-gray-500 mt-4">
@@ -136,13 +118,6 @@ export default function SharedHousingSidebar({
           </div>
         </div>
       )}
-
-      <MessageOwnerModal
-        open={msgOpen}
-        onClose={() => setMsgOpen(false)}
-        ownerId={housing.ownerId}
-        propertyTitle={housing.title}
-      />
     </motion.div>
   );
 }

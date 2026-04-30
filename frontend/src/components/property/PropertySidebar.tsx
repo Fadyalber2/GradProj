@@ -2,18 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { ShieldCheck, CalendarDays, MessageSquare } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import type { PropertyDetail } from "@/types";
-import { useAuthStore } from "@/stores/authStore";
 import { formatEGP } from "@/lib/utils";
-import MessageOwnerModal from "@/components/property/MessageOwnerModal";
+import WhatsAppCTA from "@/components/property/WhatsAppCTA";
 
 interface PropertySidebarProps {
   property: PropertyDetail;
-  onSchedule?: () => void;
 }
 
 function priceSuffix(category?: string): string {
@@ -21,20 +17,7 @@ function priceSuffix(category?: string): string {
   return "/month";
 }
 
-export default function PropertySidebar({ property, onSchedule }: PropertySidebarProps) {
-  const { user } = useAuthStore();
-  const router = useRouter();
-  const pathname = usePathname();
-  const [msgOpen, setMsgOpen] = useState(false);
-
-  function requireAuth(action: () => void) {
-    if (!user) {
-      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
-      return;
-    }
-    action();
-  }
-
+export default function PropertySidebar({ property }: PropertySidebarProps) {
   const suffix = priceSuffix(property.category);
 
   return (
@@ -66,22 +49,12 @@ export default function PropertySidebar({ property, onSchedule }: PropertySideba
           </div>
 
           {/* CTAs */}
-          <div className="space-y-3">
-            <button
-              onClick={() => requireAuth(() => onSchedule ? onSchedule() : setMsgOpen(true))}
-              className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white font-bold py-3.5 rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-            >
-              <CalendarDays className="h-4 w-4" />
-              Schedule Viewing
-            </button>
-            <button
-              onClick={() => requireAuth(() => setMsgOpen(true))}
-              className="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold py-3 rounded-xl transition-all cursor-pointer"
-            >
-              <MessageSquare className="h-4 w-4" />
-              Send Message
-            </button>
-          </div>
+          <WhatsAppCTA
+            listingId={property.id}
+            contactPhone={property.contactPhone}
+            contactName={property.contactName}
+            showSchedule={true}
+          />
 
           <div className="flex items-center justify-center gap-2 text-xs text-gray-500 mt-4">
             <ShieldCheck className="h-3.5 w-3.5" />
@@ -140,13 +113,6 @@ export default function PropertySidebar({ property, onSchedule }: PropertySideba
           </motion.div>
         )}
       </div>
-
-      <MessageOwnerModal
-        open={msgOpen}
-        onClose={() => setMsgOpen(false)}
-        ownerId={property.ownerId}
-        propertyTitle={property.title}
-      />
     </div>
   );
 }

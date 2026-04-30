@@ -67,6 +67,8 @@ function mapProperty(data: ListingDetailWithSimilar): PropertyDetail {
       avatar: h.avatar_url ?? "",
       tags: h.tags,
     })),
+    contactPhone: data.contact_phone ?? null,
+    contactName: data.contact_name ?? null,
   };
 }
 
@@ -125,11 +127,21 @@ export default async function PropertyDetailPage({
               />
             </div>
             <div className="lg:w-[30%]">
-              <SharedHousingSidebar housing={housing} />
+              <SharedHousingSidebar
+                housing={housing}
+                contactPhone={property.contactPhone}
+                contactName={property.contactName}
+              />
             </div>
           </div>
         </div>
-        <MobilePropertyCTA price={property.price} category={property.category} ownerId={property.ownerId} propertyTitle={property.title} />
+        <MobilePropertyCTA
+          price={property.price}
+          category={property.category}
+          listingId={property.id}
+          contactPhone={property.contactPhone}
+          contactName={property.contactName}
+        />
       </div>
     );
   }
@@ -144,7 +156,13 @@ export default async function PropertyDetailPage({
           <PropertySidebar property={property} />
         </div>
       </div>
-      <MobilePropertyCTA price={property.price} category={property.category} ownerId={property.ownerId} propertyTitle={property.title} />
+      <MobilePropertyCTA
+        price={property.price}
+        category={property.category}
+        listingId={property.id}
+        contactPhone={property.contactPhone}
+        contactName={property.contactName}
+      />
     </main>
   );
 }

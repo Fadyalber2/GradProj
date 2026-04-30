@@ -414,6 +414,8 @@ export interface PropertyDetail {
   privateAmenities?: SharedAmenity[];
   sharedAmenities?: SharedAmenity[];
   housemates?: Housemate[];
+  contactPhone?: string | null;
+  contactName?: string | null;
 }
 
 export interface BlogArticle {

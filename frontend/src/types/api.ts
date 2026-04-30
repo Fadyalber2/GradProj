@@ -117,6 +117,8 @@ export interface ListingDetail extends ListingBrief {
   private_amenities: string[];
   shared_amenities: string[];
   housemates: HousemateResponse[];
+  contact_phone: string | null;
+  contact_name: string | null;
 }
 
 export interface ListingDetailWithSimilar extends ListingDetail {
