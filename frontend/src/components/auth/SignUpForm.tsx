@@ -40,10 +40,8 @@ export default function SignUpForm() {
     ? `${countryCode}${phoneInput.trim().replace(/\D/g, "")}`
     : "";
 
-  // Sign Up is allowed when:
-  // - phone is empty (optional), OR
-  // - phone was entered AND verified
-  const canSubmit = !phoneInput.trim() || phoneVerified;
+  // Sign Up is allowed when phone is entered AND verified
+  const canSubmit = phoneInput.trim().length > 0 && phoneVerified;
 
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
     setPhoneInput(e.target.value);
@@ -82,8 +80,8 @@ export default function SignUpForm() {
       setError("Password must be at least 6 characters.");
       return;
     }
-    if (phoneInput.trim() && !phoneVerified) {
-      setError("Please verify your phone number first.");
+    if (!phoneInput.trim()) {
+      setError("Phone number is required.");
       return;
     }
 
@@ -92,7 +90,7 @@ export default function SignUpForm() {
         email,
         password,
         full_name,
-        phone: e164Phone || undefined,
+        phone: e164Phone,
         country_code: countryCode,
         gender: gender || undefined,
       });
@@ -176,7 +174,7 @@ export default function SignUpForm() {
           {/* Phone field with OTP */}
           <div>
             <label htmlFor="phone" className="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
-              Phone Number <span className="normal-case text-gray-500">(optional)</span>
+              Phone Number <span className="text-red-400">*</span>
             </label>
             <div className="flex rounded-lg shadow-sm">
               <select
@@ -308,6 +306,8 @@ export default function SignUpForm() {
               {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
               {isLoading
                 ? "Creating account…"
+                : !canSubmit && !phoneInput.trim()
+                ? "Phone number required"
                 : !canSubmit
                 ? "Verify phone to continue"
                 : "Sign Up"}
