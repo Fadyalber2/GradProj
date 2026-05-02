@@ -21,9 +21,19 @@ app = FastAPI(
     description="AI-powered real estate platform API for Egypt",
 )
 
+_dev_origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:3002",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_url, "http://localhost:3000"],
+    allow_origins=(
+        _dev_origins if settings.environment == "development" else [settings.frontend_url]
+    ),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
