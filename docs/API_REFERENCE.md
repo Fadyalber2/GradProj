@@ -7,12 +7,12 @@ Auth: `Authorization: Bearer <supabase-jwt>` on all protected endpoints.
 
 ## Auth
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/api/auth/signup` | No | Register new user. Creates Supabase account + profile row. |
-| POST | `/api/auth/login` | No | Validate credentials (returns 200 if valid — Supabase session handled on frontend). |
-| GET | `/api/auth/me` | Yes | Returns current user profile. |
-| PUT | `/api/auth/me` | Yes | Update profile (name, phone, avatar, bio). |
+| Method | Path               | Auth | Description                                                                         |
+| ------ | ------------------ | ---- | ----------------------------------------------------------------------------------- |
+| POST   | `/api/auth/signup` | No   | Register new user. Creates Supabase account + profile row.                          |
+| POST   | `/api/auth/login`  | No   | Validate credentials (returns 200 if valid — Supabase session handled on frontend). |
+| GET    | `/api/auth/me`     | Yes  | Returns current user profile.                                                       |
+| PUT    | `/api/auth/me`     | Yes  | Update profile (name, phone, avatar, bio).                                          |
 
 ### POST /api/auth/signup — body
 
@@ -33,13 +33,13 @@ Response: `201` on success, `202` if email confirmation required.
 
 ## Listings
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/api/listings` | No | Paginated listing search with filters. |
-| GET | `/api/listings/{id}` | No | Single listing detail + similar listings. |
-| POST | `/api/listings` | Yes | Create new listing (enters `pending` status). |
-| PUT | `/api/listings/{id}` | Yes | Update listing (owner only). |
-| DELETE | `/api/listings/{id}` | Yes | Soft-delete listing (owner only). |
+| Method | Path                 | Auth | Description                                   |
+| ------ | -------------------- | ---- | --------------------------------------------- |
+| GET    | `/api/listings`      | No   | Paginated listing search with filters.        |
+| GET    | `/api/listings/{id}` | No   | Single listing detail + similar listings.     |
+| POST   | `/api/listings`      | Yes  | Create new listing (enters `pending` status). |
+| PUT    | `/api/listings/{id}` | Yes  | Update listing (owner only).                  |
+| DELETE | `/api/listings/{id}` | Yes  | Soft-delete listing (owner only).             |
 
 ### GET /api/listings — query params
 
@@ -121,9 +121,9 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
 
 ## Dashboard
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/api/dashboard/me` | Yes | Unified dashboard data for the current user. |
+| Method | Path                | Auth | Description                                  |
+| ------ | ------------------- | ---- | -------------------------------------------- |
+| GET    | `/api/dashboard/me` | Yes  | Unified dashboard data for the current user. |
 
 ### GET /api/dashboard/me — response (DashboardResponse)
 
@@ -192,10 +192,10 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
 
 ## Leads
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/api/leads` | Yes | Record a WhatsApp lead click and return the `wa.me` deep-link URL. |
-| GET | `/api/admin/leads` | Admin | List all leads with filtering and pagination. |
+| Method | Path               | Auth  | Description                                                        |
+| ------ | ------------------ | ----- | ------------------------------------------------------------------ |
+| POST   | `/api/leads`       | Yes   | Record a WhatsApp lead click and return the `wa.me` deep-link URL. |
+| GET    | `/api/admin/leads` | Admin | List all leads with filtering and pagination.                      |
 
 ### POST /api/leads — body
 
@@ -204,8 +204,12 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
 ```
 
 Response:
+
 ```json
-{ "whatsapp_url": "https://wa.me/201234567890?text=...", "already_existed": false }
+{
+  "whatsapp_url": "https://wa.me/201234567890?text=...",
+  "already_existed": false
+}
 ```
 
 Deduped by `(user_id, listing_id)` — repeat clicks return `already_existed: true` but still return the URL.
@@ -216,6 +220,7 @@ Requires the authenticated user to have a phone number on their profile.
 `agency_id?`, `source?`, `is_billable?`, `date_from?`, `date_to?`, `page?`, `per_page?`
 
 Response:
+
 ```json
 {
   "leads": [
@@ -240,32 +245,32 @@ Response:
 
 ## Favorites
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/api/listings/{id}/favorite` | Yes | Toggle favorite. |
-| GET | `/api/listings/favorites` | Yes | Get all favorited listings. |
+| Method | Path                          | Auth | Description                 |
+| ------ | ----------------------------- | ---- | --------------------------- |
+| POST   | `/api/listings/{id}/favorite` | Yes  | Toggle favorite.            |
+| GET    | `/api/listings/favorites`     | Yes  | Get all favorited listings. |
 
 ---
 
 ## Viewings
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/api/viewings` | Yes | Request a viewing. |
-| PUT | `/api/viewings/{id}` | Yes | Confirm or cancel (owner confirms). |
+| Method | Path                 | Auth | Description                         |
+| ------ | -------------------- | ---- | ----------------------------------- |
+| POST   | `/api/viewings`      | Yes  | Request a viewing.                  |
+| PUT    | `/api/viewings/{id}` | Yes  | Confirm or cancel (owner confirms). |
 
 ---
 
 ## AI
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/api/ai/search` | No | Natural language search → structured filters + results. |
-| POST | `/api/ai/chat` | No | Streaming chatbot (SSE). Emits `listing_refs` event with matched properties. |
-| GET | `/api/ai/recommendations` | Yes | Property recommendations based on favorites. |
-| POST | `/api/ai/compatibility` | Yes | Roommate compatibility score for a listing application. |
-| POST | `/api/ai/description` | Yes | Generate bilingual listing description. |
-| POST | `/api/ai/validate-amenity` | Yes | Validate and classify an amenity string. |
+| Method | Path                       | Auth | Description                                                                  |
+| ------ | -------------------------- | ---- | ---------------------------------------------------------------------------- |
+| POST   | `/api/ai/search`           | No   | Natural language search → structured filters + results.                      |
+| POST   | `/api/ai/chat`             | No   | Streaming chatbot (SSE). Emits `listing_refs` event with matched properties. |
+| GET    | `/api/ai/recommendations`  | Yes  | Property recommendations based on favorites.                                 |
+| POST   | `/api/ai/compatibility`    | Yes  | Roommate compatibility score for a listing application.                      |
+| POST   | `/api/ai/description`      | Yes  | Generate bilingual listing description.                                      |
+| POST   | `/api/ai/validate-amenity` | Yes  | Validate and classify an amenity string.                                     |
 
 ### POST /api/ai/search — body & response
 
@@ -294,13 +299,13 @@ data: {"type": "done"}
 
 ## Admin (separate auth)
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/admin/listings?status=pending` | Pending listing queue. |
-| PUT | `/api/admin/listings/{id}/approve` | Approve listing → status=active. |
-| PUT | `/api/admin/listings/{id}/reject` | Reject listing with reason. |
-| GET | `/api/admin/users` | All users. |
-| PUT | `/api/admin/users/{id}/verify` | Grant `is_verified_seller` badge. |
+| Method | Path                                 | Description                       |
+| ------ | ------------------------------------ | --------------------------------- |
+| GET    | `/api/admin/listings?status=pending` | Pending listing queue.            |
+| PUT    | `/api/admin/listings/{id}/approve`   | Approve listing → status=active.  |
+| PUT    | `/api/admin/listings/{id}/reject`    | Reject listing with reason.       |
+| GET    | `/api/admin/users`                   | All users.                        |
+| PUT    | `/api/admin/users/{id}/verify`       | Grant `is_verified_seller` badge. |
 
 ---
 
@@ -312,10 +317,10 @@ All errors follow FastAPI's default format:
 { "detail": "Human-readable error message" }
 ```
 
-| Status | Meaning |
-|--------|---------|
-| 400 | Validation error (Pydantic) |
-| 401 | Missing or invalid JWT |
-| 403 | Forbidden (not owner, not admin) |
-| 404 | Resource not found |
-| 503 | AI unavailable (Ollama down) — `{ "ai_unavailable": true }` |
+| Status | Meaning                                                     |
+| ------ | ----------------------------------------------------------- |
+| 400    | Validation error (Pydantic)                                 |
+| 401    | Missing or invalid JWT                                      |
+| 403    | Forbidden (not owner, not admin)                            |
+| 404    | Resource not found                                          |
+| 503    | AI unavailable (Ollama down) — `{ "ai_unavailable": true }` |

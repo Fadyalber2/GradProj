@@ -66,14 +66,22 @@ export async function getListings(filters?: ListingFilters) {
 export async function getListing(id: string) {
   const { data, error } = await supabase
     .from("listings")
-    .select("*, profiles!listings_owner_id_fkey(full_name, avatar_url, phone)")
+    .select("*, profiles!listings_owner_id_fkey(full_name, avatar_url, phone), agencies!listings_agency_id_fkey(name, phone)")
     .eq("id", id)
     .single();
 
   if (error || !data) return { data: null, error };
 
-  // Attach empty similar_listings (Supabase doesn't compute these — keep shape compatible)
-  const listing = { ...data, similar_listings: [] } as unknown as ListingDetailWithSimilar;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const d = data as any;
+  const profile = d.profiles as { full_name: string | null; phone: string | null } | null;
+  const agency  = d.agencies  as { name: string | null; phone: string | null } | null;
+  const listing = {
+    ...data,
+    similar_listings: [],
+    contact_phone: profile?.phone ?? agency?.phone ?? null,
+    contact_name:  profile?.full_name ?? agency?.name ?? null,
+  } as unknown as ListingDetailWithSimilar;
   return { data: listing, error: null };
 }
 

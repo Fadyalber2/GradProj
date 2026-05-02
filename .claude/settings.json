@@ -89,7 +89,17 @@
       "Bash(python -c \"from app.main import app; print\\('OK'\\)\")",
       "Bash(python -m pytest tests/test_leads.py -v)",
       "Bash(git -C \"e:/GradProject/AXIOM-V2\" log --oneline -5)",
-      "Bash(python -c \"import sys; sys.path.insert\\(0, 'e:/GradProject/AXIOM-V2/backend'\\); from app.main import app; print\\('OK'\\)\")"
+      "Bash(python -c \"import sys; sys.path.insert\\(0, 'e:/GradProject/AXIOM-V2/backend'\\); from app.main import app; print\\('OK'\\)\")",
+      "Bash(git -C \"e:/GradProject/AXIOM-V2\" log --oneline -6)",
+      "Read(//e/E/GradProject/**)",
+      "Bash(git -C \"e:/GradProject/AXIOM-V2\" log --oneline -10)",
+      "Bash(pip show *)",
+      "Read(//e//**)",
+      "PowerShell([System.IO.File]::WriteAllText\\(\"D:\\\\PROJECTS\\\\AXIOM-V2\\\\frontend\\\\package.json\", [System.IO.File]::ReadAllText\\(\"D:\\\\PROJECTS\\\\AXIOM-V2\\\\frontend\\\\package.json\", [System.Text.Encoding]::UTF8\\).TrimStart\\([char]0xFEFF\\), \\(New-Object System.Text.UTF8Encoding $false\\)\\))",
+      "Read(//d/PROJECTS/AXIOM-V2/frontend/**)",
+      "PowerShell([System.IO.File]::WriteAllText\\(\"E:\\\\GradProject\\\\AXIOM-V2\\\\frontend\\\\package.json\", [System.IO.File]::ReadAllText\\(\"E:\\\\GradProject\\\\AXIOM-V2\\\\frontend\\\\package.json\", [System.Text.Encoding]::UTF8\\).TrimStart\\([char]0xFEFF\\), \\(New-Object System.Text.UTF8Encoding $false\\)\\))",
+      "PowerShell($bytes = [System.IO.File]::ReadAllBytes\\(\"E:\\\\GradProject\\\\AXIOM-V2\\\\frontend\\\\package.json\"\\); \"First 3 bytes: $\\($bytes[0]\\) $\\($bytes[1]\\) $\\($bytes[2]\\)\")",
+      "Bash(git rm *)"
     ],
     "additionalDirectories": [
       "e:\\GradProject\\AXIOM-V2\\frontend"

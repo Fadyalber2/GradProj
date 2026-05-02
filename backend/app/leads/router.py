@@ -1,10 +1,28 @@
+import math
 from urllib.parse import quote
 from fastapi import APIRouter, Depends, HTTPException, Query
 from app.leads.schemas import CreateLeadRequest, LeadResponse, AdminLeadRow, AdminLeadsResponse
 from app.database import supabase_admin
-from app.dependencies import get_current_user, get_admin_user
+from app.dependencies import get_current_user
+from app.admin.router import get_admin
 
 router = APIRouter()
+
+
+def _normalize_phone(phone: str) -> str:
+    """Return phone in E.164 digits (no +) for wa.me URLs.
+
+    Handles: +201XXXXXXXX  →  201XXXXXXXX
+             201XXXXXXXX   →  201XXXXXXXX
+             01XXXXXXXX    →  201XXXXXXXX
+    """
+    p = phone.strip().lstrip("+")
+    if p.startswith("0"):
+        p = "20" + p[1:]
+    elif not p.startswith("20"):
+        p = "20" + p
+    return p
+
 
 _TEMPLATES = {
     "whatsapp_click": "Hi, I'm {name}, I'm interested in your listing: {title} ({price} EGP).",
@@ -58,11 +76,13 @@ async def create_lead(
                 .execute()
             )
             if ag_res.data and ag_res.data.get("phone"):
-                contact_phone = ag_res.data["phone"].lstrip("+")
+                contact_phone = _normalize_phone(ag_res.data["phone"])
                 is_billable = True
         except Exception:
             pass
-    else:
+
+    # Fall back to owner profile phone if agency had no phone (or no agency)
+    if not contact_phone:
         owner_id = listing.get("owner_id")
         if owner_id:
             try:
@@ -74,7 +94,7 @@ async def create_lead(
                     .execute()
                 )
                 if ow_res.data and ow_res.data.get("phone"):
-                    contact_phone = ow_res.data["phone"].lstrip("+")
+                    contact_phone = _normalize_phone(ow_res.data["phone"])
             except Exception:
                 pass
 
@@ -94,7 +114,7 @@ async def create_lead(
     try:
         insert_res = (
             supabase_admin.table("leads")
-            .insert(lead_data, on_conflict="user_id,listing_id", ignore_duplicates=True)
+            .upsert(lead_data, on_conflict="user_id,listing_id", ignore_duplicates=True)
             .execute()
         )
         already_existed = not bool(insert_res.data)
@@ -122,7 +142,7 @@ async def get_admin_leads(
     date_to: str | None = Query(None),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
-    _admin: dict = Depends(get_admin_user),
+    _admin: str = Depends(get_admin),
 ):
     query = (
         supabase_admin.table("leads")
@@ -161,9 +181,11 @@ async def get_admin_leads(
             created_at=r["created_at"],
         ))
 
+    total = result.count or 0
     return AdminLeadsResponse(
-        leads=rows,
-        total=result.count or 0,
+        data=rows,
+        total=total,
         page=page,
         per_page=per_page,
+        total_pages=math.ceil(total / per_page) if total else 1,
     )

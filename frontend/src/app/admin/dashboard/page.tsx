@@ -100,7 +100,9 @@ type FieldDef = {
   label: string;
   type?: "text" | "number" | "url" | "textarea" | "select" | "richtext" | "picker" | "image_url";
   options?: string[];
-  pickerSection?: "users" | "agencies";
+  pickerSection?: "users" | "agencies" | "projects";
+  /** Key of another field whose value is passed as a filter param to this picker. */
+  dependsOn?: string;
   required?: boolean;
 };
 
@@ -188,7 +190,9 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "size_sqm", label: "Area (m²)", type: "number" },
       { key: "property_type", label: "Type", type: "select", options: ["apartment", "villa", "studio", "duplex", "penthouse", "chalet", "land", "commercial"] },
       { key: "category", label: "Category", type: "select", options: ["for_rent", "for_sale", "shared_housing"] },
-      { key: "owner_id", label: "Owner", type: "picker", pickerSection: "users", required: true },
+      { key: "owner_id", label: "Owner (optional if Agency is set)", type: "picker", pickerSection: "users" },
+      { key: "agency_id", label: "Agency (optional)", type: "picker", pickerSection: "agencies" },
+      { key: "project_id", label: "Project (select Agency first)", type: "picker", pickerSection: "projects", dependsOn: "agency_id" },
       { key: "description", label: "Description", type: "textarea" },
     ],
   },
@@ -432,7 +436,17 @@ function EntityForm({
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
 
   function set(key: string, value: unknown) {
-    setForm((f) => ({ ...f, [key]: value }));
+    setForm((f) => {
+      const next = { ...f, [key]: value };
+      // Clear any fields that depend on this one
+      fields.forEach((fd) => {
+        if (fd.dependsOn === key) {
+          next[fd.key] = "";
+          next[`${fd.key}_label`] = "";
+        }
+      });
+      return next;
+    });
   }
 
   async function handleFileUpload(fieldKey: string, file: File) {
@@ -477,6 +491,7 @@ function EntityForm({
     setErrors({});
     const clean: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(form)) {
+      if (k.endsWith("_label")) continue; // display-only, not a DB column
       if (v === "true") clean[k] = true;
       else if (v === "false") clean[k] = false;
       else clean[k] = v;
@@ -547,10 +562,19 @@ function EntityForm({
             ) : field.type === "picker" && field.pickerSection ? (
               <EntityPicker
                 value={String(form[field.key] ?? "")}
-                onChange={(id) => set(field.key, id)}
+                onChange={(id, label) => {
+                  set(field.key, id);
+                  setForm((f) => ({ ...f, [`${field.key}_label`]: label }));
+                }}
                 section={field.pickerSection}
                 placeholder={`Search ${field.pickerSection}…`}
                 displayValue={String(form[`${field.key}_label`] ?? "")}
+                extraParams={
+                  field.dependsOn
+                    ? { [field.dependsOn]: String(form[field.dependsOn] ?? "") }
+                    : undefined
+                }
+                disabled={field.dependsOn ? !form[field.dependsOn] : false}
               />
             ) : field.type === "textarea" ? (
               <textarea

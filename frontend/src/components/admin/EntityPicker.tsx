@@ -7,9 +7,11 @@ import { listItems } from "@/lib/admin/api";
 interface EntityPickerProps {
   value: string;
   onChange: (id: string, label: string) => void;
-  section: "users" | "agencies";
+  section: "users" | "agencies" | "projects";
   placeholder?: string;
   displayValue?: string;
+  extraParams?: Record<string, string>;
+  disabled?: boolean;
 }
 
 interface Option {
@@ -18,9 +20,8 @@ interface Option {
 }
 
 function getLabel(item: Record<string, unknown>, section: string): string {
-  if (section === "users") {
-    return `${item.full_name ?? item.email ?? item.id}`;
-  }
+  if (section === "users") return `${item.full_name ?? item.email ?? item.id}`;
+  if (section === "projects") return `${item.title ?? item.id}`;
   return `${item.name ?? item.id}`;
 }
 
@@ -30,6 +31,8 @@ export default function EntityPicker({
   section,
   placeholder = "Search…",
   displayValue,
+  extraParams,
+  disabled = false,
 }: EntityPickerProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -48,6 +51,7 @@ export default function EntityPicker({
         const res = await listItems<Record<string, unknown>>(section, {
           search,
           per_page: 8,
+          ...extraParams,
         });
         setOptions(
           res.data.map((item) => ({
@@ -64,7 +68,7 @@ export default function EntityPicker({
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [search, open, section]);
+  }, [search, open, section, extraParams]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -91,8 +95,8 @@ export default function EntityPicker({
   return (
     <div ref={containerRef} className="relative">
       <div
-        className="flex items-center gap-2 w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm cursor-pointer hover:border-blue-400 transition focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent"
-        onClick={() => setOpen((v) => !v)}
+        className={`flex items-center gap-2 w-full px-3 py-2.5 rounded-lg border text-sm transition focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent ${disabled ? "bg-slate-50 border-slate-200 cursor-not-allowed opacity-60" : "bg-white border-slate-200 cursor-pointer hover:border-blue-400"}`}
+        onClick={() => !disabled && setOpen((v) => !v)}
       >
         <Search className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
         <span className={`flex-1 truncate ${selectedLabel ? "text-slate-800" : "text-slate-400"}`}>

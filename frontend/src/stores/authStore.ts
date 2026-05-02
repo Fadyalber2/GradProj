@@ -28,6 +28,34 @@ async function fetchProfile(
   }
 }
 
+async function fetchProfileFromSupabase(userId: string): Promise<AuthUser | null> {
+  try {
+    const { data } = await supabase
+      .from("profiles")
+      .select("id, email, full_name, avatar_url, phone, bio, role, is_verified_seller, gender, country_code, badges, created_at, updated_at")
+      .eq("id", userId)
+      .single();
+    if (!data) return null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const d = data as any;
+    return {
+      id: d.id,
+      email: d.email ?? "",
+      role: d.role ?? "user",
+      full_name: d.full_name ?? null,
+      phone: d.phone ?? null,
+      country_code: d.country_code ?? null,
+      gender: d.gender ?? null,
+      avatar_url: d.avatar_url ?? null,
+      bio: d.bio ?? null,
+      badges: d.badges ?? [],
+      is_verified_seller: d.is_verified_seller ?? false,
+    };
+  } catch {
+    return null;
+  }
+}
+
 interface AuthState {
   user: AuthUser | null;
   session: Session | null;
@@ -62,7 +90,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } = await supabase.auth.getSession();
 
     if (session) {
-      const user = await fetchProfile(session.access_token, 2, 600);
+      const user =
+        await fetchProfile(session.access_token, 2, 600) ??
+        await fetchProfileFromSupabase(session.user.id);
       const resolvedUser: AuthUser = user ?? {
         id: session.user.id,
         email: session.user.email ?? "",
@@ -88,7 +118,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           // Only skip token refreshes during active login — SIGNED_IN must always sync
           if (event === "TOKEN_REFRESHED" && get().isLoading) return;
           if (session) {
-            const user = await fetchProfile(session.access_token, 2, 600);
+            const user =
+              await fetchProfile(session.access_token, 2, 600) ??
+              await fetchProfileFromSupabase(session.user.id);
             const resolvedUser: AuthUser = user ?? {
               id: session.user.id,
               email: session.user.email ?? "",
@@ -139,8 +171,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
       if (error) throw new Error(error.message);
       // Retry up to 2 times — profile may lag behind auth
-      const user = await fetchProfile(data.session.access_token, 2, 600);
-      // Fall back to minimal user from session if profile fetch failed
+      const user =
+        await fetchProfile(data.session.access_token, 2, 600) ??
+        await fetchProfileFromSupabase(data.session.user.id);
       const resolvedUser: AuthUser = user ?? {
         id: data.session.user.id,
         email: data.session.user.email ?? email,

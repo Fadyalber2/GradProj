@@ -51,34 +51,34 @@ The backend runs separately at `http://localhost:8000` (FastAPI).
 
 ## Key Architectural Decisions (V2)
 
-| Area | Decision |
-|------|----------|
-| User roles | Single role: `"user" \| "admin"`. No seeker/broker split. |
-| Verified badge | `is_verified_seller: boolean` on any user profile. Admin-granted. Cosmetic only. |
-| Dashboard | Unified `/dashboard` page → `GET /api/dashboard/me` |
-| Listings | All types in one table. `category: "for_rent" \| "for_sale" \| "shared_housing"` |
+| Area           | Decision                                                                                      |
+| -------------- | --------------------------------------------------------------------------------------------- |
+| User roles     | Single role: `"user" \| "admin"`. No seeker/broker split.                                     |
+| Verified badge | `is_verified_seller: boolean` on any user profile. Admin-granted. Cosmetic only.              |
+| Dashboard      | Unified `/dashboard` page → `GET /api/dashboard/me`                                           |
+| Listings       | All types in one table. `category: "for_rent" \| "for_sale" \| "shared_housing"`              |
 | Shared housing | Served at `/property/[id]` (category=shared_housing). `/shared-housing/[id]` redirects there. |
-| Owner field | `owner_id` everywhere. Never `broker_id`. |
-| Listing status | submit → **pending** → admin approves → **active** (or **rejected**) |
-| API base | `http://localhost:8000` — set in `frontend/src/lib/api.ts` |
+| Owner field    | `owner_id` everywhere. Never `broker_id`.                                                     |
+| Listing status | submit → **pending** → admin approves → **active** (or **rejected**)                          |
+| API base       | `http://localhost:8000` — set in `frontend/src/lib/api.ts`                                    |
 
 ---
 
 ## Key Files to Know
 
-| File | Purpose |
-|------|---------|
-| `frontend/src/lib/api.ts` | HTTP client (`api.get`, `api.post`, etc.) |
-| `frontend/src/lib/queries.ts` | TanStack Query query definitions |
-| `frontend/src/lib/constants.ts` | Nav items, mock data, static config |
-| `frontend/src/stores/authStore.ts` | Zustand store — signup, login, logout, user state |
-| `frontend/src/types/index.ts` | UI-layer TypeScript types |
-| `frontend/src/types/api.ts` | API response TypeScript types |
-| `frontend/src/app/dashboard/page.tsx` | Unified dashboard page |
-| `frontend/src/app/property/[id]/page.tsx` | Property detail (handles shared housing too) |
-| `frontend/src/components/dashboard/` | Dashboard components incl. AddListingModal |
-| `frontend/src/components/layout/Navbar.tsx` | Top navigation |
-| `frontend/middleware.ts` | Auth route protection |
+| File                                        | Purpose                                           |
+| ------------------------------------------- | ------------------------------------------------- |
+| `frontend/src/lib/api.ts`                   | HTTP client (`api.get`, `api.post`, etc.)         |
+| `frontend/src/lib/queries.ts`               | TanStack Query query definitions                  |
+| `frontend/src/lib/constants.ts`             | Nav items, mock data, static config               |
+| `frontend/src/stores/authStore.ts`          | Zustand store — signup, login, logout, user state |
+| `frontend/src/types/index.ts`               | UI-layer TypeScript types                         |
+| `frontend/src/types/api.ts`                 | API response TypeScript types                     |
+| `frontend/src/app/dashboard/page.tsx`       | Unified dashboard page                            |
+| `frontend/src/app/property/[id]/page.tsx`   | Property detail (handles shared housing too)      |
+| `frontend/src/components/dashboard/`        | Dashboard components incl. AddListingModal        |
+| `frontend/src/components/layout/Navbar.tsx` | Top navigation                                    |
+| `frontend/middleware.ts`                    | Auth route protection                             |
 
 ---
 
@@ -100,13 +100,13 @@ The backend runs separately at `http://localhost:8000` (FastAPI).
 
 All pages are built. Auth is wired to Supabase. AI features are live (chatbot, NLP search, recommendations). Listings, dashboard, messages, and agency pages still use mock data pending API wiring.
 
-| Page | API endpoint needed |
-|------|-------------------|
-| `/dashboard` | `GET /api/dashboard/me` |
-| `/find-homes` | `GET /api/listings` |
-| `/property/[id]` | `GET /api/listings/{id}` |
-| `/messages` | `GET /api/messages/conversations` |
-| `/agencies` | `GET /api/agencies` |
+| Page             | API endpoint needed               |
+| ---------------- | --------------------------------- |
+| `/dashboard`     | `GET /api/dashboard/me`           |
+| `/find-homes`    | `GET /api/listings`               |
+| `/property/[id]` | `GET /api/listings/{id}`          |
+| `/messages`      | `GET /api/messages/conversations` |
+| `/agencies`      | `GET /api/agencies`               |
 
 See `docs/API_REFERENCE.md` for full endpoint shapes.
 
@@ -115,11 +115,13 @@ See `docs/API_REFERENCE.md` for full endpoint shapes.
 ## Rules for Claude
 
 ### Always do before finishing any task:
+
 1. Run `npx tsc --noEmit` inside `frontend/` — must return zero errors
 2. Update `docs/ROADMAP.md` if the task was tracked there
 3. Update the MEMORY.md in the Claude auto-memory directory
 
 ### Code conventions:
+
 - All new components go in `frontend/src/components/<feature>/ComponentName.tsx`
 - All new pages go in `frontend/src/app/<route>/page.tsx`
 - UI types → `frontend/src/types/index.ts`
@@ -131,6 +133,7 @@ See `docs/API_REFERENCE.md` for full endpoint shapes.
 - Use `<Image>` from `next/image`, never raw `<img>` tags
 
 ### File naming:
+
 - Components: PascalCase (`MyComponent.tsx`)
 - Pages/layouts: lowercase (`page.tsx`, `layout.tsx`)
 - Utilities: camelCase (`myUtil.ts`)

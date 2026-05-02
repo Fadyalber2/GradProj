@@ -5,7 +5,7 @@ import { MessageCircle, CalendarDays, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter, usePathname } from "next/navigation";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 
 interface WhatsAppCTAProps {
   listingId: string;
@@ -63,8 +63,14 @@ export default function WhatsAppCTA({
       setLoading(source === "whatsapp_click" ? "contact" : "schedule");
       try {
         await openWhatsApp(listingId, source);
-      } catch {
-        toast.error("Could not open WhatsApp. Please try again.");
+      } catch (err) {
+        const detail =
+          err instanceof ApiError &&
+          typeof err.body === "object" &&
+          err.body !== null
+            ? (err.body as { detail?: string }).detail
+            : null;
+        toast.error(detail ?? "Could not open WhatsApp. Please try again.");
       } finally {
         setLoading(null);
       }

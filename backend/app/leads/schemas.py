@@ -24,7 +24,8 @@ class AdminLeadRow(BaseModel):
 
 
 class AdminLeadsResponse(BaseModel):
-    leads: list[AdminLeadRow]
+    data: list[AdminLeadRow]
     total: int
     page: int
     per_page: int
+    total_pages: int

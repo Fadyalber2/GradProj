@@ -2,12 +2,12 @@
 
 ## Prerequisites
 
-| Tool | Version | Install |
-|------|---------|---------|
-| Node.js | 20+ | https://nodejs.org |
-| npm | 10+ | comes with Node |
-| Python | 3.11+ | https://python.org |
-| Ollama | latest | https://ollama.ai |
+| Tool    | Version | Install            |
+| ------- | ------- | ------------------ |
+| Node.js | 20+     | https://nodejs.org |
+| npm     | 10+     | comes with Node    |
+| Python  | 3.11+   | https://python.org |
+| Ollama  | latest  | https://ollama.ai  |
 
 ---
 
@@ -106,10 +106,10 @@ python -c "from app.main import app; print('OK')"
 
 ## Common Issues
 
-| Problem | Fix |
-|---------|-----|
-| `Module not found: @/...` | Run `npm install` in `frontend/` |
-| API calls return 401 | Check `.env.local` Supabase keys |
-| AI endpoints return 503 | Start Ollama: `ollama serve` |
-| `npx tsc` errors | Read error output — usually a missing type import |
-| Port 3000 in use | `npm run dev -- -p 3001` |
+| Problem                   | Fix                                               |
+| ------------------------- | ------------------------------------------------- |
+| `Module not found: @/...` | Run `npm install` in `frontend/`                  |
+| API calls return 401      | Check `.env.local` Supabase keys                  |
+| AI endpoints return 503   | Start Ollama: `ollama serve`                      |
+| `npx tsc` errors          | Read error output — usually a missing type import |
+| Port 3000 in use          | `npm run dev -- -p 3001`                          |

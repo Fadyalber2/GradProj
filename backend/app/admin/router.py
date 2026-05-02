@@ -214,6 +214,8 @@ async def admin_create_listing(
     body.pop("neighborhoods", None)
     body.pop("profiles", None)
     body.setdefault("status", "active")
+    body.setdefault("city", body.get("location", ""))
+
     try:
         result = supabase_admin.table("listings").insert(body).execute()
     except Exception as e:
@@ -563,6 +565,7 @@ async def admin_delete_agency(
 @router.get("/projects")
 async def admin_list_projects(
     search: str | None = Query(None),
+    agency_id: str | None = Query(None),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
     _admin: str = Depends(get_admin),
@@ -572,6 +575,8 @@ async def admin_list_projects(
     query = supabase_admin.table("projects").select("*", count="exact")
     if search:
         query = query.ilike("title", f"%{search}%")
+    if agency_id:
+        query = query.eq("agency_id", agency_id)
 
     try:
         result = query.order("created_at", desc=True).range(offset, offset + per_page - 1).execute()
