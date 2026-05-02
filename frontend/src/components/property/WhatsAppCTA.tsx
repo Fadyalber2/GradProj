@@ -64,13 +64,17 @@ export default function WhatsAppCTA({
       try {
         await openWhatsApp(listingId, source);
       } catch (err) {
-        const detail =
-          err instanceof ApiError &&
-          typeof err.body === "object" &&
-          err.body !== null
-            ? (err.body as { detail?: string }).detail
-            : null;
-        toast.error(detail ?? "Could not open WhatsApp. Please try again.");
+        let message = "Could not open WhatsApp. Please try again.";
+        if (err instanceof ApiError) {
+          const detail =
+            typeof err.body === "object" && err.body !== null
+              ? (err.body as { detail?: string }).detail
+              : null;
+          message = detail ?? message;
+        } else if (err instanceof TypeError && (err.message.includes("fetch") || err.message.includes("network"))) {
+          message = "Cannot reach the server. Make sure the backend is running.";
+        }
+        toast.error(message);
       } finally {
         setLoading(null);
       }
