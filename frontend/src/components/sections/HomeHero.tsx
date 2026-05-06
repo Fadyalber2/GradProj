@@ -1,18 +1,27 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { MapPin, Search, Zap, Home, Users, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const tabs = [
-  { id: "rent", label: "Rent", icon: Zap, placeholder: "City or neighborhood to rent in..." },
-  { id: "buy", label: "Buy", icon: Home, placeholder: "City or neighborhood to buy in..." },
-  { id: "roommates", label: "Roommates", icon: Users, placeholder: "City or neighborhood for shared housing..." },
+  { id: "rent", label: "Rent", icon: Zap, placeholder: "City or neighborhood to rent in...", intent: "for rent" },
+  { id: "buy", label: "Buy", icon: Home, placeholder: "City or neighborhood to buy in...", intent: "for sale" },
+  { id: "roommates", label: "Roommates", icon: Users, placeholder: "City or neighborhood for shared housing...", intent: "roommates" },
 ] as const;
 
 export default function HomeHero() {
   const [activeTab, setActiveTab] = useState<string>("rent");
+  const [query, setQuery] = useState("");
+  const router = useRouter();
   const currentTab = tabs.find((t) => t.id === activeTab) ?? tabs[0];
+
+  function handleSearch() {
+    const q = query.trim();
+    const combined = q ? `${q} ${currentTab.intent}` : currentTab.intent;
+    router.push(`/find-homes?q=${encodeURIComponent(combined)}`);
+  }
 
   return (
     <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 bg-cover bg-center bg-[linear-gradient(to_bottom,rgba(18,18,18,0.3),rgba(18,18,18,0.95)),url('https://images.unsplash.com/photo-1600607686527-6fb886090705?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80')]">
@@ -77,11 +86,17 @@ export default function HomeHero() {
                 </span>
                 <input
                   type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                   placeholder={currentTab.placeholder}
                   className="w-full bg-black/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all hover:bg-black/60"
                 />
               </div>
-              <button className="bg-primary hover:bg-primary-hover text-white font-semibold py-3.5 px-8 rounded-xl transition-all shadow-lg shadow-primary/25 flex items-center justify-center gap-2 whitespace-nowrap">
+              <button
+                onClick={handleSearch}
+                className="bg-primary hover:bg-primary-hover text-white font-semibold py-3.5 px-8 rounded-xl transition-all shadow-lg shadow-primary/25 flex items-center justify-center gap-2 whitespace-nowrap"
+              >
                 <Search className="h-5 w-5" /> Search
               </button>
             </motion.div>

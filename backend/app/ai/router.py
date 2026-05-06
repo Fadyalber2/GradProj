@@ -99,7 +99,8 @@ async def _extract_filters_from_query(query: str) -> dict:
         "Extract search filters from the user's query. "
         "Return ONLY a JSON object with these optional keys: "
         "location (string, Egyptian city or neighborhood — 'alex' means Alexandria), "
-        "max_price (number in EGP), min_price (number), "
+        "max_price (number in EGP — '5 million' means 5000000, '500k' means 500000), "
+        "min_price (number), "
         "bedrooms (number — '3bd' means 3), "
         "bathrooms (number — '2ba' means 2), "
         "size_sqm (number — exact size in sqm; '300m2' or '300sqm' means 300), "
@@ -107,9 +108,11 @@ async def _extract_filters_from_query(query: str) -> dict:
         "amenities (array of strings — map user terms to the closest values from: "
         "Parking, Swimming Pool, Gym, Garden, Security, Elevator, Central AC, "
         "Balcony, Storage Room, Maid's Room), "
-        "category (for_rent|for_sale|shared_housing), "
+        "category (for_rent|for_sale|shared_housing — ONLY set this if the user "
+        "explicitly says 'rent', 'buy', 'purchase', 'roommate', or 'shared'. "
+        "If they just say 'apartment' or 'villa' without specifying, do NOT include category), "
         "property_type (apartment|villa|studio|duplex|penthouse|commercial|room|chalet|townhouse|twin_house|land|whole_building|office). "
-        "Output ONLY valid JSON, no explanation."
+        "Omit any key the user did not mention. Output ONLY valid JSON, no explanation."
     )
     try:
         raw = await ollama.generate(prompt=query, system=system)

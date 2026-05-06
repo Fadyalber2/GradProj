@@ -99,7 +99,8 @@
       "Read(//d/PROJECTS/AXIOM-V2/frontend/**)",
       "PowerShell([System.IO.File]::WriteAllText\\(\"E:\\\\GradProject\\\\AXIOM-V2\\\\frontend\\\\package.json\", [System.IO.File]::ReadAllText\\(\"E:\\\\GradProject\\\\AXIOM-V2\\\\frontend\\\\package.json\", [System.Text.Encoding]::UTF8\\).TrimStart\\([char]0xFEFF\\), \\(New-Object System.Text.UTF8Encoding $false\\)\\))",
       "PowerShell($bytes = [System.IO.File]::ReadAllBytes\\(\"E:\\\\GradProject\\\\AXIOM-V2\\\\frontend\\\\package.json\"\\); \"First 3 bytes: $\\($bytes[0]\\) $\\($bytes[1]\\) $\\($bytes[2]\\)\")",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(git push *)"
     ],
     "additionalDirectories": [
       "e:\\GradProject\\AXIOM-V2\\frontend"

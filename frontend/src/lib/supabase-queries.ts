@@ -20,10 +20,182 @@ export interface ListingFilters {
   min_price?: number;
   max_price?: number;
   bedrooms?: number;
+  amenities?: string[];
   search?: string;
   sort_by?: string;
   page?: number;
   per_page?: number;
+}
+
+// Maps search keywords → exact amenity values stored in DB
+const AMENITY_KEYWORDS: Record<string, string> = {
+  parking:          "Parking",
+  gym:              "Gym",
+  fitness:          "Gym",
+  security:         "Security",
+  guard:            "Security",
+  elevator:         "Elevator",
+  lift:             "Elevator",
+  garden:           "Garden",
+  ac:               "Central AC",
+  "central ac":     "Central AC",
+  "air conditioning": "Central AC",
+  balcony:          "Balcony",
+  pool:             "Swimming Pool",
+  "swimming pool":  "Swimming Pool",
+  swim:             "Swimming Pool",
+  furnished:        "Furnished",
+  rooftop:          "Rooftop",
+  "pet friendly":   "Pet Friendly",
+  pets:             "Pet Friendly",
+  cctv:             "CCTV",
+  camera:           "CCTV",
+  doorman:          "Doorman",
+  concierge:        "Doorman",
+};
+
+// Converts "5 million" → 5000000, "500k" → 500000, "3000" → 3000
+function parsePriceToken(token: string): number {
+  const t = token.toLowerCase().replace(/,/g, "").trim();
+  const num = parseFloat(t);
+  if (isNaN(num)) return 0;
+  if (/million|m\b/.test(t)) return Math.round(num * 1_000_000);
+  if (/thousand|k\b/.test(t)) return Math.round(num * 1_000);
+  return Math.round(num);
+}
+
+const PROPERTY_TYPE_KEYWORDS: Record<string, string> = {
+  apartment:      "apartment",
+  flat:           "apartment",
+  villa:          "villa",
+  studio:         "studio",
+  duplex:         "duplex",
+  penthouse:      "penthouse",
+  chalet:         "chalet",
+  townhouse:      "townhouse",
+  "twin house":   "twin_house",
+  "twin-house":   "twin_house",
+  office:         "office",
+  shop:           "commercial",
+  commercial:     "commercial",
+  land:           "land",
+};
+
+const BEDROOM_WORDS: Record<string, number> = {
+  one: 1, two: 2, three: 3, four: 4, five: 5,
+  "١": 1, "٢": 2, "٣": 3, "٤": 4, "٥": 5,
+};
+
+export function parseSearchQuery(raw: string): {
+  text: string;
+  minPrice: number | null;
+  maxPrice: number | null;
+  amenities: string[];
+  bedrooms: number | null;
+  propertyType: string | null;
+  category: string | null;
+} {
+  let text = raw;
+  let minPrice: number | null = null;
+  let maxPrice: number | null = null;
+  const amenities: string[] = [];
+  let bedrooms: number | null = null;
+  let propertyType: string | null = null;
+  let category: string | null = null;
+
+  // Number token: digits with optional comma, optional suffix (million/m/thousand/k)
+  const NUM = String.raw`[\d,]+(?:\.\d+)?(?:\s*(?:million|thousand|[mk]))?`;
+
+  // Price ceiling: "under/below/max/less than 5 million [EGP]"
+  text = text.replace(
+    new RegExp(String.raw`\b(?:under|below|max|less\s+than|up\s+to)\s+(${NUM})(?:\s*egp)?\b`, "gi"),
+    (_, n) => { maxPrice = parsePriceToken(n); return ""; },
+  );
+  // Price floor: "above/over/min/more than/from/starting 3000 [EGP]"
+  text = text.replace(
+    new RegExp(String.raw`\b(?:above|over|min|more\s+than|from|starting(?:\s+at)?)\s+(${NUM})(?:\s*egp)?\b`, "gi"),
+    (_, n) => { minPrice = parsePriceToken(n); return ""; },
+  );
+  // Price range: "3000-8000" or "3 million to 8 million [EGP]"
+  text = text.replace(
+    new RegExp(String.raw`\b(${NUM})\s*(?:to|-)\s*(${NUM})(?:\s*egp)?\b`, "gi"),
+    (_, a, b) => {
+      minPrice = parsePriceToken(a);
+      maxPrice = parsePriceToken(b);
+      return "";
+    },
+  );
+
+  // Category: only when explicitly stated
+  if (/\b(rent|rental|renting|for\s+rent)\b/i.test(text)) {
+    category = "for_rent";
+    text = text.replace(/\b(rent(?:al|ing)?|for\s+rent)\b/gi, "");
+  } else if (/\b(buy|buying|purchase|purchasing|for\s+sale|sale)\b/i.test(text)) {
+    category = "for_sale";
+    text = text.replace(/\b(buy(?:ing)?|purchas(?:e|ing)|for\s+sale|sale)\b/gi, "");
+  } else if (/\b(shared?|roommate|housemate|flatmate|sharing)\b/i.test(text)) {
+    category = "shared_housing";
+    text = text.replace(/\b(shared?|roommate|housemate|flatmate|sharing)\b/gi, "");
+  }
+
+  // Property type — multi-word first
+  const ptKeys = Object.keys(PROPERTY_TYPE_KEYWORDS).sort((a, b) => b.length - a.length);
+  for (const kw of ptKeys) {
+    const re = new RegExp(`\\b${kw}\\b`, "gi");
+    if (re.test(text)) {
+      propertyType = PROPERTY_TYPE_KEYWORDS[kw];
+      text = text.replace(re, "");
+      break;
+    }
+  }
+
+  // Bedrooms: "2 bedroom", "2bd", "2-bed", "two bedroom", "2 rooms"
+  text = text.replace(
+    /\b(\d+|one|two|three|four|five|[١٢٣٤٥])\s*[-]?\s*(?:bed(?:room)?s?|bd|br|غرف(?:ة)?)\b/gi,
+    (_, n) => {
+      const num = parseInt(n, 10);
+      bedrooms = isNaN(num) ? (BEDROOM_WORDS[n.toLowerCase()] ?? null) : num;
+      return "";
+    },
+  );
+
+  // Amenity extraction — multi-word first
+  const sortedKeys = Object.keys(AMENITY_KEYWORDS).sort((a, b) => b.length - a.length);
+  for (const keyword of sortedKeys) {
+    const re = new RegExp(`\\b${keyword}\\b`, "gi");
+    if (re.test(text)) {
+      const val = AMENITY_KEYWORDS[keyword];
+      if (!amenities.includes(val)) amenities.push(val);
+      text = text.replace(re, "");
+    }
+  }
+
+  // Strip filler NL words that add no filter value
+  text = text.replace(
+    /\b(i(?:'m|\s+am)?|want|need|looking\s+for|find\s+me|show\s+me|a|an|the|in|at|with|and|or|for|nice|good|great|comfortable|ideal|perfect)\b/gi,
+    " ",
+  );
+
+  return {
+    text: text.trim().replace(/\s{2,}/g, " "),
+    minPrice,
+    maxPrice,
+    amenities,
+    bedrooms,
+    propertyType,
+    category,
+  };
+}
+
+// Generates fuzzy separator variants so "wadi degla" matches "wadi-degla" and vice versa
+function searchVariants(text: string): string[] {
+  const t = text.toLowerCase().trim();
+  return [...new Set([
+    t,
+    t.replace(/\s+/g, "-"),       // space → hyphen
+    t.replace(/-+/g, " "),        // hyphen → space
+    t.replace(/[-\s]+/g, ""),     // remove all separators
+  ])].filter(Boolean);
 }
 
 export async function getListings(filters?: ListingFilters) {
@@ -43,11 +215,56 @@ export async function getListings(filters?: ListingFilters) {
 
   if (filters?.category) query = query.eq("category", filters.category);
   if (filters?.property_type) query = query.eq("property_type", filters.property_type);
+  if (filters?.bedrooms) query = query.eq("bedrooms", filters.bedrooms);
+
+  // Explicit price filters from sidebar
   if (filters?.min_price) query = query.gte("price", filters.min_price);
   if (filters?.max_price) query = query.lte("price", filters.max_price);
-  if (filters?.bedrooms) query = query.eq("bedrooms", filters.bedrooms);
-  if (filters?.search)
-    query = query.or(`title.ilike.%${filters.search}%,location.ilike.%${filters.search}%`);
+
+  // Explicit amenities filter from sidebar
+  if (filters?.amenities?.length) query = query.overlaps("amenities", filters.amenities);
+
+  if (filters?.search) {
+    const { text, minPrice, maxPrice, amenities, bedrooms, propertyType, category } = parseSearchQuery(filters.search);
+
+    // Parsed price — only apply if not already set by explicit filters
+    if (minPrice && !filters.min_price) query = query.gte("price", minPrice);
+    if (maxPrice && !filters.max_price) query = query.lte("price", maxPrice);
+
+    // Parsed structural filters — only apply if not already set
+    if (bedrooms != null && !filters.bedrooms) query = query.eq("bedrooms", bedrooms);
+    if (propertyType && !filters.property_type) query = query.eq("property_type", propertyType);
+    if (category && !filters.category) query = query.eq("category", category);
+
+    // Parsed amenities — merge with sidebar amenities
+    if (amenities.length > 0) {
+      const merged = [...new Set([...(filters.amenities ?? []), ...amenities])];
+      query = query.overlaps("amenities", merged);
+    }
+
+    // Remaining text → ilike on title / location / compound_name + agency lookup
+    if (text) {
+      const variants = searchVariants(text);
+      // Agency lookup — try all separator variants
+      const agencyIds: string[] = [];
+      for (const v of variants) {
+        const { data: agencyRows } = await supabase
+          .from("agencies")
+          .select("id")
+          .ilike("name", `%${v}%`);
+        for (const row of agencyRows ?? []) {
+          const r = row as { id: string };
+          if (!agencyIds.includes(r.id)) agencyIds.push(r.id);
+        }
+      }
+      const orParts: string[] = [];
+      for (const col of ["title", "location", "compound_name"]) {
+        for (const v of variants) orParts.push(`${col}.ilike.%${v}%`);
+      }
+      if (agencyIds.length > 0) orParts.push(`agency_id.in.(${agencyIds.join(",")})`);
+      query = query.or(orParts.join(","));
+    }
+  }
 
   const sortMap: Record<string, { col: string; asc: boolean }> = {
     newest:       { col: "created_at", asc: false },

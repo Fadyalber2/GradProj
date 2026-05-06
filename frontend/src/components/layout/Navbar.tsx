@@ -38,6 +38,7 @@ interface NavbarProps {
 
 export default function Navbar({ variant = "overlay" }: NavbarProps) {
   const [open, setOpen] = useState(false);
+  const [navSearch, setNavSearch] = useState("");
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuthStore();
@@ -119,6 +120,14 @@ export default function Navbar({ variant = "overlay" }: NavbarProps) {
               </span>
               <Input
                 type="text"
+                value={navSearch}
+                onChange={(e) => setNavSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && navSearch.trim()) {
+                    router.push(`/find-homes?q=${encodeURIComponent(navSearch.trim())}`);
+                    setNavSearch("");
+                  }
+                }}
                 placeholder="Search city, neighborhood..."
                 className={`bg-white/10 border-none text-white text-sm rounded-full pl-10 pr-4 placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-primary w-64 ${isSticky ? "py-1.5" : "py-2 backdrop-blur-md"}`}
               />

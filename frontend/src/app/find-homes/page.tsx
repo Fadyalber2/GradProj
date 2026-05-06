@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { LayoutGrid, LayoutList, Loader2, Sparkles, Search, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import FilterSidebar from "@/components/find-homes/FilterSidebar";
 import SearchListingCard from "@/components/find-homes/SearchListingCard";
 import SearchListingRow from "@/components/find-homes/SearchListingRow";
 import Pagination from "@/components/find-homes/Pagination";
-import { getListings } from "@/lib/supabase-queries";
-import { api } from "@/lib/api";
+import { getListings, parseSearchQuery } from "@/lib/supabase-queries";
 import type { Listing } from "@/types";
 import type { ListingBrief } from "@/types/api";
 
@@ -82,308 +82,285 @@ function mapToListing(l: ListingBrief): Listing {
   };
 }
 
-interface ParsedFilters {
-  location?: string | null;
-  max_price?: number | null;
-  min_price?: number | null;
-  property_type?: string | null;
-  category?: string | null;
-  bedrooms?: number | null;
-  vibes?: string[];
-  amenities?: string[];
-}
+// Decides whether a query is natural-language (→ smart parse) or simple structured
+const NL_PATTERNS = [
+  /\b(i want|i need|i'm looking|looking for|find me|show me|give me)\b/i,
+  /\b(near|close to|next to|walking distance|minutes from)\b/i,
+  /\b(quiet|cozy|modern|luxury|spacious|vibrant|peaceful|lively|charming)\b/i,
+  /\b(vibe|lifestyle|atmosphere|feel|good for|perfect for|suitable for)\b/i,
+  /\b(family|couples?|singles?|students?|professionals?)\b/i,
+  /\b(affordable|cheap|budget|expensive|high.?end)\b/i,
+];
 
-interface NLSearchResponse {
-  query: string;
-  parsed_filters: ParsedFilters;
-  results: ListingBrief[];
-  total: number;
+function detectSearchMode(query: string): "regular" | "ai" {
+  const q = query.trim();
+  if (!q) return "regular";
+  if (NL_PATTERNS.some((re) => re.test(q))) return "ai";
+  // Long free-form query with no obvious structure → AI
+  if (q.split(/\s+/).length > 6) return "ai";
+  return "regular";
 }
 
 export default function FindHomesPage() {
+  const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState("newest");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  // AI search state
-  const [aiMode, setAiMode] = useState(false);
-  const [aiQuery, setAiQuery] = useState("");
-  const [aiInput, setAiInput] = useState("");
-  const [aiResults, setAiResults] = useState<NLSearchResponse | null>(null);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiError, setAiError] = useState("");
+  // Unified search state
+  const [inputValue, setInputValue] = useState(() => searchParams.get("q") ?? "");
+  const [searchText, setSearchText] = useState(() => searchParams.get("q") ?? "");
+  const [appliedQuery, setAppliedQuery] = useState(() => searchParams.get("q") ?? "");
+
+  // Detected mode updates as user types (for indicator only)
+  const detectedMode = detectSearchMode(inputValue);
+  // Parsed chips shown after submit
+  const parsedChips = appliedQuery ? parseSearchQuery(appliedQuery) : null;
+
+  // Sync when URL ?q param changes (navbar search from any page)
+  const urlQuery = searchParams.get("q") ?? "";
+  useEffect(() => {
+    if (urlQuery === appliedQuery) return;
+    setInputValue(urlQuery);
+    setSearchText(urlQuery);
+    setAppliedQuery(urlQuery);
+    setCurrentPage(1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlQuery]);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["listings", { sort_by: sortBy, page: currentPage }],
-    queryFn: () => getListings({ sort_by: sortBy, page: currentPage, per_page: 12 }),
-    enabled: !aiMode,
+    queryKey: ["listings", { sort_by: sortBy, page: currentPage, search: searchText }],
+    queryFn: () =>
+      getListings({ sort_by: sortBy, page: currentPage, per_page: 12, search: searchText || undefined }),
   });
 
   const listings = (data?.listings ?? []).map(mapToListing);
   const totalPages = data ? Math.ceil(data.total / data.per_page) : 1;
 
-  async function runAiSearch() {
-    const q = aiInput.trim();
-    if (!q) return;
-    setAiLoading(true);
-    setAiError("");
-    setAiResults(null);
-    setAiQuery(q);
-    try {
-      const res = await api.post<NLSearchResponse>("/api/ai/search", {
-        query: q,
-        limit: 20,
-      });
-      setAiResults(res);
-    } catch {
-      setAiError("AI search failed. Make sure the backend and Ollama are running.");
-    } finally {
-      setAiLoading(false);
-    }
+  function handleSubmit() {
+    const q = inputValue.trim();
+    setSearchText(q);
+    setAppliedQuery(q);
+    setCurrentPage(1);
   }
 
-  function exitAiMode() {
-    setAiMode(false);
-    setAiInput("");
-    setAiQuery("");
-    setAiResults(null);
-    setAiError("");
+  function clearSearch() {
+    setInputValue("");
+    setSearchText("");
+    setAppliedQuery("");
+    setCurrentPage(1);
   }
-
-  const aiListings = (aiResults?.results ?? []).map(mapToListing);
-  const parsedFilters = aiResults?.parsed_filters;
 
   return (
     <main className="flex h-[calc(100vh-64px)] overflow-hidden w-full">
-      {!aiMode && <FilterSidebar />}
+      <FilterSidebar />
 
       <section className="flex-1 h-full overflow-y-auto custom-scrollbar p-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
             <h1 className="text-2xl font-bold text-white mb-1">Find Homes</h1>
             <p className="text-sm text-gray-400">
-              {aiMode
-                ? aiResults
-                  ? `${aiResults.total} AI results for "${aiQuery}"`
-                  : "Describe what you're looking for"
-                : isLoading
+              {isLoading
                 ? "Loading properties…"
-                : `Showing ${data?.total ?? 0} properties`}
+                : `Showing ${data?.total ?? 0} properties${searchText ? ` for "${searchText}"` : ""}`}
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            {/* AI mode toggle */}
-            <button
-              onClick={() => (aiMode ? exitAiMode() : setAiMode(true))}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${
-                aiMode
-                  ? "bg-primary border-primary text-white shadow-lg shadow-primary/25"
-                  : "bg-card-dark border-white/10 text-gray-300 hover:border-primary/50 hover:text-primary"
-              }`}
+            {/* View mode toggle */}
+            <div className="flex items-center bg-card-dark rounded-lg p-1 border border-white/5">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-colors ${
+                  viewMode === "grid" ? "bg-white/10 text-white" : "text-gray-400 hover:text-white"
+                }`}
+              >
+                <LayoutGrid className="h-3.5 w-3.5" /> Grid
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-colors ${
+                  viewMode === "list" ? "bg-white/10 text-white" : "text-gray-400 hover:text-white"
+                }`}
+              >
+                <LayoutList className="h-3.5 w-3.5" /> List
+              </button>
+            </div>
+
+            <select
+              value={sortBy}
+              onChange={(e) => { setSortBy(e.target.value); setCurrentPage(1); }}
+              className="bg-card-dark border-white/5 text-gray-300 text-xs rounded-lg py-2 px-3 focus:ring-primary border"
             >
-              <Sparkles className="h-3.5 w-3.5" />
-              Smart Search
-            </button>
-
-            {!aiMode && (
-              <>
-                {/* View mode toggle */}
-                <div className="flex items-center bg-card-dark rounded-lg p-1 border border-white/5">
-                  <button
-                    onClick={() => setViewMode("grid")}
-                    className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-colors ${
-                      viewMode === "grid"
-                        ? "bg-white/10 text-white"
-                        : "text-gray-400 hover:text-white"
-                    }`}
-                  >
-                    <LayoutGrid className="h-3.5 w-3.5" /> Grid
-                  </button>
-                  <button
-                    onClick={() => setViewMode("list")}
-                    className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-colors ${
-                      viewMode === "list"
-                        ? "bg-white/10 text-white"
-                        : "text-gray-400 hover:text-white"
-                    }`}
-                  >
-                    <LayoutList className="h-3.5 w-3.5" /> List
-                  </button>
-                </div>
-
-                <select
-                  value={sortBy}
-                  onChange={(e) => {
-                    setSortBy(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="bg-card-dark border-white/5 text-gray-300 text-xs rounded-lg py-2 px-3 focus:ring-primary border"
-                >
-                  {SORT_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </>
-            )}
+              {SORT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
           </div>
         </div>
 
-        {/* AI Search bar */}
-        <AnimatePresence>
-          {aiMode && (
-            <motion.div
-              initial={{ opacity: 0, y: -12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.25 }}
-              className="mb-6"
-            >
-              <div className="relative flex gap-3">
-                <div className="relative flex-1">
-                  <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
-                  <input
-                    type="text"
-                    value={aiInput}
-                    onChange={(e) => setAiInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && runAiSearch()}
-                    placeholder='e.g. "quiet 2-bedroom near Maadi under 8000 EGP"'
-                    className="w-full bg-card-dark border border-primary/40 rounded-xl pl-11 pr-4 py-3.5 text-white placeholder-gray-500 focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm"
-                    autoFocus
-                  />
-                </div>
+        {/* Unified smart search bar */}
+        <div className="mb-6">
+          <div className="relative flex gap-3">
+            <div className="relative flex-1">
+              {/* Mode indicator icon */}
+              <AnimatePresence mode="wait">
+                {detectedMode === "ai" ? (
+                  <motion.span
+                    key="ai"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                  >
+                    <Sparkles className="h-4 w-4 text-primary" />
+                  </motion.span>
+                ) : (
+                  <motion.span
+                    key="regular"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                  >
+                    <Search className="h-4 w-4 text-gray-400" />
+                  </motion.span>
+                )}
+              </AnimatePresence>
+
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                placeholder="Search by location, name, budget… or describe your ideal home"
+                className={`w-full bg-card-dark rounded-xl pl-11 pr-10 py-3.5 text-white placeholder-gray-500 focus:outline-none transition-all text-sm border ${
+                  detectedMode === "ai"
+                    ? "border-primary/50 focus:ring-1 focus:ring-primary focus:border-primary"
+                    : "border-white/10 focus:ring-1 focus:ring-primary/50"
+                }`}
+              />
+
+              {inputValue && (
                 <button
-                  onClick={runAiSearch}
-                  disabled={aiLoading || !aiInput.trim()}
-                  className="px-5 py-3 bg-primary hover:bg-primary-hover text-white rounded-xl font-semibold text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary/25"
-                >
-                  {aiLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Search className="h-4 w-4" />
-                  )}
-                  Search
-                </button>
-                <button
-                  onClick={exitAiMode}
-                  className="p-3 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+                  onClick={clearSearch}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
-              </div>
-
-              {/* Parsed intent chips */}
-              {parsedFilters && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex flex-wrap gap-2 mt-3"
-                >
-                  <span className="text-xs text-gray-500 self-center">Understood:</span>
-                  {parsedFilters.location && (
-                    <span className="px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs text-primary font-medium">
-                      📍 {parsedFilters.location}
-                    </span>
-                  )}
-                  {parsedFilters.max_price && (
-                    <span className="px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs text-primary font-medium">
-                      💰 Max {parsedFilters.max_price.toLocaleString()} EGP
-                    </span>
-                  )}
-                  {parsedFilters.bedrooms && (
-                    <span className="px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs text-primary font-medium">
-                      🛏 {parsedFilters.bedrooms} bedrooms
-                    </span>
-                  )}
-                  {parsedFilters.property_type && (
-                    <span className="px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs text-primary font-medium">
-                      🏠 {parsedFilters.property_type}
-                    </span>
-                  )}
-                  {parsedFilters.category && (
-                    <span className="px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs text-primary font-medium">
-                      🏢 {parsedFilters.category}
-                    </span>
-                  )}
-                  {(parsedFilters.vibes ?? []).map((v) => (
-                    <span
-                      key={v}
-                      className="px-2.5 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-gray-300"
-                    >
-                      ✨ {v}
-                    </span>
-                  ))}
-                </motion.div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Loading states */}
-        {(isLoading && !aiMode) || (aiLoading && aiMode) ? (
-          <div className="flex items-center justify-center py-32">
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 className="h-10 w-10 animate-spin text-primary" />
-              {aiLoading && (
-                <p className="text-sm text-gray-400">AI is parsing your query…</p>
               )}
             </div>
-          </div>
-        ) : null}
 
-        {/* Error states */}
-        {isError && !aiMode && (
+            <button
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className="px-5 py-3 bg-primary hover:bg-primary-hover text-white rounded-xl font-semibold text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary/25 whitespace-nowrap"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : detectedMode === "ai" ? (
+                <Sparkles className="h-4 w-4" />
+              ) : (
+                <Search className="h-4 w-4" />
+              )}
+              {detectedMode === "ai" ? "AI Search" : "Search"}
+            </button>
+          </div>
+
+          {/* Mode hint */}
+          {inputValue && (
+            <p className="mt-2 text-xs text-gray-500 pl-1">
+              {detectedMode === "ai"
+                ? "✦ Smart search — understands natural language, budget, amenities & lifestyle"
+                : "⚡ Instant search — searching titles, locations, amenities & budget"}
+            </p>
+          )}
+
+          {/* Parsed intent chips */}
+          <AnimatePresence>
+            {parsedChips && (
+              parsedChips.text ||
+              parsedChips.maxPrice ||
+              parsedChips.minPrice ||
+              parsedChips.bedrooms ||
+              parsedChips.propertyType ||
+              parsedChips.category ||
+              parsedChips.amenities.length > 0
+            ) && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-wrap gap-2 mt-3"
+              >
+                <span className="text-xs text-gray-500 self-center">Understood:</span>
+                {parsedChips.text && (
+                  <span className="px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs text-primary font-medium">
+                    🔍 {parsedChips.text}
+                  </span>
+                )}
+                {parsedChips.maxPrice && (
+                  <span className="px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs text-primary font-medium">
+                    💰 Max {parsedChips.maxPrice.toLocaleString()} EGP
+                  </span>
+                )}
+                {parsedChips.minPrice && (
+                  <span className="px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs text-primary font-medium">
+                    💰 Min {parsedChips.minPrice.toLocaleString()} EGP
+                  </span>
+                )}
+                {parsedChips.bedrooms && (
+                  <span className="px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs text-primary font-medium">
+                    🛏 {parsedChips.bedrooms} bedrooms
+                  </span>
+                )}
+                {parsedChips.propertyType && (
+                  <span className="px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs text-primary font-medium">
+                    🏠 {parsedChips.propertyType}
+                  </span>
+                )}
+                {parsedChips.category && (
+                  <span className="px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs text-primary font-medium">
+                    🏢 {parsedChips.category}
+                  </span>
+                )}
+                {parsedChips.amenities.map((v) => (
+                  <span key={v} className="px-2.5 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-gray-300">
+                    ✨ {v}
+                  </span>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Loading */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-32">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          </div>
+        )}
+
+        {/* Error */}
+        {isError && (
           <p className="text-center text-red-400 py-20">
             Failed to load listings. Make sure the backend is running.
           </p>
         )}
-        {aiError && (
-          <p className="text-center text-red-400 py-20">{aiError}</p>
-        )}
 
-        {/* Regular listings */}
-        {!isLoading && !isError && !aiMode && (
+        {/* Results */}
+        {!isLoading && !isError && (
           <>
             {listings.length === 0 ? (
               <p className="text-center text-gray-500 py-20">No listings found.</p>
             ) : (
               <ListingGrid items={listings} viewMode={viewMode} />
             )}
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
+            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
           </>
-        )}
-
-        {/* AI search results */}
-        {aiMode && !aiLoading && aiResults && (
-          <>
-            {aiListings.length === 0 ? (
-              <p className="text-center text-gray-500 py-20">
-                No listings matched your query. Try rephrasing.
-              </p>
-            ) : (
-              <ListingGrid items={aiListings} viewMode={viewMode} />
-            )}
-          </>
-        )}
-
-        {/* AI mode idle state */}
-        {aiMode && !aiLoading && !aiResults && !aiError && (
-          <div className="flex flex-col items-center justify-center py-32 gap-4 text-center">
-            <div className="p-4 bg-primary/10 rounded-2xl border border-primary/20">
-              <Sparkles className="h-8 w-8 text-primary" />
-            </div>
-            <p className="text-white font-semibold">Describe your ideal home</p>
-            <p className="text-sm text-gray-400 max-w-sm">
-              Type in plain language — location, budget, size, vibe. The AI will find the best matches for you.
-            </p>
-          </div>
         )}
       </section>
     </main>
