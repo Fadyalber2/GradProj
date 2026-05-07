@@ -8,14 +8,16 @@ import { useAuthStore } from "@/stores/authStore";
 import { ChatMessage, TypingIndicator, type ChatMessageData } from "./ChatMessage";
 import type { Citation } from "@/types";
 
-// ── Storage key ─────────────────────────────────────────────────────────────
-const STORAGE_KEY = "axiom_chat_session";
+// ── Storage key — scoped per user so switching accounts clears the chat ──────
+function getStorageKey(userId: string | undefined) {
+  return userId ? `axiom_chat_${userId}` : "axiom_chat_guest";
+}
 
 // ── Session persistence helpers ───────────────────────────────────────────────
-function loadSession(): { messages: ChatMessageData[]; sessionId: string | null } {
+function loadSession(storageKey: string): { messages: ChatMessageData[]; sessionId: string | null } {
   if (typeof window === "undefined") return { messages: [], sessionId: null };
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey);
     if (!raw) return { messages: [], sessionId: null };
     const parsed = JSON.parse(raw);
     const messages: ChatMessageData[] = (parsed.messages ?? []).map(
@@ -30,9 +32,9 @@ function loadSession(): { messages: ChatMessageData[]; sessionId: string | null 
   }
 }
 
-function saveSession(messages: ChatMessageData[], sessionId: string | null) {
+function saveSession(storageKey: string, messages: ChatMessageData[], sessionId: string | null) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ messages, sessionId }));
+  localStorage.setItem(storageKey, JSON.stringify({ messages, sessionId }));
 }
 
 function makeId() {
@@ -94,17 +96,32 @@ export function ChatDrawer({ isOpen, onClose }: ChatDrawerProps) {
   const isLoadedRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Load from localStorage on first open
+  const userId = useAuthStore((s) => s.session?.user?.id);
+  const storageKey = getStorageKey(userId);
+  const prevUserIdRef = useRef<string | undefined>(userId);
+
+  // Reset chat when user switches accounts
+  useEffect(() => {
+    if (prevUserIdRef.current !== userId) {
+      prevUserIdRef.current = userId;
+      isLoadedRef.current = false;
+      abortControllerRef.current?.abort();
+      setAssistantStatus("idle");
+      setMessages([]);
+    }
+  }, [userId]);
+
+  // Load from localStorage on first open (or after user switch)
   useEffect(() => {
     if (isOpen && !isLoadedRef.current) {
       isLoadedRef.current = true;
-      const { messages: saved } = loadSession();
+      const { messages: saved } = loadSession(storageKey);
       setMessages(saved.length > 0 ? saved : [WELCOME_MESSAGE]);
     }
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 300);
     }
-  }, [isOpen]);
+  }, [isOpen, storageKey]);
 
   // Abort any inflight request when drawer unmounts
   useEffect(() => {
@@ -114,9 +131,9 @@ export function ChatDrawer({ isOpen, onClose }: ChatDrawerProps) {
   // Persist to localStorage whenever messages change
   useEffect(() => {
     if (isLoadedRef.current) {
-      saveSession(messages, null);
+      saveSession(storageKey, messages, null);
     }
-  }, [messages]);
+  }, [messages, storageKey]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -127,8 +144,8 @@ export function ChatDrawer({ isOpen, onClose }: ChatDrawerProps) {
     abortControllerRef.current?.abort();
     setAssistantStatus("idle");
     setMessages([WELCOME_MESSAGE]);
-    localStorage.removeItem(STORAGE_KEY);
-  }, []);
+    localStorage.removeItem(storageKey);
+  }, [storageKey]);
 
   const sendMessage = useCallback(async (override?: string) => {
     const text = (override ?? input).trim();
