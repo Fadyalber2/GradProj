@@ -100,7 +100,15 @@
       "PowerShell([System.IO.File]::WriteAllText\\(\"E:\\\\GradProject\\\\AXIOM-V2\\\\frontend\\\\package.json\", [System.IO.File]::ReadAllText\\(\"E:\\\\GradProject\\\\AXIOM-V2\\\\frontend\\\\package.json\", [System.Text.Encoding]::UTF8\\).TrimStart\\([char]0xFEFF\\), \\(New-Object System.Text.UTF8Encoding $false\\)\\))",
       "PowerShell($bytes = [System.IO.File]::ReadAllBytes\\(\"E:\\\\GradProject\\\\AXIOM-V2\\\\frontend\\\\package.json\"\\); \"First 3 bytes: $\\($bytes[0]\\) $\\($bytes[1]\\) $\\($bytes[2]\\)\")",
       "Bash(git rm *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(Get-ChildItem -Path \"e:\\\\GradProject\\\\AXIOM-V2\\\\frontend\\\\src\\\\app\" -Recurse -Filter \"page.tsx\")",
+      "Bash(Select-Object FullName)",
+      "PowerShell(Get-ChildItem -Path \"e:\\\\GradProject\\\\AXIOM-V2\\\\frontend\\\\src\\\\app\" -Recurse -Filter \"page.tsx\" | ForEach-Object { $_.FullName.Replace\\(\"e:\\\\GradProject\\\\AXIOM-V2\\\\frontend\\\\src\\\\app\\\\\", \"\"\\) } | Sort-Object)",
+      "Bash(Get-ChildItem -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty Name)",
+      "Bash(Sort-Object -Unique)",
+      "PowerShell(Get-ChildItem -Path \"e:\\\\GradProject\\\\AXIOM-V2\\\\frontend\\\\src\\\\app\" -Filter \"page.tsx\" -Recurse | Select-Object -ExpandProperty FullName | ForEach-Object { $_.Replace\\(\"e:\\\\GradProject\\\\AXIOM-V2\\\\frontend\\\\src\\\\app\\\\\", \"\"\\).Replace\\(\"\\\\page.tsx\", \"\"\\) })",
+      "Bash(bash \"C:/Users/Fady/.claude/plugins/cache/claude-plugins-official/superpowers/5.1.0/skills/brainstorming/scripts/start-server.sh\" --project-dir \"e:/GradProject/AXIOM-V2\")"
     ],
     "additionalDirectories": [
       "e:\\GradProject\\AXIOM-V2\\frontend"
