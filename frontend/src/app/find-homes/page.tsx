@@ -132,6 +132,7 @@ export default function FindHomesPage() {
     queryKey: ["listings", { sort_by: sortBy, page: currentPage, search: searchText }],
     queryFn: () =>
       getListings({ sort_by: sortBy, page: currentPage, per_page: 12, search: searchText || undefined }),
+    staleTime: 0,
   });
 
   const listings = (data?.listings ?? []).map(mapToListing);

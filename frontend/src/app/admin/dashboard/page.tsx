@@ -172,7 +172,7 @@ const SECTIONS: Record<string, SectionConfig> = {
     editFields: [
       { key: "title", label: "Title" },
       { key: "price", label: "Price (EGP)", type: "number" },
-      { key: "location", label: "Location" },
+      { key: "full_address", label: "Address" },
       { key: "bedrooms", label: "Bedrooms", type: "number" },
       { key: "bathrooms", label: "Bathrooms", type: "number" },
       { key: "size_sqm", label: "Area (m²)", type: "number" },
@@ -184,7 +184,7 @@ const SECTIONS: Record<string, SectionConfig> = {
     createFields: [
       { key: "title", label: "Title" },
       { key: "price", label: "Price (EGP)", type: "number" },
-      { key: "location", label: "Location" },
+      { key: "full_address", label: "Address" },
       { key: "bedrooms", label: "Bedrooms", type: "number" },
       { key: "bathrooms", label: "Bathrooms", type: "number" },
       { key: "size_sqm", label: "Area (m²)", type: "number" },
@@ -684,11 +684,15 @@ function SectionView({ sectionId }: { sectionId: string }) {
     setModalLoading(true);
     setError("");
     try {
+      const payload = { ...formData };
+      if (config.apiSection === "listings" && payload.full_address) {
+        payload.location = payload.full_address;
+      }
       if (editRow) {
-        await updateItem(config.apiSection, String(editRow.id), formData);
+        await updateItem(config.apiSection, String(editRow.id), payload);
         setEditRow(null);
       } else {
-        await createItem(config.apiSection, formData);
+        await createItem(config.apiSection, payload);
         setCreating(false);
       }
       load();

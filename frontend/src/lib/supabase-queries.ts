@@ -521,3 +521,13 @@ export async function getDashboardListings(userId: string) {
 
   return { listings, active, pending, error };
 }
+
+export async function getLikedListings(ids: string[]) {
+  if (!ids.length) return [];
+  const { data } = await supabase
+    .from("listings")
+    .select("id, title, location, price, price_period, category, images, bedrooms, bathrooms, size_sqm, created_at")
+    .in("id", ids)
+    .is("deleted_at", null);
+  return data ?? [];
+}

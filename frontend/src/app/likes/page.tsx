@@ -2,69 +2,76 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, MapPin, ArrowUpRight, Loader2 } from "lucide-react";
+import { Heart, MapPin, ArrowUpRight, Loader2, ChevronLeft } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useLikesStore } from "@/stores/likesStore";
 import { getLikedListings } from "@/lib/supabase-queries";
 import { formatEGP } from "@/lib/utils";
 
-const DASHBOARD_LIMIT = 2;
-
-export default function LikedProperties() {
+export default function LikesPage() {
   const { likedIds, toggleLike } = useLikesStore();
 
-  // Latest 2 only for dashboard — likedIds order is append-order, last = newest
-  const previewIds = likedIds.slice(-DASHBOARD_LIMIT).reverse();
+  // Newest first
+  const orderedIds = [...likedIds].reverse();
 
   const { data: raw = [], isLoading } = useQuery({
-    queryKey: ["liked-listings-preview", previewIds],
-    queryFn: () => getLikedListings(previewIds),
-    enabled: previewIds.length > 0,
+    queryKey: ["liked-listings-all", orderedIds],
+    queryFn: () => getLikedListings(orderedIds),
+    enabled: orderedIds.length > 0,
     staleTime: 0,
   });
 
   // Restore newest-first order (Supabase .in() ignores array order)
-  const listings = previewIds
+  const listings = orderedIds
     .map((id) => raw.find((l) => String(l.id) === id))
     .filter(Boolean) as typeof raw;
 
-  const hasMore = likedIds.length > DASHBOARD_LIMIT;
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-          Liked Properties
-          <span className="bg-white/10 text-gray-400 text-sm px-2.5 py-0.5 rounded-full font-medium">
-            {likedIds.length}
-          </span>
-        </h2>
-        {hasMore && (
-          <Link
-            href="/likes"
-            className="text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
-          >
-            View All Likes <ArrowUpRight className="h-4 w-4" />
-          </Link>
-        )}
+    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-8">
+        <Link
+          href="/dashboard"
+          className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </Link>
+        <div>
+          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+            Liked Properties
+            <span className="bg-white/10 text-gray-400 text-sm px-2.5 py-0.5 rounded-full font-medium">
+              {likedIds.length}
+            </span>
+          </h1>
+          <p className="text-gray-500 text-sm mt-0.5">All your saved listings</p>
+        </div>
       </div>
 
+      {/* Loading */}
       {isLoading && (
-        <div className="flex items-center justify-center py-16">
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <div className="flex items-center justify-center py-24">
+          <Loader2 className="h-7 w-7 animate-spin text-primary" />
         </div>
       )}
 
+      {/* Empty */}
       {!isLoading && likedIds.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <Heart className="h-10 w-10 text-gray-600 mb-3" />
-          <p className="text-gray-400 font-medium">No liked properties yet</p>
-          <p className="text-gray-600 text-sm mt-1">
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <Heart className="h-12 w-12 text-gray-600 mb-4" />
+          <p className="text-gray-400 font-semibold text-lg">No liked properties yet</p>
+          <p className="text-gray-600 text-sm mt-1 mb-6">
             Hit the heart on any listing to save it here.
           </p>
+          <Link
+            href="/find-homes"
+            className="px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors"
+          >
+            Browse Listings
+          </Link>
         </div>
       )}
 
+      {/* Grid */}
       {!isLoading && listings.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {listings.map((l) => {
@@ -79,7 +86,7 @@ export default function LikedProperties() {
                 key={l.id}
                 className="bg-card-dark rounded-2xl overflow-hidden border border-white/5 group hover:border-primary/30 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-black/50"
               >
-                <div className="relative h-56 overflow-hidden">
+                <div className="relative h-64 overflow-hidden">
                   <Image
                     src={image}
                     alt={l.title}

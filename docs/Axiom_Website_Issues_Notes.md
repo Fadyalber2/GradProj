@@ -162,5 +162,3 @@ _Total issues tracked: 19_
 
 
 
-Generate description export is Bad 
-the location still not working well use google maps embeded map share link

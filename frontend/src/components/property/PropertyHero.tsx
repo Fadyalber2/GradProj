@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Grid2x2, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { PropertyDetail } from "@/types";
 import ImageLightbox from "@/components/ui/ImageLightbox";
+import LikeButton from "@/components/ui/LikeButton";
 
 interface PropertyHeroProps {
   property: PropertyDetail;
@@ -115,14 +116,17 @@ export default function PropertyHero({ property }: PropertyHeroProps) {
         </div>
 
         {/* Title row below gallery */}
-        <div className="mt-5 flex flex-col gap-1.5">
-          <h1 className="text-3xl lg:text-4xl font-bold text-white tracking-tight">
-            {property.title}
-          </h1>
-          <div className="flex items-center text-gray-400 gap-1.5">
-            <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
-            <span className="text-base">{property.fullAddress}</span>
+        <div className="mt-5 flex items-start justify-between gap-4">
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <h1 className="text-3xl lg:text-4xl font-bold text-white tracking-tight">
+              {property.title}
+            </h1>
+            <div className="flex items-center text-gray-400 gap-1.5">
+              <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+              <span className="text-base">{property.fullAddress}</span>
+            </div>
           </div>
+          <LikeButton id={String(property.id)} size="lg" className="flex-shrink-0 mt-1" />
         </div>
       </div>
 
@@ -165,6 +169,7 @@ export default function PropertyHero({ property }: PropertyHeroProps) {
             </span>
           )}
         </div>
+        <LikeButton id={String(property.id)} className="absolute top-3 right-3 z-10" />
 
         {/* Mobile title overlay */}
         <div className="absolute bottom-0 left-0 w-full px-4 pb-4 z-10">

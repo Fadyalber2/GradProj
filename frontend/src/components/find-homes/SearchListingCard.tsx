@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Zap, BadgeCheck, AlertTriangle, Heart, Bed, Bath, Ruler } from "lucide-react";
+import { MapPin, Zap, BadgeCheck, AlertTriangle, Bed, Bath, Ruler } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Listing } from "@/types";
 import { formatEGP } from "@/lib/utils";
+import LikeButton from "@/components/ui/LikeButton";
 
 interface SearchListingCardProps {
   listing: Listing;
@@ -78,17 +79,7 @@ export default function SearchListingCard({ listing }: SearchListingCardProps) {
           )}
 
           {/* Heart */}
-          <button
-            type="button"
-            onClick={(e) => e.preventDefault()}
-            aria-label={listing.liked ? "Remove from favourites" : "Add to favourites"}
-            className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-black/50 hover:bg-white text-white hover:text-red-500 backdrop-blur-sm flex items-center justify-center transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          >
-            <Heart
-              className="h-3.5 w-3.5"
-              fill={listing.liked ? "currentColor" : "none"}
-            />
-          </button>
+          <LikeButton id={String(listing.id)} className="absolute bottom-3 right-3" />
         </div>
 
         {/* Content */}

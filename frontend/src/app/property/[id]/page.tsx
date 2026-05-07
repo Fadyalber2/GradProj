@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 import PropertyHero from "@/components/property/PropertyHero";
 import PropertyInfo from "@/components/property/PropertyInfo";
 import PropertySidebar from "@/components/property/PropertySidebar";

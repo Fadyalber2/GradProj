@@ -18,7 +18,6 @@ import type {
   UserProfile,
   AnalyticsStat,
   DashboardListing,
-  LikedProperty,
   DashboardViewingBrief,
 } from "@/types";
 
@@ -116,7 +115,6 @@ export default function DashboardPage() {
   ];
 
   const listings = (data?.listings ?? []).map(mapListing);
-  const likedProperties: LikedProperty[] = [];
   const viewings: DashboardViewingBrief[] = [];
 
   return (
@@ -129,7 +127,7 @@ export default function DashboardPage() {
       <DashboardStats stats={analyticsStats} />
 
       <div className="mb-8">
-        <LikedProperties properties={likedProperties} />
+        <LikedProperties />
       </div>
 
       <div className="mb-8">
