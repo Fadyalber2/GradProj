@@ -48,8 +48,6 @@ function mapProperty(data: ListingDetailWithSimilar): PropertyDetail {
       price: s.price,
       image: s.images[0] ?? "",
     })),
-    latitude: data.latitude,
-    longitude: data.longitude,
     category: data.category,
     totalSpots: data.total_spots ?? undefined,
     filledSpots: data.filled_spots ?? undefined,

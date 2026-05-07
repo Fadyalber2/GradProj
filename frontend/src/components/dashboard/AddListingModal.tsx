@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
-import dynamic from "next/dynamic";
 import {
   X,
   CloudUpload,
@@ -20,17 +19,6 @@ import {
   FURNISHING_OPTIONS,
 } from "@/lib/constants";
 import { api } from "@/lib/api";
-import {
-  useNominatim,
-  parseNominatimResult,
-  NominatimResult,
-} from "@/hooks/useNominatim";
-
-// Dynamically import the map to avoid SSR issues with Leaflet
-const AddListingMiniMap = dynamic(
-  () => import("./AddListingMiniMap"),
-  { ssr: false }
-);
 
 type DescLang = "english" | "arabic" | "both";
 
@@ -39,10 +27,6 @@ interface FormState {
   category: string;
   property_type: string;
   full_address: string;
-  city: string;
-  latitude: number | null;
-  longitude: number | null;
-  location: string;
   price: string;
   size_sqm: string;
   bedrooms: number;
@@ -65,10 +49,6 @@ const INITIAL_FORM: FormState = {
   category: "for_rent",
   property_type: "Apartment",
   full_address: "",
-  city: "",
-  latitude: null,
-  longitude: null,
-  location: "",
   price: "",
   size_sqm: "",
   bedrooms: 3,
@@ -93,8 +73,6 @@ export default function AddListingModal({
 }: AddListingModalProps) {
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [addressSelected, setAddressSelected] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
 
   // Custom amenity state
   const [customAmenity, setCustomAmenity] = useState("");
@@ -113,44 +91,8 @@ export default function AddListingModal({
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  // Nominatim
-  const { query, setQuery, suggestions, setSuggestions, loading: nominatimLoading } =
-    useNominatim();
-
-  // Auto-select the top suggestion when results arrive and user hasn't manually selected yet
-  useEffect(() => {
-    if (suggestions.length > 0 && !addressSelected) {
-      handleSelectSuggestion(suggestions[0]);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [suggestions]);
-
   function setField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
-  }
-
-  function handleAddressInput(value: string) {
-    setQuery(value);
-    setField("full_address", value);
-    setAddressSelected(false);
-    setShowSuggestions(true);
-  }
-
-  function handleSelectSuggestion(result: NominatimResult) {
-    const loc = parseNominatimResult(result);
-    setForm((prev) => ({
-      ...prev,
-      full_address: loc.full_address,
-      city: loc.city,
-      latitude: loc.latitude,
-      longitude: loc.longitude,
-      location: loc.location,
-    }));
-    setQuery(loc.full_address);
-    setAddressSelected(true);
-    setShowSuggestions(false);
-    setSuggestions([]);
-    setErrors((prev) => ({ ...prev, full_address: undefined }));
   }
 
   function toggleAmenity(amenity: string) {
@@ -230,24 +172,10 @@ export default function AddListingModal({
     return urls;
   }
 
-  function extractCityFromAddress(address: string): string {
-    const knownCities = [
-      "Alexandria", "Cairo", "Giza", "Luxor", "Aswan", "Hurghada",
-      "Sharm El Sheikh", "Sharm el-Sheikh", "Port Said", "Suez",
-      "Mansoura", "Tanta", "Zagazig", "Ismailia", "Damietta",
-      "Asyut", "Sohag", "Qena", "Minya", "Beni Suef", "Fayoum",
-      "New Cairo", "6th of October", "Maadi", "Heliopolis", "Nasr City",
-    ];
-    for (const city of knownCities) {
-      if (address.toLowerCase().includes(city.toLowerCase())) return city;
-    }
-    return "Cairo";
-  }
-
   async function generateDescription() {
     setGeneratingDesc(true);
     try {
-      const city = form.city || extractCityFromAddress(form.full_address);
+      const city = form.full_address || "Cairo";
       const extraParts: string[] = [];
       if (form.furnishing) extraParts.push(`Furnishing: ${form.furnishing}`);
       if (form.floor_number) extraParts.push(`Floor: ${form.floor_number}`);
@@ -307,10 +235,8 @@ export default function AddListingModal({
       await api.post("/api/listings", {
         title: form.title.trim(),
         full_address: form.full_address,
-        location: form.location || form.city || form.full_address,
-        city: form.city,
-        latitude: form.latitude,
-        longitude: form.longitude,
+        location: form.full_address,
+        city: form.full_address,
         price: Number(form.price),
         size_sqm: form.size_sqm ? Number(form.size_sqm) : null,
         category: form.category,
@@ -326,10 +252,8 @@ export default function AddListingModal({
       onSuccess?.();
       onClose();
       setForm(INITIAL_FORM);
-      setAddressSelected(false);
       setPhotoPreviews([]);
       setPhotoFiles([]);
-      setQuery("");
     } catch {
       setSubmitError("Failed to save listing. Make sure the backend is running.");
     } finally {
@@ -447,59 +371,23 @@ export default function AddListingModal({
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
                   <input
                     type="text"
-                    value={query}
-                    onChange={(e) => handleAddressInput(e.target.value)}
-                    onFocus={() =>
-                      suggestions.length > 0 && setShowSuggestions(true)
-                    }
-                    onBlur={() =>
-                      setTimeout(() => setShowSuggestions(false), 150)
-                    }
-                    placeholder="Search for an address in Egypt…"
-                    className={`w-full bg-input-dark border rounded-xl pl-10 pr-10 py-3 text-white placeholder-gray-500 focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm ${
+                    value={form.full_address}
+                    onChange={(e) => {
+                      setField("full_address", e.target.value);
+                      setErrors((p) => ({ ...p, full_address: undefined }));
+                    }}
+                    placeholder="Enter property address…"
+                    className={`w-full bg-input-dark border rounded-xl pl-10 pr-4 py-3 text-white placeholder-gray-500 focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm ${
                       errors.full_address ? "border-red-500" : "border-white/10"
                     }`}
                   />
-                  {nominatimLoading && (
-                    <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 animate-spin" />
-                  )}
                 </div>
                 {errors.full_address && (
                   <p className="text-red-400 text-xs flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" /> {errors.full_address}
                   </p>
                 )}
-
-                {/* Suggestions dropdown */}
-                {showSuggestions && suggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-[#1e1e1e] border border-white/10 rounded-xl overflow-hidden shadow-xl">
-                    {suggestions.map((s, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        onMouseDown={() => handleSelectSuggestion(s)}
-                        className="w-full text-left px-4 py-3 text-sm text-gray-200 hover:bg-white/5 border-b border-white/5 last:border-0 transition-colors"
-                      >
-                        <span className="flex items-start gap-2">
-                          <MapPin className="h-3.5 w-3.5 text-gray-500 mt-0.5 shrink-0" />
-                          <span className="line-clamp-2">{s.display_name}</span>
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
-
-              {/* Mini map preview */}
-              {form.latitude !== null && form.longitude !== null && (
-                <AddListingMiniMap
-                  lat={form.latitude}
-                  lng={form.longitude}
-                  onMove={(lat, lng) =>
-                    setForm((prev) => ({ ...prev, latitude: lat, longitude: lng }))
-                  }
-                />
-              )}
             </section>
 
             <div className="border-t border-white/5" />

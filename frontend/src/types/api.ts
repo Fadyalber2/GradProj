@@ -90,8 +90,6 @@ export interface ListingDetail extends ListingBrief {
   agency_id: string | null;
   description: string | null;
   full_address: string | null;
-  latitude: number | null;
-  longitude: number | null;
   amenities: string[];
   updated_at: string | null;
   // Location

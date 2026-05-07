@@ -386,8 +386,6 @@ export interface PropertyDetail {
   description: string[];
   amenities: Amenity[];
   similarProperties: SimilarProperty[];
-  latitude?: number | null;
-  longitude?: number | null;
   // Location
   neighborhood?: string | null;
   compoundName?: string | null;

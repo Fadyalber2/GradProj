@@ -1,25 +1,14 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { MapPin } from "lucide-react";
-
-// Leaflet uses window — must be dynamically imported (no SSR)
-const LeafletMap = dynamic(() => import("./LeafletMap"), { ssr: false });
+import GoogleMapEmbed from "./GoogleMapEmbed";
 
 interface PropertyMapProps {
   title: string;
   address: string;
-  latitude?: number | null;
-  longitude?: number | null;
 }
 
-// Cairo, Egypt fallback coordinates
-const CAIRO: [number, number] = [30.0444, 31.2357];
-
-export default function PropertyMap({ title, address, latitude, longitude }: PropertyMapProps) {
-  const coords: [number, number] =
-    latitude != null && longitude != null ? [latitude, longitude] : CAIRO;
-
+export default function PropertyMap({ title, address }: PropertyMapProps) {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold text-white">Location</h2>
@@ -30,7 +19,7 @@ export default function PropertyMap({ title, address, latitude, longitude }: Pro
       </div>
 
       <div className="rounded-2xl overflow-hidden border border-white/10 h-72">
-        <LeafletMap coords={coords} title={title} />
+        <GoogleMapEmbed address={address} title={title} />
       </div>
     </div>
   );
