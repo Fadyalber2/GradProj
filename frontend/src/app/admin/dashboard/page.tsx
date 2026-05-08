@@ -1364,6 +1364,7 @@ export default function AdminDashboardPage() {
   const router = useRouter();
   const [activeSection, setActiveSection] = useState("dashboard");
   const [mounted, setMounted] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -1398,7 +1399,7 @@ export default function AdminDashboardPage() {
         {/* Top bar */}
         <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-slate-200 px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 shadow-sm">
           {/* Mobile hamburger — visible below lg */}
-          <Sheet>
+          <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
             <SheetTrigger asChild>
               <button className="lg:hidden p-2 rounded-md hover:bg-slate-100" aria-label="Open navigation">
                 <Menu className="w-5 h-5 text-slate-700" />
@@ -1406,7 +1407,13 @@ export default function AdminDashboardPage() {
             </SheetTrigger>
             <SheetContent side="left" className="w-64 p-0 bg-slate-900 border-r-0">
               <SheetTitle className="sr-only">Admin navigation</SheetTitle>
-              <AdminSidebar active={activeSection} onNavigate={setActiveSection} />
+              <AdminSidebar
+                active={activeSection}
+                onNavigate={(section) => {
+                  setActiveSection(section);
+                  setMobileNavOpen(false);
+                }}
+              />
             </SheetContent>
           </Sheet>
 
