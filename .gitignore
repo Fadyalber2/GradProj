@@ -1,4 +1,5 @@
 # Local AI assistant/tooling state
+CLAUDE.md
 .agents/skills/
 .claude/
 .code-review-graph/
