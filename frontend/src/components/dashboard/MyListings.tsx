@@ -58,7 +58,7 @@ export default function MyListings({ listings, onAddNew, onEdit }: MyListingsPro
   return (
     <>
       <section className="bg-card-dark rounded-3xl border border-white/5 overflow-hidden">
-        <div className="p-6 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="p-4 sm:p-6 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl font-bold text-white mb-1">My Listings</h2>
             <p className="text-gray-400 text-sm">
@@ -131,7 +131,7 @@ export default function MyListings({ listings, onAddNew, onEdit }: MyListingsPro
                     </td>
                     <td className="p-5 text-center text-gray-300">{listing.views}</td>
                     <td className="p-5 text-center">
-                      <div className="flex items-center justify-center gap-2">
+                      <div className="flex flex-wrap items-center justify-center gap-2">
                         {onEdit && (
                           <button
                             onClick={() => onEdit(listing.id)}

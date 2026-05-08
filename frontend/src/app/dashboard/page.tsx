@@ -118,7 +118,7 @@ export default function DashboardPage() {
   const viewings: DashboardViewingBrief[] = [];
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-white">Dashboard</h1>
       </div>

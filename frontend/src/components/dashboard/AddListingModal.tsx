@@ -272,7 +272,7 @@ export default function AddListingModal({
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
 
       <div className="flex min-h-screen items-center justify-center p-4 sm:p-0">
-        <div className="relative transform overflow-hidden rounded-3xl bg-card-dark text-left shadow-2xl sm:my-8 sm:w-full sm:max-w-3xl border border-white/10">
+        <div className="relative transform overflow-hidden rounded-3xl bg-card-dark text-left shadow-2xl sm:my-8 w-[95vw] max-w-3xl max-h-[90vh] overflow-y-auto border border-white/10">
 
           {/* Header */}
           <div className="bg-black/20 px-4 py-5 sm:px-8 border-b border-white/5 flex justify-between items-center">
@@ -658,7 +658,7 @@ export default function AddListingModal({
 
               {/* Thumbnail previews */}
               {photoPreviews.length > 0 && (
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {photoPreviews.map((src, i) => (
                     <div
                       key={i}

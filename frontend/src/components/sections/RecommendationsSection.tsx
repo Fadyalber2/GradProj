@@ -90,7 +90,7 @@ function PreferenceModal({
 
       <div className="space-y-4">
         {/* Budget + Location */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="text-xs text-gray-400 font-medium">Max Budget (EGP/mo)</label>
             <div className="relative">
@@ -120,7 +120,7 @@ function PreferenceModal({
         </div>
 
         {/* Bedrooms + Type */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="text-xs text-gray-400 font-medium">Bedrooms</label>
             <div className="relative">

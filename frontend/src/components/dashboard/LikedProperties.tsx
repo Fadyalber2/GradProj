@@ -66,7 +66,7 @@ export default function LikedProperties() {
       )}
 
       {!isLoading && listings.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {listings.map((l) => {
             const image = l.images?.[0] ?? "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800";
             const specs: string[] = [];
