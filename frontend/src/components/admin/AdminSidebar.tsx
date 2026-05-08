@@ -87,7 +87,7 @@ export default function AdminSidebar({ active, onNavigate }: Props) {
   }
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-slate-900 flex flex-col z-40">
+    <aside className="h-full w-64 bg-slate-900 flex flex-col">
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-800">
         <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-900/40">

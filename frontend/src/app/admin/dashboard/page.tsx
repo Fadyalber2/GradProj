@@ -17,6 +17,8 @@ import {
   BedDouble, Upload, Loader2, PhoneCall,
 } from "lucide-react";
 import type { ElementType } from "react";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
 
 const STORAGE_BUCKET = "agency-images";
 
@@ -1386,12 +1388,28 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      <AdminSidebar active={activeSection} onNavigate={setActiveSection} />
+      {/* Desktop sidebar — sticky, visible lg+ */}
+      <aside className="hidden lg:block sticky top-0 h-screen w-64 shrink-0 z-40">
+        <AdminSidebar active={activeSection} onNavigate={setActiveSection} />
+      </aside>
 
       {/* Main content */}
-      <main className="flex-1 ml-64 min-h-screen">
+      <main className="flex-1 min-h-screen min-w-0">
         {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-slate-200 px-6 py-3.5 flex items-center justify-between shadow-sm">
+        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-slate-200 px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 shadow-sm">
+          {/* Mobile hamburger — visible below lg */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <button className="lg:hidden p-2 rounded-md hover:bg-slate-100" aria-label="Open navigation">
+                <Menu className="w-5 h-5 text-slate-700" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-64 p-0 bg-slate-900 border-r-0">
+              <SheetTitle className="sr-only">Admin navigation</SheetTitle>
+              <AdminSidebar active={activeSection} onNavigate={setActiveSection} />
+            </SheetContent>
+          </Sheet>
+
           <div>
             {/* Breadcrumb */}
             <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-0.5">
