@@ -42,7 +42,7 @@ export default function ResidenceCard({ residence, index }: ResidenceCardProps) 
         </div>
 
         {/* Specs grid */}
-        <div className="grid grid-cols-3 gap-4 py-4 border-t border-b border-white/5 mb-4">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 py-4 border-t border-b border-white/5 mb-4">
           <div className="text-center">
             <span className="block text-gray-500 text-[10px] uppercase">
               Beds

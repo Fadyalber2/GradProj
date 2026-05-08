@@ -44,7 +44,7 @@ export default function AgencySidebar({ agency }: AgencySidebarProps) {
         <p className="text-gray-400 text-sm leading-relaxed mb-5">{agency.description}</p>
 
         {/* Stats: 2-col row + 1 wide row */}
-        <div className="grid grid-cols-2 gap-3 mb-3">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-3">
           <div className="bg-white/5 rounded-xl p-4 border border-white/5">
             <div className="text-2xl font-bold text-white mb-0.5">{displayScore}</div>
             <div className="text-[10px] uppercase tracking-wider text-gray-400">Trust Score</div>

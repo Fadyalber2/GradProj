@@ -18,9 +18,9 @@ export default function HowItWorksSection() {
           usual headaches.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 relative">
           {/* Connecting line */}
-          <div className="hidden md:block absolute top-10 left-[16%] right-[16%] h-px bg-gradient-to-r from-transparent via-white/20 to-transparent z-0" />
+          <div className="hidden lg:block absolute top-10 left-[16%] right-[16%] h-px bg-gradient-to-r from-transparent via-white/20 to-transparent z-0" />
 
           {HOW_IT_WORKS_STEPS.map((step, i) => (
             <motion.div

@@ -14,7 +14,7 @@ export default function FeaturesSection() {
   return (
     <section className="py-16 bg-background-dark border-b border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 text-center">
           {FEATURES.map((feature, i) => {
             const Icon = iconMap[feature.icon] ?? Sparkles;
             return (
