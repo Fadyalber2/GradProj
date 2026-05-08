@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { LayoutGrid, LayoutList, Loader2, Sparkles, Search, X, SlidersHorizontal } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -160,7 +160,7 @@ export default function FindHomesPage() {
     setCurrentPage(1);
   }
 
-  const filterProps = {
+  const filterProps = useMemo(() => ({
     propertyType: filterPropertyType,
     setPropertyType: setFilterPropertyType,
     minPrice: filterMinPrice,
@@ -178,7 +178,7 @@ export default function FindHomesPage() {
       setFilterSelectedVibes(new Set());
       setFilterSelectedAmenities(new Set());
     },
-  };
+  }), [filterPropertyType, filterMinPrice, filterMaxPrice, filterSelectedVibes, filterSelectedAmenities]);
 
   return (
     <main className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-64px)] lg:overflow-hidden w-full">
@@ -203,7 +203,7 @@ export default function FindHomesPage() {
             {/* Mobile filter trigger — hidden on desktop */}
             <Sheet>
               <SheetTrigger asChild>
-                <button className="lg:hidden inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-card-dark border border-white/10 text-white text-sm font-medium">
+                <button aria-label="Open filters" className="lg:hidden inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-card-dark border border-white/10 text-white text-sm font-medium">
                   <SlidersHorizontal className="h-4 w-4" /> Filters
                 </button>
               </SheetTrigger>

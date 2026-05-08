@@ -94,6 +94,7 @@ export default function FilterSidebar({
         </h2>
         <button
           onClick={onReset}
+          aria-label="Reset all filters"
           className="text-primary text-xs font-semibold hover:underline"
         >
           Reset All
