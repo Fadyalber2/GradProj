@@ -11,7 +11,7 @@
 | #   | Issue                                            | Why                                                        |
 | --- | ------------------------------------------------ | ---------------------------------------------------------- |
 | 8   | Footer links — all broken + blank email          | Every footer link is dead — affects entire site navigation |
-| 2   | Responsive design not implemented (400px–1200px) | Site is unusable on mobile/tablet — blocks most users      |
+| 2   | 🟢Responsive design not implemented (400px–1200px) | Site is unusable on mobile/tablet — blocks most users      |
 | 6   | Blog "Read Article" → 404                        | Core content pages are inaccessible                        |
 | 4   | 🟢Search button not working on home page           | Primary discovery feature is dead                          |
 | 5   | 🟢Search disabled in some areas                    | Users cannot find what they need                           |
@@ -33,8 +33,8 @@
 | 7   | Contact page missing — link goes to About page | No way for users to reach out directly            |
 | 17  | Shared housing section not built out           | Entire feature incomplete with all subcomponents  |
 | 18  | Blog page empty — no content added             | Published page with zero content — bad impression |
-| 12  | Maps showing wrong locations                   | Misleading info for property seekers              |
-| 3   | Account switching — old chat persists          | Data leakage between accounts                     |
+| 12  | 🟢Maps showing wrong locations                   | Misleading info for property seekers              |
+| 3   | 🟢Account switching — old chat persists          | Data leakage between accounts                     |
 
 ### 🟢 C — Lower Priority (annoying but not blocking core flows)
 
@@ -59,11 +59,11 @@
 - A user (aluser) y3ml edit f aldata bta3to f aldashboard (msh m3mola)
 - Users should NOT be able to edit data that belongs to them directly from the dashboard — this is not implemented / not working correctly
 
-## 2. Responsive Design — Not Implemented `[Tier S]`
+## 2. Responsive Design — Not Implemented `[Tier S]` 🟢 RESOLVED (2026-05-08)
 
 - Mafish 7aga m3mola responsive (400px → 1200px)
 - The website is NOT responsive across the expected breakpoint range (400px to 1200px)
-- Needs full responsive pass across all pages
+- **Fixed**: Full responsive pass completed across all pages (P0–P3 batches). FilterSidebar state lifted + Sheet drawer for /find-homes; admin sidebar Sheet hamburger; dashboard/property grids fixed; marketing sections sm: tier added; auth forms stack at 400px; viewport export added; blog/agencies/likes grids fixed.
 
 ## 3. Account Switching — Broken Behavior `[Tier B]`
 

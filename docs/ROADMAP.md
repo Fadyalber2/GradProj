@@ -1,6 +1,6 @@
 # AXIOM V2 — Roadmap & Current Status
 
-Last updated: 2026-05-01
+Last updated: 2026-05-08
 
 ---
 
@@ -22,6 +22,7 @@ Last updated: 2026-05-01
 | Public pages Supabase wiring    | ✅ Done       | find-homes, property, agencies, project, blog, dashboard — all direct Supabase queries, no mock data |
 | Admin CRUD overhaul             | ✅ Done       | EntityPicker, RichTextEditor, PendingApprovalsView, required-field validation, 3-second delete countdown |
 | WhatsApp lead capture           | ✅ Done       | Messaging system removed; WhatsApp CTAs + leads table + admin view live   |
+| Responsive design (400–1200px)  | ✅ Done       | FilterSidebar Sheet drawer, admin Sheet hamburger, all page grids fixed   |
 | Deployment                      | ❌ Not done   | No CI/CD, no production environment                                       |
 
 ---
