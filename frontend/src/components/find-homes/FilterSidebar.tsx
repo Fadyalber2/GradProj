@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 
 const PROPERTY_TYPES = ["Rent a Home", "Buy Property", "Roommates"] as const;
@@ -31,16 +30,34 @@ export interface FilterValues {
 }
 
 interface FilterSidebarProps {
+  propertyType: string;
+  setPropertyType: (v: string) => void;
+  minPrice: number;
+  setMinPrice: (v: number) => void;
+  maxPrice: number;
+  setMaxPrice: (v: number) => void;
+  selectedVibes: Set<string>;
+  setSelectedVibes: React.Dispatch<React.SetStateAction<Set<string>>>;
+  selectedAmenities: Set<string>;
+  setSelectedAmenities: React.Dispatch<React.SetStateAction<Set<string>>>;
   onApply?: (filters: FilterValues) => void;
+  onReset?: () => void;
 }
 
-export default function FilterSidebar({ onApply }: FilterSidebarProps) {
-  const [propertyType, setPropertyType] = useState<string>("Rent a Home");
-  const [minPrice, setMinPrice] = useState(1000);
-  const [maxPrice, setMaxPrice] = useState(25000);
-  const [selectedVibes, setSelectedVibes] = useState<Set<string>>(new Set());
-  const [selectedAmenities, setSelectedAmenities] = useState<Set<string>>(new Set());
-
+export default function FilterSidebar({
+  propertyType,
+  setPropertyType,
+  minPrice,
+  setMinPrice,
+  maxPrice,
+  setMaxPrice,
+  selectedVibes,
+  setSelectedVibes,
+  selectedAmenities,
+  setSelectedAmenities,
+  onApply,
+  onReset,
+}: FilterSidebarProps) {
   const toggleVibe = (vibe: string) => {
     setSelectedVibes((prev) => {
       const next = new Set(prev);
@@ -59,14 +76,6 @@ export default function FilterSidebar({ onApply }: FilterSidebarProps) {
     });
   };
 
-  const resetAll = () => {
-    setPropertyType("Rent a Home");
-    setMinPrice(1000);
-    setMaxPrice(25000);
-    setSelectedVibes(new Set());
-    setSelectedAmenities(new Set());
-  };
-
   const handleApply = () => {
     onApply?.({
       propertyType,
@@ -78,13 +87,13 @@ export default function FilterSidebar({ onApply }: FilterSidebarProps) {
   };
 
   return (
-    <aside className="w-80 shrink-0 border-r border-white/10 h-full overflow-y-auto custom-scrollbar p-6 bg-surface hidden lg:flex flex-col">
+    <aside className="w-full h-full overflow-y-auto custom-scrollbar p-6 bg-surface flex flex-col">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-bold text-white flex items-center gap-2">
           <SlidersHorizontal className="h-4 w-4 text-primary" /> Filters
         </h2>
         <button
-          onClick={resetAll}
+          onClick={onReset}
           className="text-primary text-xs font-semibold hover:underline"
         >
           Reset All

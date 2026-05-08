@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { LayoutGrid, LayoutList, Loader2, Sparkles, Search, X } from "lucide-react";
+import { LayoutGrid, LayoutList, Loader2, Sparkles, Search, X, SlidersHorizontal } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import FilterSidebar from "@/components/find-homes/FilterSidebar";
 import SearchListingCard from "@/components/find-homes/SearchListingCard";
 import SearchListingRow from "@/components/find-homes/SearchListingRow";
@@ -107,6 +108,13 @@ export default function FindHomesPage() {
   const [sortBy, setSortBy] = useState("newest");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
+  // Filter state (lifted from FilterSidebar)
+  const [filterPropertyType, setFilterPropertyType] = useState("Rent a Home");
+  const [filterMinPrice, setFilterMinPrice] = useState(1000);
+  const [filterMaxPrice, setFilterMaxPrice] = useState(25000);
+  const [filterSelectedVibes, setFilterSelectedVibes] = useState<Set<string>>(new Set());
+  const [filterSelectedAmenities, setFilterSelectedAmenities] = useState<Set<string>>(new Set());
+
   // Unified search state
   const [inputValue, setInputValue] = useState(() => searchParams.get("q") ?? "");
   const [searchText, setSearchText] = useState(() => searchParams.get("q") ?? "");
@@ -152,11 +160,34 @@ export default function FindHomesPage() {
     setCurrentPage(1);
   }
 
-  return (
-    <main className="flex h-[calc(100vh-64px)] overflow-hidden w-full">
-      <FilterSidebar />
+  const filterProps = {
+    propertyType: filterPropertyType,
+    setPropertyType: setFilterPropertyType,
+    minPrice: filterMinPrice,
+    setMinPrice: setFilterMinPrice,
+    maxPrice: filterMaxPrice,
+    setMaxPrice: setFilterMaxPrice,
+    selectedVibes: filterSelectedVibes,
+    setSelectedVibes: setFilterSelectedVibes,
+    selectedAmenities: filterSelectedAmenities,
+    setSelectedAmenities: setFilterSelectedAmenities,
+    onReset: () => {
+      setFilterPropertyType("Rent a Home");
+      setFilterMinPrice(1000);
+      setFilterMaxPrice(25000);
+      setFilterSelectedVibes(new Set());
+      setFilterSelectedAmenities(new Set());
+    },
+  };
 
-      <section className="flex-1 h-full overflow-y-auto custom-scrollbar p-8">
+  return (
+    <main className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-64px)] lg:overflow-hidden w-full">
+      {/* Desktop sidebar — visible lg+ only */}
+      <aside className="hidden lg:flex lg:w-80 lg:shrink-0 lg:border-r border-white/10 h-full">
+        <FilterSidebar {...filterProps} />
+      </aside>
+
+      <section className="flex-1 h-full overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
@@ -168,7 +199,20 @@ export default function FindHomesPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Mobile filter trigger — hidden on desktop */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <button className="lg:hidden inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-card-dark border border-white/10 text-white text-sm font-medium">
+                  <SlidersHorizontal className="h-4 w-4" /> Filters
+                </button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[85vw] max-w-sm p-0 bg-surface border-r border-white/10">
+                <SheetTitle className="sr-only">Filters</SheetTitle>
+                <FilterSidebar {...filterProps} />
+              </SheetContent>
+            </Sheet>
+
             {/* View mode toggle */}
             <div className="flex items-center bg-card-dark rounded-lg p-1 border border-white/5">
               <button
