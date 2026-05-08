@@ -1,0 +1,460 @@
+version: "2"
+type: frontend
+tech_stack:
+  - language: TypeScript
+  - framework: Next.js 16 (App Router)
+  - ui_library: Tailwind CSS + shadcn/ui + Framer Motion
+  - state: TanStack React Query v5 + Zustand
+  - auth: Supabase Auth (JWT)
+  - forms: React Hook Form + Zod
+  - maps: Leaflet (react-leaflet) + Nominatim geocoding
+  - other: SSE streaming for AI chat
+
+routes:
+  - path: /
+    file: src/app/(marketing)/page.tsx
+    auth_required: false
+    description: Homepage with hero, featured listings, AI search bar, testimonials, CTA
+  - path: /login
+    file: src/app/(auth)/login/page.tsx
+    auth_required: false
+    description: Email + password login via Supabase Auth
+  - path: /signup
+    file: src/app/(auth)/signup/page.tsx
+    auth_required: false
+    description: New user registration with email, password, full name, phone, gender
+  - path: /forgot-password
+    file: src/app/(auth)/forgot-password/page.tsx
+    auth_required: false
+    description: Trigger Supabase password reset email
+  - path: /reset-password
+    file: src/app/(auth)/reset-password/page.tsx
+    auth_required: false
+    description: Set new password after clicking email reset link
+  - path: /auth/callback
+    file: src/app/auth/callback/page.tsx
+    auth_required: false
+    description: Supabase OAuth callback handler
+  - path: /find-homes
+    file: src/app/find-homes/page.tsx
+    auth_required: false
+    description: Browse and filter property listings by category, city, price, bedrooms
+  - path: /property/[id]
+    file: src/app/property/[id]/page.tsx
+    auth_required: false
+    description: Full property detail with images, specs, map, WhatsApp CTA, similar listings
+  - path: /shared-housing/[id]
+    file: src/app/shared-housing/[id]/page.tsx
+    auth_required: false
+    description: Redirects to /property/[id] — same component handles shared housing
+  - path: /dashboard
+    file: src/app/dashboard/page.tsx
+    auth_required: true
+    description: User dashboard with profile, analytics, listings, liked properties, viewings
+  - path: /agencies
+    file: src/app/agencies/page.tsx
+    auth_required: false
+    description: Agency directory with developer cards and stats
+  - path: /agencies/[slug]
+    file: src/app/agencies/[slug]/page.tsx
+    auth_required: false
+    description: Agency detail with projects, team, listings
+  - path: /project/[id]
+    file: src/app/project/[id]/page.tsx
+    auth_required: false
+    description: Real estate project detail with residence cards and sales agent sidebar
+  - path: /blog
+    file: src/app/blog/page.tsx
+    auth_required: false
+    description: Blog listing page with article cards
+  - path: /blog/[slug]
+    file: src/app/blog/[slug]/page.tsx
+    auth_required: false
+    description: Full blog article with sidebar and related articles
+  - path: /about
+    file: src/app/about/page.tsx
+    auth_required: false
+    description: Static about page with mission, values, team
+  - path: /admin/dashboard
+    file: src/app/admin/dashboard/page.tsx
+    auth_required: true
+    description: Admin panel — approve/reject listings, manage users, agencies, blog posts
+  - path: /admin/login
+    file: src/app/admin/login/page.tsx
+    auth_required: false
+    description: Admin-specific login page
+  - path: /admin
+    file: src/app/admin/page.tsx
+    auth_required: true
+    description: Admin home/redirect page
+
+features:
+  - name: User Signup
+    description: Register a new account with email, password, full name, phone, and gender
+    files:
+      - src/app/(auth)/signup/page.tsx
+      - src/components/auth/SignUpForm.tsx
+      - src/stores/authStore.ts
+    entry_route: /signup
+    user_interactions:
+      - Fill in full name field
+      - Fill in email field
+      - Fill in phone number field
+      - Select gender
+      - Fill in password field
+      - Click Sign Up button
+      - See success message or email confirmation notice
+      - See validation errors on invalid input
+    api_calls:
+      - method: POST
+        endpoint: /api/auth/signup
+    auth_required: false
+
+  - name: User Login
+    description: Authenticate with email and password via Supabase Auth
+    files:
+      - src/app/(auth)/login/page.tsx
+      - src/components/auth/LoginForm.tsx
+      - src/stores/authStore.ts
+    entry_route: /login
+    user_interactions:
+      - Fill email input field
+      - Fill password input field
+      - Click Login button
+      - See error message on invalid credentials
+      - Be redirected to /dashboard on success
+    api_calls:
+      - method: POST
+        endpoint: /api/auth/login
+    auth_required: false
+
+  - name: Forgot Password
+    description: Send password reset email via Supabase
+    files:
+      - src/app/(auth)/forgot-password/page.tsx
+      - src/components/auth/ForgotPasswordForm.tsx
+    entry_route: /forgot-password
+    user_interactions:
+      - Fill in email field
+      - Click Send Reset Email button
+      - See confirmation message
+    api_calls: []
+    auth_required: false
+
+  - name: Browse Listings (Find Homes)
+    description: Filter and paginate property listings by category, city, price, bedrooms
+    files:
+      - src/app/find-homes/page.tsx
+      - src/components/find-homes/FilterSidebar.tsx
+      - src/components/find-homes/SearchListingCard.tsx
+      - src/components/find-homes/Pagination.tsx
+      - src/lib/supabase-queries.ts
+    entry_route: /find-homes
+    user_interactions:
+      - Select category filter (For Rent / For Sale / Shared Housing)
+      - Select city filter
+      - Set min/max price range
+      - Set number of bedrooms
+      - Click Apply Filters button
+      - Click a listing card to go to property detail
+      - Navigate pagination controls
+      - Change sort order (newest, price asc/desc, most viewed)
+    api_calls:
+      - method: GET
+        endpoint: /api/listings
+    auth_required: false
+
+  - name: Property Detail
+    description: View full property information including map, images, specs, and WhatsApp contact
+    files:
+      - src/app/property/[id]/page.tsx
+      - src/components/property/PropertyHero.tsx
+      - src/components/property/PropertyInfo.tsx
+      - src/components/property/PropertySidebar.tsx
+      - src/components/property/PropertyMap.tsx
+      - src/components/property/WhatsAppCTA.tsx
+      - src/components/property/MobilePropertyCTA.tsx
+    entry_route: /property/[id]
+    user_interactions:
+      - View property images in gallery
+      - Read title, price, location, description, specs
+      - View interactive map with property pin
+      - Click WhatsApp CTA button to contact agent
+      - View similar listings section
+      - Click similar listing card to navigate
+    api_calls:
+      - method: GET
+        endpoint: /api/listings/{id}
+      - method: POST
+        endpoint: /api/leads
+    auth_required: false
+
+  - name: WhatsApp Lead Capture
+    description: Record a WhatsApp contact click and return the wa.me deep link
+    files:
+      - src/components/property/WhatsAppCTA.tsx
+      - src/components/property/MobilePropertyCTA.tsx
+    entry_route: /property/[id]
+    user_interactions:
+      - Click "Contact via WhatsApp" button
+      - If not logged in, be redirected to /login
+      - If logged in, be redirected to WhatsApp with pre-filled message
+    api_calls:
+      - method: POST
+        endpoint: /api/leads
+    auth_required: true
+
+  - name: User Dashboard
+    description: Authenticated user's control center — view profile, listings, favorites, viewings
+    files:
+      - src/app/dashboard/page.tsx
+      - src/components/dashboard/DashboardProfile.tsx
+      - src/components/dashboard/DashboardStats.tsx
+      - src/components/dashboard/MyListings.tsx
+      - src/components/dashboard/LikedProperties.tsx
+      - src/components/dashboard/MyViewings.tsx
+    entry_route: /dashboard
+    user_interactions:
+      - View profile card with name, avatar, bio, phone
+      - View analytics (total views, active listings)
+      - View list of own listings with status badges (active/pending/rejected)
+      - View liked/favorited properties
+      - View upcoming viewings
+      - Click "Add Listing" button to open modal
+    api_calls:
+      - method: GET
+        endpoint: /api/dashboard/me
+    auth_required: true
+
+  - name: Add Listing
+    description: Create a new property listing via modal form with map picker and AI amenity validation
+    files:
+      - src/components/dashboard/AddListingModal.tsx
+      - src/components/dashboard/AddListingMiniMap.tsx
+    entry_route: /dashboard
+    user_interactions:
+      - Click Add Listing button on dashboard
+      - Fill in listing title
+      - Select property type (apartment, villa, etc.)
+      - Select category (for_rent, for_sale, shared_housing)
+      - Pick location on mini-map (Nominatim geocoding)
+      - Enter price
+      - Enter bedrooms, bathrooms, size in sqm
+      - Select furnishing type
+      - Add amenities (each validated by AI)
+      - Enter or generate description (AI bilingual generator)
+      - Upload images
+      - Submit form
+      - See new listing appear in My Listings with pending status
+    api_calls:
+      - method: POST
+        endpoint: /api/listings
+      - method: POST
+        endpoint: /api/ai/validate-amenity
+      - method: POST
+        endpoint: /api/ai/description
+    auth_required: true
+
+  - name: AI Chat (RAG Chatbot)
+    description: Floating AI assistant that answers property questions and surfaces listing cards via SSE streaming
+    files:
+      - src/components/ai/ChatDrawer.tsx
+      - src/components/ai/ChatMessage.tsx
+      - src/components/layout/FloatingAIButton.tsx
+      - src/components/layout/ChatbotConditional.tsx
+    entry_route: /
+    user_interactions:
+      - Click floating AI button (bottom right)
+      - Chat drawer opens
+      - Type a message (e.g. "Show me 2-bedroom apartments in Maadi")
+      - See streaming text response token by token
+      - See inline listing cards appear after response
+      - Continue conversation with follow-up messages
+      - Close chat drawer
+    api_calls:
+      - method: POST
+        endpoint: /api/ai/chat
+    auth_required: false
+
+  - name: Natural Language Search
+    description: AI-powered search bar that translates free text into property filters
+    files:
+      - src/components/sections/HomeHero.tsx
+      - src/app/find-homes/page.tsx
+      - src/lib/api.ts
+    entry_route: /
+    user_interactions:
+      - Type natural language query in search bar (e.g. "quiet apartment near Zamalek under 10k")
+      - Press Enter or click Search
+      - Be redirected to /find-homes with results applied
+    api_calls:
+      - method: POST
+        endpoint: /api/ai/search
+    auth_required: false
+
+  - name: Property Recommendations
+    description: AI-personalized listing suggestions based on user favorites shown on homepage
+    files:
+      - src/components/sections/RecommendationsSection.tsx
+      - src/components/sections/RecommendationsSectionClient.tsx
+    entry_route: /
+    user_interactions:
+      - View recommendations section on homepage
+      - See listing cards personalized to saved favorites
+      - Click a card to go to property detail
+    api_calls:
+      - method: GET
+        endpoint: /api/ai/recommendations
+    auth_required: true
+
+  - name: Favorite Listings
+    description: Toggle favorite/heart on listings; view all favorites in dashboard
+    files:
+      - src/components/cards/ListingCard.tsx
+      - src/components/dashboard/LikedProperties.tsx
+    entry_route: /find-homes
+    user_interactions:
+      - Click heart icon on a listing card
+      - See icon state toggle (filled/unfilled)
+      - View saved favorites under Dashboard > Liked Properties
+    api_calls:
+      - method: POST
+        endpoint: /api/listings/{id}/favorite
+      - method: GET
+        endpoint: /api/listings/favorites
+    auth_required: true
+
+  - name: Agency Directory
+    description: Browse all real estate agencies/developers
+    files:
+      - src/app/agencies/page.tsx
+      - src/components/agencies/AgenciesHero.tsx
+      - src/components/agencies/DeveloperCard.tsx
+      - src/components/agencies/DevelopersSection.tsx
+    entry_route: /agencies
+    user_interactions:
+      - View agency cards grid
+      - Click an agency card to view agency detail
+    api_calls:
+      - method: GET
+        endpoint: /api/agencies
+    auth_required: false
+
+  - name: Agency Detail
+    description: View full agency profile with projects, team members, and listings
+    files:
+      - src/app/agencies/[slug]/page.tsx
+      - src/components/agency-details/AgencyHero.tsx
+      - src/components/agency-details/AgencySidebar.tsx
+      - src/components/agency-details/FeaturedProjects.tsx
+      - src/components/agency-details/TopListings.tsx
+    entry_route: /agencies/[slug]
+    user_interactions:
+      - View agency logo, name, description, stats
+      - Browse featured projects
+      - Filter projects by tab
+      - View top listings from agency
+    api_calls: []
+    auth_required: false
+
+  - name: Blog
+    description: Read real estate articles and market insights
+    files:
+      - src/app/blog/page.tsx
+      - src/app/blog/[slug]/page.tsx
+      - src/components/blog/BlogCard.tsx
+      - src/components/blog/BlogGrid.tsx
+      - src/components/blog-article/ArticleBody.tsx
+    entry_route: /blog
+    user_interactions:
+      - Browse blog article cards
+      - Click article to read full content
+      - View related articles sidebar
+    api_calls: []
+    auth_required: false
+
+  - name: Admin - Listing Approvals
+    description: Admin reviews and approves or rejects pending listings
+    files:
+      - src/app/admin/dashboard/page.tsx
+      - src/components/admin/EntityPicker.tsx
+      - src/components/admin/AdminTable.tsx
+    entry_route: /admin/dashboard
+    user_interactions:
+      - Select Listings entity in EntityPicker
+      - Filter by status=pending
+      - Click Approve button on a listing
+      - Click Reject button and enter rejection reason
+      - See listing status update in table
+    api_calls:
+      - method: GET
+        endpoint: /api/admin/listings
+      - method: PUT
+        endpoint: /api/admin/listings/{id}/approve
+      - method: PUT
+        endpoint: /api/admin/listings/{id}/reject
+    auth_required: true
+
+  - name: Admin - Leads View
+    description: Admin views all WhatsApp lead capture records
+    files:
+      - src/app/admin/dashboard/page.tsx
+      - src/components/admin/AdminTable.tsx
+    entry_route: /admin/dashboard
+    user_interactions:
+      - Select Leads entity in EntityPicker
+      - View table of lead records with contact info and listing title
+      - Filter by agency, source, date range
+    api_calls:
+      - method: GET
+        endpoint: /api/admin/leads
+    auth_required: true
+
+  - name: Admin - User Management
+    description: Admin views and manages users, grants verified seller badge
+    files:
+      - src/app/admin/dashboard/page.tsx
+      - src/components/admin/AdminTable.tsx
+    entry_route: /admin/dashboard
+    user_interactions:
+      - Select Users entity in EntityPicker
+      - View all users table
+      - Click Grant Verified Badge button on a user row
+    api_calls:
+      - method: GET
+        endpoint: /api/admin/users
+      - method: PUT
+        endpoint: /api/admin/users/{id}/verify
+    auth_required: true
+
+  - name: Roommate Compatibility
+    description: Score how well a user fits in a shared housing listing
+    files:
+      - src/components/shared-housing/CompatibilityScore.tsx
+    entry_route: /property/[id]
+    user_interactions:
+      - View shared housing listing (category=shared_housing)
+      - See compatibility score widget
+      - Submit lifestyle preferences for scoring
+      - See score 0-100 with reasons
+    api_calls:
+      - method: POST
+        endpoint: /api/ai/compatibility
+    auth_required: true
+
+known_limitations:
+  - issue: Homepage featured listings use mock data — not yet wired to Supabase
+    location: src/app/(marketing)/page.tsx
+    impact: Homepage shows static placeholder listings, not real database content
+  - issue: Testimonials section uses hardcoded mock data
+    location: src/components/sections/TestimonialsSection.tsx
+    impact: Testimonials are not pulled from database
+  - issue: AI features require local Ollama server at port 11434 with axiom-llm model
+    location: backend/app/ai/
+    impact: All AI features return ai_unavailable if Ollama is not running
+  - issue: WhatsApp CTA requires user to have a phone number on their profile
+    location: src/components/property/WhatsAppCTA.tsx
+    impact: Lead creation fails if the authenticated user has no phone number stored
+  - issue: Deployment not configured — no CI/CD or production environment
+    location: N/A
+    impact: Tests must run against localhost:3000 (dev or production build)

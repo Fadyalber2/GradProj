@@ -1,0 +1,1535 @@
+[
+  {
+    "id": "TC001",
+    "title": "Review property details and related listings",
+    "description": "A guest can inspect a property page and see the key details, map location, and similar listings needed to evaluate the home.",
+    "category": "Property Detail",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /property/[id]"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the property images, key details, map, and similar listings are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Access the dashboard after signing in",
+    "description": "An authenticated user can open the dashboard and see their profile, analytics, listings, favorites, and viewings.",
+    "category": "User Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the profile information is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify analytics, own listings, liked properties, and upcoming viewings are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Log in with valid credentials",
+    "description": "An existing user can sign in successfully and reach the dashboard.",
+    "category": "User Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user lands on the dashboard"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Sign up for a new account",
+    "description": "A new visitor can create an account with valid details and receive a success confirmation.",
+    "category": "User Signup",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /signup"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the full name field with a valid name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with a valid email address"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the phone number field with a valid phone number"
+      },
+      {
+        "type": "action",
+        "description": "Select a gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with a valid password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the signup form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a success confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Browse listings with filters and see updated results",
+    "description": "A guest can narrow the property search on the browsing page and see the listing results update to match the selected filters.",
+    "category": "Browse Listings",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /find-homes"
+      },
+      {
+        "type": "action",
+        "description": "Select a category filter"
+      },
+      {
+        "type": "action",
+        "description": "Select a city filter"
+      },
+      {
+        "type": "action",
+        "description": "Set a price range"
+      },
+      {
+        "type": "action",
+        "description": "Set the number of bedrooms"
+      },
+      {
+        "type": "action",
+        "description": "Apply the filters"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the displayed listings reflect the selected filters"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Approve a pending listing",
+    "description": "An admin can review pending listings and approve one so the listing status updates in the table.",
+    "category": "Admin Listing Approvals",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Log in with {{LOGIN_USER}} and {{LOGIN_PASSWORD}} for the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Select Listings in the entity picker"
+      },
+      {
+        "type": "action",
+        "description": "Filter the listings by pending status"
+      },
+      {
+        "type": "action",
+        "description": "Approve a pending listing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the listing status updates to approved"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the approved listing remains visible in the table"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Open a login-protected dashboard directly",
+    "description": "A signed-in user can open the protected dashboard route and reach their account area instead of being blocked.",
+    "category": "User Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard content is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Open a property from search results",
+    "description": "A guest can open a listing card from the browsing page and reach the property detail page.",
+    "category": "Browse Listings",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /find-homes"
+      },
+      {
+        "type": "action",
+        "description": "Select a listing card"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the property detail page is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Contact an agent from a property page with WhatsApp",
+    "description": "A logged-in user with a phone number can start a WhatsApp lead from a property page and reach the chat handoff.",
+    "category": "WhatsApp Lead Capture",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /property/[id]"
+      },
+      {
+        "type": "action",
+        "description": "Click the WhatsApp contact action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the browser opens the WhatsApp handoff for the property"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Create a new listing from the dashboard",
+    "description": "A seller can submit a complete listing and see it appear as pending in their listings.",
+    "category": "Add Listing",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Click the Add Listing control"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a unique listing title into the title field"
+      },
+      {
+        "type": "action",
+        "description": "Select a property type"
+      },
+      {
+        "type": "action",
+        "description": "Select a listing category"
+      },
+      {
+        "type": "action",
+        "description": "Pick a location on the mini-map"
+      },
+      {
+        "type": "action",
+        "description": "Enter a valid price"
+      },
+      {
+        "type": "action",
+        "description": "Enter valid bedroom, bathroom, and size values"
+      },
+      {
+        "type": "action",
+        "description": "Select a furnishing type"
+      },
+      {
+        "type": "action",
+        "description": "Add valid amenities"
+      },
+      {
+        "type": "action",
+        "description": "Enter a description for the listing"
+      },
+      {
+        "type": "action",
+        "description": "Upload listing images"
+      },
+      {
+        "type": "action",
+        "description": "Submit the listing form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new listing appears in the user's listings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the listing is marked as pending"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Reject a pending listing with a reason",
+    "description": "An admin can reject a pending listing by providing a reason and see the listing status update in the table.",
+    "category": "Admin Listing Approvals",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Log in with {{LOGIN_USER}} and {{LOGIN_PASSWORD}} for the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Select Listings in the entity picker"
+      },
+      {
+        "type": "action",
+        "description": "Filter the listings by pending status"
+      },
+      {
+        "type": "action",
+        "description": "Reject a pending listing"
+      },
+      {
+        "type": "action",
+        "description": "Fill a rejection reason into the reason field"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the listing status updates to rejected"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the rejected listing remains visible in the table"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Protect property contact behind login",
+    "description": "A guest who tries to contact an agent from a property page is taken to sign in instead of starting a lead.",
+    "category": "WhatsApp Lead Capture",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /property/[id]"
+      },
+      {
+        "type": "action",
+        "description": "Click the WhatsApp contact action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Save a listing from browse results",
+    "description": "An authenticated buyer or renter can favorite a listing from browse results and see the saved state change immediately.",
+    "category": "Favorite Listings",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /find-homes"
+      },
+      {
+        "type": "action",
+        "description": "Toggle the favorite state on a listing card"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the listing is marked as saved"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the favorite state is visibly updated"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Open a similar property from a property page",
+    "description": "A guest can continue browsing by opening a related listing from the similar listings section on a property page.",
+    "category": "Property Detail",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /property/[id]"
+      },
+      {
+        "type": "action",
+        "description": "Select a similar listing card"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify another property detail page is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Review saved listings in the dashboard",
+    "description": "An authenticated user can open liked properties from the dashboard and see previously saved listings.",
+    "category": "Favorite Listings",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Open the liked properties section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify saved listings are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the liked properties section is populated"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Search homes with natural language from the homepage",
+    "description": "A guest can enter a natural language housing query on the homepage and reach filtered search results on the browsing page.",
+    "category": "Natural Language Search",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Type a natural language property query into the search field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the search"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify filtered search results are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the browsing page is shown"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Change listing sort order",
+    "description": "A guest can change the sort order on the browsing page and see the visible listings reorder accordingly.",
+    "category": "Browse Listings",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /find-homes"
+      },
+      {
+        "type": "action",
+        "description": "Change the sort order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the listings are reordered"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Search homes with natural language from the browse page",
+    "description": "A guest can enter a natural language housing query on the browsing page and see the results update to match the search.",
+    "category": "Natural Language Search",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /find-homes"
+      },
+      {
+        "type": "action",
+        "description": "Type a natural language property query into the search field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the search"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify filtered search results are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the results reflect the search query"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "Require a rejection reason before rejecting",
+    "description": "An admin cannot complete a listing rejection without entering a reason, and the reason validation is shown.",
+    "category": "Admin Listing Approvals",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Log in with {{LOGIN_USER}} and {{LOGIN_PASSWORD}} for the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Select Listings in the entity picker"
+      },
+      {
+        "type": "action",
+        "description": "Filter the listings by pending status"
+      },
+      {
+        "type": "action",
+        "description": "Open the rejection flow for a pending listing"
+      },
+      {
+        "type": "action",
+        "description": "Submit the rejection without entering a reason"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a rejection reason validation error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the listing status has not changed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC020",
+    "title": "Show validation errors for incomplete signup",
+    "description": "A visitor sees validation errors when submitting the signup form with invalid or missing information.",
+    "category": "User Signup",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /signup"
+      },
+      {
+        "type": "action",
+        "description": "Submit the signup form without entering details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify validation errors are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC021",
+    "title": "Move to the next page of listings",
+    "description": "A guest can use pagination on the browsing page to view the next set of listings.",
+    "category": "Browse Listings",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /find-homes"
+      },
+      {
+        "type": "action",
+        "description": "Use the pagination controls to go to the next page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a different set of listings is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC022",
+    "title": "Open the add listing modal from the dashboard",
+    "description": "An authenticated user can open the listing creation modal from the dashboard.",
+    "category": "User Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Click the Add Listing control"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the listing creation modal is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC023",
+    "title": "See recommendations on the homepage after login",
+    "description": "An authenticated user can view personalized recommendations on the homepage and open a suggested property from the section.",
+    "category": "Property Recommendations",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify personalized listing recommendations are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a property detail page can be opened from a recommendation card"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC024",
+    "title": "Open recommended property from the homepage",
+    "description": "An authenticated user can open a recommended property card from the homepage and reach the property detail view.",
+    "category": "Property Recommendations",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Select a recommended listing card"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the property detail page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected listing content is shown"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC025",
+    "title": "Show an error for invalid login credentials",
+    "description": "A visitor sees an error when submitting incorrect login credentials.",
+    "category": "User Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with an invalid email address"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with an invalid password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an error message is visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC026",
+    "title": "Browse listings from the dashboard favorites section",
+    "description": "An authenticated user can favorite a listing elsewhere and later find it in their liked properties on the dashboard.",
+    "category": "User Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /find-homes"
+      },
+      {
+        "type": "action",
+        "description": "Save a listing as a favorite"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the liked properties section is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the favorited listing appears in liked properties"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC027",
+    "title": "View and filter captured leads",
+    "description": "An admin can open the leads table and filter lead records by agency, source, or date range.",
+    "category": "Admin Leads View",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Log in with {{LOGIN_USER}} and {{LOGIN_PASSWORD}} for the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Select Leads in the entity picker"
+      },
+      {
+        "type": "action",
+        "description": "View the captured lead records table"
+      },
+      {
+        "type": "action",
+        "description": "Filter leads by agency, source, or date range"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify lead records are displayed in the table"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the filtered lead results are shown"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC028",
+    "title": "Submit lifestyle preferences for compatibility scoring",
+    "description": "This verifies that an authenticated user can enter lifestyle preferences on a shared housing listing and receive a compatibility result.",
+    "category": "Roommate Compatibility",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click a shared housing property from the browsing results"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the lifestyle preferences field with a clear preference profile"
+      },
+      {
+        "type": "action",
+        "description": "Submit the compatibility form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a compatibility score is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify compatibility reasons are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC029",
+    "title": "View agency profile details and top listings",
+    "description": "This verifies that an agency detail page shows the agency profile information and its top listings.",
+    "category": "Agency Detail",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /agencies"
+      },
+      {
+        "type": "action",
+        "description": "Click an agency card"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify agency profile information is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify top listings are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC030",
+    "title": "View the users table",
+    "description": "An admin can open the users section and see the users table loaded.",
+    "category": "Admin User Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Log in with {{LOGIN_USER}} and {{LOGIN_PASSWORD}} for the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Select Users in the entity picker"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the users table is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user records are visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC031",
+    "title": "Grant a verified badge to a user",
+    "description": "An admin can grant a verified badge to a user and see the badge reflected in the users table.",
+    "category": "Admin User Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Log in with {{LOGIN_USER}} and {{LOGIN_PASSWORD}} for the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Select Users in the entity picker"
+      },
+      {
+        "type": "action",
+        "description": "Grant a verified badge to a user"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is marked as verified"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated user remains visible in the table"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC032",
+    "title": "Browse agency cards and open an agency profile",
+    "description": "This verifies that a guest can browse the agency directory and open an agency detail page from a card.",
+    "category": "Agency Directory",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /agencies"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify agency cards are displayed"
+      },
+      {
+        "type": "action",
+        "description": "Click an agency card"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the agency detail page is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC033",
+    "title": "View compatibility score on a shared housing listing",
+    "description": "This verifies that an authenticated user can open a shared housing property and see the roommate compatibility widget with a score and reasons.",
+    "category": "Roommate Compatibility",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click a shared housing property from the browsing results"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the compatibility score widget is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify compatibility reasons are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC034",
+    "title": "Request a password reset email",
+    "description": "A visitor can request password recovery from the forgot password page and see a confirmation message.",
+    "category": "Forgot Password",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /forgot-password"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with a valid email address"
+      },
+      {
+        "type": "action",
+        "description": "Submit the reset request form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a confirmation message is visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC035",
+    "title": "Show validation when an amenity is rejected",
+    "description": "A seller sees validation feedback when adding an invalid amenity in the listing form.",
+    "category": "Add Listing",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Click the Add Listing control"
+      },
+      {
+        "type": "action",
+        "description": "Add an invalid amenity"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an amenity validation error is visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC036",
+    "title": "Switch between project tabs on an agency profile",
+    "description": "This verifies that a user can switch project tabs on an agency profile and see the project list update.",
+    "category": "Agency Detail",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /agencies"
+      },
+      {
+        "type": "action",
+        "description": "Click an agency card"
+      },
+      {
+        "type": "action",
+        "description": "Select a different project tab"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the displayed projects change to match the selected tab"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC037",
+    "title": "Show an empty liked properties state",
+    "description": "An authenticated user with no favorites can open liked properties and see an empty state instead of saved listings.",
+    "category": "Favorite Listings",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Open the liked properties section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no saved listings are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC038",
+    "title": "Update compatibility preferences and see the result refresh",
+    "description": "This verifies that an authenticated user can change their lifestyle preferences on a shared housing listing and get an updated compatibility outcome.",
+    "category": "Roommate Compatibility",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click a shared housing property from the browsing results"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the lifestyle preferences field with one preference profile"
+      },
+      {
+        "type": "action",
+        "description": "Submit the compatibility form"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the lifestyle preferences field with a different preference profile"
+      },
+      {
+        "type": "action",
+        "description": "Submit the compatibility form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an updated compatibility score is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify updated compatibility reasons are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC039",
+    "title": "Browse blog articles and open a full article",
+    "description": "This verifies that a guest can browse blog cards and open a blog article detail page.",
+    "category": "Blog",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /blog"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify blog article cards are displayed"
+      },
+      {
+        "type": "action",
+        "description": "Click an article card"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the full article page is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC040",
+    "title": "View compatibility on a shared housing listing through a property page",
+    "description": "This verifies that a shared housing listing opened from the property route still shows roommate compatibility controls and results.",
+    "category": "Roommate Compatibility",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click a shared housing property from the browsing results"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the property page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the compatibility score widget is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC041",
+    "title": "Read a blog article and review related articles",
+    "description": "This verifies that a blog article page shows the article content and related article recommendations.",
+    "category": "Blog",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /blog"
+      },
+      {
+        "type": "action",
+        "description": "Click an article card"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the article content is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify related articles are displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC042",
+    "title": "View upcoming viewings on the dashboard",
+    "description": "An authenticated user can open the dashboard and see their upcoming viewing appointments if they exist.",
+    "category": "User Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the upcoming viewings section is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC043",
+    "title": "Search homes with empty input",
+    "description": "A guest who submits an empty search sees the browsing page remain usable and no search results are applied.",
+    "category": "Natural Language Search",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /find-homes"
+      },
+      {
+        "type": "action",
+        "description": "Leave the search field empty"
+      },
+      {
+        "type": "action",
+        "description": "Submit the search"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the browse page remains visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no filtered results state is applied"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC044",
+    "title": "See validation when lifestyle preferences are missing",
+    "description": "This verifies that an authenticated user cannot submit roommate compatibility preferences without providing the required information.",
+    "category": "Roommate Compatibility",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click a shared housing property from the browsing results"
+      },
+      {
+        "type": "action",
+        "description": "Submit the compatibility form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a validation error is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no compatibility score is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC045",
+    "title": "Keep compatibility widget hidden for non-shared housing listings",
+    "description": "This verifies that a regular property page does not show roommate compatibility controls that only apply to shared housing.",
+    "category": "Roommate Compatibility",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click a non-shared housing property from the browsing results"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the property page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the compatibility score widget is not displayed"
+      }
+    ],
+    "priority": "Low"
+  }
+]

@@ -123,7 +123,12 @@
       "Bash(del *)",
       "Bash(npm uninstall *)",
       "Bash(findstr \":3000\")",
-      "Bash(findstr \"LISTENING\")"
+      "Bash(findstr \"LISTENING\")",
+      "Skill(commit-commands:commit)",
+      "Bash(git -C \"E:\\\\GradProject\\\\AXIOM-V2\" add frontend/src/app/find-homes/page.tsx frontend/src/components/find-homes/FilterSidebar.tsx)",
+      "Bash(git -C \"E:\\\\GradProject\\\\AXIOM-V2\" commit -m \"fix\\(responsive\\): memoize filterProps, add aria-labels to filter controls\")",
+      "Bash(git show *)",
+      "Bash(dir E:\\\\GradProject\\\\AXIOM-V2\\\\frontend\\\\src\\\\app\\\\blog *)"
     ]
   },
   "enableAllProjectMcpServers": true,

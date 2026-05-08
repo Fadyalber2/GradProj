@@ -114,5 +114,31 @@
       "e:\\GradProject\\AXIOM-V2\\frontend"
     ]
   },
-  "enabledPlugins": {}
+  "enabledPlugins": {},
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "git rev-parse --git-dir >/dev/null 2>&1 && code-review-graph update --skip-flows --repo \"E:/GradProject/AXIOM-V2\" || true",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "git rev-parse --git-dir >/dev/null 2>&1 && code-review-graph status --repo \"E:/GradProject/AXIOM-V2\" || echo 'Not a git repo, skipping'",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
 }

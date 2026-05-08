@@ -1,1 +1,9 @@
+# Local AI assistant/tooling state
+.agents/skills/
+.claude/
+.code-review-graph/
+.codex/
+.planning/
+.playwright-mcp/
+.superpowers/
 .worktrees/

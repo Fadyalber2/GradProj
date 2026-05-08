@@ -1,0 +1,20 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "loginUser": "Testuser1@gmail.com",
+  "loginPassword": "Testuser123",
+  "executionArgs": {
+    "projectName": "AXIOM-V2",
+    "projectPath": "E:\\GradProject\\AXIOM-V2",
+    "testIds": [],
+    "additionalInstruction": "FOCUS EXCLUSIVELY ON RESPONSIVENESS TESTING across all breakpoints. For every page and component, test at these viewport sizes:\n- Mobile S: 375x667 (iPhone SE)\n- Mobile L: 390x844 (iPhone 14)\n- Tablet: 768x1024 (iPad)\n- Laptop: 1280x800\n- Desktop: 1920x1080\n\nTest the following for each breakpoint:\n1. NAVBAR: Does it collapse to a hamburger/mobile menu on small screens? Does the mobile menu open and close correctly? Are nav links accessible?\n2. HOMEPAGE: Does the hero section stack correctly? Are cards in a single column on mobile? Is the search bar full-width and usable on mobile?\n3. FIND HOMES PAGE: Does the filter sidebar collapse or move below on mobile? Are listing cards readable and properly stacked on small screens?\n4. PROPERTY DETAIL PAGE: Is the sidebar stacked below content on mobile? Is the image gallery usable? Is the WhatsApp CTA button accessible on mobile?\n5. DASHBOARD: Does the stats grid collapse to single column on mobile? Is the Add Listing modal scrollable and usable on mobile?\n6. AUTH PAGES (login, signup): Are forms full-width and inputs accessible on mobile?\n7. ADMIN DASHBOARD: Is the entity picker and table horizontally scrollable or adapted for small screens?\n8. AGENCY PAGES: Do developer cards stack on mobile?\n9. BLOG PAGES: Is text readable and properly sized on mobile?\n10. AI CHAT WIDGET: Is the chat drawer full-screen or properly sized on mobile?\n\nFor each test: resize the browser to the target viewport, then check layout, overflow, touch targets (min 44px), text readability, and that no content is cut off or overlapping. Report any elements that overflow their containers, text that is too small to read, buttons that are too small to tap, or layouts that break at any breakpoint.",
+    "serverMode": "production",
+    "envs": {
+      "API_KEY": "sk-user-3gIZMHhGJ6utZ-Z8GOkjerYSbDwNetRUVMUN-HLyVf6oV6-bz36sLxvJVEA7gfSKsVhdvAXBz0hgyVNqNiWbys_ii0Ve7j1WhpdFmGDfGXJmpGzTRjLM58gUwSuoRn_9tPQ"
+    }
+  },
+  "serverPort": 54492,
+  "proxy": "http://6ddd3f03-5709-402d-af58-8e92efe059f3:dpMZACgbQ2k3HlGESnj991mgPplhZKAM@tun.testsprite.com:8080"
+}

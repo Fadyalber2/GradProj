@@ -12,6 +12,13 @@ import {
   LayoutDashboard,
   LogOut,
   ChevronDown,
+  Home,
+  UsersRound,
+  Building2,
+  BookOpenText,
+  Info,
+  ArrowRight,
+  X,
 } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/constants";
 import { Input } from "@/components/ui/input";
@@ -59,6 +66,31 @@ export default function Navbar({ variant = "overlay" }: NavbarProps) {
   async function handleLogout() {
     await logout();
     router.push("/");
+  }
+
+  function handleNavSearchSubmit() {
+    if (!navSearch.trim()) return;
+
+    router.push(`/find-homes?q=${encodeURIComponent(navSearch.trim())}`);
+    setNavSearch("");
+    setOpen(false);
+  }
+
+  function renderMobileNavIcon(label: string) {
+    switch (label) {
+      case "Find Homes":
+        return <Home className="h-4 w-4" />;
+      case "Shared Housing":
+        return <UsersRound className="h-4 w-4" />;
+      case "Agencies":
+        return <Building2 className="h-4 w-4" />;
+      case "Blog":
+        return <BookOpenText className="h-4 w-4" />;
+      case "About Us":
+        return <Info className="h-4 w-4" />;
+      default:
+        return <ArrowRight className="h-4 w-4" />;
+    }
   }
 
   return (
@@ -124,8 +156,7 @@ export default function Navbar({ variant = "overlay" }: NavbarProps) {
                 onChange={(e) => setNavSearch(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && navSearch.trim()) {
-                    router.push(`/find-homes?q=${encodeURIComponent(navSearch.trim())}`);
-                    setNavSearch("");
+                    handleNavSearchSubmit();
                   }
                 }}
                 placeholder="Search city, neighborhood..."
@@ -247,64 +278,170 @@ export default function Navbar({ variant = "overlay" }: NavbarProps) {
                   variant="ghost"
                   size="icon"
                   className="md:hidden text-white"
+                  aria-label="Open menu"
                 >
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="bg-background-dark border-white/10 w-72"
+                showCloseButton={false}
+                className="w-[min(88vw,22rem)] overflow-hidden border-l border-white/10 bg-[#090b10] p-0 text-white shadow-2xl shadow-black/70"
               >
-                <SheetTitle className="text-primary font-bold text-xl tracking-tighter">
-                  AXIOM
-                </SheetTitle>
-                <nav className="flex flex-col gap-4 mt-6">
-                  {NAV_ITEMS.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setOpen(false)}
-                      className="text-gray-300 hover:text-white transition-colors text-sm font-medium py-2"
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                  <hr className="border-white/10" />
-                  {user ? (
-                    <>
-                      <Link
-                        href={dashboardHref}
-                        onClick={() => setOpen(false)}
-                        className="text-white flex items-center gap-2 text-sm font-medium py-2"
-                      >
-                        <LayoutDashboard className="h-4 w-4" /> Dashboard
-                      </Link>
+                <div className="pointer-events-none absolute inset-0" />
+
+                <div className="relative flex min-h-full flex-col">
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    aria-label="Close menu"
+                    className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-white/60 transition-colors hover:bg-white/[0.1] hover:text-white"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+
+                  <div className="border-b border-white/10 px-5 pb-5 pt-6">
+                    <SheetTitle className="text-2xl font-bold tracking-tighter text-primary">
+                      AXIOM
+                    </SheetTitle>
+                    <p className="mt-1 text-xs font-medium uppercase tracking-[0.22em] text-white/35">
+                      Real estate made sharper
+                    </p>
+
+                    <div className="relative mt-5">
+                      <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <Search className="h-4 w-4 text-white/40" />
+                      </span>
+                      <Input
+                        type="text"
+                        value={navSearch}
+                        onChange={(e) => setNavSearch(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleNavSearchSubmit();
+                          }
+                        }}
+                        placeholder="Search city, neighborhood..."
+                        className="h-11 rounded-xl border border-white/10 bg-white/[0.07] pl-10 pr-11 text-sm text-white placeholder:text-white/35 focus-visible:ring-1 focus-visible:ring-primary"
+                      />
                       <button
-                        onClick={() => { setOpen(false); handleLogout(); }}
-                        className="text-red-400 flex items-center gap-2 text-sm font-medium py-2 text-left"
+                        type="button"
+                        onClick={handleNavSearchSubmit}
+                        aria-label="Search"
+                        className="absolute inset-y-1 right-1 flex w-9 items-center justify-center rounded-lg bg-primary text-white transition-colors hover:bg-primary-hover"
                       >
-                        <LogOut className="h-4 w-4" /> Log Out
+                        <ArrowRight className="h-4 w-4" />
                       </button>
-                    </>
-                  ) : (
-                    <>
-                      <Link
-                        href="/login"
-                        onClick={() => setOpen(false)}
-                        className="text-white flex items-center gap-2 text-sm font-medium py-2"
-                      >
-                        <LogIn className="h-4 w-4" /> Log In
-                      </Link>
-                      <Link
-                        href="/signup"
-                        onClick={() => setOpen(false)}
-                        className="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-full transition-colors text-sm font-medium text-center"
-                      >
-                        Sign Up
-                      </Link>
-                    </>
-                  )}
-                </nav>
+                    </div>
+                  </div>
+
+                  <nav className="flex-1 space-y-2 overflow-y-auto px-3 py-4">
+                    {NAV_ITEMS.map((item) => {
+                      const itemPath = item.href.split("?")[0];
+                      const isActive =
+                        pathname === itemPath ||
+                        pathname.startsWith(itemPath + "/");
+
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setOpen(false)}
+                          className={`group flex min-h-12 items-center gap-3 rounded-xl border px-3 text-sm font-semibold transition-colors ${
+                            isActive
+                              ? "border-primary/40 bg-primary/15 text-white"
+                              : "border-white/5 bg-white/[0.035] text-white/70 hover:border-white/15 hover:bg-white/[0.07] hover:text-white"
+                          }`}
+                        >
+                          <span
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                              isActive
+                                ? "bg-primary text-white"
+                                : "bg-white/5 text-primary group-hover:bg-primary/15"
+                            }`}
+                          >
+                            {renderMobileNavIcon(item.label)}
+                          </span>
+                          <span className="min-w-0 flex-1 truncate">
+                            {item.label}
+                          </span>
+                          <ArrowRight className="h-4 w-4 shrink-0 text-white/25 transition-transform group-hover:translate-x-0.5 group-hover:text-white/60" />
+                        </Link>
+                      );
+                    })}
+                  </nav>
+
+                  <div className="border-t border-white/10 bg-black/20 p-4">
+                    {user ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-primary/30 bg-primary/15">
+                            {user.avatar_url ? (
+                              <Image
+                                src={user.avatar_url}
+                                alt={user.full_name ?? "User"}
+                                width={40}
+                                height={40}
+                                className="h-full w-full rounded-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-sm font-bold text-primary">
+                                {initials}
+                              </span>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-white">
+                              {user.full_name ?? "User"}
+                            </p>
+                            <p className="truncate text-xs text-white/45">
+                              {user.email}
+                            </p>
+                          </div>
+                        </div>
+
+                        <Link
+                          href={dashboardHref}
+                          onClick={() => setOpen(false)}
+                          className="flex h-11 items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-white transition-colors hover:bg-primary-hover"
+                        >
+                          <LayoutDashboard className="h-4 w-4" />
+                          Dashboard
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOpen(false);
+                            handleLogout();
+                          }}
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-red-400/20 bg-red-500/10 text-sm font-semibold text-red-300 transition-colors hover:bg-red-500/15 hover:text-red-200"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Log Out
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-2">
+                        <Link
+                          href="/login"
+                          onClick={() => setOpen(false)}
+                          className="flex h-11 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] text-sm font-semibold text-white transition-colors hover:bg-white/[0.08]"
+                        >
+                          <LogIn className="h-4 w-4" />
+                          Log In
+                        </Link>
+                        <Link
+                          href="/signup"
+                          onClick={() => setOpen(false)}
+                          className="flex h-11 items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-white transition-colors hover:bg-primary-hover"
+                        >
+                          <UserPlus className="h-4 w-4" />
+                          Sign Up
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </SheetContent>
             </Sheet>
           </div>
