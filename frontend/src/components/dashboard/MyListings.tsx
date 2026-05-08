@@ -73,7 +73,7 @@ export default function MyListings({ listings, onAddNew, onEdit }: MyListingsPro
           </button>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-white/5 bg-black/20 text-gray-400 text-xs uppercase tracking-wider">
