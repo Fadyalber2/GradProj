@@ -10,7 +10,9 @@ import type {
   BlogPostBrief,
   BlogPostDetail,
   ApiDashboardListing,
+  ApiUniversity,
 } from "@/types/api";
+import type { UniversityDetail } from "@/types";
 
 // ── Listings ──────────────────────────────────────────────────────────────────
 
@@ -20,6 +22,12 @@ export interface ListingFilters {
   min_price?: number;
   max_price?: number;
   bedrooms?: number;
+  bathrooms?: number;
+  min_size_sqm?: number;
+  max_size_sqm?: number;
+  lease_type?: string;
+  room_type?: string;
+  utilities_included?: boolean;
   amenities?: string[];
   search?: string;
   sort_by?: string;
@@ -216,6 +224,14 @@ export async function getListings(filters?: ListingFilters) {
   if (filters?.category) query = query.eq("category", filters.category);
   if (filters?.property_type) query = query.eq("property_type", filters.property_type);
   if (filters?.bedrooms) query = query.eq("bedrooms", filters.bedrooms);
+  if (filters?.bathrooms) query = query.eq("bathrooms", filters.bathrooms);
+  if (filters?.min_size_sqm) query = query.gte("size_sqm", filters.min_size_sqm);
+  if (filters?.max_size_sqm) query = query.lte("size_sqm", filters.max_size_sqm);
+  if (filters?.lease_type) query = query.eq("lease_type", filters.lease_type);
+  if (filters?.room_type) query = query.eq("room_type", filters.room_type);
+  if (filters?.utilities_included !== undefined) {
+    query = query.eq("utilities_included", filters.utilities_included);
+  }
 
   // Explicit price filters from sidebar
   if (filters?.min_price) query = query.gte("price", filters.min_price);
@@ -281,11 +297,17 @@ export async function getListings(filters?: ListingFilters) {
 }
 
 export async function getListing(id: string) {
-  const { data, error } = await supabase
-    .from("listings")
-    .select("*, profiles!listings_owner_id_fkey(full_name, avatar_url, phone), agencies!listings_agency_id_fkey(name, phone)")
-    .eq("id", id)
-    .single();
+  const [{ data, error }, housematesRes] = await Promise.all([
+    supabase
+      .from("listings")
+      .select("*, profiles!listings_owner_id_fkey(full_name, avatar_url, phone), agencies!listings_agency_id_fkey(name, phone)")
+      .eq("id", id)
+      .single(),
+    supabase
+      .from("housemates")
+      .select("id, listing_id, user_id, name, age, occupation, avatar_url, tags, lifestyle_preferences")
+      .eq("listing_id", id),
+  ]);
 
   if (error || !data) return { data: null, error };
 
@@ -295,6 +317,7 @@ export async function getListing(id: string) {
   const agency  = d.agencies  as { name: string | null; phone: string | null } | null;
   const listing = {
     ...data,
+    housemates: housematesRes.data ?? [],
     similar_listings: [],
     contact_phone: profile?.phone ?? agency?.phone ?? null,
     contact_name:  profile?.full_name ?? agency?.name ?? null,
@@ -332,7 +355,7 @@ export async function getAgencies(search?: string) {
 export async function getAgency(slug: string) {
   const { data: agency, error } = await supabase
     .from("agencies")
-    .select("id, slug, name, description, logo_url, banner_url, verified, created_at, phone, email, city, website")
+    .select("id, slug, name, description, logo_url, banner_url, verified, created_at, phone, email, city, website, founded_year")
     .eq("slug", slug)
     .single();
 
@@ -355,6 +378,16 @@ export async function getAgency(slug: string) {
 
   const subError = projectsRes.error ?? listingsRes.error ?? null;
 
+  const projectCount = projectsRes.data?.length ?? 0;
+  const listingCount = listingsRes.data?.length ?? 0;
+  const isVerified = agency.verified ?? false;
+  const computedTrustScore = Math.min(
+    (isVerified ? 40 : 0) +
+    Math.min(projectCount * 5, 30) +
+    Math.min(listingCount * 2, 30),
+    100,
+  );
+
   const apiAgency: ApiAgencyDetail = {
     id: agency.id,
     slug: agency.slug,
@@ -363,12 +396,17 @@ export async function getAgency(slug: string) {
     description: agency.description ?? null,
     logo_url: agency.logo_url ?? null,
     banner_url: agency.banner_url ?? null,
-    verified: agency.verified ?? false,
-    active_projects: projectsRes.data?.length ?? 0,
-    listings_count: listingsRes.data?.length ?? 0,
-    trust_score: 95,
+    verified: isVerified,
+    active_projects: projectCount,
+    listings_count: listingCount,
+    trust_score: computedTrustScore,
     followers_count: 0,
     created_at: agency.created_at ?? null,
+    founded_year: (agency as Record<string, unknown>).founded_year as number | null ?? null,
+    phone: agency.phone ?? null,
+    email: agency.email ?? null,
+    website: agency.website ?? null,
+    city: agency.city ?? null,
   };
 
   const projects: ProjectBrief[] = (projectsRes.data ?? []).map((p) => ({
@@ -530,4 +568,109 @@ export async function getLikedListings(ids: string[]) {
     .in("id", ids)
     .is("deleted_at", null);
   return data ?? [];
+}
+
+// ── Universities ──────────────────────────────────────────────────────────────
+
+export async function getUniversities(search?: string, limit = 12) {
+  let query = supabase
+    .from("universities")
+    .select(
+      "id, slug, name, logo_url, banner_url, verified, city, type, student_count, accreditation, founded_year, description"
+    )
+    .order("name", { ascending: true })
+    .limit(limit);
+  if (search) query = query.ilike("name", `%${search}%`);
+
+  const { data, error } = await query;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const universities: ApiUniversity[] = ((data ?? []) as any[]).map((u) => ({
+    id: u.id,
+    slug: u.slug,
+    name: u.name,
+    subtitle: u.description ? String(u.description).slice(0, 100) : null,
+    logo_url: u.logo_url ?? null,
+    banner_url: u.banner_url ?? null,
+    verified: u.verified ?? false,
+    listings_count: 0,
+    city: u.city ?? null,
+    type: u.type ?? null,
+    student_count: u.student_count ?? null,
+    accreditation: u.accreditation ?? null,
+    founded_year: u.founded_year ?? null,
+    website: null,
+    phone: null,
+    email: null,
+    description: u.description ?? null,
+    trust_score: 0,
+    created_at: null,
+  }));
+  return { universities, error };
+}
+
+export async function getUniversity(slug: string): Promise<{
+  university: UniversityDetail | null;
+  listings: Record<string, unknown>[];
+  error: unknown;
+}> {
+  const { data: uni, error } = await supabase
+    .from("universities")
+    .select(
+      "id, slug, name, description, logo_url, banner_url, verified, created_at, phone, email, city, website, founded_year, type, student_count, accreditation"
+    )
+    .eq("slug", slug)
+    .single();
+
+  if (error || !uni) return { university: null, listings: [], error };
+
+  const listingsRes = await supabase
+    .from("listings")
+    .select("id, title, location, price, price_period, images, bedrooms, size_sqm, status")
+    .eq("university_id", uni.id)
+    .eq("status", "active")
+    .is("deleted_at", null)
+    .limit(6);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const uniAny = uni as any;
+  const listingCount = listingsRes.data?.length ?? 0;
+  const isVerified = uni.verified ?? false;
+  const studentCount = (uniAny.student_count as number | null) ?? null;
+  const foundedYear = (uniAny.founded_year as number | null) ?? null;
+
+  const pts =
+    (isVerified ? 40 : 0) +
+    Math.min(listingCount * 2, 30) +
+    (studentCount ? Math.min(Math.floor(studentCount / 1000), 20) : 0) +
+    (foundedYear
+      ? Math.min(Math.floor((new Date().getFullYear() - foundedYear) / 5), 10)
+      : 0);
+  const trustScore = Math.min(pts, 100);
+
+  const university: UniversityDetail = {
+    id: uni.id,
+    slug: uni.slug,
+    name: uni.name,
+    description: uni.description ?? null,
+    logo_url: uni.logo_url ?? null,
+    banner_url: uni.banner_url ?? null,
+    verified: isVerified,
+    listings_count: listingCount,
+    trust_score: trustScore,
+    city: uni.city ?? null,
+    type: (uniAny.type as "public" | "private" | null) ?? null,
+    student_count: studentCount,
+    accreditation: (uniAny.accreditation as string | null) ?? null,
+    founded_year: foundedYear,
+    website: uni.website ?? null,
+    phone: uni.phone ?? null,
+    email: uni.email ?? null,
+    created_at: uni.created_at ?? null,
+  };
+
+  return {
+    university,
+    listings: (listingsRes.data ?? []) as Record<string, unknown>[],
+    error: listingsRes.error,
+  };
 }
