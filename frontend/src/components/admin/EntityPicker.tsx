@@ -7,7 +7,7 @@ import { listItems } from "@/lib/admin/api";
 interface EntityPickerProps {
   value: string;
   onChange: (id: string, label: string) => void;
-  section: "users" | "agencies" | "projects";
+  section: "users" | "agencies" | "projects" | "universities";
   placeholder?: string;
   displayValue?: string;
   extraParams?: Record<string, string>;
@@ -22,6 +22,10 @@ interface Option {
 function getLabel(item: Record<string, unknown>, section: string): string {
   if (section === "users") return `${item.full_name ?? item.email ?? item.id}`;
   if (section === "projects") return `${item.title ?? item.id}`;
+  if (section === "universities") {
+    const name = item.name ?? item.id;
+    return item.city ? `${name} — ${item.city}` : `${name}`;
+  }
   return `${item.name ?? item.id}`;
 }
 
