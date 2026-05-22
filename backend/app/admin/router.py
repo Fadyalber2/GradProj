@@ -1,6 +1,9 @@
 import math
 import secrets
 import time
+import uuid
+from datetime import date
+
 import jwt
 from fastapi import APIRouter, HTTPException, Depends, Query, Request, Body
 from app.admin.schemas import (
@@ -13,6 +16,35 @@ from app.config import settings
 router = APIRouter()
 
 ADMIN_TOKEN_EXPIRY = 24 * 60 * 60  # 24 hours
+ALLOWED_ADMIN_UPLOAD_BUCKETS = {"avatars", "listing-images", "attachments", "agency-images"}
+
+
+def _age_from_birth_date(value: str | None) -> int | None:
+    if not value:
+        return None
+    try:
+        born = date.fromisoformat(value[:10])
+    except ValueError:
+        return None
+    today = date.today()
+    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+
+
+def _payload_with_calculated_age(update_data: dict) -> dict:
+    if "birth_date" not in update_data:
+        return update_data
+    return {
+        **update_data,
+        "age": _age_from_birth_date(update_data.get("birth_date")),
+    }
+
+
+def _missing_schema_columns(error_msg: str) -> set[str]:
+    missing = set()
+    for column in ("birth_date", "whatsapp_number"):
+        if "PGRST204" in error_msg and column in error_msg:
+            missing.add(column)
+    return missing
 
 
 def _create_admin_token(username: str) -> str:
@@ -29,13 +61,18 @@ def _create_admin_token(username: str) -> str:
 def _verify_admin_token(token: str) -> str:
     """Verify an admin JWT and return the username."""
     try:
-        payload = jwt.decode(token, settings.jwt_secret, algorithms=["HS256"])
+        payload = jwt.decode(
+            token,
+            settings.jwt_secret,
+            algorithms=["HS256"],
+            options={"verify_aud": False},
+        )
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Admin token expired")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid admin token")
     if payload.get("role") != "admin":
-        raise HTTPException(status_code=401, detail="Not an admin token")
+        raise HTTPException(status_code=403, detail="Admin access required")
     return payload["sub"]
 
 
@@ -147,7 +184,9 @@ async def admin_stats(_admin: str = Depends(get_admin)):
     total_blog_posts = _count("blog_posts")
 
     # Transactions (stub — no payments table yet)
-    total_transactions = 0
+    total_bookings = _count("bookings")
+    total_leads = _count("leads")
+    total_notifications = _count("notifications")
 
     # Verified sellers
     try:
@@ -163,7 +202,9 @@ async def admin_stats(_admin: str = Depends(get_admin)):
         "total_projects": total_projects,
         "total_shared_housing": total_shared_housing,
         "total_blog_posts": total_blog_posts,
-        "total_transactions": total_transactions,
+        "total_bookings": total_bookings,
+        "total_leads": total_leads,
+        "total_notifications": total_notifications,
         "flagged_listings": flagged_listings,
         "pending_listings": pending_listings,
         "active_listings": active_listings,
@@ -177,6 +218,7 @@ async def admin_stats(_admin: str = Depends(get_admin)):
 async def admin_list_listings(
     status: str | None = Query(None),
     search: str | None = Query(None),
+    category: str | None = Query(None),
     property_type: str | None = Query(None),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
@@ -191,6 +233,8 @@ async def admin_list_listings(
     )
     if status:
         query = query.eq("status", status)
+    if category:
+        query = query.eq("category", category)
     if property_type:
         query = query.eq("property_type", property_type)
     if search:
@@ -210,17 +254,83 @@ async def admin_create_listing(
     _admin: str = Depends(get_admin),
 ):
     """Admin-create a listing (bypasses normal flow)."""
+    housemates = body.pop("housemates", []) or []
     body.pop("id", None)
     body.pop("neighborhoods", None)
     body.pop("profiles", None)
     body.setdefault("status", "active")
     body.setdefault("city", body.get("location", ""))
+    body.setdefault("currency", "EGP")
+    for optional_uuid in ("agency_id", "project_id", "neighborhood_id", "university_id"):
+        if body.get(optional_uuid) == "":
+            body.pop(optional_uuid, None)
 
     try:
         result = supabase_admin.table("listings").insert(body).execute()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create listing: {e}")
-    return result.data[0]
+    listing = result.data[0]
+
+    if listing.get("category") == "shared_housing" and isinstance(housemates, list):
+        rows = []
+        for mate in housemates:
+            if not isinstance(mate, dict) or not mate.get("name"):
+                continue
+            rows.append({
+                "listing_id": listing["id"],
+                "user_id": mate.get("user_id"),
+                "name": mate["name"],
+                "age": mate.get("age"),
+                "occupation": mate.get("occupation"),
+                "avatar_url": mate.get("avatar_url"),
+                "tags": mate.get("tags") or [],
+                "lifestyle_preferences": mate.get("lifestyle_preferences") or {},
+            })
+        if rows:
+            try:
+                supabase_admin.table("housemates").insert(rows).execute()
+            except Exception:
+                pass
+
+    return listing
+
+
+@router.post("/uploads/signed-url")
+async def admin_get_signed_upload_url(
+    body: dict = Body(...),
+    _admin: str = Depends(get_admin),
+):
+    """Generate a signed Supabase Storage upload URL for admin-managed media."""
+    bucket = body.get("bucket")
+    filename = body.get("filename") or "upload"
+    if bucket not in ALLOWED_ADMIN_UPLOAD_BUCKETS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid bucket. Allowed: {', '.join(sorted(ALLOWED_ADMIN_UPLOAD_BUCKETS))}",
+        )
+
+    ext = filename.rsplit(".", 1)[-1] if "." in filename else ""
+    unique_name = f"{uuid.uuid4().hex}.{ext}" if ext else uuid.uuid4().hex
+    storage_path = f"admin/{unique_name}"
+
+    try:
+        response = supabase_admin.storage.from_(bucket).create_signed_upload_url(storage_path)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate signed URL: {e}")
+
+    if isinstance(response, dict):
+        signed_url = response.get("signedURL") or response.get("signed_url") or ""
+        path = response.get("path") or storage_path
+    else:
+        signed_url = getattr(response, "signed_url", "") or getattr(response, "signedURL", "")
+        path = getattr(response, "path", storage_path)
+
+    return {
+        "upload_url": signed_url,
+        "path": path,
+        "public_url": f"{supabase_admin.storage.from_(bucket).get_public_url(path)}",
+        "bucket": bucket,
+    }
 
 
 @router.put("/listings/{listing_id}")
@@ -448,8 +558,22 @@ async def admin_update_user(
 ):
     """Update any user profile field."""
     body.pop("id", None)
-    allowed = {"full_name", "phone", "role", "bio", "is_verified_seller"}
-    update_data = {k: v for k, v in body.items() if k in allowed}
+    allowed = {
+        "full_name",
+        "phone",
+        "whatsapp_number",
+        "role",
+        "bio",
+        "is_verified_seller",
+        "avatar_url",
+        "country_code",
+        "gender",
+        "birth_date",
+        "age",
+        "occupation",
+        "lifestyle_preferences",
+    }
+    update_data = _payload_with_calculated_age({k: v for k, v in body.items() if k in allowed})
     if not update_data:
         raise HTTPException(status_code=400, detail="No valid fields to update")
 
@@ -461,7 +585,23 @@ async def admin_update_user(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        error_msg = str(e)
+        missing_columns = _missing_schema_columns(error_msg)
+        if missing_columns:
+            fallback_data = {
+                key: value for key, value in update_data.items() if key not in missing_columns
+            }
+            try:
+                result = (
+                    supabase_admin.table("profiles")
+                    .update(fallback_data)
+                    .eq("id", user_id)
+                    .execute()
+                )
+            except Exception as retry_error:
+                raise HTTPException(status_code=500, detail=f"Database error: {retry_error}")
+        else:
+            raise HTTPException(status_code=500, detail=f"Database error: {e}")
     if not result.data:
         raise HTTPException(status_code=404, detail="User not found")
     return result.data[0]
@@ -512,7 +652,7 @@ async def admin_create_agency(
     if not body.get("slug") and body.get("name"):
         import re
         body["slug"] = re.sub(r"[^a-z0-9]+", "-", body["name"].lower()).strip("-")
-    _AGENCY_FIELDS = {"name", "slug", "description", "logo_url", "banner_url", "website", "phone", "email", "city", "verified"}
+    _AGENCY_FIELDS = {"owner_id", "name", "slug", "description", "logo_url", "banner_url", "website", "phone", "email", "city", "verified", "founded_year"}
     body = {k: v for k, v in body.items() if k in _AGENCY_FIELDS}
     try:
         result = supabase_admin.table("agencies").insert(body).execute()
@@ -529,7 +669,7 @@ async def admin_update_agency(
 ):
     """Admin-update an agency."""
     body.pop("id", None)
-    _AGENCY_FIELDS = {"name", "slug", "description", "logo_url", "banner_url", "website", "phone", "email", "city", "verified"}
+    _AGENCY_FIELDS = {"owner_id", "name", "slug", "description", "logo_url", "banner_url", "website", "phone", "email", "city", "verified", "founded_year"}
     body = {k: v for k, v in body.items() if k in _AGENCY_FIELDS}
     if not body:
         raise HTTPException(status_code=400, detail="No valid fields to update")
@@ -558,6 +698,92 @@ async def admin_delete_agency(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete agency: {e}")
     return {"message": "Agency deleted"}
+
+
+# ─── Universities ──────────────────────────────────────────────────────────────
+
+@router.get("/universities")
+async def admin_list_universities(
+    search: str | None = Query(None),
+    page: int = Query(1, ge=1),
+    per_page: int = Query(20, ge=1, le=100),
+    _admin: str = Depends(get_admin),
+):
+    """List all universities (admin)."""
+    offset = (page - 1) * per_page
+    query = supabase_admin.table("universities").select("*", count="exact")
+    if search:
+        query = query.ilike("name", f"%{search}%")
+    try:
+        result = query.order("created_at", desc=True).range(offset, offset + per_page - 1).execute()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+    return _paged(result.data or [], result.count or 0, page, per_page)
+
+
+@router.post("/universities", status_code=201)
+async def admin_create_university(
+    body: dict = Body(...),
+    _admin: str = Depends(get_admin),
+):
+    """Admin-create a university."""
+    import re
+    if not body.get("slug") and body.get("name"):
+        body["slug"] = re.sub(r"[^a-z0-9]+", "-", body["name"].lower()).strip("-")
+    _UNIVERSITY_FIELDS = {
+        "owner_id", "name", "slug", "description", "logo_url", "banner_url",
+        "website", "phone", "email", "city", "verified", "founded_year",
+        "type", "student_count", "accreditation",
+    }
+    body = {k: v for k, v in body.items() if k in _UNIVERSITY_FIELDS}
+    try:
+        result = supabase_admin.table("universities").insert(body).execute()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create university: {e}")
+    return result.data[0]
+
+
+@router.put("/universities/{university_id}")
+async def admin_update_university(
+    university_id: str,
+    body: dict = Body(...),
+    _admin: str = Depends(get_admin),
+):
+    """Admin-update a university."""
+    body.pop("id", None)
+    _UNIVERSITY_FIELDS = {
+        "name", "slug", "description", "logo_url", "banner_url",
+        "website", "phone", "email", "city", "verified", "founded_year",
+        "type", "student_count", "accreditation",
+    }
+    body = {k: v for k, v in body.items() if k in _UNIVERSITY_FIELDS}
+    if not body:
+        raise HTTPException(status_code=400, detail="No valid fields to update")
+    try:
+        result = (
+            supabase_admin.table("universities")
+            .update(body)
+            .eq("id", university_id)
+            .execute()
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update university: {e}")
+    if not result.data:
+        raise HTTPException(status_code=404, detail="University not found")
+    return result.data[0]
+
+
+@router.delete("/universities/{university_id}")
+async def admin_delete_university(
+    university_id: str,
+    _admin: str = Depends(get_admin),
+):
+    """Delete a university."""
+    try:
+        supabase_admin.table("universities").delete().eq("id", university_id).execute()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete university: {e}")
+    return {"message": "University deleted"}
 
 
 # ─── Projects ─────────────────────────────────────────────────────────────────
@@ -736,34 +962,6 @@ async def admin_delete_blog_post(
     return {"message": "Blog post deleted"}
 
 
-# ─── Shared Housing ──────────────────────────────────────────────────────────
-
-@router.get("/shared-housing")
-async def admin_list_shared_housing(
-    search: str | None = Query(None),
-    page: int = Query(1, ge=1),
-    per_page: int = Query(20, ge=1, le=100),
-    _admin: str = Depends(get_admin),
-):
-    """List shared housing listings (category=shared_housing)."""
-    offset = (page - 1) * per_page
-    query = (
-        supabase_admin.table("listings")
-        .select("*", count="exact")
-        .eq("category", "shared_housing")
-        .is_("deleted_at", "null")
-    )
-    if search:
-        query = query.ilike("title", f"%{search}%")
-
-    try:
-        result = query.order("created_at", desc=True).range(offset, offset + per_page - 1).execute()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
-
-    return _paged(result.data or [], result.count or 0, page, per_page)
-
-
 # ─── Fraud ────────────────────────────────────────────────────────────────────
 
 @router.get("/fraud")
@@ -840,6 +1038,59 @@ async def admin_list_notifications(
 
 
 # ─── Transactions (stub — no payments table yet) ─────────────────────────────
+
+@router.get("/bookings")
+async def admin_list_bookings(
+    search: str | None = Query(None),
+    status: str | None = Query(None),
+    booking_type: str | None = Query(None),
+    page: int = Query(1, ge=1),
+    per_page: int = Query(20, ge=1, le=100),
+    _admin: str = Depends(get_admin),
+):
+    """List live booking activity for the admin business view."""
+    offset = (page - 1) * per_page
+    query = supabase_admin.table("bookings").select(
+        "id, booking_type, status, total_price, platform_cut_amount, owner_amount, "
+        "start_date, end_date, created_at, "
+        "listings(title), renter:profiles!bookings_renter_id_fkey(full_name, email), "
+        "owner:profiles!bookings_owner_id_fkey(full_name, email)",
+        count="exact",
+    )
+    if status:
+        query = query.eq("status", status)
+    if booking_type:
+        query = query.eq("booking_type", booking_type)
+    if search:
+        query = query.ilike("listings.title", f"%{search}%")
+
+    try:
+        result = query.order("created_at", desc=True).range(offset, offset + per_page - 1).execute()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+
+    rows = []
+    for row in result.data or []:
+        listing = row.get("listings") or {}
+        renter = row.get("renter") or {}
+        owner = row.get("owner") or {}
+        rows.append({
+            "id": row.get("id"),
+            "listing_title": listing.get("title"),
+            "renter_name": renter.get("full_name") or renter.get("email"),
+            "owner_name": owner.get("full_name") or owner.get("email"),
+            "booking_type": row.get("booking_type"),
+            "status": row.get("status"),
+            "total_price": row.get("total_price"),
+            "platform_cut_amount": row.get("platform_cut_amount"),
+            "owner_amount": row.get("owner_amount"),
+            "start_date": row.get("start_date"),
+            "end_date": row.get("end_date"),
+            "created_at": row.get("created_at"),
+        })
+
+    return _paged(rows, result.count or 0, page, per_page)
+
 
 @router.get("/transactions")
 async def admin_list_transactions(

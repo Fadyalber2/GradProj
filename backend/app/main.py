@@ -1,3 +1,6 @@
+import asyncio
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
@@ -12,13 +15,31 @@ from app.admin.router import router as admin_router
 from app.ai.router import router as ai_router
 from app.uploads.router import router as uploads_router
 from app.applications.router import router as applications_router
+from app.bookings.lease_checker import lease_checker_loop
+from app.bookings.router import router as bookings_router
 from app.projects.router import router as projects_router
 from app.leads.router import router as leads_router
+from app.universities.router import router as universities_router
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    lease_task = asyncio.create_task(lease_checker_loop())
+    try:
+        yield
+    finally:
+        lease_task.cancel()
+        try:
+            await lease_task
+        except asyncio.CancelledError:
+            pass
+
 
 app = FastAPI(
     title="AXIOM V2 API",
     version="2.0.0",
     description="AI-powered real estate platform API for Egypt",
+    lifespan=lifespan,
 )
 
 _dev_origins = [
@@ -56,5 +77,7 @@ app.include_router(admin_router, prefix="/api/admin", tags=["admin"])
 app.include_router(ai_router, prefix="/api/ai", tags=["ai"])
 app.include_router(uploads_router, prefix="/api/uploads", tags=["uploads"])
 app.include_router(applications_router, prefix="/api/applications", tags=["applications"])
+app.include_router(bookings_router, prefix="/api/bookings", tags=["bookings"])
 app.include_router(projects_router, prefix="/api/projects", tags=["projects"])
 app.include_router(leads_router, prefix="/api", tags=["leads"])
+app.include_router(universities_router, prefix="/api/universities", tags=["universities"])
