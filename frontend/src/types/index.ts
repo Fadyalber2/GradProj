@@ -15,7 +15,7 @@ export type UserRole = "user" | "admin";
 export type GenderType = "male" | "female" | "other";
 
 export interface LifestylePreferences {
-  gender_preference?: "male" | "female" | "mixed";
+  gender_preference?: "male" | "female";
   smoking_allowed?: boolean;
   pets_allowed?: boolean;
   guests_policy?: "flexible" | "rarely" | "never";
@@ -26,7 +26,7 @@ export interface LifestylePreferences {
 }
 
 export interface PaymentPlan {
-  type: "cash" | "installments";
+  type: "cash";
   downPaymentPct?: number;
   monthlyInstallment?: number;
   years?: number;
@@ -38,11 +38,13 @@ export interface AuthUser {
   role: UserRole;
   full_name: string | null;
   phone: string | null;
+  whatsapp_number?: string | null;
   country_code: string | null;
   gender: GenderType | null;
   avatar_url: string | null;
   bio: string | null;
   badges: string[];
+  birth_date?: string | null;
   is_verified_seller: boolean;
   age?: number | null;
   occupation?: string | null;
@@ -97,8 +99,10 @@ export interface Listing {
   category?: "for_rent" | "for_sale" | "shared_housing";
   bedrooms?: number | null;
   bathrooms?: number | null;
+  size_sqm?: number | null;
   property_type?: string | null;
   is_new?: boolean;
+  created_at?: string | null;
 }
 
 export interface Feature {
@@ -163,14 +167,25 @@ export interface Agency {
   listings: string;
 }
 
-export interface University {
+export interface UniversityDetail {
+  id: string;
+  slug: string;
   name: string;
-  shortName: string;
-  location: string;
-  image: string;
-  availability: "available" | "limited";
-  details: { label: string; value: string }[];
-  avgPrice: string;
+  description: string | null;
+  logo_url: string | null;
+  banner_url: string | null;
+  verified: boolean;
+  listings_count: number;
+  trust_score: number;
+  city: string | null;
+  type: "public" | "private" | null;
+  student_count: number | null;
+  accreditation: string | null;
+  founded_year: number | null;
+  website: string | null;
+  phone: string | null;
+  email: string | null;
+  created_at: string | null;
 }
 
 export interface Residence {
@@ -215,6 +230,16 @@ export interface Housemate {
   occupation: string;
   avatar: string;
   tags: string[];
+  lifestylePreferences?: {
+    gender_preference?: string | null;
+    smoking_allowed?: boolean | null;
+    pets_allowed?: boolean | null;
+    guests_policy?: string | null;
+    noise_level?: string | null;
+    cleanliness?: string | null;
+    sleep_schedule?: string | null;
+    occupation_type?: string | null;
+  } | null;
 }
 
 export interface SharedAmenity {
@@ -300,13 +325,18 @@ export interface AgencyDetail {
   slug: string;
   name: string;
   logoText: string;
+  logo_url: string | null;
   badge: string;
   location: string;
   bannerImage: string;
   description: string;
   trustScore: string;
+  trustBreakdown: string;
   projectsForSale: string;
   developmentHistory: string;
+  website: string | null;
+  phone: string | null;
+  email: string | null;
   awards: Award[];
   featuredProjects: AgencyProject[];
   topListings: AgencyProject[];
@@ -392,7 +422,7 @@ export interface PropertyDetail {
   floorNumber?: number | null;
   totalFloors?: number | null;
   // Rental fields
-  leaseType?: "monthly" | "yearly" | "daily" | null;
+  leaseType?: "monthly" | "yearly" | null;
   minStayMonths?: number | null;
   // Sale fields
   paymentPlan?: PaymentPlan | null;

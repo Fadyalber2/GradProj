@@ -8,7 +8,6 @@ import type {
   HowItWorksStep,
   PropertyDetail,
   Agency,
-  University,
   AgencyDetail,
   BlogPost,
   PopularPost,
@@ -388,8 +387,13 @@ export const MOCK_AGENCY_DETAILS: Record<string, AgencyDetail> = {
     description:
       "Pioneering luxury lifestyles and vibrant communities that redefine modern living standards across Egypt. Emaar Misr has been delivering iconic real estate projects since 2005, combining world-class design with sustainable community living.",
     trustScore: "98",
+    trustBreakdown: "40 (verified) + 30 (projects) + 28 (listings)",
     projectsForSale: "12",
     developmentHistory: "19 Years",
+    logo_url: null,
+    website: null,
+    phone: null,
+    email: null,
     awards: [
       { title: "Best Developer 2023", subtitle: "Egypt Real Estate Awards", gold: true },
       { title: "Sustainability Award", subtitle: "Green Building Council", gold: false },
@@ -502,8 +506,13 @@ export const MOCK_AGENCY_DETAILS: Record<string, AgencyDetail> = {
     description:
       "Creating award-winning residential, commercial, and retail developments in Egypt's finest locations. SODIC has consistently delivered premium communities that set the benchmark for quality and innovation.",
     trustScore: "95",
+    trustBreakdown: "40 (verified) + 30 (projects) + 25 (listings)",
     projectsForSale: "8",
     developmentHistory: "26 Years",
+    logo_url: null,
+    website: null,
+    phone: null,
+    email: null,
     awards: [
       { title: "Best Residential Project", subtitle: "Africa Real Estate Summit", gold: true },
     ],
@@ -513,61 +522,6 @@ export const MOCK_AGENCY_DETAILS: Record<string, AgencyDetail> = {
     totalCities: 2,
   },
 };
-
-export const UNIVERSITIES: University[] = [
-  {
-    name: "American University",
-    shortName: "AUC",
-    location: "New Cairo, Egypt",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuARLGkALt6DAC_sxnRmkpdFMnlL0Ci2p5HMdAK5d4C2e4uPUvxiuNprZpPpON91YKVb7qyvjQi8Ts45O5rMBa9sUKqUQn1fi7vCTLr38UNa7O7VpE-ki3IP3xYPMhXRSoU4fvh1q0Jz8JIZik9sPV5DcyIvhQhUoSPqsGHlcimMUI7n9Jf6suvZTUOCelcv6OEyYbA04oJ6DT9MKb9AS_6pp0TviIA_zQiVb_iIA5dyW3SUA_xG80N9tD2knpFFjhYtnax2_44HPz5k",
-    availability: "available",
-    details: [
-      { label: "Dorms", value: "On-Campus" },
-      { label: "Private Rooms", value: "Yes" },
-    ],
-    avgPrice: "$350/mo",
-  },
-  {
-    name: "German University",
-    shortName: "GUC",
-    location: "New Cairo, Egypt",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBU9gJGV7yQlbWDWleSOzAYdxe0_RUuckYr_J1RM__tYIh90sfvWBYjrks4z-MGN8ICN7uQ-NOENV0iDdVYjfy9E-rV8YV_P2P0DCR6UqErfn0ZAgBeXgJ39ACE7edH5iCBZBu4WTEtPh-YVmhANEU3DRL-2im6pHPoxRLixeQb4Jsut1LKoh1j1bw0URp7CvOaLEtLCWg1Gs5OEPfW1zzyPIXLRsPuYkFiXo5MTvHKfbUOhssF7A9myiQZzFFI-Z90JyFJ8-UTPG8V",
-    availability: "available",
-    details: [
-      { label: "Dorms", value: "Off-Campus" },
-      { label: "Shared Apts", value: "Yes" },
-    ],
-    avgPrice: "$280/mo",
-  },
-  {
-    name: "British University",
-    shortName: "BUE",
-    location: "El Shorouk, Egypt",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuD_3JqYDqWDJt7x8T06uWm7sn7p0PMAbI7_zfTSeS3tmqZ1i0X1qGKHT5ZKBcp-CShJnLqn3OSgWWlB3ItRNGugxiyLFhxfz9fjRWwXqnpl5SVAqBy4WaCz3a31VAXcl77SCvyb8G2dfBlCLUslz8-1EI51EWcMgkGTeW5dw3R2PKXW3VtdslD4p52QhW42F9gegMF7WKu2ETSw4o3UYoHp8IK3Z741jmd4OzStUZL2S7h0RN6HSv3mN6HjyFxkvNPLK6G45n5Nexxn",
-    availability: "limited",
-    details: [
-      { label: "Dorms", value: "On-Campus" },
-      { label: "Bus Service", value: "Included" },
-    ],
-    avgPrice: "$320/mo",
-  },
-  {
-    name: "Ain Shams Univ.",
-    shortName: "ASU",
-    location: "Cairo, Egypt",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBW59XzE5x6pL3O5AHToRjddgLDrSSeerXCZfckAMKpo4KsBUNw_wzgl0EFSm7POEWcB1QUlN_szD5bRTlgHr2cl1Fk7dFS_QB1coWR5u_2H7r9nfCBRkM84e8fVfasWs2ZVU_mg0IZzpGMTWNwEf2iIfFl2qCn0kUwitFln3qfvCMALXJrrQEAER3ML3brkDUuVbyvJMYCmFj5XNOlLhdmSNxvnqaXdaURmzM51wvvP1Q9zyH1IspBtCNCvOLWkzt0oBX9nro5S8iW",
-    availability: "available",
-    details: [
-      { label: "Dorms", value: "External" },
-      { label: "Metro Access", value: "Yes" },
-    ],
-    avgPrice: "$150/mo",
-  },
-];
 
 const LISTING_IMAGE =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuDIgpp5RaTRHgduce7EJNsecsSIvCfIcE7G8b-6UddfNkO6SwIluzJzuD2vJmVzf3P7SEtFr3eebmTH2GhU6sJsLqBW_M9k_4uTUnuTcUmFNHFCzhSCMmbR_prcpFUYDpGogXf0qXYQepi1KPrv2JveaYiKsNkY6GrgUSymxhAv7YKbYU_HvNVVGlWj95qcgr9co8da1CQsoOLdknAR6fT3a8vd4pGCTqv8z9tuHSTFB-nf9uqyqKm3Yvm0r8E-eRc_lYNvjZvL7Dqq";
@@ -640,8 +594,13 @@ export const AGENCY_DETAIL: AgencyDetail = {
   description:
     "Crafting skyline-defining residences since 2008. We merge architectural innovation with sustainable luxury to create freehold assets that inspire ownership.",
   trustScore: "99.8",
+  trustBreakdown: "40 (verified) + 30 (projects) + 29.8 (listings)",
   projectsForSale: "124",
   developmentHistory: "15 Years",
+  logo_url: null,
+  website: null,
+  phone: null,
+  email: null,
   awards: [
     {
       title: "Architectural Digest 2023",
