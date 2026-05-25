@@ -11,6 +11,7 @@ import {
   Loader2,
   MapPin,
   AlertCircle,
+  Check,
 } from "lucide-react";
 import {
   LISTING_AMENITIES,
@@ -19,12 +20,25 @@ import {
   FURNISHING_OPTIONS,
 } from "@/lib/constants";
 import { api } from "@/lib/api";
+import { calculatePlatformFee, formatEGP } from "@/lib/utils";
 
 type DescLang = "english" | "arabic" | "both";
+type ListingCategory = "for_rent" | "for_sale" | "shared_housing";
+type ListingStep = 0 | 1 | 2;
+
+interface HousemateDraft {
+  name: string;
+  age: string;
+  occupation: string;
+  tags: string;
+  cleanliness: string;
+  sleep_schedule: string;
+  noise_level: string;
+}
 
 interface FormState {
   title: string;
-  category: string;
+  category: ListingCategory;
   property_type: string;
   full_address: string;
   price: string;
@@ -32,8 +46,27 @@ interface FormState {
   bedrooms: number;
   bathrooms: number;
   floor_number: string;
+  total_floors: string;
   furnishing: string;
+  lease_type: string;
+  min_stay_months: string;
+  available_date: string;
+  title_deed_status: string;
+  delivery_date: string;
+  payment_plan: string;
+  room_type: string;
+  total_spots: string;
+  bathroom_type: string;
+  utilities_included: boolean;
+  gender_preference: string;
+  cleanliness_level: string;
+  smoking_policy: string;
+  pets_policy: string;
+  availability: string;
   amenities: string[];
+  private_amenities: string[];
+  shared_amenities: string[];
+  housemates: HousemateDraft[];
   description: string;
   descLang: DescLang;
 }
@@ -42,6 +75,14 @@ interface FormErrors {
   title?: string;
   full_address?: string;
   price?: string;
+  size_sqm?: string;
+  lease_type?: string;
+  min_stay_months?: string;
+  available_date?: string;
+  title_deed_status?: string;
+  room_type?: string;
+  total_spots?: string;
+  bathroom_type?: string;
 }
 
 const INITIAL_FORM: FormState = {
@@ -54,28 +95,129 @@ const INITIAL_FORM: FormState = {
   bedrooms: 3,
   bathrooms: 2,
   floor_number: "",
+  total_floors: "",
   furnishing: "",
+  lease_type: "monthly",
+  min_stay_months: "12",
+  available_date: "",
+  title_deed_status: "ready",
+  delivery_date: "",
+  payment_plan: "cash",
+  room_type: "private",
+  total_spots: "1",
+  bathroom_type: "shared",
+  utilities_included: true,
+  gender_preference: "female",
+  cleanliness_level: "moderate",
+  smoking_policy: "outside_only",
+  pets_policy: "ask_first",
+  availability: "available",
   amenities: ["Parking"],
+  private_amenities: ["Private Room"],
+  shared_amenities: ["Central AC", "Elevator"],
+  housemates: [],
   description: "",
   descLang: "english",
 };
+
+const STEPS = ["Basics", "Details", "Photos"] as const;
+
+const CATEGORY_COPY: Record<
+  ListingCategory,
+  { priceLabel: string; priceHint: string; detailTitle: string; detailHint: string }
+> = {
+  for_rent: {
+    priceLabel: "Monthly Rent",
+    priceHint: "Rental listings need lease terms, move-in timing, furnishing, and core room details.",
+    detailTitle: "Rental Details",
+    detailHint: "Set the monthly rent and rental conditions tenants need before booking.",
+  },
+  for_sale: {
+    priceLabel: "Sale Price",
+    priceHint: "Sale listings need ownership and payment details, not monthly lease terms.",
+    detailTitle: "Sale Details",
+    detailHint: "Capture purchase price, ownership status, delivery timing, and the property footprint.",
+  },
+  shared_housing: {
+    priceLabel: "Monthly Price Per Spot",
+    priceHint: "Shared housing needs room setup, open spots, lifestyle fit, and shared amenities.",
+    detailTitle: "Shared Housing Details",
+    detailHint: "Tune the listing around roommate matching and house rules.",
+  },
+};
+
+const PRIVATE_FEATURE_PRESETS = [
+  "Private Room",
+  "Ensuite Bathroom",
+  "Private Bathroom",
+  "Private Balcony",
+  "Private Workspace",
+  "Private AC",
+  "Wardrobe",
+  "Private TV",
+] as const;
+
+const SHARED_FEATURE_PRESETS = [
+  "Central AC",
+  "Balcony",
+  "Elevator",
+  "Shared Kitchen",
+  "WiFi",
+  "Washing Machine",
+  "Security",
+  "Parking",
+  "Gym",
+  "Garden",
+] as const;
+
+const TOTAL_FLOORS_PROPERTY_TYPES = [
+  "Villa",
+  "Duplex",
+  "Townhouse",
+  "Penthouse",
+  "Chalet",
+  "Office",
+  "Commercial",
+] as const;
 
 interface AddListingModalProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  title?: string;
+  submitLabel?: string;
+  footerNote?: string;
+  renderBeforeBasics?: React.ReactNode;
+  validateBeforeSubmit?: () => string | null;
+  getAdditionalPayload?: () => Record<string, unknown>;
+  createListing?: (payload: Record<string, unknown>) => Promise<unknown>;
+  getSignedUploadUrl?: (
+    bucket: string,
+    filename: string
+  ) => Promise<{ upload_url: string; public_url: string }>;
 }
 
 export default function AddListingModal({
   open,
   onClose,
   onSuccess,
+  title = "Add New Listing",
+  submitLabel = "Submit for Review",
+  footerNote = "Listings are reviewed by an admin before going live.",
+  renderBeforeBasics,
+  validateBeforeSubmit,
+  getAdditionalPayload,
+  createListing,
+  getSignedUploadUrl,
 }: AddListingModalProps) {
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [step, setStep] = useState<ListingStep>(0);
 
   // Custom amenity state
   const [customAmenity, setCustomAmenity] = useState("");
+  const [customPrivateFeature, setCustomPrivateFeature] = useState("");
+  const [customSharedFeature, setCustomSharedFeature] = useState("");
   const [amenityError, setAmenityError] = useState("");
   const [checkingAmenity, setCheckingAmenity] = useState(false);
 
@@ -91,8 +233,81 @@ export default function AddListingModal({
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
+  function closeModal() {
+    setStep(0);
+    setErrors({});
+    setSubmitError("");
+    onClose();
+  }
+
   function setField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function addHousemate() {
+    setForm((prev) => ({
+      ...prev,
+      housemates: [
+        ...prev.housemates,
+        {
+          name: "",
+          age: "",
+          occupation: "",
+          tags: "",
+          cleanliness: "average",
+          sleep_schedule: "flexible",
+          noise_level: "moderate",
+        },
+      ],
+    }));
+  }
+
+  function updateHousemate<K extends keyof HousemateDraft>(
+    index: number,
+    key: K,
+    value: HousemateDraft[K]
+  ) {
+    setForm((prev) => ({
+      ...prev,
+      housemates: prev.housemates.map((mate, mateIndex) =>
+        mateIndex === index ? { ...mate, [key]: value } : mate
+      ),
+    }));
+  }
+
+  function removeHousemate(index: number) {
+    setForm((prev) => ({
+      ...prev,
+      housemates: prev.housemates.filter((_, mateIndex) => mateIndex !== index),
+    }));
+  }
+
+  function handleCategoryChange(category: ListingCategory) {
+    setForm((prev) => ({
+      ...prev,
+      category,
+      lease_type: category === "for_sale" ? "" : prev.lease_type || "monthly",
+      min_stay_months: category === "for_sale" ? "" : prev.min_stay_months || "12",
+      title_deed_status:
+        category === "for_sale" ? prev.title_deed_status || "ready" : "",
+      payment_plan: category === "for_sale" ? "cash" : "",
+      delivery_date:
+        category === "for_sale" && prev.title_deed_status !== "ready"
+          ? prev.delivery_date
+          : "",
+      total_floors:
+        category === "for_sale" &&
+        (TOTAL_FLOORS_PROPERTY_TYPES as readonly string[]).includes(prev.property_type)
+          ? prev.total_floors
+          : "",
+      room_type: category === "shared_housing" ? prev.room_type || "private" : "",
+      total_spots: category === "shared_housing" ? prev.total_spots || "1" : "",
+      bathroom_type:
+        category === "shared_housing" ? prev.bathroom_type || "shared" : "",
+      availability:
+        category === "shared_housing" ? prev.availability || "available" : "",
+    }));
+    setErrors({});
   }
 
   function toggleAmenity(amenity: string) {
@@ -102,6 +317,45 @@ export default function AddListingModal({
         ? form.amenities.filter((a) => a !== amenity)
         : [...form.amenities, amenity]
     );
+  }
+
+  function toggleFeature(
+    key: "private_amenities" | "shared_amenities",
+    otherKey: "private_amenities" | "shared_amenities",
+    feature: string
+  ) {
+    setForm((prev) => {
+      const active = prev[key].includes(feature);
+      return {
+        ...prev,
+        [key]: active
+          ? prev[key].filter((item) => item !== feature)
+          : [...prev[key], feature],
+        [otherKey]: prev[otherKey].filter((item) => item !== feature),
+      };
+    });
+    setAmenityError("");
+  }
+
+  function addCustomFeature(
+    key: "private_amenities" | "shared_amenities",
+    otherKey: "private_amenities" | "shared_amenities",
+    value: string,
+    clear: () => void
+  ) {
+    const feature = value.trim();
+    if (!feature) return;
+    if (form[key].includes(feature)) {
+      setAmenityError("Already in this feature list");
+      return;
+    }
+    setForm((prev) => ({
+      ...prev,
+      [key]: [...prev[key], feature],
+      [otherKey]: prev[otherKey].filter((item) => item !== feature),
+    }));
+    clear();
+    setAmenityError("");
   }
 
   async function handleCustomAmenitySubmit() {
@@ -152,13 +406,15 @@ export default function AddListingModal({
     const urls: string[] = [];
     for (const file of photoFiles) {
       try {
-        const { upload_url, public_url } = await api.post<{
-          upload_url: string;
-          public_url: string;
-        }>("/api/uploads/signed-url", {
-          bucket: "listing-images",
-          filename: file.name,
-        });
+        const { upload_url, public_url } = getSignedUploadUrl
+          ? await getSignedUploadUrl("listing-images", file.name)
+          : await api.post<{
+              upload_url: string;
+              public_url: string;
+            }>("/api/uploads/signed-url", {
+              bucket: "listing-images",
+              filename: file.name,
+            });
         await fetch(upload_url, {
           method: "PUT",
           body: file,
@@ -214,25 +470,73 @@ export default function AddListingModal({
     }
   }
 
-  function validate(): boolean {
+  function validateStep(targetStep: ListingStep = step): boolean {
     const newErrors: FormErrors = {};
-    if (!form.title.trim()) newErrors.title = "Listing name is required";
-    if (!form.full_address.trim())
-      newErrors.full_address = "Address is required";
-    if (!form.price || Number(form.price) <= 0)
-      newErrors.price = "Enter a price greater than 0";
+    if (targetStep === 0) {
+      if (!form.title.trim()) newErrors.title = "Listing name is required";
+      if (!form.full_address.trim())
+        newErrors.full_address = "Address is required";
+    }
+    if (targetStep === 1) {
+      if (!form.price || Number(form.price) <= 0)
+        newErrors.price = "Enter a price greater than 0";
+      if (!form.size_sqm || Number(form.size_sqm) <= 0)
+        newErrors.size_sqm = "Enter the property size";
+
+      if (form.category === "for_rent") {
+        if (!form.lease_type) newErrors.lease_type = "Choose a lease type";
+        if (!form.min_stay_months || Number(form.min_stay_months) <= 0)
+          newErrors.min_stay_months = "Enter minimum stay";
+        if (!form.available_date)
+          newErrors.available_date = "Choose an available date";
+      }
+
+      if (form.category === "for_sale" && !form.title_deed_status) {
+        newErrors.title_deed_status = "Choose title deed status";
+      }
+
+      if (form.category === "shared_housing") {
+        if (!form.room_type) newErrors.room_type = "Choose room type";
+        if (!form.total_spots || Number(form.total_spots) <= 0)
+          newErrors.total_spots = "Enter available spots";
+        if (!form.bathroom_type) newErrors.bathroom_type = "Choose bathroom type";
+        if (!form.available_date)
+          newErrors.available_date = "Choose an available date";
+      }
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
 
+  function goNext() {
+    if (!validateStep(step)) return;
+    setStep((prev) => Math.min(prev + 1, 2) as ListingStep);
+  }
+
   async function submitListing() {
-    if (!validate()) return;
+    const externalError = validateBeforeSubmit?.();
+    if (externalError) {
+      setSubmitError(externalError);
+      setStep(0);
+      return;
+    }
+    if (!validateStep(0)) {
+      setStep(0);
+      return;
+    }
+    if (!validateStep(1)) {
+      setStep(1);
+      return;
+    }
 
     setSubmitting(true);
     setSubmitError("");
     try {
       const images = await uploadPhotos();
-      await api.post("/api/listings", {
+      const combinedSharedHousingAmenities = Array.from(
+        new Set([...form.private_amenities, ...form.shared_amenities])
+      );
+      const payload: Record<string, unknown> = {
         title: form.title.trim(),
         full_address: form.full_address,
         location: form.full_address,
@@ -244,13 +548,89 @@ export default function AddListingModal({
         bedrooms: form.bedrooms,
         bathrooms: form.bathrooms,
         floor_number: form.floor_number ? Number(form.floor_number) : null,
+        total_floors: showSaleTotalFloors && form.total_floors ? Number(form.total_floors) : null,
         furnishing: form.furnishing ? form.furnishing.toLowerCase() : null,
+        price_period: recurringPrice ? "monthly" : null,
+        lease_type:
+          form.category === "for_rent" || form.category === "shared_housing"
+            ? form.lease_type
+            : null,
+        min_stay_months:
+          form.category === "for_rent" || form.category === "shared_housing"
+            ? Number(form.min_stay_months || 1)
+            : null,
+        available_date:
+          form.category === "for_rent" || form.category === "shared_housing"
+            ? form.available_date || null
+            : null,
+        title_deed_status:
+          form.category === "for_sale" ? form.title_deed_status || null : null,
+        delivery_date: showSaleDeliveryDate ? form.delivery_date || null : null,
+        payment_plan:
+          form.category === "for_sale"
+            ? {
+                type: "cash",
+              }
+            : null,
+        room_type:
+          form.category === "shared_housing" ? form.room_type || null : null,
+        total_spots:
+          form.category === "shared_housing"
+            ? Number(form.total_spots || 1)
+            : null,
+        availability:
+          form.category === "shared_housing" ? form.availability || null : null,
+        utilities_included:
+          form.category === "shared_housing" ? form.utilities_included : null,
+        bathroom_type:
+          form.category === "shared_housing" ? form.bathroom_type || null : null,
+        lifestyle_preferences:
+          form.category === "shared_housing"
+            ? {
+                gender_preference: form.gender_preference,
+                cleanliness: form.cleanliness_level,
+                smoking_allowed: form.smoking_policy === "allowed" || form.smoking_policy === "outside_only",
+                pets_allowed: form.pets_policy === "pets_ok" || form.pets_policy === "ask_first",
+              }
+            : null,
+        private_amenities:
+          form.category === "shared_housing" ? form.private_amenities : [],
+        shared_amenities:
+          form.category === "shared_housing" ? form.shared_amenities : [],
+        housemates:
+          form.category === "shared_housing"
+            ? form.housemates
+                .filter((mate) => mate.name.trim())
+                .map((mate) => ({
+                  name: mate.name.trim(),
+                  age: mate.age ? Number(mate.age) : null,
+                  occupation: mate.occupation.trim() || null,
+                  tags: mate.tags
+                    .split(",")
+                    .map((tag) => tag.trim())
+                    .filter(Boolean),
+                  lifestyle_preferences: {
+                    cleanliness: mate.cleanliness,
+                    sleep_schedule: mate.sleep_schedule,
+                    noise_level: mate.noise_level,
+                  },
+                }))
+            : [],
         description: form.description,
-        amenities: form.amenities,
+        amenities:
+          form.category === "shared_housing"
+            ? combinedSharedHousingAmenities
+            : form.amenities,
         images,
-      });
+        ...(getAdditionalPayload?.() ?? {}),
+      };
+      if (createListing) {
+        await createListing(payload);
+      } else {
+        await api.post("/api/listings", payload);
+      }
       onSuccess?.();
-      onClose();
+      closeModal();
       setForm(INITIAL_FORM);
       setPhotoPreviews([]);
       setPhotoFiles([]);
@@ -266,19 +646,28 @@ export default function AddListingModal({
   const customAmenities = form.amenities.filter(
     (a) => !(LISTING_AMENITIES as readonly string[]).includes(a)
   );
+  const priceNumber = Number(form.price);
+  const feePreview = priceNumber > 0 ? calculatePlatformFee(priceNumber) : null;
+  const recurringPrice = form.category === "for_rent" || form.category === "shared_housing";
+  const categoryCopy = CATEGORY_COPY[form.category];
+  const showSaleDeliveryDate =
+    form.category === "for_sale" && form.title_deed_status !== "ready";
+  const showSaleTotalFloors =
+    form.category === "for_sale" &&
+    (TOTAL_FLOORS_PROPERTY_TYPES as readonly string[]).includes(form.property_type);
 
   return (
     <div className="fixed inset-0 z-[60] overflow-y-auto" role="dialog" aria-modal="true">
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={closeModal} />
 
       <div className="flex min-h-screen items-center justify-center p-4 sm:p-0">
         <div className="relative transform overflow-hidden rounded-3xl bg-card-dark text-left shadow-2xl sm:my-8 w-[95vw] max-w-3xl max-h-[90vh] overflow-y-auto border border-white/10">
 
           {/* Header */}
           <div className="bg-black/20 px-4 py-5 sm:px-8 border-b border-white/5 flex justify-between items-center">
-            <h3 className="text-xl font-bold text-white">Add New Listing</h3>
+            <h3 className="text-xl font-bold text-white">{title}</h3>
             <button
-              onClick={onClose}
+              onClick={closeModal}
               className="text-gray-400 hover:text-white transition-colors rounded-lg p-1 hover:bg-white/5"
             >
               <X className="h-5 w-5" />
@@ -287,8 +676,45 @@ export default function AddListingModal({
 
           {/* Form body */}
           <div className="px-4 py-6 sm:px-8 space-y-8 max-h-[70vh] overflow-y-auto">
+            <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-black/20 p-2">
+              {STEPS.map((label, index) => {
+                const active = step === index;
+                const complete = step > index;
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => {
+                      if (index <= step) {
+                        setStep(index as ListingStep);
+                        return;
+                      }
+                      if (index === step + 1 && validateStep(step)) {
+                        setStep(index as ListingStep);
+                      }
+                    }}
+                    className={`flex min-h-12 items-center justify-center gap-2 rounded-xl px-2 text-xs font-semibold transition-all sm:text-sm ${
+                      active
+                        ? "bg-primary text-white shadow-lg shadow-primary/20"
+                        : complete
+                          ? "bg-white/10 text-white"
+                          : "text-gray-500 hover:text-gray-300"
+                    }`}
+                  >
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/15 bg-black/20 text-[11px]">
+                      {complete ? <Check className="h-3.5 w-3.5" /> : index + 1}
+                    </span>
+                    <span>{label}</span>
+                  </button>
+                );
+              })}
+            </div>
 
             {/* ── Section 1: Basics ── */}
+            {step === 0 && (
+              <>
+            {renderBeforeBasics}
+
             <section className="space-y-4">
               <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest">
                 Basics
@@ -326,7 +752,9 @@ export default function AddListingModal({
                   </label>
                   <select
                     value={form.category}
-                    onChange={(e) => setField("category", e.target.value)}
+                    onChange={(e) =>
+                      handleCategoryChange(e.target.value as ListingCategory)
+                    }
                     className="w-full bg-input-dark border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm appearance-none cursor-pointer"
                   >
                     {LISTING_CATEGORIES.map((c) => (
@@ -342,7 +770,18 @@ export default function AddListingModal({
                   </label>
                   <select
                     value={form.property_type}
-                    onChange={(e) => setField("property_type", e.target.value)}
+                    onChange={(e) => {
+                      const nextType = e.target.value;
+                      setForm((prev) => ({
+                        ...prev,
+                        property_type: nextType,
+                        total_floors:
+                          prev.category === "for_sale" &&
+                          (TOTAL_FLOORS_PROPERTY_TYPES as readonly string[]).includes(nextType)
+                            ? prev.total_floors
+                            : "",
+                      }));
+                    }}
                     className="w-full bg-input-dark border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm appearance-none cursor-pointer"
                   >
                     {PROPERTY_TYPES.map((t) => (
@@ -391,18 +830,25 @@ export default function AddListingModal({
             </section>
 
             <div className="border-t border-white/5" />
+              </>
+            )}
 
             {/* ── Section 3: Property Details ── */}
-            <section className="space-y-4">
-              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest">
-                Property Details
-              </p>
+            {step === 1 && (
+              <>
+            <section className="space-y-5">
+              <div>
+                <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest">
+                  {categoryCopy.detailTitle}
+                </p>
+                <p className="mt-1 text-sm text-gray-400">{categoryCopy.detailHint}</p>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Price */}
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium text-gray-300">
-                    Price <span className="text-red-400">*</span>
+                    {categoryCopy.priceLabel} <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 text-xs font-medium">
@@ -426,25 +872,57 @@ export default function AddListingModal({
                       <AlertCircle className="h-3 w-3" /> {errors.price}
                     </p>
                   )}
+                  {feePreview && (
+                    <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-xs">
+                      <div className="flex items-center justify-between gap-3 text-gray-400">
+                        <span>{recurringPrice ? "Your price" : "Listing price"}</span>
+                        <span className="font-semibold text-white">
+                          {formatEGP(priceNumber)}{recurringPrice ? " / month" : ""}
+                        </span>
+                      </div>
+                      <div className="mt-1 flex items-center justify-between gap-3 text-gray-400">
+                        <span>Platform fee (5%)</span>
+                        <span className="font-semibold text-gray-200">
+                          - {formatEGP(feePreview.platformFee)}{recurringPrice ? " / month" : ""}
+                        </span>
+                      </div>
+                      <div className="mt-2 flex items-center justify-between gap-3 border-t border-white/10 pt-2 text-gray-300">
+                        <span>You receive</span>
+                        <span className="font-bold text-primary">
+                          {formatEGP(feePreview.ownerReceives)}{recurringPrice ? " / month" : ""}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Size */}
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium text-gray-300">
-                    Size
+                    Size <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <input
                       type="number"
                       value={form.size_sqm}
-                      onChange={(e) => setField("size_sqm", e.target.value)}
+                      onChange={(e) => {
+                        setField("size_sqm", e.target.value);
+                        setErrors((p) => ({ ...p, size_sqm: undefined }));
+                      }}
                       placeholder="0"
-                      className="w-full bg-input-dark border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm"
+                      className={`w-full bg-input-dark border rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm ${
+                        errors.size_sqm ? "border-red-500" : "border-white/10"
+                      }`}
                     />
                     <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 text-xs font-medium">
                       sqm
                     </span>
                   </div>
+                  {errors.size_sqm && (
+                    <p className="text-red-400 text-xs flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" /> {errors.size_sqm}
+                    </p>
+                  )}
                 </div>
 
                 {/* Floor */}
@@ -466,7 +944,7 @@ export default function AddListingModal({
                 {/* Rooms */}
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium text-gray-300">
-                    Rooms
+                    {form.category === "shared_housing" ? "Bedrooms in Home" : "Rooms"}
                   </label>
                   <div className="flex items-center gap-3">
                     <button
@@ -538,6 +1016,324 @@ export default function AddListingModal({
                   </select>
                 </div>
               </div>
+
+              {form.category === "for_rent" && (
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                  <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-gray-500">
+                    Rental Requirements
+                  </p>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-gray-300">
+                        Lease Type <span className="text-red-400">*</span>
+                      </label>
+                      <select
+                        value={form.lease_type}
+                        onChange={(e) => {
+                          setField("lease_type", e.target.value);
+                          setErrors((p) => ({ ...p, lease_type: undefined }));
+                        }}
+                        className={`w-full bg-input-dark border rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm ${
+                          errors.lease_type ? "border-red-500" : "border-white/10"
+                        }`}
+                      >
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                      </select>
+                      {errors.lease_type && (
+                        <p className="text-red-400 text-xs flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {errors.lease_type}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-gray-300">
+                        Min Stay <span className="text-red-400">*</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          value={form.min_stay_months}
+                          onChange={(e) => {
+                            setField("min_stay_months", e.target.value);
+                            setErrors((p) => ({ ...p, min_stay_months: undefined }));
+                          }}
+                          className={`w-full bg-input-dark border rounded-xl px-4 py-3 pr-16 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm ${
+                            errors.min_stay_months ? "border-red-500" : "border-white/10"
+                          }`}
+                        />
+                        <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 text-xs font-medium">
+                          months
+                        </span>
+                      </div>
+                      {errors.min_stay_months && (
+                        <p className="text-red-400 text-xs flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {errors.min_stay_months}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-gray-300">
+                        Available Date <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="date"
+                        value={form.available_date}
+                        onChange={(e) => {
+                          setField("available_date", e.target.value);
+                          setErrors((p) => ({ ...p, available_date: undefined }));
+                        }}
+                        className={`w-full bg-input-dark border rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm ${
+                          errors.available_date ? "border-red-500" : "border-white/10"
+                        }`}
+                      />
+                      {errors.available_date && (
+                        <p className="text-red-400 text-xs flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {errors.available_date}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {form.category === "for_sale" && (
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                  <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-gray-500">
+                    Sale Requirements
+                  </p>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-gray-300">
+                        Title Deed <span className="text-red-400">*</span>
+                      </label>
+                      <select
+                        value={form.title_deed_status}
+                        onChange={(e) => {
+                          const nextTitleDeed = e.target.value;
+                          setForm((prev) => ({
+                            ...prev,
+                            title_deed_status: nextTitleDeed,
+                            delivery_date:
+                              nextTitleDeed === "ready" ? "" : prev.delivery_date,
+                          }));
+                          setErrors((p) => ({ ...p, title_deed_status: undefined }));
+                        }}
+                        className={`w-full bg-input-dark border rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm ${
+                          errors.title_deed_status ? "border-red-500" : "border-white/10"
+                        }`}
+                      >
+                        <option value="ready">Ready</option>
+                        <option value="off_plan">Off Plan</option>
+                        <option value="pending">Pending</option>
+                      </select>
+                      {errors.title_deed_status && (
+                        <p className="text-red-400 text-xs flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {errors.title_deed_status}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-gray-300">
+                        Payment Type
+                      </label>
+                      <div className="rounded-xl border border-white/10 bg-input-dark px-4 py-3 text-sm font-semibold text-white">
+                        Full payment only
+                      </div>
+                    </div>
+                    {showSaleDeliveryDate && (
+                      <div className="space-y-1.5">
+                        <label className="block text-sm font-medium text-gray-300">
+                          Delivery Date
+                        </label>
+                        <input
+                          type="date"
+                          value={form.delivery_date}
+                          onChange={(e) => setField("delivery_date", e.target.value)}
+                          className="w-full bg-input-dark border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm"
+                        />
+                      </div>
+                    )}
+                    {showSaleTotalFloors && (
+                      <div className="space-y-1.5">
+                        <label className="block text-sm font-medium text-gray-300">
+                          Total Floors
+                        </label>
+                        <input
+                          type="number"
+                          value={form.total_floors}
+                          onChange={(e) => setField("total_floors", e.target.value)}
+                          placeholder="e.g. 12"
+                          className="w-full bg-input-dark border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {form.category === "shared_housing" && (
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                  <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-gray-500">
+                    Shared Housing Requirements
+                  </p>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-gray-300">
+                        Room Type <span className="text-red-400">*</span>
+                      </label>
+                      <select
+                        value={form.room_type}
+                        onChange={(e) => {
+                          setField("room_type", e.target.value);
+                          setErrors((p) => ({ ...p, room_type: undefined }));
+                        }}
+                        className={`w-full bg-input-dark border rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm ${
+                          errors.room_type ? "border-red-500" : "border-white/10"
+                        }`}
+                      >
+                        <option value="private">Private Room</option>
+                        <option value="ensuite">Ensuite Room</option>
+                        <option value="shared">Shared Room</option>
+                      </select>
+                      {errors.room_type && (
+                        <p className="text-red-400 text-xs flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {errors.room_type}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-gray-300">
+                        Open Spots <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        value={form.total_spots}
+                        onChange={(e) => {
+                          setField("total_spots", e.target.value);
+                          setErrors((p) => ({ ...p, total_spots: undefined }));
+                        }}
+                        className={`w-full bg-input-dark border rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm ${
+                          errors.total_spots ? "border-red-500" : "border-white/10"
+                        }`}
+                      />
+                      {errors.total_spots && (
+                        <p className="text-red-400 text-xs flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {errors.total_spots}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-gray-300">
+                        Bathroom Type <span className="text-red-400">*</span>
+                      </label>
+                      <select
+                        value={form.bathroom_type}
+                        onChange={(e) => {
+                          setField("bathroom_type", e.target.value);
+                          setErrors((p) => ({ ...p, bathroom_type: undefined }));
+                        }}
+                        className={`w-full bg-input-dark border rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm ${
+                          errors.bathroom_type ? "border-red-500" : "border-white/10"
+                        }`}
+                      >
+                        <option value="private">Private</option>
+                        <option value="shared">Shared</option>
+                      </select>
+                      {errors.bathroom_type && (
+                        <p className="text-red-400 text-xs flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {errors.bathroom_type}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-gray-300">
+                        Available Date <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="date"
+                        value={form.available_date}
+                        onChange={(e) => {
+                          setField("available_date", e.target.value);
+                          setErrors((p) => ({ ...p, available_date: undefined }));
+                        }}
+                        className={`w-full bg-input-dark border rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm ${
+                          errors.available_date ? "border-red-500" : "border-white/10"
+                        }`}
+                      />
+                      {errors.available_date && (
+                        <p className="text-red-400 text-xs flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {errors.available_date}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-gray-300">
+                        Preferred Gender
+                      </label>
+                      <select
+                        value={form.gender_preference}
+                        onChange={(e) => setField("gender_preference", e.target.value)}
+                        className="w-full bg-input-dark border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm"
+                      >
+                        <option value="female">Female</option>
+                        <option value="male">Male</option>
+                      </select>
+                    </div>
+                    <label className="flex min-h-[46px] items-center justify-between rounded-xl border border-white/10 bg-input-dark px-4 text-sm text-gray-300">
+                      Utilities Included
+                      <input
+                        type="checkbox"
+                        checked={form.utilities_included}
+                        onChange={(e) => setField("utilities_included", e.target.checked)}
+                        className="h-4 w-4 accent-primary"
+                      />
+                    </label>
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-gray-300">
+                        Cleanliness
+                      </label>
+                      <select
+                        value={form.cleanliness_level}
+                        onChange={(e) => setField("cleanliness_level", e.target.value)}
+                        className="w-full bg-input-dark border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm"
+                      >
+                        <option value="relaxed">Relaxed</option>
+                        <option value="moderate">Moderate</option>
+                        <option value="very_clean">Very clean</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-gray-300">
+                        Smoking
+                      </label>
+                      <select
+                        value={form.smoking_policy}
+                        onChange={(e) => setField("smoking_policy", e.target.value)}
+                        className="w-full bg-input-dark border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm"
+                      >
+                        <option value="no_smoking">No smoking</option>
+                        <option value="outside_only">Outside only</option>
+                        <option value="allowed">Allowed</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-gray-300">
+                        Pets
+                      </label>
+                      <select
+                        value={form.pets_policy}
+                        onChange={(e) => setField("pets_policy", e.target.value)}
+                        className="w-full bg-input-dark border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm"
+                      >
+                        <option value="no_pets">No pets</option>
+                        <option value="ask_first">Ask first</option>
+                        <option value="pets_ok">Pets OK</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
             </section>
 
             <div className="border-t border-white/5" />
@@ -545,9 +1341,283 @@ export default function AddListingModal({
             {/* ── Section 4: Amenities ── */}
             <section className="space-y-3">
               <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest">
-                Amenities
+                {form.category === "shared_housing" ? "Private & Shared Features" : "Amenities"}
               </p>
 
+              {form.category === "shared_housing" ? (
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                    <div className="mb-4">
+                      <h3 className="text-sm font-bold text-white">Private Features</h3>
+                      <p className="mt-1 text-xs text-gray-500">
+                        Room-only features included with this spot.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {PRIVATE_FEATURE_PRESETS.map((feature) => {
+                        const active = form.private_amenities.includes(feature);
+                        return (
+                          <button
+                            key={feature}
+                            type="button"
+                            onClick={() =>
+                              toggleFeature(
+                                "private_amenities",
+                                "shared_amenities",
+                                feature
+                              )
+                            }
+                            className={
+                              active
+                                ? "px-3 py-1.5 rounded-full text-xs font-medium bg-primary text-white border border-primary transition-all shadow-sm shadow-primary/20 flex items-center gap-1"
+                                : "px-3 py-1.5 rounded-full text-xs font-medium bg-input-dark text-gray-300 border border-white/10 hover:border-white/30 hover:bg-[#333] transition-all"
+                            }
+                          >
+                            {feature}
+                            {active && <X className="h-3.5 w-3.5" />}
+                          </button>
+                        );
+                      })}
+                      {form.private_amenities
+                        .filter(
+                          (feature) =>
+                            !(PRIVATE_FEATURE_PRESETS as readonly string[]).includes(feature)
+                        )
+                        .map((feature) => (
+                          <button
+                            key={feature}
+                            type="button"
+                            onClick={() =>
+                              toggleFeature(
+                                "private_amenities",
+                                "shared_amenities",
+                                feature
+                              )
+                            }
+                            className="px-3 py-1.5 rounded-full text-xs font-medium bg-primary text-white border border-primary transition-all shadow-sm shadow-primary/20 flex items-center gap-1"
+                          >
+                            {feature}
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        ))}
+                    </div>
+                    <div className="mt-4 flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={customPrivateFeature}
+                        onChange={(e) => {
+                          setCustomPrivateFeature(e.target.value);
+                          setAmenityError("");
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            addCustomFeature(
+                              "private_amenities",
+                              "shared_amenities",
+                              customPrivateFeature,
+                              () => setCustomPrivateFeature("")
+                            );
+                          }
+                        }}
+                        placeholder="Add private feature..."
+                        className="flex-1 bg-input-dark border border-dashed border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                    <div className="mb-4">
+                      <h3 className="text-sm font-bold text-white">Shared Features</h3>
+                      <p className="mt-1 text-xs text-gray-500">
+                        Home and building features shared with housemates.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {SHARED_FEATURE_PRESETS.map((feature) => {
+                        const active = form.shared_amenities.includes(feature);
+                        return (
+                          <button
+                            key={feature}
+                            type="button"
+                            onClick={() =>
+                              toggleFeature(
+                                "shared_amenities",
+                                "private_amenities",
+                                feature
+                              )
+                            }
+                            className={
+                              active
+                                ? "px-3 py-1.5 rounded-full text-xs font-medium bg-primary text-white border border-primary transition-all shadow-sm shadow-primary/20 flex items-center gap-1"
+                                : "px-3 py-1.5 rounded-full text-xs font-medium bg-input-dark text-gray-300 border border-white/10 hover:border-white/30 hover:bg-[#333] transition-all"
+                            }
+                          >
+                            {feature}
+                            {active && <X className="h-3.5 w-3.5" />}
+                          </button>
+                        );
+                      })}
+                      {form.shared_amenities
+                        .filter(
+                          (feature) =>
+                            !(SHARED_FEATURE_PRESETS as readonly string[]).includes(feature)
+                        )
+                        .map((feature) => (
+                          <button
+                            key={feature}
+                            type="button"
+                            onClick={() =>
+                              toggleFeature(
+                                "shared_amenities",
+                                "private_amenities",
+                                feature
+                              )
+                            }
+                            className="px-3 py-1.5 rounded-full text-xs font-medium bg-primary text-white border border-primary transition-all shadow-sm shadow-primary/20 flex items-center gap-1"
+                          >
+                            {feature}
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        ))}
+                    </div>
+                    <div className="mt-4 flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={customSharedFeature}
+                        onChange={(e) => {
+                          setCustomSharedFeature(e.target.value);
+                          setAmenityError("");
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            addCustomFeature(
+                              "shared_amenities",
+                              "private_amenities",
+                              customSharedFeature,
+                              () => setCustomSharedFeature("")
+                            );
+                          }
+                        }}
+                        placeholder="Add shared feature..."
+                        className="flex-1 bg-input-dark border border-dashed border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 md:col-span-2">
+                    <div className="mb-4 flex items-start justify-between gap-4">
+                      <div>
+                        <h3 className="text-sm font-bold text-white">Current Housemates</h3>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Listing-specific profiles shown on the page and used as roommate context.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={addHousemate}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-2 text-xs font-bold text-gray-200 transition hover:border-primary/50 hover:text-white"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        Add
+                      </button>
+                    </div>
+
+                    {form.housemates.length === 0 ? (
+                      <p className="rounded-xl border border-dashed border-white/10 px-4 py-3 text-sm text-gray-500">
+                        Add the people already living here so applicants see real housemate data.
+                      </p>
+                    ) : (
+                      <div className="space-y-3">
+                        {form.housemates.map((mate, index) => (
+                          <div key={index} className="rounded-xl border border-white/10 bg-input-dark p-3">
+                            <div className="mb-3 flex items-center justify-between gap-3">
+                              <p className="text-xs font-bold uppercase tracking-wide text-gray-500">
+                                Housemate {index + 1}
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => removeHousemate(index)}
+                                className="rounded-lg p-1.5 text-gray-500 transition hover:bg-white/10 hover:text-white"
+                                aria-label="Remove housemate"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                              <input
+                                type="text"
+                                value={mate.name}
+                                onChange={(e) => updateHousemate(index, "name", e.target.value)}
+                                placeholder="Name"
+                                className="rounded-xl border border-white/10 bg-card-dark px-3 py-2.5 text-sm text-white outline-none focus:border-primary"
+                              />
+                              <input
+                                type="number"
+                                min="18"
+                                value={mate.age}
+                                onChange={(e) => updateHousemate(index, "age", e.target.value)}
+                                placeholder="Age"
+                                className="rounded-xl border border-white/10 bg-card-dark px-3 py-2.5 text-sm text-white outline-none focus:border-primary"
+                              />
+                              <input
+                                type="text"
+                                value={mate.occupation}
+                                onChange={(e) => updateHousemate(index, "occupation", e.target.value)}
+                                placeholder="Occupation"
+                                className="rounded-xl border border-white/10 bg-card-dark px-3 py-2.5 text-sm text-white outline-none focus:border-primary"
+                              />
+                              <input
+                                type="text"
+                                value={mate.tags}
+                                onChange={(e) => updateHousemate(index, "tags", e.target.value)}
+                                placeholder="Tags, comma separated"
+                                className="rounded-xl border border-white/10 bg-card-dark px-3 py-2.5 text-sm text-white outline-none focus:border-primary md:col-span-3"
+                              />
+                              <select
+                                value={mate.cleanliness}
+                                onChange={(e) => updateHousemate(index, "cleanliness", e.target.value)}
+                                className="rounded-xl border border-white/10 bg-card-dark px-3 py-2.5 text-sm text-white outline-none focus:border-primary"
+                              >
+                                <option value="very_clean">Very clean</option>
+                                <option value="average">Average clean</option>
+                                <option value="relaxed">Relaxed clean</option>
+                              </select>
+                              <select
+                                value={mate.sleep_schedule}
+                                onChange={(e) => updateHousemate(index, "sleep_schedule", e.target.value)}
+                                className="rounded-xl border border-white/10 bg-card-dark px-3 py-2.5 text-sm text-white outline-none focus:border-primary"
+                              >
+                                <option value="early_bird">Early bird</option>
+                                <option value="night_owl">Night owl</option>
+                                <option value="flexible">Flexible schedule</option>
+                              </select>
+                              <select
+                                value={mate.noise_level}
+                                onChange={(e) => updateHousemate(index, "noise_level", e.target.value)}
+                                className="rounded-xl border border-white/10 bg-card-dark px-3 py-2.5 text-sm text-white outline-none focus:border-primary"
+                              >
+                                <option value="quiet">Quiet</option>
+                                <option value="moderate">Moderate noise</option>
+                                <option value="lively">Lively</option>
+                              </select>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {amenityError && (
+                    <p className="text-red-400 text-xs flex items-center gap-1 md:col-span-2">
+                      <AlertCircle className="h-3 w-3" />
+                      {amenityError}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <>
               <div className="flex flex-wrap gap-2">
                 {/* Preset chips */}
                 {LISTING_AMENITIES.map((amenity) => {
@@ -614,11 +1684,17 @@ export default function AddListingModal({
                   </p>
                 )}
               </div>
+                </>
+              )}
             </section>
 
             <div className="border-t border-white/5" />
+              </>
+            )}
 
             {/* ── Section 5: Photos ── */}
+            {step === 2 && (
+              <>
             <section className="space-y-3">
               <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest">
                 Photos
@@ -736,12 +1812,14 @@ export default function AddListingModal({
                 className="w-full bg-input-dark border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm resize-none"
               />
             </section>
+              </>
+            )}
           </div>
 
           {/* Footer */}
           <div className="bg-black/20 px-4 py-5 sm:px-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-gray-500 shrink-0">
-              Listings are reviewed by an admin before going live.
+              {footerNote}
             </p>
             <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
               {submitError && (
@@ -752,23 +1830,42 @@ export default function AddListingModal({
               )}
               <button
                 type="button"
-                onClick={onClose}
+                onClick={closeModal}
                 className="px-5 py-2.5 rounded-xl border border-white/10 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
               >
                 Cancel
               </button>
-              <button
-                type="button"
-                onClick={submitListing}
-                disabled={submitting}
-                className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-sm font-bold text-white shadow-lg shadow-primary/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2 whitespace-nowrap"
-              >
-                {submitting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Submit for Review"
-                )}
-              </button>
+              {step > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setStep((prev) => Math.max(prev - 1, 0) as ListingStep)}
+                  className="px-5 py-2.5 rounded-xl border border-white/10 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
+                >
+                  Back
+                </button>
+              )}
+              {step < 2 ? (
+                <button
+                  type="button"
+                  onClick={goNext}
+                  className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-sm font-bold text-white shadow-lg shadow-primary/25 transition-all flex items-center justify-center gap-2 whitespace-nowrap"
+                >
+                  Continue
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={submitListing}
+                  disabled={submitting}
+                  className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-sm font-bold text-white shadow-lg shadow-primary/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2 whitespace-nowrap"
+                >
+                  {submitting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    submitLabel
+                  )}
+                </button>
+              )}
             </div>
           </div>
 

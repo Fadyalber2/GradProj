@@ -5,17 +5,9 @@ import ArticleSidebar from "@/components/blog-article/ArticleSidebar";
 import NewsletterCTA from "@/components/blog-article/NewsletterCTA";
 import RelatedArticles from "@/components/blog-article/RelatedArticles";
 import { getBlogPost } from "@/lib/supabase-queries";
+import { formatDate } from "@/lib/utils";
 import type { BlogPostDetail, BlogPostBrief } from "@/types/api";
 import type { BlogArticle, RelatedArticle, ArticleBlock } from "@/types";
-
-function formatDate(iso: string | null) {
-  if (!iso) return "";
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
 function mapArticle(post: BlogPostDetail): BlogArticle {
   return {

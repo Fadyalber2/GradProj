@@ -209,7 +209,7 @@ function RecommendationCard({ listing }: { listing: RecommendedListing }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <span className="absolute bottom-3 left-3 text-white font-bold text-base">
             {formatEGP(listing.price)}
-            <span className="text-xs font-normal text-gray-300">/mo</span>
+            <span className="text-xs font-normal text-gray-300">/month</span>
           </span>
         </div>
         <div className="p-4">

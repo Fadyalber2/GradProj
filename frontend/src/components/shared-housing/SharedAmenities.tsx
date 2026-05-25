@@ -80,11 +80,16 @@ export default function SharedAmenities({
           <h3 className="text-base font-semibold text-primary mb-4 flex items-center gap-2">
             <Lock className="h-4 w-4" /> Private Features
           </h3>
+          <p className="mb-3 text-xs text-gray-500">
+            Room-only features reserved for the person taking this spot.
+          </p>
           <div className="grid grid-cols-1 gap-2">
             {privateAmenities.length > 0 ? (
               privateAmenities.map((a) => <AmenityItem key={a.label} amenity={a} />)
             ) : (
-              <p className="text-gray-500 text-sm">None listed</p>
+              <p className="rounded-xl border border-white/5 bg-card-dark p-3 text-sm text-gray-500">
+                No private room-only features listed
+              </p>
             )}
           </div>
         </div>
@@ -92,6 +97,9 @@ export default function SharedAmenities({
           <h3 className="text-base font-semibold text-primary mb-4 flex items-center gap-2">
             <Users className="h-4 w-4" /> Shared Features
           </h3>
+          <p className="mb-3 text-xs text-gray-500">
+            Home and building features shared with the housemates.
+          </p>
           <div className="grid grid-cols-1 gap-2">
             {sharedAmenities.length > 0 ? (
               sharedAmenities.map((a) => <AmenityItem key={a.label} amenity={a} />)

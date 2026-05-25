@@ -48,41 +48,41 @@ export default function AdminTable({
   }
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div className="overflow-hidden rounded-[1.35rem] border border-zinc-200/80 bg-white shadow-[0_22px_70px_-45px_rgba(15,23,42,0.55)] ring-1 ring-white">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-slate-50 border-b border-slate-200">
+            <tr className="border-b border-zinc-200/80 bg-zinc-50/80">
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="text-left px-4 py-3 font-semibold text-slate-500 whitespace-nowrap text-xs uppercase tracking-wider"
+                  className="whitespace-nowrap px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500"
                 >
                   {col.label}
                 </th>
               ))}
               {showActions && (
-                <th className="text-right px-4 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">
+                <th className="px-4 py-3.5 text-right text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
                   Actions
                 </th>
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-zinc-100">
             {loading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <tr key={i} className="animate-pulse">
                   {columns.map((col, j) => (
                     <td key={col.key} className="px-4 py-3.5">
                       <div
-                        className="h-4 bg-slate-100 rounded-full"
+                        className="h-4 rounded-full bg-zinc-100"
                         style={{ width: SKELETON_WIDTHS[(i + j) % SKELETON_WIDTHS.length] }}
                       />
                     </td>
                   ))}
                   {showActions && (
                     <td className="px-4 py-3.5">
-                      <div className="h-7 bg-slate-100 rounded-lg w-20 ml-auto" />
+                      <div className="ml-auto h-7 w-20 rounded-lg bg-zinc-100" />
                     </td>
                   )}
                 </tr>
@@ -94,12 +94,12 @@ export default function AdminTable({
                   className="px-4 py-16 text-center"
                 >
                   <div className="flex flex-col items-center gap-3">
-                    <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
-                      <DatabaseZap className="w-5 h-5 text-slate-400" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200 bg-zinc-50">
+                      <DatabaseZap className="h-5 w-5 text-zinc-400" />
                     </div>
                     <div>
-                      <p className="text-slate-600 font-medium text-sm">No records found</p>
-                      <p className="text-slate-400 text-xs mt-0.5">Try adjusting your search or filters</p>
+                      <p className="text-sm font-semibold text-zinc-700">No live records found</p>
+                      <p className="mt-0.5 text-xs text-zinc-400">Try adjusting the search or filters</p>
                     </div>
                   </div>
                 </td>
@@ -108,10 +108,10 @@ export default function AdminTable({
               data.map((row, i) => (
                 <tr
                   key={String(row.id ?? i)}
-                  className="hover:bg-blue-50/40 transition-colors duration-100"
+                  className="transition-colors duration-150 hover:bg-orange-50/40"
                 >
                   {columns.map((col) => (
-                    <td key={col.key} className="px-4 py-3.5 text-slate-700">
+                    <td key={col.key} className="px-4 py-3.5 text-zinc-700">
                       {col.render
                         ? col.render(row[col.key], row)
                         : String(row[col.key] ?? "—")}
@@ -119,12 +119,13 @@ export default function AdminTable({
                   ))}
                   {showActions && (
                     <td className="px-4 py-3.5">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="ml-auto inline-flex items-center justify-end rounded-xl border border-zinc-200 bg-zinc-50 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]">
                         {onView && (
                           <button
                             onClick={() => onView(row)}
-                            className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                            className="rounded-lg p-2 text-zinc-500 transition-[background-color,color,transform] hover:bg-white hover:text-orange-600 hover:shadow-sm active:scale-[0.97]"
                             title="View details"
+                            aria-label="View details"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
@@ -132,8 +133,9 @@ export default function AdminTable({
                         {onEdit && (
                           <button
                             onClick={() => onEdit(row)}
-                            className="p-2 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                            className="rounded-lg p-2 text-zinc-500 transition-[background-color,color,transform] hover:bg-white hover:text-zinc-950 hover:shadow-sm active:scale-[0.97]"
                             title="Edit"
+                            aria-label="Edit"
                           >
                             <Pencil className="w-4 h-4" />
                           </button>
@@ -141,8 +143,9 @@ export default function AdminTable({
                         {onDelete && (
                           <button
                             onClick={() => onDelete(row)}
-                            className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                            className="rounded-lg p-2 text-zinc-500 transition-[background-color,color,transform] hover:bg-red-50 hover:text-red-600 active:scale-[0.97]"
                             title="Delete"
+                            aria-label="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -158,8 +161,8 @@ export default function AdminTable({
       </div>
 
       {/* Footer — always shown */}
-      <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/60">
-        <span className="text-xs text-slate-500">
+      <div className="flex items-center justify-between border-t border-zinc-100 bg-zinc-50/70 px-4 py-3">
+        <span className="text-xs text-zinc-500">
           {total === 0
             ? "No records"
             : `Showing ${from}–${to} of ${total.toLocaleString()} records`}
@@ -170,7 +173,7 @@ export default function AdminTable({
             <button
               onClick={() => onPageChange(page - 1)}
               disabled={page <= 1}
-              className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-white hover:shadow-sm disabled:opacity-40 disabled:cursor-not-allowed transition"
+              className="rounded-lg border border-zinc-200 p-1.5 text-zinc-500 transition-[background-color,box-shadow,transform] hover:bg-white hover:shadow-sm active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
             </button>
@@ -181,8 +184,8 @@ export default function AdminTable({
                 onClick={() => onPageChange(p)}
                 className={`w-7 h-7 rounded-lg text-xs font-semibold transition ${
                   page === p
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "text-slate-500 hover:bg-slate-200"
+                    ? "bg-orange-600 text-white shadow-sm"
+                    : "text-zinc-500 hover:bg-zinc-200"
                 }`}
               >
                 {p}
@@ -192,7 +195,7 @@ export default function AdminTable({
             <button
               onClick={() => onPageChange(page + 1)}
               disabled={page >= totalPages}
-              className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-white hover:shadow-sm disabled:opacity-40 disabled:cursor-not-allowed transition"
+              className="rounded-lg border border-zinc-200 p-1.5 text-zinc-500 transition-[background-color,box-shadow,transform] hover:bg-white hover:shadow-sm active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronRight className="w-3.5 h-3.5" />
             </button>

@@ -32,7 +32,7 @@ async function fetchProfileFromSupabase(userId: string): Promise<AuthUser | null
   try {
     const { data } = await supabase
       .from("profiles")
-      .select("id, email, full_name, avatar_url, phone, bio, role, is_verified_seller, gender, country_code, badges, created_at, updated_at")
+      .select("id, email, full_name, avatar_url, phone, whatsapp_number, bio, role, is_verified_seller, gender, country_code, badges, birth_date, age, occupation, lifestyle_preferences, created_at, updated_at")
       .eq("id", userId)
       .single();
     if (!data) return null;
@@ -44,12 +44,17 @@ async function fetchProfileFromSupabase(userId: string): Promise<AuthUser | null
       role: d.role ?? "user",
       full_name: d.full_name ?? null,
       phone: d.phone ?? null,
+      whatsapp_number: d.whatsapp_number ?? null,
       country_code: d.country_code ?? null,
       gender: d.gender ?? null,
       avatar_url: d.avatar_url ?? null,
       bio: d.bio ?? null,
       badges: d.badges ?? [],
       is_verified_seller: d.is_verified_seller ?? false,
+      birth_date: d.birth_date ?? null,
+      age: d.age ?? null,
+      occupation: d.occupation ?? null,
+      lifestyle_preferences: d.lifestyle_preferences ?? null,
     };
   } catch {
     return null;
@@ -99,12 +104,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         role: "user",
         full_name: session.user.user_metadata?.full_name ?? null,
         phone: null,
+        whatsapp_number: null,
         country_code: null,
         gender: null,
         avatar_url: session.user.user_metadata?.avatar_url ?? null,
         bio: null,
         badges: [],
         is_verified_seller: false,
+        birth_date: null,
       };
       set({ session, user: resolvedUser, isInitialized: true });
     } else {
@@ -127,12 +134,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               role: "user",
               full_name: session.user.user_metadata?.full_name ?? null,
               phone: null,
+              whatsapp_number: null,
               country_code: null,
               gender: null,
               avatar_url: session.user.user_metadata?.avatar_url ?? null,
               bio: null,
               badges: [],
               is_verified_seller: false,
+              birth_date: null,
             };
             set({ session, user: resolvedUser });
           }
@@ -180,12 +189,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         role: "user",
         full_name: data.session.user.user_metadata?.full_name ?? null,
         phone: null,
+        whatsapp_number: null,
         country_code: null,
         gender: null,
         avatar_url: data.session.user.user_metadata?.avatar_url ?? null,
         bio: null,
         badges: [],
         is_verified_seller: false,
+        birth_date: null,
       };
       set({ session: data.session, user: resolvedUser });
     } finally {

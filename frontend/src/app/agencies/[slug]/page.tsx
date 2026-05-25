@@ -56,19 +56,34 @@ export default async function AgencyDetailPage({
 
   if (!agency) notFound();
 
+  const verifiedPts = agency.verified ? 40 : 0;
+  const projectPts = Math.min(agency.active_projects * 5, 30);
+  const listingPts = Math.min(agency.listings_count * 2, 30);
+  const trustBreakdown = `${verifiedPts} (verified) + ${projectPts} (projects) + ${listingPts} (listings)`;
+
+  const foundedYear = agency.founded_year;
+  const devHistory = foundedYear
+    ? `${new Date().getFullYear() - foundedYear} Years`
+    : agency.created_at
+    ? `${new Date().getFullYear() - new Date(agency.created_at).getFullYear()} Years`
+    : "N/A";
+
   const detail: AgencyDetail = {
     slug: agency.slug,
     name: agency.name,
     logoText: agency.name.slice(0, 2).toUpperCase(),
+    logo_url: agency.logo_url ?? null,
     badge: agency.verified ? "Verified Developer" : "Developer",
-    location: "Cairo, Egypt",
+    location: agency.city ? `${agency.city}, Egypt` : "Egypt",
     bannerImage: agency.banner_url ?? "",
     description: agency.description ?? "",
     trustScore: `${agency.trust_score}`,
+    trustBreakdown,
     projectsForSale: `${agency.active_projects}`,
-    developmentHistory: agency.created_at
-      ? `${new Date().getFullYear() - new Date(agency.created_at).getFullYear()} Years`
-      : "N/A",
+    developmentHistory: devHistory,
+    website: agency.website ?? null,
+    phone: agency.phone ?? null,
+    email: agency.email ?? null,
     awards: [],
     featuredProjects: projects.slice(0, 3).map(mapProject),
     topListings: listings.slice(0, 3).map((l) => {

@@ -3,32 +3,59 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, MapPin, ArrowUpRight, Loader2, ChevronLeft } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { useLikesStore } from "@/stores/likesStore";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { favoritesQueries, favoriteMutation } from "@/lib/queries";
 import { getLikedListings } from "@/lib/supabase-queries";
-import { formatEGP } from "@/lib/utils";
+import { formatEGP, getListingPriceSuffix } from "@/lib/utils";
 
 export default function LikesPage() {
-  const { likedIds, toggleLike } = useLikesStore();
+  const queryClient = useQueryClient();
 
-  // Newest first
-  const orderedIds = [...likedIds].reverse();
+  const { data: likedIds = new Set<string>(), isLoading: idsLoading } = useQuery(
+    favoritesQueries.ids()
+  );
 
-  const { data: raw = [], isLoading } = useQuery({
+  const toggleMutation = useMutation({
+    ...favoriteMutation,
+    onMutate: async (listingId: string) => {
+      await queryClient.cancelQueries({ queryKey: ["favorites", "ids"] });
+      const prev = queryClient.getQueryData<Set<string>>(["favorites", "ids"]);
+      queryClient.setQueryData(["favorites", "ids"], (old: Set<string> | undefined) => {
+        const next = new Set(old ?? []);
+        if (next.has(listingId)) next.delete(listingId);
+        else next.add(listingId);
+        return next;
+      });
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev !== undefined) {
+        queryClient.setQueryData(["favorites", "ids"], ctx.prev);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "me"] });
+    },
+  });
+
+  const orderedIds = Array.from(likedIds).reverse();
+
+  const { data: raw = [], isLoading: listingsLoading } = useQuery({
     queryKey: ["liked-listings-all", orderedIds],
     queryFn: () => getLikedListings(orderedIds),
     enabled: orderedIds.length > 0,
     staleTime: 0,
   });
 
-  // Restore newest-first order (Supabase .in() ignores array order)
+  const isLoading = idsLoading || listingsLoading;
+
   const listings = orderedIds
     .map((id) => raw.find((l) => String(l.id) === id))
     .filter(Boolean) as typeof raw;
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      {/* Header */}
       <div className="flex items-center gap-4 mb-8">
         <Link
           href="/dashboard"
@@ -38,27 +65,25 @@ export default function LikesPage() {
         </Link>
         <div>
           <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-            Liked Properties
+            Saved Properties
             <span className="bg-white/10 text-gray-400 text-sm px-2.5 py-0.5 rounded-full font-medium">
-              {likedIds.length}
+              {likedIds.size}
             </span>
           </h1>
           <p className="text-gray-500 text-sm mt-0.5">All your saved listings</p>
         </div>
       </div>
 
-      {/* Loading */}
       {isLoading && (
         <div className="flex items-center justify-center py-24">
           <Loader2 className="h-7 w-7 animate-spin text-primary" />
         </div>
       )}
 
-      {/* Empty */}
-      {!isLoading && likedIds.length === 0 && (
+      {!isLoading && likedIds.size === 0 && (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <Heart className="h-12 w-12 text-gray-600 mb-4" />
-          <p className="text-gray-400 font-semibold text-lg">No liked properties yet</p>
+          <p className="text-gray-400 font-semibold text-lg">No saved properties yet</p>
           <p className="text-gray-600 text-sm mt-1 mb-6">
             Hit the heart on any listing to save it here.
           </p>
@@ -71,7 +96,6 @@ export default function LikesPage() {
         </div>
       )}
 
-      {/* Grid */}
       {!isLoading && listings.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {listings.map((l) => {
@@ -80,6 +104,8 @@ export default function LikesPage() {
             if (l.bedrooms != null) specs.push(`${l.bedrooms} Bed${l.bedrooms !== 1 ? "s" : ""}`);
             if (l.bathrooms != null) specs.push(`${l.bathrooms} Bath${l.bathrooms !== 1 ? "s" : ""}`);
             if (l.size_sqm != null) specs.push(`${l.size_sqm} m²`);
+
+            const priceSuffix = getListingPriceSuffix(l.category, l.price_period);
 
             return (
               <div
@@ -96,9 +122,9 @@ export default function LikesPage() {
                   />
                   <button
                     type="button"
-                    onClick={() => toggleLike(String(l.id))}
+                    onClick={() => toggleMutation.mutate(String(l.id))}
                     className="absolute top-3 right-3 w-10 h-10 rounded-full bg-black/40 hover:bg-white text-primary hover:text-red-500 backdrop-blur-sm flex items-center justify-center transition-colors"
-                    aria-label="Remove from favourites"
+                    aria-label="Remove from saved"
                   >
                     <Heart className="h-5 w-5 fill-current" />
                   </button>
@@ -123,8 +149,8 @@ export default function LikesPage() {
                     </div>
                     <div className="text-right flex-shrink-0">
                       <span className="text-primary font-bold text-xl">{formatEGP(l.price)}</span>
-                      {l.price_period && (
-                        <span className="block text-gray-500 text-xs">/ {l.price_period}</span>
+                      {priceSuffix && (
+                        <span className="block text-gray-500 text-xs">{priceSuffix}</span>
                       )}
                     </div>
                   </div>

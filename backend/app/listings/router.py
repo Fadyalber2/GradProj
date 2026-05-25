@@ -50,6 +50,12 @@ def _build_listing_brief(row: dict) -> dict:
         "floor_number": row.get("floor_number"),
         "neighborhood": neighborhood_name,
         "compound_name": row.get("compound_name"),
+        "room_type": row.get("room_type"),
+        "lifestyle_preferences": row.get("lifestyle_preferences"),
+        "total_spots": row.get("total_spots"),
+        "filled_spots": row.get("filled_spots"),
+        "utilities_included": row.get("utilities_included"),
+        "available_date": row.get("available_date"),
         "views_count": row.get("views_count", 0),
         "created_at": row.get("created_at", ""),
     }
@@ -86,6 +92,10 @@ async def list_listings(
     lease_type: str | None = Query(None),
     title_deed_status: str | None = Query(None),
     room_type: str | None = Query(None),
+    gender_preference: str | None = Query(None),
+    utilities_included: bool | None = Query(None),
+    has_spots: bool | None = Query(None),
+    available_before: str | None = Query(None),
     compound_name: str | None = Query(None),
     floor_min: int | None = Query(None),
     floor_max: int | None = Query(None),
@@ -149,6 +159,13 @@ async def list_listings(
         query = query.eq("title_deed_status", title_deed_status)
     if room_type:
         query = query.eq("room_type", room_type)
+    if category == "shared_housing":
+        if gender_preference:
+            query = query.contains("lifestyle_preferences", {"gender_preference": gender_preference})
+        if utilities_included is not None:
+            query = query.eq("utilities_included", utilities_included)
+        if available_before:
+            query = query.lte("available_date", available_before)
     if compound_name:
         query = query.ilike("compound_name", f"%{compound_name}%")
     if floor_min is not None:
@@ -165,8 +182,16 @@ async def list_listings(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {e}")
 
-    listings = [_build_listing_brief(row) for row in (result.data or [])]
-    total = result.count or 0
+    rows = result.data or []
+    if category == "shared_housing" and has_spots:
+        rows = [
+            row for row in rows
+            if row.get("total_spots") is None
+            or (row.get("filled_spots") or 0) < row.get("total_spots")
+        ]
+
+    listings = [_build_listing_brief(row) for row in rows]
+    total = len(rows) if category == "shared_housing" and has_spots else (result.count or 0)
 
     return {"listings": listings, "total": total, "page": page, "per_page": per_page}
 
@@ -264,9 +289,9 @@ async def get_listing(
                 .single()
                 .execute()
             )
-            if ag.data and ag.data.get("phone"):
+            if ag.data and isinstance(ag.data.get("phone"), str):
                 contact_phone = ag.data["phone"].lstrip("+")
-                contact_name = ag.data.get("name")
+                contact_name = ag.data.get("name") if isinstance(ag.data.get("name"), str) else None
         except Exception:
             pass
     else:
@@ -280,9 +305,9 @@ async def get_listing(
                     .single()
                     .execute()
                 )
-                if ow.data and ow.data.get("phone"):
+                if ow.data and isinstance(ow.data.get("phone"), str):
                     contact_phone = ow.data["phone"].lstrip("+")
-                    contact_name = ow.data.get("full_name")
+                    contact_name = ow.data.get("full_name") if isinstance(ow.data.get("full_name"), str) else None
             except Exception:
                 pass
 
@@ -360,11 +385,14 @@ async def get_listing(
         "housemates": [
             {
                 "id": h["id"],
+                "listing_id": h.get("listing_id"),
+                "user_id": h.get("user_id"),
                 "name": h["name"],
                 "age": h.get("age"),
                 "occupation": h.get("occupation"),
                 "avatar_url": h.get("avatar_url"),
                 "tags": h.get("tags") or [],
+                "lifestyle_preferences": h.get("lifestyle_preferences") or {},
             }
             for h in housemates
         ],
@@ -384,6 +412,7 @@ async def create_listing(
 ):
     """Create a new listing. Status is set to 'pending' awaiting admin approval."""
     listing_data = body.model_dump(exclude_none=True)
+    housemates = listing_data.pop("housemates", [])
     listing_data["owner_id"] = current_user["id"]
     listing_data["status"] = "pending"
     listing_data["is_new"] = True
@@ -400,6 +429,23 @@ async def create_listing(
         raise HTTPException(status_code=500, detail=f"Failed to create listing: {e}")
 
     listing_id = result.data[0]["id"]
+
+    if listing_data.get("category") == "shared_housing" and housemates:
+        rows = [
+            {
+                **housemate,
+                "listing_id": listing_id,
+                "tags": housemate.get("tags") or [],
+                "lifestyle_preferences": housemate.get("lifestyle_preferences") or {},
+            }
+            for housemate in housemates
+            if housemate.get("name")
+        ]
+        if rows:
+            try:
+                supabase_admin.table("housemates").insert(rows).execute()
+            except Exception:
+                pass
 
     # Run fraud scoring + embedding generation in the background
     background_tasks.add_task(_score_and_approve, listing_id, listing_data)
@@ -668,7 +714,7 @@ async def get_applications(
     try:
         result = (
             supabase_admin.table("listing_applications")
-            .select("*, profiles(full_name, avatar_url)")
+            .select("*")
             .eq("listing_id", listing_id)
             .order("created_at", desc=True)
             .execute()
@@ -676,18 +722,47 @@ async def get_applications(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {e}")
 
+    listing_title = None
+    listing_image = None
+    try:
+        listing_info = (
+            supabase_admin.table("listings")
+            .select("title, images")
+            .eq("id", listing_id)
+            .single()
+            .execute()
+        ).data or {}
+        listing_title = listing_info.get("title")
+        listing_images = listing_info.get("images") or []
+        listing_image = listing_images[0] if listing_images else None
+    except Exception:
+        pass
+
     applications = []
     for row in result.data or []:
-        profile = row.get("profiles") or {}
+        profile = {}
+        try:
+            profile = (
+                supabase_admin.table("profiles")
+                .select("full_name, avatar_url")
+                .eq("id", row["applicant_id"])
+                .single()
+                .execute()
+            ).data or {}
+        except Exception:
+            pass
         applications.append({
             "id": row["id"],
             "listing_id": row["listing_id"],
+            "listing_title": listing_title,
+            "listing_image": listing_image,
             "applicant_id": row["applicant_id"],
             "applicant_name": profile.get("full_name"),
             "applicant_avatar": profile.get("avatar_url"),
             "compatibility_score": row.get("compatibility_score"),
             "status": row["status"],
             "message": row.get("message"),
+            "lifestyle_data": row.get("lifestyle_data"),
             "created_at": row.get("created_at", ""),
         })
 

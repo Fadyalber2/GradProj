@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
-import { BadgeCheck, Trophy, MessageCircle, Globe, Share2, FileText } from "lucide-react";
+import { BadgeCheck, Trophy, MessageCircle, Globe, Share2, FileText, Mail } from "lucide-react";
 import type { AgencyDetail } from "@/types";
 
 interface AgencySidebarProps {
@@ -16,6 +17,14 @@ export default function AgencySidebar({ agency }: AgencySidebarProps) {
     ? (rawScore * 10).toFixed(1)
     : rawScore.toFixed(1);
 
+  function handleShare() {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      navigator.share({ title: agency.name, url: window.location.href });
+    } else {
+      navigator.clipboard?.writeText(window.location.href);
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -27,8 +36,19 @@ export default function AgencySidebar({ agency }: AgencySidebarProps) {
       <div className="bg-card-dark rounded-2xl p-6 border border-white/10 shadow-xl">
         {/* Logo + name + badge */}
         <div className="flex items-center gap-4 mb-5">
-          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary/40 to-primary/10 flex items-center justify-center border border-white/10 shrink-0 shadow-lg">
-            <span className="text-2xl font-bold text-white">{agency.logoText}</span>
+          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary/40 to-primary/10 flex items-center justify-center border border-white/10 shrink-0 shadow-lg overflow-hidden">
+            {agency.logo_url ? (
+              <Image
+                src={agency.logo_url}
+                alt={`${agency.name} logo`}
+                width={64}
+                height={64}
+                className="object-contain w-full h-full"
+                unoptimized
+              />
+            ) : (
+              <span className="text-2xl font-bold text-white">{agency.logoText}</span>
+            )}
           </div>
           <div>
             <h2 className="text-lg font-bold text-white leading-tight">{agency.name}</h2>
@@ -45,9 +65,14 @@ export default function AgencySidebar({ agency }: AgencySidebarProps) {
 
         {/* Stats: 2-col row + 1 wide row */}
         <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-3">
-          <div className="bg-white/5 rounded-xl p-4 border border-white/5">
+          <div className="bg-white/5 rounded-xl p-4 border border-white/5 group relative">
             <div className="text-2xl font-bold text-white mb-0.5">{displayScore}</div>
             <div className="text-[10px] uppercase tracking-wider text-gray-400">Trust Score</div>
+            {agency.trustBreakdown && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10 bg-black/90 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap border border-white/10 shadow-xl pointer-events-none">
+                {agency.trustBreakdown}
+              </div>
+            )}
           </div>
           <div className="bg-white/5 rounded-xl p-4 border border-white/5">
             <div className="text-2xl font-bold text-white mb-0.5">{agency.projectsForSale}</div>
@@ -64,22 +89,72 @@ export default function AgencySidebar({ agency }: AgencySidebarProps) {
           <FileText className="h-4 w-4" />
           Request Sales Kit
         </button>
-        <button className="w-full border border-white/15 hover:border-white/30 hover:bg-white/5 text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 mb-5 cursor-pointer">
-          <Globe className="h-4 w-4" />
-          Visit Official Website
-        </button>
-
-        {/* Social icons */}
-        <div className="flex items-center justify-center gap-4 pt-4 border-t border-white/5">
-          <button className="w-9 h-9 bg-white/5 hover:bg-primary/15 hover:text-primary rounded-lg flex items-center justify-center text-gray-400 transition-all cursor-pointer">
+        {agency.website ? (
+          <a
+            href={agency.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full border border-white/15 hover:border-white/30 hover:bg-white/5 text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 mb-5"
+          >
             <Globe className="h-4 w-4" />
+            Visit Official Website
+          </a>
+        ) : (
+          <button disabled className="w-full border border-white/10 text-white/30 font-semibold py-3 rounded-xl flex items-center justify-center gap-2 mb-5 cursor-not-allowed">
+            <Globe className="h-4 w-4" />
+            Visit Official Website
           </button>
-          <button className="w-9 h-9 bg-white/5 hover:bg-primary/15 hover:text-primary rounded-lg flex items-center justify-center text-gray-400 transition-all cursor-pointer">
-            <MessageCircle className="h-4 w-4" />
-          </button>
-          <button className="w-9 h-9 bg-white/5 hover:bg-primary/15 hover:text-primary rounded-lg flex items-center justify-center text-gray-400 transition-all cursor-pointer">
-            <Share2 className="h-4 w-4" />
-          </button>
+        )}
+
+        {/* Contact icons */}
+        <div className="flex items-center justify-center gap-4 pt-4 border-t border-white/5">
+          {agency.website ? (
+            <a
+              href={agency.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Website"
+              className="w-9 h-9 bg-white/5 hover:bg-primary/15 hover:text-primary rounded-lg flex items-center justify-center text-gray-400 transition-all"
+            >
+              <Globe className="h-4 w-4" />
+            </a>
+          ) : (
+            <button disabled title="No website" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-gray-600 cursor-not-allowed">
+              <Globe className="h-4 w-4" />
+            </button>
+          )}
+
+          {agency.phone ? (
+            <a
+              href={`tel:${agency.phone}`}
+              title={agency.phone}
+              className="w-9 h-9 bg-white/5 hover:bg-primary/15 hover:text-primary rounded-lg flex items-center justify-center text-gray-400 transition-all"
+            >
+              <MessageCircle className="h-4 w-4" />
+            </a>
+          ) : (
+            <button disabled title="No phone" className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-gray-600 cursor-not-allowed">
+              <MessageCircle className="h-4 w-4" />
+            </button>
+          )}
+
+          {agency.email ? (
+            <a
+              href={`mailto:${agency.email}`}
+              title={agency.email}
+              className="w-9 h-9 bg-white/5 hover:bg-primary/15 hover:text-primary rounded-lg flex items-center justify-center text-gray-400 transition-all"
+            >
+              <Mail className="h-4 w-4" />
+            </a>
+          ) : (
+            <button
+              onClick={handleShare}
+              title="Share"
+              className="w-9 h-9 bg-white/5 hover:bg-primary/15 hover:text-primary rounded-lg flex items-center justify-center text-gray-400 transition-all cursor-pointer"
+            >
+              <Share2 className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </div>
 

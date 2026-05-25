@@ -122,6 +122,7 @@ See `docs/API_REFERENCE.md` for full endpoint shapes.
 
 ### Code conventions:
 
+- For any frontend edits, use the installed UI/design skills from `emilkowalski/skill` and `Leonxlnx/taste-skill`; in practice, consult `emil-design-eng` plus the relevant taste/frontend skill before changing UI code.
 - All new components go in `frontend/src/components/<feature>/ComponentName.tsx`
 - All new pages go in `frontend/src/app/<route>/page.tsx`
 - UI types → `frontend/src/types/index.ts`
@@ -190,3 +191,84 @@ Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
 2. Use `detect_changes` for code review.
 3. Use `get_affected_flows` to understand impact.
 4. Use `query_graph` pattern="tests_for" to check coverage.
+
+
+<claude-mem-context>
+# Memory Context
+
+# [AXIOM-V2] recent context, 2026-05-23 1:38pm GMT+3
+
+Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
+Format: ID TIME TYPE TITLE
+Fetch details: get_observations([IDs]) | Search: mem-search skill
+
+Stats: 50 obs (17,690t read) | 856,710t work | 98% savings
+
+### May 18, 2026
+928 11:59p ✅ Extended component AgencyDetail type with contact fields and logo URL
+### May 19, 2026
+929 12:00a 🟣 Agency page transformation layer now uses real data for location, history, contacts, and trust breakdown
+930 12:02a 🟣 Added founded_year field support for agency creation
+932 5:58a 🟣 Admin listing image upload UI with enhanced contrast and visual feedback
+S441 Unified and elevated admin dashboard UI using high-end design principles (May 19, 5:59 AM)
+S442 Locate Ollama model storage path for qwen model on Windows PC (May 19, 6:06 AM)
+### May 20, 2026
+933 6:42a 🔵 Ollama Model Storage Location Identified
+934 6:43a 🔵 Ollama Installed Models Identified
+S443 Add Partner Universities feature with same capabilities as agencies but separate and without projects section (May 20, 6:43 AM)
+### May 22, 2026
+S444 Implement Partner Universities feature mirroring agencies functionality but separate and excluding projects section (May 22, 7:04 PM)
+935 7:07p 🔵 Existing agency architecture mapped across frontend and backend
+936 7:08p 🔵 Current university implementation uses hardcoded constants instead of database
+937 " 🔵 Agency backend implements subscription tiers, owner-based access control, and dual entity support
+938 7:09p 🔵 Agency schema fields and admin UI configuration mapped
+939 " 🔵 Listings table lacks university_id foreign key, admin sidebar has no universities entry
+940 " 🔵 University TypeScript interface lacks database-required fields like id, slug, owner_id
+S445 Add Partner Universities feature mirroring agencies structure but without projects section (May 22, 7:10 PM)
+S446 Add Partner Universities feature mirroring agencies structure but without projects section (May 22, 7:13 PM)
+S447 Add Partner Universities feature mirroring agencies structure but without projects section (May 22, 7:14 PM)
+S448 Add Partner Universities feature mirroring agencies structure but without projects section (May 22, 7:14 PM)
+S449 Add Partner Universities feature mirroring agencies structure but kept separate without projects section (May 22, 7:15 PM)
+941 7:15p ⚖️ Design specification documented for Partner Universities feature
+942 7:16p ✅ Partner Universities design specification written
+943 " ✅ Partner Universities design spec committed to repository
+944 7:17p 🔵 Current backend routing and admin sidebar structure examined
+945 " 🔵 Entity picker, admin CRUD, and detail page patterns examined for universities implementation
+946 7:18p ✅ Comprehensive Partner Universities implementation plan written
+947 7:28p ✅ Partner Universities implementation plan committed to repository
+S450 Implement Partner Universities feature mirroring agencies structure but separate without projects (May 22, 7:28 PM)
+948 7:29p ⚖️ Subagent-driven development approach selected for Partner Universities implementation
+949 7:30p ✅ Task queue populated for 11-task Partner Universities execution pipeline
+950 7:31p ✅ Partner Universities implementation execution phase begun
+951 7:32p 🟣 Universities database table created and schema migration applied
+952 " 🔵 Universities table schema verified with all 17 columns present
+953 " 🔵 Listings table university_id FK column verified present
+954 " 🟣 Task 1 (DB Migration) completed and verified by subagent
+955 " ✅ Task 1 (DB Migration) marked completed in task tracking system
+956 " ✅ Task 2 (Backend universities module) marked in_progress
+### May 23, 2026
+957 12:04a 🟣 Universities module with public API endpoints
+958 " 🔵 Universities router not registered in FastAPI app
+959 12:05a 🔵 Code review identified N+1 query performance issue in universities router
+960 12:06a 🔴 Registered universities router in FastAPI application
+961 12:07a 🟣 Admin CRUD endpoints for universities management
+962 12:10a 🔵 Python Import Test Failing Silently in Windows Environment
+963 12:19a 🔵 Python Import Successful Using Venv Python Executable
+964 " 🔵 Backend Server Starts Successfully on Port 8099
+965 12:21a 🟣 Universities Router and Admin CRUD Endpoints Implemented
+966 12:22a 🟣 Universities Backend Implementation Verified and Completed
+967 12:26a 🟣 Added TypeScript types for Partner Universities
+968 12:27a ✅ Added university type imports to supabase-queries
+969 " 🟣 Implemented university database query functions
+970 " 🔄 Updated UniversityCard component to use real API types
+971 12:28a 🔄 Converted UniversitiesSection to use React Query and live data
+972 " 🔵 University listings query depends on missing university_id column
+973 12:30a 🟣 Added Universities navigation to admin sidebar
+974 12:31a 🟣 Added universities support to EntityPicker component
+975 " 🟣 Admin navigation and entity picker support for universities
+976 " 🔵 Task 8 blocked by Claude API session limit
+977 12:13p 🔵 Second attempt to implement Task 8 blocked by session limits
+978 12:15p 🟣 Added university association to admin listing editor
+
+Access 857k tokens of past work via get_observations([IDs]) or mem-search skill.
+</claude-mem-context>

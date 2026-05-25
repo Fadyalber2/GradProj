@@ -70,10 +70,13 @@ export async function getStats() {
     total_projects: number;
     total_shared_housing: number;
     total_blog_posts: number;
-    total_transactions: number;
+    total_bookings: number;
+    total_leads: number;
+    total_notifications: number;
     flagged_listings: number;
     pending_listings: number;
     active_listings: number;
+    total_verified_sellers: number;
   }>("GET", "/stats");
 }
 
@@ -103,6 +106,13 @@ export async function createItem<T = Record<string, unknown>>(section: string, b
   return req<T>("POST", `/${section}`, body);
 }
 
+export async function getAdminSignedUploadUrl(bucket: string, filename: string) {
+  return req<{ upload_url: string; public_url: string }>("POST", "/uploads/signed-url", {
+    bucket,
+    filename,
+  });
+}
+
 export async function updateItem<T = Record<string, unknown>>(
   section: string,
   id: string,
@@ -116,6 +126,18 @@ export async function deleteItem(section: string, id: string): Promise<{ message
 }
 
 // ── Fraud ─────────────────────────────────────────────────────────────────────
+export async function approveListing(listingId: string) {
+  return req<{ message: string; listing: Record<string, unknown> }>("PUT", `/listings/${listingId}/approve`);
+}
+
+export async function rejectListing(listingId: string, reason: string) {
+  return req<{ message: string; reason: string; listing: Record<string, unknown> }>(
+    "PUT",
+    `/listings/${listingId}/reject`,
+    { reason }
+  );
+}
+
 export async function reviewFraud(listingId: string, action: "approve" | "reject") {
   return req<{ message: string }>("PUT", `/fraud/${listingId}`, { action });
 }

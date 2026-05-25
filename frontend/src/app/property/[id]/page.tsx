@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 import PropertyHero from "@/components/property/PropertyHero";
 import PropertyInfo from "@/components/property/PropertyInfo";
 import PropertySidebar from "@/components/property/PropertySidebar";
+import PropertyMap from "@/components/property/PropertyMap";
 import SharedHousingHero from "@/components/shared-housing/SharedHousingHero";
 import SharedHousingStats from "@/components/shared-housing/SharedHousingStats";
 import AboutHouse from "@/components/shared-housing/AboutHouse";
@@ -11,9 +12,53 @@ import HousematesSection from "@/components/shared-housing/HousematesSection";
 import SharedAmenities from "@/components/shared-housing/SharedAmenities";
 import SharedHousingSidebar from "@/components/shared-housing/SharedHousingSidebar";
 import MobilePropertyCTA from "@/components/property/MobilePropertyCTA";
+import ApplyButton from "@/components/shared-housing/ApplyButton";
+import BookNowButton from "@/components/booking/BookNowButton";
 import { getListing } from "@/lib/supabase-queries";
 import type { ListingDetailWithSimilar } from "@/types/api";
 import type { PropertyDetail, SharedHousingDetail, SharedAmenity } from "@/types";
+
+function uniqueLabels(labels: string[]): string[] {
+  return Array.from(
+    new Set(labels.map((label) => label.trim()).filter(Boolean))
+  );
+}
+
+function sameLabels(left: string[], right: string[]): boolean {
+  const a = uniqueLabels(left).sort();
+  const b = uniqueLabels(right).sort();
+  return a.length === b.length && a.every((label, index) => label === b[index]);
+}
+
+function mapSharedAmenityGroups(data: ListingDetailWithSimilar): {
+  privateAmenities: SharedAmenity[];
+  sharedAmenities: SharedAmenity[];
+} {
+  const rawPrivate = uniqueLabels(data.private_amenities ?? []);
+  const rawShared = uniqueLabels(
+    (data.shared_amenities?.length ? data.shared_amenities : data.amenities) ?? []
+  );
+  const duplicatedGroups = rawPrivate.length > 0 && sameLabels(rawPrivate, rawShared);
+
+  const privateLabels =
+    rawPrivate.length > 0 && !duplicatedGroups
+      ? rawPrivate.filter((label) => !rawShared.includes(label))
+      : uniqueLabels([
+          data.room_type === "ensuite" || data.room_type === "private"
+            ? "Private Room"
+            : "",
+          data.room_type === "ensuite" ? "Ensuite Bathroom" : "",
+          data.bathroom_type === "private" ? "Private Bathroom" : "",
+          data.furnishing ? `${data.furnishing} Room` : "",
+        ]);
+
+  const sharedLabels = rawShared.filter((label) => !privateLabels.includes(label));
+
+  return {
+    privateAmenities: privateLabels.map((label) => ({ icon: "CheckCircle", label })),
+    sharedAmenities: sharedLabels.map((label) => ({ icon: "CheckCircle", label })),
+  };
+}
 
 function mapProperty(data: ListingDetailWithSimilar): PropertyDetail {
   const categoryMap: Record<string, PropertyDetail["type"]> = {
@@ -21,6 +66,8 @@ function mapProperty(data: ListingDetailWithSimilar): PropertyDetail {
     for_sale: "For Sale",
     shared_housing: "Shared Housing",
   };
+  const sharedAmenityGroups =
+    data.category === "shared_housing" ? mapSharedAmenityGroups(data) : null;
 
   return {
     id: data.id,
@@ -58,14 +105,15 @@ function mapProperty(data: ListingDetailWithSimilar): PropertyDetail {
     furnishing: data.furnishing ?? undefined,
     utilitiesIncluded: data.utilities_included,
     bathroomType: data.bathroom_type ?? undefined,
-    privateAmenities: (data.private_amenities ?? []).map((a) => ({ icon: "CheckCircle", label: a })),
-    sharedAmenities: (data.shared_amenities ?? []).map((a) => ({ icon: "CheckCircle", label: a })),
+    privateAmenities: sharedAmenityGroups?.privateAmenities ?? [],
+    sharedAmenities: sharedAmenityGroups?.sharedAmenities ?? [],
     housemates: (data.housemates ?? []).map((h) => ({
       name: h.name,
       age: h.age ?? 0,
       occupation: h.occupation ?? "Professional",
       avatar: h.avatar_url ?? "",
       tags: h.tags,
+      lifestylePreferences: h.lifestyle_preferences ?? null,
     })),
     contactPhone: data.contact_phone ?? null,
     contactName: data.contact_name ?? null,
@@ -120,10 +168,14 @@ export default async function PropertyDetailPage({
             <div className="lg:w-[70%] space-y-12">
               <SharedHousingStats housing={housing} />
               <AboutHouse descriptions={housing.description} />
-              <HousematesSection housemates={housing.housemates} />
+              <HousematesSection listingId={property.id} housemates={housing.housemates} />
               <SharedAmenities
                 privateAmenities={housing.privateAmenities}
                 sharedAmenities={housing.sharedAmenities}
+              />
+              <PropertyMap
+                title={property.title}
+                address={property.fullAddress || property.location}
               />
             </div>
             <div className="lg:w-[30%]">
@@ -132,6 +184,8 @@ export default async function PropertyDetailPage({
                 contactPhone={property.contactPhone}
                 contactName={property.contactName}
               />
+              <ApplyButton listing={data} />
+              <BookNowButton listing={data} />
             </div>
           </div>
         </div>
@@ -153,7 +207,10 @@ export default async function PropertyDetailPage({
       <div className="px-4 sm:px-6 lg:px-8 mt-8">
         <div className="flex flex-col lg:flex-row gap-12">
           <PropertyInfo property={property} />
-          <PropertySidebar property={property} />
+          <div className="lg:w-[30%]">
+            <PropertySidebar property={property} />
+            <BookNowButton listing={data} />
+          </div>
         </div>
       </div>
       <MobilePropertyCTA

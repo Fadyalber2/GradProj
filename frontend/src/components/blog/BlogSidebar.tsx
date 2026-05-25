@@ -2,13 +2,31 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Search } from "lucide-react";
-import { POPULAR_POSTS, BLOG_TOPICS } from "@/lib/constants";
+import { ArrowRight, Search } from "lucide-react";
+import { formatDate } from "@/lib/utils";
+import type { BlogPostBrief } from "@/types/api";
 
-export default function BlogSidebar() {
+const FALLBACK_IMAGE = "https://picsum.photos/seed/axiom-blog-thumb/320/320";
+
+interface BlogSidebarProps {
+  posts: BlogPostBrief[];
+  categories: string[];
+  searchQuery: string;
+  onSearchChange: (value: string) => void;
+  onCategorySelect: (category: string) => void;
+}
+
+export default function BlogSidebar({
+  posts,
+  categories,
+  searchQuery,
+  onSearchChange,
+  onCategorySelect,
+}: BlogSidebarProps) {
+  const latestPosts = posts.slice(0, 4);
+
   return (
-    <div className="space-y-12">
-      {/* Search */}
+    <aside className="space-y-10 lg:sticky lg:top-24">
       <div className="bg-card-dark p-6 rounded-2xl border border-white/5">
         <h3 className="text-white font-bold text-lg mb-4">Search</h3>
         <div className="relative">
@@ -17,27 +35,28 @@ export default function BlogSidebar() {
           </span>
           <input
             type="text"
-            placeholder="Type keywords..."
+            value={searchQuery}
+            onChange={(event) => onSearchChange(event.target.value)}
+            placeholder="Cairo rent, shared homes..."
             className="w-full bg-black/40 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
           />
         </div>
       </div>
 
-      {/* Popular Posts */}
       <div>
         <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
-          <span className="w-1 h-6 bg-primary rounded-full" /> Popular Posts
+          <span className="w-1 h-6 bg-primary rounded-full" /> Latest reads
         </h3>
         <div className="space-y-6">
-          {POPULAR_POSTS.map((post) => (
+          {latestPosts.map((post) => (
             <Link
               key={post.id}
-              href={`/blog/${post.id}`}
+              href={`/blog/${post.slug}`}
               className="group flex gap-4 items-start"
             >
               <div className="w-20 h-20 shrink-0 rounded-lg overflow-hidden relative">
                 <Image
-                  src={post.image}
+                  src={post.image_url ?? FALLBACK_IMAGE}
                   alt={post.title}
                   fill
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
@@ -53,41 +72,46 @@ export default function BlogSidebar() {
                   {post.title}
                 </h4>
                 <span className="text-gray-500 text-xs mt-1 block">
-                  {post.timeAgo}
+                  {formatDate(post.published_at) || "Recent"}
                 </span>
               </div>
             </Link>
           ))}
+          {latestPosts.length === 0 && (
+            <p className="text-sm leading-6 text-gray-500">
+              Published articles will appear here.
+            </p>
+          )}
         </div>
       </div>
 
-      {/* Topics */}
       <div>
         <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
           <span className="w-1 h-6 bg-primary rounded-full" /> Topics
         </h3>
         <div className="flex flex-wrap gap-2">
-          {BLOG_TOPICS.map((topic) => (
-            <Link
+          {categories.map((topic) => (
+            <button
               key={topic}
-              href={`/blog?topic=${topic.toLowerCase().replace(/\s+/g, "-")}`}
-              className="px-3 py-1.5 bg-card-dark border border-white/10 rounded-lg text-xs text-gray-400 hover:text-white hover:border-primary hover:bg-white/5 transition-all"
+              type="button"
+              onClick={() => onCategorySelect(topic)}
+              className="px-3 py-1.5 bg-card-dark border border-white/10 rounded-lg text-xs text-gray-400 hover:text-white hover:border-primary hover:bg-white/5 active:scale-[0.98] transition-[border-color,background-color,color,transform]"
             >
               {topic}
-            </Link>
+            </button>
           ))}
+          {categories.length === 0 && (
+            <span className="text-sm text-gray-500">No topics yet</span>
+          )}
         </div>
       </div>
 
-      {/* Newsletter CTA */}
-      <div className="bg-gradient-to-br from-[#2A2A2A] to-[#1E1E1E] p-8 rounded-2xl border border-white/5 relative overflow-hidden">
-        <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/20 rounded-full blur-3xl" />
+      <div className="bg-card-dark p-7 rounded-2xl border border-white/10 relative overflow-hidden">
         <h3 className="text-white font-bold text-xl mb-2 relative z-10">
-          Join the Circle
+          Cairo market notes
         </h3>
         <p className="text-gray-400 text-sm mb-6 relative z-10 leading-relaxed">
-          Get the latest market insights and exclusive property listings
-          delivered to your inbox weekly.
+          Weekly reads on rent movement, shared homes, and areas worth watching.
         </p>
         <form
           className="space-y-3 relative z-10"
@@ -100,15 +124,20 @@ export default function BlogSidebar() {
           />
           <button
             type="submit"
-            className="w-full bg-primary hover:bg-primary-hover text-white font-semibold py-3 rounded-lg transition-colors shadow-lg shadow-primary/25"
+            className="w-full bg-primary hover:bg-primary-hover active:scale-[0.98] text-white font-semibold py-3 rounded-lg transition-[background-color,transform] duration-200 ease-out shadow-lg shadow-primary/20"
           >
             Subscribe
           </button>
         </form>
-        <p className="text-[10px] text-gray-500 mt-4 text-center relative z-10">
-          No spam, unsubscribe anytime.
-        </p>
       </div>
-    </div>
+
+      <Link
+        href="/find-homes"
+        className="group flex items-center justify-between rounded-2xl border border-primary/30 bg-primary/10 p-5 text-sm font-semibold text-white transition-[border-color,background-color,transform] duration-200 ease-out hover:border-primary hover:bg-primary/15 active:scale-[0.99]"
+      >
+        Browse matching homes
+        <ArrowRight className="h-4 w-4 text-primary transition-transform group-hover:translate-x-1" />
+      </Link>
+    </aside>
   );
 }

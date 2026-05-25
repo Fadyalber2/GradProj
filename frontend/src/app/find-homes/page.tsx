@@ -6,7 +6,10 @@ import { LayoutGrid, LayoutList, Loader2, Sparkles, Search, X, SlidersHorizontal
 import { AnimatePresence, motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import FilterSidebar from "@/components/find-homes/FilterSidebar";
+import FilterSidebar, {
+  EMPTY_FILTERS,
+  type FilterValues,
+} from "@/components/find-homes/FilterSidebar";
 import SearchListingCard from "@/components/find-homes/SearchListingCard";
 import SearchListingRow from "@/components/find-homes/SearchListingRow";
 import Pagination from "@/components/find-homes/Pagination";
@@ -78,8 +81,10 @@ function mapToListing(l: ListingBrief): Listing {
     category: l.category,
     bedrooms: l.bedrooms,
     bathrooms: l.bathrooms,
+    size_sqm: l.size_sqm,
     property_type: l.property_type,
     is_new: l.is_new,
+    created_at: l.created_at,
   };
 }
 
@@ -108,12 +113,8 @@ export default function FindHomesPage() {
   const [sortBy, setSortBy] = useState("newest");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  // Filter state (lifted from FilterSidebar)
-  const [filterPropertyType, setFilterPropertyType] = useState("Rent a Home");
-  const [filterMinPrice, setFilterMinPrice] = useState(1000);
-  const [filterMaxPrice, setFilterMaxPrice] = useState(25000);
-  const [filterSelectedVibes, setFilterSelectedVibes] = useState<Set<string>>(new Set());
-  const [filterSelectedAmenities, setFilterSelectedAmenities] = useState<Set<string>>(new Set());
+  const [draftFilters, setDraftFilters] = useState<FilterValues>(EMPTY_FILTERS);
+  const [appliedFilters, setAppliedFilters] = useState<FilterValues>(EMPTY_FILTERS);
 
   // Unified search state
   const [inputValue, setInputValue] = useState(() => searchParams.get("q") ?? "");
@@ -136,10 +137,28 @@ export default function FindHomesPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlQuery]);
 
+  const queryFilters = useMemo(() => ({
+    sort_by: sortBy,
+    page: currentPage,
+    per_page: 12,
+    search: searchText || undefined,
+    category: appliedFilters.category || undefined,
+    property_type: appliedFilters.propertyType || undefined,
+    min_price: appliedFilters.minPrice,
+    max_price: appliedFilters.maxPrice,
+    bedrooms: appliedFilters.bedrooms,
+    bathrooms: appliedFilters.bathrooms,
+    min_size_sqm: appliedFilters.minSize,
+    max_size_sqm: appliedFilters.maxSize,
+    lease_type: appliedFilters.leaseType || undefined,
+    room_type: appliedFilters.roomType || undefined,
+    utilities_included: appliedFilters.utilitiesIncluded,
+    amenities: appliedFilters.amenities.length ? appliedFilters.amenities : undefined,
+  }), [sortBy, currentPage, searchText, appliedFilters]);
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["listings", { sort_by: sortBy, page: currentPage, search: searchText }],
-    queryFn: () =>
-      getListings({ sort_by: sortBy, page: currentPage, per_page: 12, search: searchText || undefined }),
+    queryKey: ["listings", queryFilters],
+    queryFn: () => getListings(queryFilters),
     staleTime: 0,
   });
 
@@ -161,24 +180,18 @@ export default function FindHomesPage() {
   }
 
   const filterProps = useMemo(() => ({
-    propertyType: filterPropertyType,
-    setPropertyType: setFilterPropertyType,
-    minPrice: filterMinPrice,
-    setMinPrice: setFilterMinPrice,
-    maxPrice: filterMaxPrice,
-    setMaxPrice: setFilterMaxPrice,
-    selectedVibes: filterSelectedVibes,
-    setSelectedVibes: setFilterSelectedVibes,
-    selectedAmenities: filterSelectedAmenities,
-    setSelectedAmenities: setFilterSelectedAmenities,
-    onReset: () => {
-      setFilterPropertyType("Rent a Home");
-      setFilterMinPrice(1000);
-      setFilterMaxPrice(25000);
-      setFilterSelectedVibes(new Set());
-      setFilterSelectedAmenities(new Set());
+    values: draftFilters,
+    onChange: setDraftFilters,
+    onApply: (filters: FilterValues) => {
+      setAppliedFilters(filters);
+      setCurrentPage(1);
     },
-  }), [filterPropertyType, filterMinPrice, filterMaxPrice, filterSelectedVibes, filterSelectedAmenities]);
+    onReset: () => {
+      setDraftFilters(EMPTY_FILTERS);
+      setAppliedFilters(EMPTY_FILTERS);
+      setCurrentPage(1);
+    },
+  }), [draftFilters]);
 
   return (
     <main className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-64px)] lg:overflow-hidden w-full">

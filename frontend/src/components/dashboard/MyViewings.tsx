@@ -4,6 +4,7 @@
 import type { ElementType } from "react";
 import Image from "next/image";
 import { Calendar, CheckCircle, Clock, XCircle } from "lucide-react";
+import { formatDate } from "@/lib/utils";
 import type { DashboardViewingBrief } from "@/types";
 
 interface MyViewingsProps {
@@ -46,7 +47,7 @@ export default function MyViewings({ viewings }: MyViewingsProps) {
               <div className="flex-1 min-w-0">
                 <p className="text-white font-semibold text-sm truncate">{v.listingTitle}</p>
                 <p className="text-gray-400 text-xs mt-0.5">
-                  {date.toLocaleDateString("en-EG", { weekday: "short", month: "short", day: "numeric" })}{" "}
+                  {formatDate(date)}{" "}
                   at {date.toLocaleTimeString("en-EG", { hour: "2-digit", minute: "2-digit" })}
                 </p>
               </div>

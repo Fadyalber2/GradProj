@@ -3,40 +3,50 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, MapPin, ArrowUpRight, Loader2 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { useLikesStore } from "@/stores/likesStore";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { favoritesQueries, favoriteMutation } from "@/lib/queries";
 import { getLikedListings } from "@/lib/supabase-queries";
-import { formatEGP } from "@/lib/utils";
+import { formatEGP, getListingPriceSuffix } from "@/lib/utils";
 
 const DASHBOARD_LIMIT = 2;
 
 export default function LikedProperties() {
-  const { likedIds, toggleLike } = useLikesStore();
+  const queryClient = useQueryClient();
 
-  // Latest 2 only for dashboard — likedIds order is append-order, last = newest
-  const previewIds = likedIds.slice(-DASHBOARD_LIMIT).reverse();
+  const { data: likedIds = new Set<string>(), isLoading: idsLoading } = useQuery(
+    favoritesQueries.ids()
+  );
 
-  const { data: raw = [], isLoading } = useQuery({
+  const toggleMutation = useMutation({
+    ...favoriteMutation,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["favorites"] }),
+  });
+
+  const previewIds = Array.from(likedIds).slice(-DASHBOARD_LIMIT).reverse();
+
+  const { data: raw = [], isLoading: listingsLoading } = useQuery({
     queryKey: ["liked-listings-preview", previewIds],
     queryFn: () => getLikedListings(previewIds),
     enabled: previewIds.length > 0,
     staleTime: 0,
   });
 
+  const isLoading = idsLoading || listingsLoading;
+
   // Restore newest-first order (Supabase .in() ignores array order)
   const listings = previewIds
     .map((id) => raw.find((l) => String(l.id) === id))
     .filter(Boolean) as typeof raw;
 
-  const hasMore = likedIds.length > DASHBOARD_LIMIT;
+  const hasMore = likedIds.size > DASHBOARD_LIMIT;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-          Liked Properties
+          Saved Properties
           <span className="bg-white/10 text-gray-400 text-sm px-2.5 py-0.5 rounded-full font-medium">
-            {likedIds.length}
+            {likedIds.size}
           </span>
         </h2>
         {hasMore && (
@@ -55,12 +65,12 @@ export default function LikedProperties() {
         </div>
       )}
 
-      {!isLoading && likedIds.length === 0 && (
+      {!isLoading && likedIds.size === 0 && (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <Heart className="h-10 w-10 text-gray-600 mb-3" />
           <p className="text-gray-400 font-medium">No liked properties yet</p>
           <p className="text-gray-600 text-sm mt-1">
-            Hit the heart on any listing to save it here.
+            Save a listing by clicking the heart icon.
           </p>
         </div>
       )}
@@ -73,6 +83,8 @@ export default function LikedProperties() {
             if (l.bedrooms != null) specs.push(`${l.bedrooms} Bed${l.bedrooms !== 1 ? "s" : ""}`);
             if (l.bathrooms != null) specs.push(`${l.bathrooms} Bath${l.bathrooms !== 1 ? "s" : ""}`);
             if (l.size_sqm != null) specs.push(`${l.size_sqm} m²`);
+
+            const priceSuffix = getListingPriceSuffix(l.category, l.price_period);
 
             return (
               <div
@@ -89,7 +101,7 @@ export default function LikedProperties() {
                   />
                   <button
                     type="button"
-                    onClick={() => toggleLike(String(l.id))}
+                    onClick={() => toggleMutation.mutate(String(l.id))}
                     className="absolute top-3 right-3 w-10 h-10 rounded-full bg-black/40 hover:bg-white text-primary hover:text-red-500 backdrop-blur-sm flex items-center justify-center transition-colors"
                     aria-label="Remove from favourites"
                   >
@@ -116,8 +128,8 @@ export default function LikedProperties() {
                     </div>
                     <div className="text-right flex-shrink-0">
                       <span className="text-primary font-bold text-xl">{formatEGP(l.price)}</span>
-                      {l.price_period && (
-                        <span className="block text-gray-500 text-xs">/ {l.price_period}</span>
+                      {priceSuffix && (
+                        <span className="block text-gray-500 text-xs">{priceSuffix}</span>
                       )}
                     </div>
                   </div>

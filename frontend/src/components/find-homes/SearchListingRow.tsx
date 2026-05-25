@@ -2,113 +2,104 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, BadgeCheck, AlertTriangle, Heart, Bed, Bath } from "lucide-react";
+import { Bath, BedDouble, Heart, Home, MapPin, Ruler } from "lucide-react";
 import type { Listing } from "@/types";
-import { formatEGP } from "@/lib/utils";
+import {
+  formatEGP,
+  formatListingType,
+  getListingCategoryBadge,
+  isListingNewWithinWeek,
+} from "@/lib/utils";
 
 interface SearchListingRowProps {
   listing: Listing;
 }
 
-const CATEGORY_CONFIG: Record<string, { label: string; color: string }> = {
-  for_rent:       { label: "For Rent",  color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
-  for_sale:       { label: "For Sale",  color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
-  shared_housing: { label: "Shared",    color: "bg-violet-500/20 text-violet-400 border-violet-500/30" },
-};
-
 export default function SearchListingRow({ listing }: SearchListingRowProps) {
   const isForSale = listing.category === "for_sale";
-  const cat = listing.category ? CATEGORY_CONFIG[listing.category] : null;
+  const category = getListingCategoryBadge(listing.category);
+  const isNew = isListingNewWithinWeek(listing.created_at);
+  const listingType = formatListingType(listing.property_type);
+  const specs = [
+    listing.bedrooms != null
+      ? { icon: BedDouble, label: `${listing.bedrooms} Bed${listing.bedrooms === 1 ? "" : "s"}` }
+      : null,
+    listing.bathrooms != null
+      ? { icon: Bath, label: `${listing.bathrooms} Bath${listing.bathrooms === 1 ? "" : "s"}` }
+      : null,
+    listing.size_sqm != null ? { icon: Ruler, label: `${listing.size_sqm} m²` } : null,
+  ].filter(Boolean);
 
   return (
     <Link
       href={`/property/${listing.id}`}
-      className="flex gap-0 bg-card-dark rounded-2xl overflow-hidden border border-white/5 group hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all duration-200 shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="group flex cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-card-dark shadow-md transition-all duration-200 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >
-      {/* Image */}
       <div className="relative w-44 shrink-0 overflow-hidden bg-white/5">
         <Image
           src={listing.image}
           alt={listing.title}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-700"
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
           sizes="176px"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10 pointer-events-none" />
-        <div className="absolute top-3 left-3">
-          {listing.verified ? (
-            <span className="bg-black/60 backdrop-blur-sm text-green-400 text-[10px] font-semibold px-2 py-1 rounded-md flex items-center gap-1 border border-green-500/20">
-              <BadgeCheck className="h-3 w-3" /> VERIFIED
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
+        <div className="absolute left-3 top-3 flex max-w-[calc(100%-1.5rem)] flex-wrap items-center gap-1.5">
+          {isNew && (
+            <span className="rounded-md border border-primary/30 bg-primary px-2.5 py-1 text-[10px] font-black tracking-wide text-white shadow-lg shadow-black/20">
+              NEW
             </span>
-          ) : (
-            <span className="bg-yellow-500/90 text-black text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">
-              <AlertTriangle className="h-3 w-3" /> UNVERIFIED
+          )}
+          {category && (
+            <span className={`rounded-md border px-2.5 py-1 text-[10px] font-black tracking-wide shadow-lg shadow-black/15 ${category.className}`}>
+              {category.label}
             </span>
           )}
         </div>
-        {listing.is_new && (
-          <div className="absolute bottom-3 left-3">
-            <span className="bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-md">
-              NEW
-            </span>
-          </div>
-        )}
       </div>
 
-      {/* Content */}
-      <div className="flex flex-1 items-center justify-between gap-4 py-4 px-5">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap mb-1">
-            <h3 className="text-white font-bold text-[15px] leading-snug truncate">
-              {listing.title}
-            </h3>
-            {cat && (
-              <span className={`shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-md border ${cat.color}`}>
-                {cat.label}
-              </span>
-            )}
-          </div>
-          <p className="text-gray-400 text-xs flex items-center gap-1 mb-2">
+      <div className="flex flex-1 items-center justify-between gap-4 px-5 py-4">
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-[15px] font-black leading-snug text-white">
+            {listing.title}
+          </h3>
+          <p className="mt-1.5 flex items-center gap-1 text-xs text-gray-400">
             <MapPin className="h-3 w-3 shrink-0" />
             <span className="truncate">{listing.location}</span>
           </p>
-
-          {/* Specs */}
-          {(listing.bedrooms != null || listing.bathrooms != null || listing.property_type) && (
-            <div className="flex items-center gap-3 text-gray-500 text-[11px]">
-              {listing.bedrooms != null && (
-                <span className="flex items-center gap-1">
-                  <Bed className="h-3 w-3" />
-                  {listing.bedrooms} Bd
-                </span>
-              )}
-              {listing.bathrooms != null && (
-                <span className="flex items-center gap-1">
-                  <Bath className="h-3 w-3" />
-                  {listing.bathrooms} Ba
-                </span>
-              )}
-              {listing.property_type && (
-                <span className="text-gray-500">{listing.property_type}</span>
-              )}
+          <span className="mt-3 inline-flex max-w-full items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-medium text-gray-300">
+            <Home className="h-3 w-3 text-primary" />
+            <span className="truncate">{listingType}</span>
+          </span>
+          {specs.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] font-medium text-gray-400">
+              {specs.map((spec) => {
+                const Icon = spec!.icon;
+                return (
+                  <span key={spec!.label} className="inline-flex items-center gap-1.5">
+                    <Icon className="h-3.5 w-3.5 text-gray-500" />
+                    {spec!.label}
+                  </span>
+                );
+              })}
             </div>
           )}
         </div>
 
-        <div className="flex flex-col items-end gap-3 shrink-0">
+        <div className="flex shrink-0 flex-col items-end gap-3">
           <div className="text-right">
-            <span className="text-primary font-bold text-lg tabular-nums">
+            <span className="text-lg font-black tabular-nums text-primary">
               {formatEGP(listing.price)}
             </span>
             {!isForSale && (
-              <span className="block text-gray-500 text-[10px]">/month</span>
+              <span className="block text-[10px] font-medium text-gray-500">/month</span>
             )}
           </div>
           <button
             type="button"
-            onClick={(e) => e.preventDefault()}
+            onClick={(event) => event.preventDefault()}
             aria-label={listing.liked ? "Remove from favourites" : "Add to favourites"}
-            className="w-8 h-8 rounded-full bg-black/50 hover:bg-white text-white hover:text-red-500 flex items-center justify-center transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-black/50 text-white transition-colors duration-150 hover:bg-white hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
             <Heart
               className="h-3.5 w-3.5"

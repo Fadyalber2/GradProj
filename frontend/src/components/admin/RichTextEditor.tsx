@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Minus } from "lucide-react";
@@ -44,16 +45,23 @@ export default function RichTextEditor({ value, onChange }: Props) {
     editorProps: {
       attributes: {
         class:
-          "min-h-[160px] px-3 py-2.5 text-sm text-slate-800 focus:outline-none prose prose-sm max-w-none",
+          "min-h-[320px] px-5 py-4 text-sm text-slate-800 focus:outline-none prose prose-sm max-w-none prose-headings:text-slate-950 prose-p:leading-7 prose-li:leading-7",
       },
     },
   });
 
+  useEffect(() => {
+    if (!editor) return;
+    if (editor.getHTML() !== value) {
+      editor.commands.setContent(value || "", { emitUpdate: false });
+    }
+  }, [editor, value]);
+
   if (!editor) return null;
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition">
-      <div className="flex items-center gap-0.5 px-2 py-1.5 border-b border-slate-200 bg-slate-50 flex-wrap">
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-100">
+      <div className="flex items-center gap-1 border-b border-slate-200 bg-slate-50 px-3 py-2 flex-wrap">
         <ToolbarButton
           title="Bold"
           onClick={() => editor.chain().focus().toggleBold().run()}

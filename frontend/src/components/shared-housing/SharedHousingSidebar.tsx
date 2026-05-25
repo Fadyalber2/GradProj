@@ -102,7 +102,7 @@ export default function SharedHousingSidebar({
                   </h4>
                   <p className="text-gray-400 text-xs">{room.housemates}</p>
                   <p className="text-white text-sm font-bold mt-1">
-                    {formatEGP(room.price)}/mo
+                    {formatEGP(room.price)}/month
                   </p>
                 </div>
               </Link>

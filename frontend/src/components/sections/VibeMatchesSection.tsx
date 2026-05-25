@@ -31,8 +31,10 @@ function mapToListing(l: ListingBrief): Listing {
     category: l.category,
     bedrooms: l.bedrooms,
     bathrooms: l.bathrooms,
+    size_sqm: l.size_sqm,
     property_type: l.property_type,
     is_new: l.is_new,
+    created_at: l.created_at,
   };
 }
 

@@ -1,8 +1,21 @@
+from datetime import date
+
 from fastapi import APIRouter, HTTPException, Depends
 from app.database import supabase_admin
 from app.dependencies import get_current_user
 
 router = APIRouter()
+
+
+def _age_from_birth_date(value: str | None) -> int | None:
+    if not value:
+        return None
+    try:
+        born = date.fromisoformat(value[:10])
+    except ValueError:
+        return None
+    today = date.today()
+    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
 
 
 @router.get("/me")
@@ -19,12 +32,24 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
 
     # ── Profile ──────────────────────────────────────────────────────────────
     profile = {
+        "id": current_user.get("id"),
+        "email": current_user.get("email"),
         "full_name": current_user.get("full_name"),
         "avatar_url": current_user.get("avatar_url"),
-        "is_verified_seller": current_user.get("is_verified_seller", False),
-        "bio": current_user.get("bio"),
         "phone": current_user.get("phone"),
+        "whatsapp_number": current_user.get("whatsapp_number"),
+        "bio": current_user.get("bio"),
+        "role": current_user.get("role", "user"),
+        "is_verified_seller": current_user.get("is_verified_seller", False),
+        "gender": current_user.get("gender"),
         "country_code": current_user.get("country_code"),
+        "badges": current_user.get("badges") or [],
+        "birth_date": current_user.get("birth_date"),
+        "age": _age_from_birth_date(current_user.get("birth_date")) or current_user.get("age"),
+        "occupation": current_user.get("occupation"),
+        "lifestyle_preferences": current_user.get("lifestyle_preferences"),
+        "created_at": current_user.get("created_at"),
+        "updated_at": current_user.get("updated_at"),
     }
 
     # ── User Listings ─────────────────────────────────────────────────────────
@@ -46,6 +71,21 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
     total_views = sum(l.get("views_count", 0) for l in user_listings)
     active_count = sum(1 for l in user_listings if l.get("status") == "active")
     pending_count = sum(1 for l in user_listings if l.get("status") == "pending")
+
+    listing_ids = [l["id"] for l in user_listings]
+    try:
+        pending_apps_result = (
+            supabase_admin.table("listing_applications")
+            .select("id", count="exact")
+            .in_("listing_id", listing_ids)
+            .eq("status", "pending")
+            .execute()
+            if listing_ids
+            else None
+        )
+        pending_applications = pending_apps_result.count if pending_apps_result else 0
+    except Exception:
+        pending_applications = 0
 
     # Favorites count
     try:
@@ -107,7 +147,7 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
     try:
         fav_listings_result = (
             supabase_admin.table("favorites")
-            .select("listing_id, created_at, listings(id, title, location, price, images, bedrooms, bathrooms, property_type)")
+            .select("listing_id, created_at, listings(id, title, location, price, price_period, category, images, bedrooms, bathrooms, property_type)")
             .eq("user_id", user_id)
             .order("created_at", desc=True)
             .limit(10)
@@ -123,6 +163,8 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
                 "location": listing_data["location"],
                 "images": listing_data.get("images") or [],
                 "price": float(listing_data["price"]),
+                "price_period": listing_data.get("price_period"),
+                "category": listing_data.get("category"),
                 "bedrooms": listing_data.get("bedrooms"),
                 "bathrooms": listing_data.get("bathrooms"),
                 "property_type": listing_data.get("property_type"),
@@ -162,6 +204,11 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
         "profile": profile,
         "analytics": analytics,
         "listings": dashboard_listings,
+        "listings_count": len(dashboard_listings),
+        "active_count": active_count,
+        "pending_count": pending_count,
         "liked_properties": liked_properties,
+        "liked_count": favorites_count,
         "upcoming_viewings": upcoming_viewings,
+        "pending_applications": pending_applications,
     }

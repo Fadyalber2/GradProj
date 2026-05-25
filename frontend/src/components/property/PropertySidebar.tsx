@@ -5,23 +5,18 @@ import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import type { PropertyDetail } from "@/types";
-import { formatEGP } from "@/lib/utils";
+import { formatEGP, getListingPriceSuffix } from "@/lib/utils";
 import WhatsAppCTA from "@/components/property/WhatsAppCTA";
 
 interface PropertySidebarProps {
   property: PropertyDetail;
 }
 
-function priceSuffix(category?: string): string {
-  if (category === "for_sale") return "";
-  return "/month";
-}
-
 export default function PropertySidebar({ property }: PropertySidebarProps) {
-  const suffix = priceSuffix(property.category);
+  const suffix = getListingPriceSuffix(property.category);
 
   return (
-    <div className="lg:w-[30%]">
+    <div className="w-full">
       <div className="sticky top-24 space-y-6">
         {/* Price card */}
         <motion.div
@@ -96,7 +91,7 @@ export default function PropertySidebar({ property }: PropertySidebarProps) {
                     <p className="text-gray-400 text-xs">{sp.location}</p>
                     <p className="text-white text-sm font-bold mt-1">
                       {formatEGP(sp.price)}
-                      {property.category !== "for_sale" && "/mo"}
+                      {property.category !== "for_sale" && "/month"}
                     </p>
                   </div>
                 </Link>

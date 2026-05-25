@@ -59,6 +59,10 @@ class AmenityValidationRequest(BaseModel):
     amenity: str = Field(..., max_length=200)
 
 
+class FormatArticleRequest(BaseModel):
+    text: str = Field(..., max_length=30000)
+
+
 # ─── Helpers ─────────────────────────────────────────────────────────────────
 
 def _build_listing_brief(row: dict) -> dict:
@@ -758,6 +762,7 @@ async def _explain_recommendations(
 async def get_recommendations(
     current_user: dict = Depends(get_current_user),
     explain: bool = False,
+    category: str | None = None,
 ):
     """
     Return property recommendations based on the user's favorited listings.
@@ -783,15 +788,15 @@ async def get_recommendations(
     if not fav_ids:
         # No favorites — return newest active listings
         try:
-            result = (
+            query = (
                 supabase_admin.table("listings")
                 .select("*, neighborhoods(name)")
                 .eq("status", "active")
                 .is_("deleted_at", "null")
-                .order("created_at", desc=True)
-                .limit(8)
-                .execute()
             )
+            if category:
+                query = query.eq("category", category)
+            result = query.order("created_at", desc=True).limit(8).execute()
             return [_build_listing_brief(r) for r in (result.data or [])]
         except Exception:
             return []
@@ -819,7 +824,7 @@ async def get_recommendations(
                     "query_embedding": ref["embedding"],
                     "match_threshold": 0.5,
                     "match_count": 12,
-                    "filter_category": ref.get("category"),
+                    "filter_category": category or ref.get("category"),
                     "filter_city": ref.get("city"),
                 },
             ).execute()
@@ -852,8 +857,9 @@ async def get_recommendations(
             .is_("deleted_at", "null")
             .not_.in_("id", fav_ids)
         )
-        if ref.get("category"):
-            fb_result = fb_result.eq("category", ref["category"])
+        target_category = category or ref.get("category")
+        if target_category:
+            fb_result = fb_result.eq("category", target_category)
         if ref.get("city"):
             fb_result = fb_result.ilike("city", f"%{ref['city']}%")
 
@@ -1147,3 +1153,150 @@ async def validate_amenity(
 
     # Fail-open on any parse error
     return {"ok": True, "reason": ""}
+
+
+# ─── POST /api/ai/format-article ─────────────────────────────────────────────
+
+def _split_article(text: str) -> list[dict]:
+    """
+    Split article text into segments.
+    AI will only classify types — original text is always used for content.
+    """
+    segments: list[dict] = []
+
+    for para in re.split(r'\n{2,}', text.strip()):
+        para = para.strip()
+        if not para:
+            continue
+
+        lines = [l.strip() for l in para.split('\n') if l.strip()]
+
+        # Inline bullet list (2+ lines starting with - * or number.)
+        bullet_lines = [l for l in lines if re.match(r'^[-*]\s', l) or re.match(r'^\d+\.\s', l)]
+        if len(bullet_lines) >= 2:
+            items = [re.sub(r'^[-*\d\.]+\s*', '', l) for l in lines if l.strip()]
+            segments.append({"text": para, "items": items, "pre_type": "list"})
+            continue
+
+        # Heading+body in one block: short first line without ending punctuation
+        if (
+            len(lines) >= 2
+            and len(lines[0]) <= 80
+            and lines[0][-1] not in '.?!,;:'
+        ):
+            segments.append({"text": lines[0], "pre_type": None})
+            segments.append({"text": ' '.join(lines[1:]), "pre_type": None})
+            continue
+
+        segments.append({"text": para, "pre_type": None})
+
+    return segments
+
+
+def _rule_classify(text: str) -> str | None:
+    """
+    Classify a text segment by rule. Returns type string or None if ambiguous.
+    None means: ask the AI.
+    """
+    t = text.strip()
+    if not t:
+        return "paragraph"
+    last_char = t[-1]
+    length = len(t)
+
+    # Clearly a paragraph: ends with sentence punctuation OR very long
+    if last_char in '.?!' or length > 80:
+        return "paragraph"
+
+    # Clearly a heading: short, no sentence-ending punctuation
+    if length <= 60:
+        return "heading"
+
+    # 61–80 chars, no ending punctuation — ambiguous, delegate to AI
+    return None
+
+
+@router.post("/format-article")
+async def format_article(body: FormatArticleRequest):
+    """
+    Structure article text into typed content blocks.
+    Rules handle clear cases; AI resolves the 61–80 char ambiguous segments.
+    Original text is NEVER modified — AI only outputs type labels.
+    Falls back to {ai_unavailable: true} if Ollama is down.
+    """
+    segments = _split_article(body.text)
+    if not segments:
+        return AI_UNAVAILABLE
+
+    # Apply rules first
+    for s in segments:
+        if s.get("pre_type") is None:
+            rule = _rule_classify(s["text"])
+            if rule:
+                s["pre_type"] = rule
+
+    # Only truly ambiguous segments go to AI
+    ambiguous = [(i, s) for i, s in enumerate(segments) if s.get("pre_type") is None]
+
+    if ambiguous:
+        if not await ollama.health():
+            # Fallback: treat ambiguous as heading (they're short and have no punctuation)
+            for i, s in ambiguous:
+                s["pre_type"] = "heading"
+        else:
+            numbered = "\n".join(f"[{idx}] {s['text']}" for idx, s in ambiguous)
+            n = len(ambiguous)
+            system = (
+                f"Classify each numbered text snippet. Return ONLY a JSON array of exactly {n} strings.\n"
+                "Types: \"heading\" (section title) or \"paragraph\" (body text).\n"
+                f"Return exactly {n} strings. Example: [\"heading\",\"paragraph\"]"
+            )
+            try:
+                raw = await ollama.generate(prompt=numbered, system=system)
+                raw = re.sub(r"```(?:json)?\s*", "", raw).strip().rstrip("`").strip()
+                start = raw.find("[")
+                end = raw.rfind("]") + 1
+                if start >= 0 and end > start:
+                    types = json.loads(raw[start:end])
+                    types = [
+                        json.loads(t) if isinstance(t, str) and t.startswith('"') else t
+                        for t in types
+                    ]
+                    if isinstance(types, list) and len(types) == len(ambiguous):
+                        for (orig_i, _), t in zip(ambiguous, types):
+                            segments[orig_i]["pre_type"] = str(t) if t else "heading"
+            except Exception:
+                pass
+
+    # Final fallback
+    for s in segments:
+        if not s.get("pre_type"):
+            s["pre_type"] = "heading"
+
+    # Build blocks — group consecutive list_items into one list block
+    blocks: list[dict] = []
+    i = 0
+    while i < len(segments):
+        seg = segments[i]
+        t = seg["pre_type"]
+
+        if t == "list":
+            blocks.append({"type": "list", "items": seg["items"]})
+        elif t == "list_item":
+            items = [seg["text"]]
+            while i + 1 < len(segments) and segments[i + 1].get("pre_type") == "list_item":
+                i += 1
+                items.append(segments[i]["text"])
+            blocks.append({"type": "list", "items": items})
+        elif t == "heading":
+            blocks.append({"type": "heading", "text": seg["text"]})
+        elif t == "blockquote":
+            blocks.append({"type": "blockquote", "text": seg["text"], "attribution": "AXIOM Editorial"})
+        else:
+            blocks.append({"type": "paragraph", "text": seg["text"]})
+        i += 1
+
+    if blocks:
+        return {"blocks": blocks}
+
+    return AI_UNAVAILABLE

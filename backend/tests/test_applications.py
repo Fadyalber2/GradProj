@@ -43,13 +43,13 @@ def test_create_application_success(client, mock_supabase, auth_header):
                 result.data = []
             else:
                 # Insert result
-                result.data = {
+                result.data = [{
                     "id": "app-001",
                     "listing_id": FAKE_LISTING_SH["id"],
                     "applicant_id": FAKE_USER_ID,
                     "message": "I'm interested",
                     "status": "pending",
-                }
+                }]
         elif name == "notifications":
             result.data = {"id": "notif-001"}
         else:

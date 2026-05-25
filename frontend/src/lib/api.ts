@@ -13,9 +13,17 @@ class ApiError extends Error {
   constructor(
     public status: number,
     public statusText: string,
-    public body: unknown
+    public body: unknown,
+    public path?: string
   ) {
-    super(`API Error ${status}: ${statusText}`);
+    const detail =
+      body &&
+      typeof body === "object" &&
+      "detail" in body &&
+      typeof body.detail === "string"
+        ? ` - ${body.detail}`
+        : "";
+    super(`API Error ${status}: ${statusText}${path ? ` (${path})` : ""}${detail}`);
     this.name = "ApiError";
   }
 }
@@ -56,7 +64,7 @@ async function request<T>(
     if (res.status === 401 && useAuthStore.getState().session) {
       useAuthStore.getState().logout();
     }
-    throw new ApiError(res.status, res.statusText, errorBody);
+    throw new ApiError(res.status, res.statusText, errorBody, path);
   }
 
   if (res.status === 204) return undefined as T;
@@ -104,7 +112,7 @@ export async function serverFetch<T>(
 
     if (!res.ok) {
       const errorBody = await res.json().catch(() => null);
-      throw new ApiError(res.status, res.statusText, errorBody);
+      throw new ApiError(res.status, res.statusText, errorBody, path);
     }
 
     if (res.status === 204) return undefined as T;

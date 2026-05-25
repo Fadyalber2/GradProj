@@ -4,6 +4,16 @@ from typing import Optional, Any
 
 # ─── Request Bodies ──────────────────────────────────────────────────────────
 
+class HousemateInput(BaseModel):
+    user_id: Optional[str] = None
+    name: str
+    age: Optional[int] = None
+    occupation: Optional[str] = None
+    avatar_url: Optional[str] = None
+    tags: list[str] = []
+    lifestyle_preferences: Optional[dict[str, Any]] = None
+
+
 class CreateListingRequest(BaseModel):
     title: str
     description: Optional[str] = None
@@ -47,6 +57,7 @@ class CreateListingRequest(BaseModel):
     bathroom_type: Optional[str] = None
     private_amenities: list[str] = []
     shared_amenities: list[str] = []
+    housemates: list[HousemateInput] = []
     # Agency association
     agency_id: Optional[str] = None
     project_id: Optional[str] = None
@@ -119,17 +130,26 @@ class ListingBriefResponse(BaseModel):
     floor_number: Optional[int] = None
     neighborhood: Optional[str] = None
     compound_name: Optional[str] = None
+    room_type: Optional[str] = None
+    lifestyle_preferences: Optional[dict[str, Any]] = None
+    total_spots: Optional[int] = None
+    filled_spots: Optional[int] = None
+    utilities_included: Optional[bool] = None
+    available_date: Optional[str] = None
     views_count: int
     created_at: str
 
 
 class HousemateResponse(BaseModel):
     id: str
+    listing_id: Optional[str] = None
+    user_id: Optional[str] = None
     name: str
     age: Optional[int] = None
     occupation: Optional[str] = None
     avatar_url: Optional[str] = None
     tags: list[str] = []
+    lifestyle_preferences: Optional[dict[str, Any]] = None
 
 
 class ListingDetailResponse(BaseModel):
@@ -197,10 +217,13 @@ class ListingsPageResponse(BaseModel):
 class ApplicationDetailResponse(BaseModel):
     id: str
     listing_id: str
+    listing_title: Optional[str] = None
+    listing_image: Optional[str] = None
     applicant_id: str
     applicant_name: Optional[str] = None
     applicant_avatar: Optional[str] = None
     compatibility_score: Optional[int] = None
     status: str
     message: Optional[str] = None
+    lifestyle_data: Optional[dict[str, Any]] = None
     created_at: str

@@ -1,6 +1,6 @@
 "use client";
 
-import { formatEGP } from "@/lib/utils";
+import { formatEGP, getListingPriceSuffix } from "@/lib/utils";
 import WhatsAppCTA from "@/components/property/WhatsAppCTA";
 
 interface MobilePropertyCTAProps {
@@ -18,7 +18,7 @@ export default function MobilePropertyCTA({
   contactPhone,
   contactName,
 }: MobilePropertyCTAProps) {
-  const suffix = category === "for_sale" ? "" : "/mo";
+  const suffix = getListingPriceSuffix(category);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#0f0f0f]/95 backdrop-blur-md border-t border-white/10 px-4 py-3">

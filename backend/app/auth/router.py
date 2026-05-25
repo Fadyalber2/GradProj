@@ -1,4 +1,5 @@
 import re
+from datetime import date
 
 from fastapi import APIRouter, HTTPException, Depends, status
 from app.auth.schemas import SignUpRequest, LoginRequest, UpdateProfileRequest, ProfileResponse, SendPhoneOTPRequest, VerifyPhoneOTPRequest
@@ -7,6 +8,41 @@ from app.dependencies import get_current_user
 from app.config import settings
 
 router = APIRouter()
+
+
+def _age_from_birth_date(value: str | None) -> int | None:
+    if not value:
+        return None
+    try:
+        born = date.fromisoformat(value[:10])
+    except ValueError:
+        return None
+    today = date.today()
+    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+
+
+def _with_calculated_age(profile: dict) -> dict:
+    return {
+        **profile,
+        "age": _age_from_birth_date(profile.get("birth_date")) or profile.get("age"),
+    }
+
+
+def _payload_with_calculated_age(update_data: dict) -> dict:
+    if "birth_date" not in update_data:
+        return update_data
+    return {
+        **update_data,
+        "age": _age_from_birth_date(update_data.get("birth_date")),
+    }
+
+
+def _missing_schema_columns(error_msg: str) -> set[str]:
+    missing = set()
+    for column in ("birth_date", "whatsapp_number"):
+        if "PGRST204" in error_msg and column in error_msg:
+            missing.add(column)
+    return missing
 
 
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
@@ -87,7 +123,7 @@ async def login(body: LoginRequest):
 @router.get("/me", response_model=ProfileResponse)
 async def get_me(current_user: dict = Depends(get_current_user)):
     """Return the authenticated user's full profile."""
-    return current_user
+    return _with_calculated_age(current_user)
 
 
 @router.put("/me", response_model=ProfileResponse)
@@ -98,7 +134,7 @@ async def update_me(
     """Update the authenticated user's profile."""
     user_id = current_user["id"]
 
-    update_data = body.model_dump(exclude_none=True)
+    update_data = _payload_with_calculated_age(body.model_dump(exclude_unset=True))
     if not update_data:
         raise HTTPException(status_code=400, detail="No fields to update")
 
@@ -110,12 +146,28 @@ async def update_me(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update profile: {e}")
+        error_msg = str(e)
+        missing_columns = _missing_schema_columns(error_msg)
+        if missing_columns:
+            fallback_data = {
+                key: value for key, value in update_data.items() if key not in missing_columns
+            }
+            try:
+                result = (
+                    supabase_admin.table("profiles")
+                    .update(fallback_data)
+                    .eq("id", user_id)
+                    .execute()
+                )
+            except Exception as retry_error:
+                raise HTTPException(status_code=500, detail=f"Failed to update profile: {retry_error}")
+        else:
+            raise HTTPException(status_code=500, detail=f"Failed to update profile: {e}")
 
     if not result.data:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-    return result.data[0]
+    return _with_calculated_age(result.data[0])
 
 
 @router.post("/send-phone-otp")

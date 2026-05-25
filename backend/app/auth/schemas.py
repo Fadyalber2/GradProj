@@ -19,10 +19,12 @@ class LoginRequest(BaseModel):
 class UpdateProfileRequest(BaseModel):
     full_name: Optional[str] = None
     phone: Optional[str] = None
+    whatsapp_number: Optional[str] = None
     avatar_url: Optional[str] = None
     bio: Optional[str] = None
     country_code: Optional[str] = None
     gender: Optional[str] = None
+    birth_date: Optional[str] = None
     age: Optional[int] = None
     occupation: Optional[str] = None
     lifestyle_preferences: Optional[dict[str, Any]] = None
@@ -34,12 +36,14 @@ class ProfileResponse(BaseModel):
     full_name: Optional[str] = None
     avatar_url: Optional[str] = None
     phone: Optional[str] = None
+    whatsapp_number: Optional[str] = None
     bio: Optional[str] = None
     role: str
     is_verified_seller: bool
     gender: Optional[str] = None
     country_code: Optional[str] = None
     badges: list[str] = []
+    birth_date: Optional[str] = None
     age: Optional[int] = None
     occupation: Optional[str] = None
     lifestyle_preferences: Optional[dict[str, Any]] = None

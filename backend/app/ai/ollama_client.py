@@ -35,7 +35,7 @@ class OllamaClient:
         if system:
             payload["system"] = system
 
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        async with httpx.AsyncClient(timeout=180.0) as client:
             r = await client.post(f"{self.base_url}/api/generate", json=payload)
             r.raise_for_status()
             return r.json().get("response", "")

@@ -1,7 +1,10 @@
 "use client";
 
 import { Heart } from "lucide-react";
-import { useLikesStore } from "@/stores/likesStore";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { favoritesQueries, favoriteMutation } from "@/lib/queries";
+import { useAuthStore } from "@/stores/authStore";
 
 interface LikeButtonProps {
   id: string;
@@ -10,20 +13,57 @@ interface LikeButtonProps {
 }
 
 export default function LikeButton({ id, size = "sm", className = "" }: LikeButtonProps) {
-  const { isLiked, toggleLike } = useLikesStore();
-  const liked = isLiked(id);
+  const { user } = useAuthStore();
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
+  const { data: likedIds = new Set<string>() } = useQuery({
+    ...favoritesQueries.ids(),
+    enabled: !!user,
+  });
+
+  const mutation = useMutation({
+    ...favoriteMutation,
+    onMutate: async (listingId: string) => {
+      await queryClient.cancelQueries({ queryKey: ["favorites", "ids"] });
+      const prev = queryClient.getQueryData<Set<string>>(["favorites", "ids"]);
+      queryClient.setQueryData(["favorites", "ids"], (old: Set<string> | undefined) => {
+        const next = new Set(old ?? []);
+        if (next.has(listingId)) next.delete(listingId);
+        else next.add(listingId);
+        return next;
+      });
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev !== undefined) {
+        queryClient.setQueryData(["favorites", "ids"], ctx.prev);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "me"] });
+    },
+  });
+
+  const liked = likedIds.has(id);
   const isLg = size === "lg";
+
+  function handleClick(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) {
+      router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    mutation.mutate(id);
+  }
 
   return (
     <button
       type="button"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleLike(id);
-      }}
-      aria-label={liked ? "Remove from favourites" : "Add to favourites"}
+      onClick={handleClick}
+      aria-label={liked ? "Remove from saved" : "Save property"}
       className={`
         ${isLg
           ? "w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 border border-white/10"

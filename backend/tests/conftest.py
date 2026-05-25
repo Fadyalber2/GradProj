@@ -1,6 +1,7 @@
 """Shared test fixtures — mocks Supabase so tests don't hit the real DB."""
 
 import time
+from contextlib import ExitStack
 import pytest
 import jwt
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -19,12 +20,14 @@ FAKE_PROFILE = {
     "full_name": "Test User",
     "avatar_url": None,
     "phone": "+201234567890",
+    "whatsapp_number": "+201234567890",
     "bio": None,
     "role": "user",
     "is_verified_seller": False,
     "gender": "male",
     "country_code": "+20",
     "badges": [],
+    "birth_date": None,
     "age": None,
     "occupation": None,
     "lifestyle_preferences": None,
@@ -58,7 +61,7 @@ def mock_supabase():
     mock_ollama.generate = AsyncMock(return_value="")
     mock_ollama.generate_stream = AsyncMock(return_value=iter([]))
 
-    with (
+    patches = [
         patch("app.database.supabase_client", mock_client),
         patch("app.database.supabase_admin", mock_admin),
         patch("app.auth.router.supabase_client", mock_client),
@@ -77,9 +80,14 @@ def mock_supabase():
         patch("app.blog.router.supabase_admin", mock_admin),
         patch("app.admin.router.supabase_admin", mock_admin),
         patch("app.applications.router.supabase_admin", mock_admin),
+        patch("app.bookings.router.supabase_admin", mock_admin),
+        patch("app.bookings.lease_checker.supabase_admin", mock_admin),
         patch("app.projects.router.supabase_admin", mock_admin),
         patch("app.leads.router.supabase_admin", mock_admin),
-    ):
+    ]
+    with ExitStack() as stack:
+        for item in patches:
+            stack.enter_context(item)
         yield mock_client, mock_admin
 
 
