@@ -165,7 +165,7 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "phone", label: "Phone" },
       { key: "whatsapp_number", label: "WhatsApp Number" },
       { key: "country_code", label: "Country Code" },
-      { key: "gender", label: "Gender", type: "select", options: ["male", "female", "other"] },
+      { key: "gender", label: "Gender", type: "select", options: ["male", "female"] },
       { key: "birth_date", label: "Birth Date", type: "date" },
       { key: "occupation", label: "Occupation" },
       { key: "avatar_url", label: "Avatar URL", type: "image_url" },
