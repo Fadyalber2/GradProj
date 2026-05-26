@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import type { AuthUser, SignUpData } from "@/types";
+import { queryClient } from "@/lib/queryClient";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -198,6 +199,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         is_verified_seller: false,
         birth_date: null,
       };
+      queryClient.clear();
       set({ session: data.session, user: resolvedUser });
     } finally {
       set({ isLoading: false });
@@ -229,6 +231,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (error) throw new Error(error.message);
       // Retry up to 3 times — the profile trigger may lag behind user creation
       const user = await fetchProfile(data.session.access_token, 3, 800);
+      queryClient.clear();
       set({ session: data.session, user });
     } finally {
       set({ isLoading: false });
@@ -237,6 +240,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: async () => {
     await supabase.auth.signOut();
+    queryClient.clear();
     set({ session: null, user: null });
   },
 
