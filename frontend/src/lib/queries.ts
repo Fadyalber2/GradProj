@@ -201,7 +201,7 @@ export interface UpdateProfileInput {
   avatar_url?: string | null;
   bio?: string | null;
   country_code?: string | null;
-  gender?: "male" | "female" | "other" | null;
+  gender?: "male" | "female" | null;
   birth_date?: string | null;
   occupation?: string | null;
 }

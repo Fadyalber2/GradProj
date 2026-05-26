@@ -12,7 +12,7 @@ export interface Citation {
 // ── Auth types (match backend auth/schemas.py) ──
 
 export type UserRole = "user" | "admin";
-export type GenderType = "male" | "female" | "other";
+export type GenderType = "male" | "female";
 
 export interface LifestylePreferences {
   gender_preference?: "male" | "female";
