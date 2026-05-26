@@ -2,6 +2,7 @@ import logging
 import jwt
 from jwt.algorithms import ECAlgorithm
 import httpx
+from datetime import timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.database import supabase_admin
@@ -37,6 +38,8 @@ _load_jwks()
 
 def _decode_token(token: str) -> dict:
     """Decode a Supabase JWT, trying ES256 (JWKS) first, then HS256 fallback."""
+    leeway = timedelta(seconds=30)
+
     if _es256_public_key is not None:
         try:
             return jwt.decode(
@@ -44,6 +47,7 @@ def _decode_token(token: str) -> dict:
                 _es256_public_key,
                 algorithms=["ES256"],
                 audience="authenticated",
+                leeway=leeway,
             )
         except jwt.InvalidAlgorithmError:
             pass  # Token might be HS256 — fall through
@@ -53,6 +57,7 @@ def _decode_token(token: str) -> dict:
         settings.jwt_secret,
         algorithms=["HS256"],
         audience="authenticated",
+        leeway=leeway,
     )
 
 
