@@ -8,7 +8,7 @@ class SignUpRequest(BaseModel):
     full_name: str
     phone: Optional[str] = None
     country_code: Optional[str] = None
-    gender: Optional[str] = None  # "male" | "female" | "other"
+    gender: Optional[str] = None  # "male" | "female"
 
 
 class LoginRequest(BaseModel):
