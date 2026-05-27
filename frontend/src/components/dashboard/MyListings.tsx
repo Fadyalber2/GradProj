@@ -57,17 +57,20 @@ export default function MyListings({ listings, onAddNew, onEdit }: MyListingsPro
 
   return (
     <>
-      <section className="bg-card-dark rounded-3xl border border-white/5 overflow-hidden">
-        <div className="p-4 sm:p-6 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <section className="overflow-hidden rounded-[1.25rem] border border-white/10 bg-[#151515] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+        <div className="flex flex-col justify-between gap-4 border-b border-white/10 p-4 sm:p-6 md:flex-row md:items-center">
           <div>
-            <h2 className="text-2xl font-bold text-white mb-1">My Listings</h2>
-            <p className="text-gray-400 text-sm">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+              Listing pipeline
+            </p>
+            <h2 className="mt-1 text-2xl font-black tracking-tight text-white">My Listings</h2>
+            <p className="mt-1 text-sm text-gray-400">
               New listings require admin approval before going live.
             </p>
           </div>
           <button
             onClick={onAddNew}
-            className="px-5 py-2.5 bg-primary hover:bg-primary-hover rounded-lg text-sm text-white font-bold shadow-lg shadow-primary/25 transition-all flex items-center gap-2"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-black text-white shadow-[0_16px_36px_rgba(255,90,60,0.18)] transition-[background-color,transform,opacity] duration-150 ease-out hover:bg-primary-hover active:scale-[0.98]"
           >
             <PlusCircle className="h-5 w-5" /> Add New Listing
           </button>
@@ -76,7 +79,7 @@ export default function MyListings({ listings, onAddNew, onEdit }: MyListingsPro
         <div className="overflow-x-auto -mx-4 sm:mx-0">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/5 bg-black/20 text-gray-400 text-xs uppercase tracking-wider">
+              <tr className="border-b border-white/10 bg-black/20 text-xs uppercase tracking-[0.16em] text-gray-500">
                 <th className="p-5 font-semibold">Property</th>
                 <th className="p-5 font-semibold">Location</th>
                 <th className="p-5 font-semibold">Status</th>
@@ -88,13 +91,23 @@ export default function MyListings({ listings, onAddNew, onEdit }: MyListingsPro
             <tbody className="divide-y divide-white/5 text-sm">
               {listings.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-gray-500">
-                    No listings yet. Click &quot;Add New Listing&quot; to get started.
+                  <td colSpan={6} className="p-10 text-center">
+                    <div className="mx-auto flex max-w-sm flex-col items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.035]">
+                        <PlusCircle className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-white">No listings yet</p>
+                        <p className="mt-1 text-sm text-gray-500">
+                          Add your first property and it will enter the approval queue.
+                        </p>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               ) : (
                 listings.map((listing) => (
-                  <tr key={listing.id} className="group hover:bg-white/[0.02] transition-colors">
+                  <tr key={listing.id} className="group transition-colors duration-150 hover:bg-white/[0.03]">
                     <td className="p-5">
                       <div className="flex items-center gap-4">
                         {listing.image ? (
@@ -135,7 +148,7 @@ export default function MyListings({ listings, onAddNew, onEdit }: MyListingsPro
                         {onEdit && (
                           <button
                             onClick={() => onEdit(listing.id)}
-                            className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors"
+                            className="rounded-lg p-2 text-gray-400 transition-[background-color,color,transform] duration-150 hover:bg-white/10 hover:text-white active:scale-[0.96]"
                             title="Edit listing"
                           >
                             <Pencil className="h-4 w-4" />
@@ -143,7 +156,7 @@ export default function MyListings({ listings, onAddNew, onEdit }: MyListingsPro
                         )}
                         <button
                           onClick={() => handleDeleteClick(listing.id)}
-                          className="p-2 hover:bg-red-500/10 rounded-lg text-gray-400 hover:text-red-400 transition-colors"
+                          className="rounded-lg p-2 text-gray-400 transition-[background-color,color,transform] duration-150 hover:bg-red-500/10 hover:text-red-400 active:scale-[0.96]"
                           title="Delete listing"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -161,7 +174,7 @@ export default function MyListings({ listings, onAddNew, onEdit }: MyListingsPro
       {/* Delete confirm dialog */}
       {confirmDeleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#1a1a2e] border border-white/10 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
+          <div className="mx-4 w-full max-w-sm rounded-2xl border border-white/10 bg-[#151515] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)]">
             <h3 className="text-white font-bold text-lg mb-2">Delete Listing?</h3>
             <p className="text-gray-400 text-sm mb-6">
               This action cannot be undone. The listing will be permanently removed.
@@ -169,14 +182,14 @@ export default function MyListings({ listings, onAddNew, onEdit }: MyListingsPro
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirmDeleteId(null)}
-                className="flex-1 py-2.5 rounded-xl border border-white/10 text-gray-300 hover:text-white hover:bg-white/5 text-sm font-medium transition-colors"
+                className="flex-1 rounded-lg border border-white/10 py-2.5 text-sm font-bold text-gray-300 transition-[background-color,color,transform] duration-150 hover:bg-white/5 hover:text-white active:scale-[0.98]"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteConfirm}
                 disabled={isDeleting}
-                className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-500 py-2.5 text-sm font-bold text-white transition-[background-color,transform,opacity] duration-150 hover:bg-red-600 active:scale-[0.98] disabled:opacity-50"
               >
                 {isDeleting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

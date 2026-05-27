@@ -84,6 +84,18 @@ Ollama runs on `http://localhost:11434`. The backend calls it automatically.
 2. Run schema migration from `G:\AI\Newstart\backend\migrations\schema.sql`
 3. Enable Row-Level Security on all user-data tables
 4. Copy URL and keys into `.env` files
+5. Configure Auth password recovery:
+   - Auth -> URL Configuration: add `http://localhost:3000/reset-password` and the deployed `/reset-password` URL
+   - Auth -> Email Templates: configure the reset-password email template to redirect to `/reset-password`
+   - Auth -> SMTP: use Supabase default email only for development; configure custom SMTP for production
+   - Auth -> Providers -> Phone: enable phone auth and configure a Supabase-supported SMS provider for phone OTP recovery
+   - Do not use the old backend Twilio OTP endpoints for password recovery; recovery OTPs are sent and verified by Supabase Auth
+6. Configure social and phone sign-in:
+   - Auth -> URL Configuration: add `http://localhost:3000/auth/callback`, the deployed `/auth/callback` URL, and keep the normal Site URL set to the frontend origin
+   - Auth -> Providers -> Facebook: enable Facebook and enter the Facebook App ID and App Secret
+   - Facebook Developer Dashboard -> Facebook Login -> Settings: add the Supabase callback URL shown in the Supabase Facebook provider panel. For the AXIOM-V2 project this is `https://pgaqqseqwtgsuihbswnv.supabase.co/auth/v1/callback`
+   - Facebook app permissions: ensure `public_profile` and `email` are available for testing/live use
+   - Auth -> Providers -> Phone: phone login uses the same Supabase SMS provider and verified/linked phone identity as phone recovery
 
 ---
 

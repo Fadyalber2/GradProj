@@ -20,6 +20,7 @@ export default function OAuthButton({ provider, label, icon }: OAuthButtonProps)
       provider,
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
+        scopes: provider === "facebook" ? "email public_profile" : undefined,
       },
     });
     if (error) {
@@ -34,7 +35,7 @@ export default function OAuthButton({ provider, label, icon }: OAuthButtonProps)
       type="button"
       onClick={handleClick}
       disabled={loading}
-      className="flex justify-center items-center py-2.5 px-4 border border-white/10 rounded-lg bg-background-dark text-sm font-medium text-white hover:bg-white/5 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+      className="flex items-center justify-center rounded-lg border border-white/10 bg-[#101010] px-4 py-2.5 text-sm font-semibold text-white transition-[background-color,border-color,transform,opacity] duration-150 ease-out hover:border-white/20 hover:bg-white/5 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
     >
       {loading ? (
         <Loader2 className="h-4 w-4 animate-spin mr-2" />

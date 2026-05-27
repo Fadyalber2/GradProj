@@ -70,6 +70,8 @@ interface AuthState {
 
   initialize: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+  sendPhoneOtp: (phone: string) => Promise<void>;
+  verifyPhoneOtp: (phone: string, token: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   loginWithFacebook: () => Promise<void>;
   signup: (data: SignUpData) => Promise<void>;
@@ -168,6 +170,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       provider: "facebook",
       options: {
         redirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback`,
+        scopes: "email public_profile",
       },
     });
   },
@@ -190,6 +193,55 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         role: "user",
         full_name: data.session.user.user_metadata?.full_name ?? null,
         phone: null,
+        whatsapp_number: null,
+        country_code: null,
+        gender: null,
+        avatar_url: data.session.user.user_metadata?.avatar_url ?? null,
+        bio: null,
+        badges: [],
+        is_verified_seller: false,
+        birth_date: null,
+      };
+      queryClient.clear();
+      set({ session: data.session, user: resolvedUser });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  sendPhoneOtp: async (phone) => {
+    set({ isLoading: true });
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        phone,
+        options: { shouldCreateUser: false },
+      });
+      if (error) throw new Error(error.message);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  verifyPhoneOtp: async (phone, token) => {
+    set({ isLoading: true });
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        phone,
+        token,
+        type: "sms",
+      });
+      if (error) throw new Error(error.message);
+      if (!data.session) throw new Error("Phone verification did not create a session.");
+
+      const user =
+        await fetchProfile(data.session.access_token, 2, 600) ??
+        await fetchProfileFromSupabase(data.session.user.id);
+      const resolvedUser: AuthUser = user ?? {
+        id: data.session.user.id,
+        email: data.session.user.email ?? "",
+        role: "user",
+        full_name: data.session.user.user_metadata?.full_name ?? null,
+        phone: data.session.user.phone ?? phone,
         whatsapp_number: null,
         country_code: null,
         gender: null,

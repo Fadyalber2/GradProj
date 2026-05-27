@@ -14,6 +14,16 @@ Auth: `Authorization: Bearer <supabase-jwt>` on all protected endpoints.
 | GET    | `/api/auth/me`     | Yes  | Returns current user profile.                                                       |
 | PUT    | `/api/auth/me`     | Yes  | Update profile (name, phone, avatar, bio).                                          |
 
+Password recovery is handled by Supabase Auth on the frontend, not by custom backend OTP storage:
+
+- Facebook login: `supabase.auth.signInWithOAuth({ provider: "facebook", options: { redirectTo: "/auth/callback", scopes: "email public_profile" } })`
+- Phone login: `supabase.auth.signInWithOtp({ phone, options: { shouldCreateUser: false } })`, then `supabase.auth.verifyOtp({ phone, token, type: "sms" })`
+- Email recovery: `supabase.auth.resetPasswordForEmail(email, { redirectTo: "/reset-password" })`
+- Phone recovery: `supabase.auth.signInWithOtp({ phone, options: { shouldCreateUser: false } })`, then `supabase.auth.verifyOtp({ phone, token, type: "sms" })`
+- Final password update: `supabase.auth.updateUser({ password })` from `/reset-password` after Supabase creates a recovery/OTP session.
+
+For phone login/recovery to work, the phone number must be linked to the Supabase Auth user. Profile-only legacy phone values are not enough.
+
 ### POST /api/auth/signup — body
 
 ```json

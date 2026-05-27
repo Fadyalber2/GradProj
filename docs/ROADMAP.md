@@ -41,9 +41,9 @@ Last updated: 2026-05-23
 | `/dashboard`           | ✅    | ✅        | Backend `/api/dashboard/me`, avatar upload, WhatsApp/member-since profile sync, bookings/applications tabs |
 | `/booking/[id]`        | ✅    | ✅        | Backend-wired booking detail — renter confirmation, vacate, owner disbursement requests via `/api/bookings/*` |
 | `/messages`            | —     | —         | Removed — replaced by WhatsApp lead capture                          |
-| `/login`               | ✅    | ✅        | Supabase auth wired                                                  |
+| `/login`               | ✅    | ✅        | Supabase email, Facebook OAuth, and phone OTP auth wired             |
 | `/signup`              | ✅    | ✅        | Single role, Supabase wired                                          |
-| `/forgot-password`     | ✅    | ✅        | Supabase reset wired                                                 |
+| `/forgot-password`     | ✅    | ✅        | Supabase email reset + phone OTP recovery wired                      |
 | `/agencies`            | ✅    | ✅        | Direct Supabase query, no mock fallback                              |
 | `/agencies/[slug]`     | ✅    | ✅        | Direct Supabase query, no mock fallback                              |
 | `/project/[id]`        | ✅    | ✅        | Direct Supabase query                                                |

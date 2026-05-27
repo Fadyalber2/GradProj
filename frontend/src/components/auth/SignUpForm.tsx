@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Check, ChevronRight, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
 import OAuthButton from "@/components/auth/OAuthButton";
 import { GoogleIcon, FacebookIcon } from "@/components/auth/OAuthIcons";
 import { motion } from "framer-motion";
@@ -29,7 +29,7 @@ function getPasswordStrength(password: string): 0 | 1 | 2 | 3 {
 }
 
 const STRENGTH_LABEL = ["", "Weak", "Fair", "Strong"] as const;
-const STRENGTH_COLOR = ["", "bg-red-500", "bg-yellow-400", "bg-green-500"] as const;
+const STRENGTH_COLOR = ["", "bg-red-400", "bg-amber-300", "bg-emerald-300"] as const;
 
 export default function SignUpForm() {
   const router = useRouter();
@@ -44,7 +44,6 @@ export default function SignUpForm() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [password, setPassword] = useState("");
 
-  const e164Phone = buildE164(countryCode, phoneInput);
   const passwordStrength = getPasswordStrength(password);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -55,8 +54,10 @@ export default function SignUpForm() {
     const fd = new FormData(e.currentTarget);
     const full_name = (fd.get("name") as string).trim();
     const email = (fd.get("email") as string).trim();
+    const submittedPhone = ((fd.get("phone") as string) || phoneInput).trim();
     const confirmPassword = fd.get("confirm-password") as string;
     const tosAccepted = fd.get("tos") === "on";
+    const submittedE164Phone = buildE164(countryCode, submittedPhone);
 
     if (!full_name || !email || !password) {
       setError("Name, email, and password are required.");
@@ -74,7 +75,7 @@ export default function SignUpForm() {
       setError("Password must be at least 6 characters.");
       return;
     }
-    if (!phoneInput.trim()) {
+    if (!submittedPhone) {
       setError("Phone number is required.");
       return;
     }
@@ -88,7 +89,7 @@ export default function SignUpForm() {
         email,
         password,
         full_name,
-        phone: e164Phone || undefined,
+        phone: submittedE164Phone || undefined,
         country_code: countryCode,
         gender,
       });
@@ -106,58 +107,68 @@ export default function SignUpForm() {
     }
   };
 
+  const inputClass =
+    "auth-field block w-full rounded-lg border border-white/10 bg-[#101010] px-4 py-3 text-white caret-primary placeholder:text-white/30 transition-[border-color,box-shadow,background-color] duration-150 ease-out focus:border-primary/70 focus:bg-[#121212] focus:outline-none focus:ring-2 focus:ring-primary/30 sm:text-sm";
+  const labelClass =
+    "mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-white/50";
+  const iconButtonClass =
+    "absolute inset-y-0 right-0 flex items-center px-3 text-white/40 transition-[color,transform] duration-150 ease-out hover:text-white active:scale-95";
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="w-full max-w-lg"
+      initial={{ opacity: 0, transform: "translateY(14px)" }}
+      animate={{ opacity: 1, transform: "translateY(0)" }}
+      transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
+      className="w-full justify-self-center lg:justify-self-end"
     >
-      <div className="bg-card-dark rounded-2xl shadow-2xl shadow-black/50 border border-white/10 p-8 sm:p-10">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-black text-primary mb-2 tracking-tight">
-            AXIOM
-          </h2>
-          <h1 className="text-2xl font-bold text-white">
-            Create your account
-          </h1>
-          <p className="mt-2 text-sm text-gray-400">
-            Join the AI-powered real estate platform.
-          </p>
+      <div className="mx-auto w-full max-w-xl rounded-lg border border-white/10 bg-[#171717]/95 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.42)] backdrop-blur sm:p-7">
+        <div className="mb-7 flex items-start justify-between gap-5">
+          <div>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-primary">
+              AXIOM
+            </p>
+            <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
+              Create your account
+            </h1>
+            <p className="mt-2 text-sm leading-6 text-white/60">
+              One profile for listings, saved searches, messages, and recommendations.
+            </p>
+          </div>
+          <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-emerald-300/20 bg-emerald-300/10 text-emerald-200 sm:flex">
+            <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+          </div>
         </div>
 
         {error && (
-          <div className="mb-5 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+          <div className="mb-5 rounded-lg border border-red-400/25 bg-red-400/10 px-4 py-3 text-sm text-red-200">
             {error}
           </div>
         )}
 
         {info && (
-          <div className="mb-5 px-4 py-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm">
+          <div className="mb-5 rounded-lg border border-sky-300/25 bg-sky-300/10 px-4 py-3 text-sm text-sky-100">
             {info}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Full Name */}
-          <div>
-            <label htmlFor="name" className="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4" autoComplete="on">
+          <div className="order-1">
+            <label htmlFor="name" className={labelClass}>
               Full Name
             </label>
             <input
               id="name"
               name="name"
               type="text"
-              autoComplete="name"
+              autoComplete="section-signup name"
               required
               placeholder="Ahmed Mohamed"
-              className="block w-full px-4 py-3 rounded-lg border border-white/10 bg-background-dark text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent transition-all sm:text-sm"
+              className={inputClass}
             />
           </div>
 
-          {/* Email */}
-          <div>
-            <label htmlFor="signup-email" className="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
+          <div className="order-2">
+            <label htmlFor="signup-email" className={labelClass}>
               Email Address
             </label>
             <input
@@ -167,64 +178,42 @@ export default function SignUpForm() {
               autoComplete="email"
               required
               placeholder="name@example.com"
-              className="block w-full px-4 py-3 rounded-lg border border-white/10 bg-background-dark text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent transition-all sm:text-sm"
+              className={inputClass}
             />
           </div>
 
-          {/* Phone */}
-          <div>
-            <label htmlFor="phone" className="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
-              Phone Number <span className="text-red-400">*</span>
+          <div className="order-4">
+            <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
+              Gender <span className="text-primary">*</span>
             </label>
-            <div className="flex">
-              <select
-                value={countryCode}
-                onChange={(e) => setCountryCode(e.target.value)}
-                className="rounded-l-lg border border-r-0 border-white/10 bg-background-dark text-white focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm px-3 py-3 w-24"
-              >
-                {COUNTRY_CODES.map((code) => (
-                  <option key={code} value={code}>{code}</option>
-                ))}
-              </select>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                autoComplete="tel"
-                placeholder={phonePlaceholder(countryCode)}
-                value={phoneInput}
-                onChange={(e) => setPhoneInput(e.target.value)}
-                className="flex-1 min-w-0 block w-full px-4 py-3 rounded-r-lg border border-white/10 bg-background-dark text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm"
-              />
-            </div>
-          </div>
-
-          {/* Gender */}
-          <div>
-            <label className="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">
-              Gender <span className="text-red-400">*</span>
-            </label>
-            <div className="flex space-x-6">
+            <div className="grid grid-cols-2 gap-3">
               {GENDER_OPTIONS.map((g) => (
-                <label key={g.value} className="inline-flex items-center cursor-pointer">
+                <label
+                  key={g.value}
+                  className={`flex cursor-pointer items-center justify-between rounded-lg border px-4 py-3 text-sm transition-[border-color,background-color,transform] duration-150 ease-out active:scale-[0.98] ${
+                    gender === g.value
+                      ? "border-primary/70 bg-primary/10 text-white"
+                      : "border-white/10 bg-[#101010] text-white/60 hover:border-white/20"
+                  }`}
+                >
+                  <span>{g.label}</span>
                   <input
                     type="radio"
                     name="gender"
                     value={g.value}
                     checked={gender === g.value}
                     onChange={() => setGender(g.value)}
-                    className="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-transparent"
+                    className="sr-only"
                   />
-                  <span className="ml-2 text-sm text-white">{g.label}</span>
+                  {gender === g.value && <Check className="h-4 w-4 text-primary" aria-hidden="true" />}
                 </label>
               ))}
             </div>
           </div>
 
-          {/* Password + Confirm */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="order-5 grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label htmlFor="signup-password" className="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
+              <label htmlFor="signup-password" className={labelClass}>
                 Password
               </label>
               <div className="relative">
@@ -234,15 +223,15 @@ export default function SignUpForm() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   required
-                  placeholder="••••••••"
+                  placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full px-4 py-3 pr-12 rounded-lg border border-white/10 bg-background-dark text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent transition-all sm:text-sm"
+                  className={`${inputClass} pr-12`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-white transition-colors"
+                  className={iconButtonClass}
                   tabIndex={-1}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
@@ -251,22 +240,23 @@ export default function SignUpForm() {
               </div>
               {password.length > 0 && (
                 <div className="mt-2">
-                  <div className="flex gap-1 h-1">
+                  <div className="flex h-1 gap-1">
                     {([1, 2, 3] as const).map((level) => (
                       <div
                         key={level}
-                        className={`flex-1 rounded-full transition-all ${
+                        className={`flex-1 rounded-full transition-colors duration-150 ${
                           passwordStrength >= level ? STRENGTH_COLOR[passwordStrength] : "bg-white/10"
                         }`}
                       />
                     ))}
                   </div>
-                  <p className="text-xs mt-1 text-gray-400">{STRENGTH_LABEL[passwordStrength]}</p>
+                  <p className="mt-1 text-xs text-white/50">{STRENGTH_LABEL[passwordStrength]}</p>
                 </div>
               )}
             </div>
+
             <div>
-              <label htmlFor="confirm-password" className="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
+              <label htmlFor="confirm-password" className={labelClass}>
                 Confirm Password
               </label>
               <div className="relative">
@@ -276,13 +266,13 @@ export default function SignUpForm() {
                   type={showConfirm ? "text" : "password"}
                   autoComplete="new-password"
                   required
-                  placeholder="••••••••"
-                  className="block w-full px-4 py-3 pr-12 rounded-lg border border-white/10 bg-background-dark text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent transition-all sm:text-sm"
+                  placeholder="Confirm"
+                  className={`${inputClass} pr-12`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirm((v) => !v)}
-                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-white transition-colors"
+                  className={iconButtonClass}
                   tabIndex={-1}
                   aria-label={showConfirm ? "Hide password" : "Show password"}
                 >
@@ -292,35 +282,65 @@ export default function SignUpForm() {
             </div>
           </div>
 
-          {/* Terms of Service */}
-          <div className="pt-1">
-            <label className="flex items-start gap-3 cursor-pointer">
+          <div className="order-3">
+            <label htmlFor="phone" className={labelClass}>
+              Phone Number <span className="text-primary">*</span>
+            </label>
+            <div className="flex">
+              <select
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value)}
+                className="w-24 rounded-l-lg border border-r-0 border-white/10 bg-[#101010] px-3 py-3 text-white transition-[border-color,box-shadow,background-color] duration-150 ease-out focus:border-primary/70 focus:bg-[#121212] focus:outline-none focus:ring-2 focus:ring-primary/30 sm:text-sm"
+              >
+                {COUNTRY_CODES.map((code) => (
+                  <option key={code} value={code}>
+                    {code}
+                  </option>
+                ))}
+              </select>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                autoComplete="tel-national"
+                placeholder={phonePlaceholder(countryCode)}
+                value={phoneInput}
+                onChange={(e) => setPhoneInput(e.target.value)}
+                onInput={(e) => setPhoneInput(e.currentTarget.value)}
+                className={`${inputClass} min-w-0 flex-1 rounded-l-none`}
+              />
+            </div>
+          </div>
+
+          <div className="order-6 pt-1">
+            <label className="flex cursor-pointer items-start gap-3">
               <input
                 type="checkbox"
                 name="tos"
-                className="mt-0.5 h-4 w-4 rounded border-gray-600 text-primary focus:ring-primary bg-transparent"
+                className="mt-0.5 h-4 w-4 rounded border-white/20 bg-[#101010] text-primary focus:ring-primary/40"
               />
-              <span className="text-sm text-gray-400">
+              <span className="text-sm leading-6 text-white/50">
                 I agree to the{" "}
-                <Link href="/terms" className="text-primary hover:text-primary-hover transition-colors">
+                <Link href="/terms" className="font-medium text-primary transition-colors duration-150 hover:text-primary-hover">
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link href="/privacy" className="text-primary hover:text-primary-hover transition-colors">
+                <Link href="/privacy" className="font-medium text-primary transition-colors duration-150 hover:text-primary-hover">
                   Privacy Policy
                 </Link>
               </span>
             </label>
           </div>
 
-          <div className="pt-2">
+          <div className="order-7 pt-2">
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-lg text-sm font-bold text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all shadow-lg shadow-primary/25 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-black text-white shadow-[0_16px_36px_rgba(255,90,60,0.22)] transition-[background-color,box-shadow,transform,opacity] duration-150 ease-out hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/40 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isLoading ? "Creating account…" : "Sign Up"}
+              {isLoading ? "Creating account..." : "Sign Up"}
+              {!isLoading && <ChevronRight className="h-4 w-4" aria-hidden="true" />}
             </button>
           </div>
         </form>
@@ -330,19 +350,19 @@ export default function SignUpForm() {
             <div className="w-full border-t border-white/10" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="px-2 bg-card-dark text-gray-400">Or continue with</span>
+            <span className="bg-[#171717] px-3 text-white/40">Or continue with</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
           <OAuthButton provider="google" label="Google" icon={<GoogleIcon />} />
           <OAuthButton provider="facebook" label="Facebook" icon={<FacebookIcon />} />
         </div>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-white/50">
             Already have an account?{" "}
-            <Link href="/login" className="font-medium text-primary hover:text-primary-hover transition-colors">
+            <Link href="/login" className="font-semibold text-primary transition-colors duration-150 hover:text-primary-hover">
               Sign In
             </Link>
           </p>

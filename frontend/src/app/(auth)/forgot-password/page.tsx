@@ -2,20 +2,15 @@ import type { Metadata } from "next";
 import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
 
 export const metadata: Metadata = {
-  title: "Reset Password — Axiom",
+  title: "Reset Password - Axiom",
   description:
-    "Reset your Axiom password. Enter your email and we'll send you a link to get back in.",
+    "Reset your Axiom password with an email link or verified phone code.",
 };
 
 export default function ForgotPasswordPage() {
   return (
-    <div className="flex-grow flex items-center justify-center pt-28 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Decorative background blurs */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl" />
-      </div>
-
+    <div className="relative flex flex-grow items-center justify-center overflow-hidden bg-[#0f0f0f] px-4 pb-20 pt-28 sm:px-6 lg:px-8">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_0%,rgba(255,90,60,0.14),transparent_25%),linear-gradient(90deg,rgba(255,255,255,0.026)_1px,transparent_1px),linear-gradient(0deg,rgba(255,255,255,0.022)_1px,transparent_1px)] bg-[size:auto,56px_56px,56px_56px]" />
       <ForgotPasswordForm />
     </div>
   );

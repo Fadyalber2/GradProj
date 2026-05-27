@@ -7,6 +7,8 @@ import {
   BadgeCheck,
   CalendarDays,
   Check,
+  Eye,
+  EyeOff,
   Loader2,
   PenLine,
   ShieldCheck,
@@ -17,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 import { updateProfileMutation, type UpdateProfileInput } from "@/lib/queries";
 import { formatDate } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
@@ -36,6 +39,12 @@ type ProfileFormState = {
   birth_date: string;
   avatar_url: string;
   bio: string;
+};
+
+type PasswordFormState = {
+  current: string;
+  next: string;
+  confirm: string;
 };
 
 function buildForm(profile: ApiProfileResponse): ProfileFormState {
@@ -82,6 +91,16 @@ export default function ProfileSettings({
   const refreshProfile = useAuthStore((state) => state.refreshProfile);
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState<ProfileFormState>(() => buildForm(profile));
+  const [passwordForm, setPasswordForm] = useState<PasswordFormState>({
+    current: "",
+    next: "",
+    confirm: "",
+  });
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [showPasswordValues, setShowPasswordValues] = useState(false);
   const [error, setError] = useState("");
   const [avatarUploading, setAvatarUploading] = useState(false);
 
@@ -180,6 +199,55 @@ export default function ProfileSettings({
     mutation.mutate(payload);
   }
 
+  async function handlePasswordSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPasswordError("");
+    setPasswordSuccess("");
+
+    const current = passwordForm.current.trim();
+    const next = passwordForm.next;
+    const confirm = passwordForm.confirm;
+
+    if (!current || !next || !confirm) {
+      setPasswordError("Fill in all password fields.");
+      return;
+    }
+    if (next.length < 6) {
+      setPasswordError("New password must be at least 6 characters.");
+      return;
+    }
+    if (next !== confirm) {
+      setPasswordError("New passwords do not match.");
+      return;
+    }
+    if (current === next) {
+      setPasswordError("Choose a new password that is different from the current one.");
+      return;
+    }
+
+    setPasswordLoading(true);
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: profile.email,
+        password: current,
+      });
+      if (signInError) throw new Error("Current password is incorrect.");
+
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: next,
+      });
+      if (updateError) throw new Error(updateError.message);
+
+      setPasswordForm({ current: "", next: "", confirm: "" });
+      setPasswordSuccess("Password changed successfully.");
+      await refreshProfile();
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : "Could not change password.");
+    } finally {
+      setPasswordLoading(false);
+    }
+  }
+
   const displayAge = calculateAge(profile.birth_date) ?? profile.age;
   const contact = profile.phone || profile.whatsapp_number;
 
@@ -193,16 +261,14 @@ export default function ProfileSettings({
     ["Age", displayAge ? `${displayAge} yrs` : "Not set"],
     [
       "Last updated",
-      profile.updated_at ? formatDate(profile.updated_at) : "—",
+      profile.updated_at ? formatDate(profile.updated_at) : "Not set",
     ],
   ];
 
   return (
-    <section className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/80 ">
+    <section className="mb-6 overflow-hidden rounded-[1.25rem] border border-white/10 bg-[#151515] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
       <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
-        {/* ── Left: avatar + bio + stats + quick info ── */}
-        <div className="border-b border-white/10 bg-card-dark p-5 sm:p-6 lg:border-b-0 lg:border-r">
-          {/* Avatar + name */}
+        <div className="border-b border-white/10 bg-[#171717] p-5 sm:p-6 lg:border-b-0 lg:border-r">
           <div className="flex items-start gap-4">
             <div className="relative size-16 shrink-0 overflow-hidden rounded-xl border border-white/15 bg-white/5">
               {profile.avatar_url ? (
@@ -241,7 +307,6 @@ export default function ProfileSettings({
             </div>
           </div>
 
-          {/* Stats */}
           <div className="mt-5 grid grid-cols-3 divide-x divide-white/10 rounded-xl border border-white/10 bg-black/20">
             {(
               [
@@ -259,7 +324,6 @@ export default function ProfileSettings({
             ))}
           </div>
 
-          {/* Quick info */}
           <dl className="mt-4 space-y-0">
             {(
               [
@@ -268,7 +332,7 @@ export default function ProfileSettings({
                 ["Age", displayAge ? `${displayAge} yrs` : "Not set"],
                 [
                   "Since",
-                  profile.created_at ? formatDate(profile.created_at) : "—",
+                  profile.created_at ? formatDate(profile.created_at) : "Not set",
                 ],
               ] as [string, string][]
             ).map(([label, value]) => (
@@ -283,8 +347,7 @@ export default function ProfileSettings({
           </dl>
         </div>
 
-        {/* ── Right: settings ── */}
-        <div className="p-5 bg-card-dark sm:p-6">
+        <div className="bg-[#151515] p-5 sm:p-6">
           <div className="mb-5 flex flex-wrap  items-center justify-between gap-3">
             <div>
               <p className="text-[11px] font-medium uppercase tracking-widest text-primary">
@@ -302,7 +365,7 @@ export default function ProfileSettings({
                 setError("");
                 setIsEditing((v) => !v);
               }}
-              className="rounded-xl active:scale-[0.98]"
+              className="rounded-lg transition-[background-color,transform,opacity] duration-150 active:scale-[0.98]"
             >
               {isEditing ? (
                 <Check className="size-4" />
@@ -321,7 +384,7 @@ export default function ProfileSettings({
                   <Input
                     value={form.full_name}
                     onChange={(e) => setField("full_name", e.target.value)}
-                    className="h-10 rounded-xl border-white/10 bg-white/5 text-white"
+                    className="h-10 rounded-lg border-white/10 bg-white/5 text-white"
                   />
                 </label>
                 <label className="grid gap-1.5 text-sm font-medium text-zinc-300">
@@ -330,7 +393,7 @@ export default function ProfileSettings({
                     value={form.phone}
                     onChange={(e) => setField("phone", e.target.value)}
                     placeholder="+201001234567"
-                    className="h-10 rounded-xl border-white/10 bg-white/5 text-white"
+                    className="h-10 rounded-lg border-white/10 bg-white/5 text-white"
                   />
                 </label>
                 <label className="grid gap-1.5 text-sm font-medium text-zinc-300">
@@ -338,7 +401,7 @@ export default function ProfileSettings({
                   <Input
                     value={form.country_code}
                     onChange={(e) => setField("country_code", e.target.value)}
-                    className="h-10 rounded-xl border-white/10 bg-white/5 text-white"
+                    className="h-10 rounded-lg border-white/10 bg-white/5 text-white"
                   />
                 </label>
                 <label className="grid gap-1.5 text-sm font-medium text-zinc-300">
@@ -347,12 +410,11 @@ export default function ProfileSettings({
                     type="date"
                     value={form.birth_date}
                     onChange={(e) => setField("birth_date", e.target.value)}
-                    className="h-10 rounded-xl border-white/10 bg-white/5 text-white"
+                    className="h-10 rounded-lg border-white/10 bg-white/5 text-white"
                   />
                 </label>
               </div>
 
-              {/* Avatar */}
               <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
                 <div className="flex items-center justify-between gap-3">
                   <div>
@@ -360,16 +422,16 @@ export default function ProfileSettings({
                       Avatar photo
                     </p>
                     <p className="text-xs text-zinc-500">
-                      Square image · max 4 MB
+                      Square image, max 4 MB
                     </p>
                   </div>
-                  <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-zinc-200 transition hover:bg-white/10 active:scale-[0.98]">
+                  <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-zinc-200 transition-[background-color,transform] duration-150 hover:bg-white/10 active:scale-[0.98]">
                     {avatarUploading ? (
                       <Loader2 className="size-3.5 animate-spin" />
                     ) : (
                       <Upload className="size-3.5" />
                     )}
-                    {avatarUploading ? "Uploading…" : "Upload"}
+                    {avatarUploading ? "Uploading..." : "Upload"}
                     <input
                       type="file"
                       accept="image/*"
@@ -407,7 +469,7 @@ export default function ProfileSettings({
                 <Textarea
                   value={form.bio}
                   onChange={(e) => setField("bio", e.target.value)}
-                  className="min-h-20 rounded-xl border-white/10 bg-white/5 text-white"
+                  className="min-h-20 rounded-lg border-white/10 bg-white/5 text-white"
                 />
               </label>
 
@@ -427,7 +489,7 @@ export default function ProfileSettings({
                     setIsEditing(false);
                     setError("");
                   }}
-                  className="rounded-xl text-zinc-300 active:scale-[0.98]"
+                  className="rounded-lg text-zinc-300 transition-[background-color,transform,opacity] duration-150 active:scale-[0.98]"
                 >
                   Cancel
                 </Button>
@@ -435,7 +497,7 @@ export default function ProfileSettings({
                   type="submit"
                   size="sm"
                   disabled={mutation.isPending}
-                  className="rounded-xl bg-primary text-white hover:bg-primary/90 active:scale-[0.98]"
+                  className="rounded-lg bg-primary text-white transition-[background-color,transform,opacity] duration-150 hover:bg-primary/90 active:scale-[0.98]"
                 >
                   {mutation.isPending && (
                     <Loader2 className="size-4 animate-spin" />
@@ -462,7 +524,7 @@ export default function ProfileSettings({
                     Member since
                   </div>
                   <p className="mt-1 text-sm text-zinc-400">
-                    {profile.created_at ? formatDate(profile.created_at) : "—"}
+                    {profile.created_at ? formatDate(profile.created_at) : "Not set"}
                   </p>
                 </div>
                 <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3.5">
@@ -470,14 +532,100 @@ export default function ProfileSettings({
                     <ShieldCheck className="size-4 text-primary" />
                     Account security
                   </div>
-                  <a
-                    href="/forgot-password"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPasswordFields((value) => {
+                        if (value) setShowPasswordValues(false);
+                        return !value;
+                      });
+                      setPasswordError("");
+                      setPasswordSuccess("");
+                    }}
                     className="mt-1 inline-flex text-sm text-primary underline-offset-4 transition-transform hover:translate-x-0.5 hover:underline"
                   >
                     Change password
-                  </a>
+                  </button>
                 </div>
               </div>
+              {showPasswordFields && (
+                <form
+                  onSubmit={handlePasswordSubmit}
+                  className="mt-2 rounded-xl border border-white/10 bg-white/[0.03] p-3.5"
+                >
+                  <div className="mb-3">
+                    <p className="text-sm font-semibold text-zinc-100">
+                      Change password
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-zinc-500">
+                      Confirm your current password before setting a new one.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    {(
+                      [
+                        ["current", "Current password", "current-password"],
+                        ["next", "New password", "new-password"],
+                        ["confirm", "Confirm new", "new-password"],
+                      ] as const
+                    ).map(([key, label, autoComplete]) => (
+                      <label key={key} className="grid gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                        {label}
+                        <div className="relative">
+                          <Input
+                            type={showPasswordValues ? "text" : "password"}
+                            value={passwordForm[key]}
+                            onChange={(e) =>
+                              setPasswordForm((currentForm) => ({
+                                ...currentForm,
+                                [key]: e.target.value,
+                              }))
+                            }
+                            autoComplete={autoComplete}
+                            className="h-10 rounded-lg border-white/10 bg-[#101010] pr-9 text-white"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPasswordValues((value) => !value)}
+                            className="absolute inset-y-0 right-0 flex items-center px-3 text-zinc-500 transition-colors hover:text-white"
+                            aria-label={showPasswordValues ? "Hide passwords" : "Show passwords"}
+                          >
+                            {showPasswordValues ? (
+                              <EyeOff className="size-4" />
+                            ) : (
+                              <Eye className="size-4" />
+                            )}
+                          </button>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+
+                  {passwordError && (
+                    <p className="mt-3 rounded-lg border border-red-400/20 bg-red-400/10 px-3 py-2 text-sm text-red-200">
+                      {passwordError}
+                    </p>
+                  )}
+                  {passwordSuccess && (
+                    <p className="mt-3 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-sm text-emerald-200">
+                      {passwordSuccess}
+                    </p>
+                  )}
+
+                  <div className="mt-3 flex justify-end">
+                    <Button
+                      type="submit"
+                      size="sm"
+                      disabled={passwordLoading}
+                      className="rounded-lg bg-primary text-white transition-[background-color,transform,opacity] duration-150 hover:bg-primary/90 active:scale-[0.98]"
+                    >
+                      {passwordLoading && <Loader2 className="size-4 animate-spin" />}
+                      Update password
+                    </Button>
+                  </div>
+                </form>
+              )}
             </div>
           )}
         </div>

@@ -132,6 +132,18 @@
   }
 }
 
+/* Keep browser/password-manager autofill inside AXIOM's dark form system. */
+.auth-field:-webkit-autofill,
+.auth-field:-webkit-autofill:hover,
+.auth-field:-webkit-autofill:focus,
+.auth-field:-webkit-autofill:active {
+  -webkit-text-fill-color: #ffffff;
+  caret-color: #ff5a3c;
+  box-shadow: 0 0 0 1000px #101010 inset;
+  border-color: rgba(255, 90, 60, 0.55);
+  transition: background-color 9999s ease-out, color 9999s ease-out;
+}
+
 /* Custom scrollbar */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;

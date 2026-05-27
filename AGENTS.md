@@ -196,79 +196,77 @@ Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
 <claude-mem-context>
 # Memory Context
 
-# [AXIOM-V2] recent context, 2026-05-23 1:38pm GMT+3
+# [AXIOM-V2] recent context, 2026-05-27 1:48am GMT+3
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (17,690t read) | 856,710t work | 98% savings
+Stats: 50 obs (17,330t read) | 412,076t work | 96% savings
 
-### May 18, 2026
-928 11:59p ✅ Extended component AgencyDetail type with contact fields and logo URL
-### May 19, 2026
-929 12:00a 🟣 Agency page transformation layer now uses real data for location, history, contacts, and trust breakdown
-930 12:02a 🟣 Added founded_year field support for agency creation
-932 5:58a 🟣 Admin listing image upload UI with enhanced contrast and visual feedback
-S441 Unified and elevated admin dashboard UI using high-end design principles (May 19, 5:59 AM)
-S442 Locate Ollama model storage path for qwen model on Windows PC (May 19, 6:06 AM)
-### May 20, 2026
-933 6:42a 🔵 Ollama Model Storage Location Identified
-934 6:43a 🔵 Ollama Installed Models Identified
-S443 Add Partner Universities feature with same capabilities as agencies but separate and without projects section (May 20, 6:43 AM)
-### May 22, 2026
-S444 Implement Partner Universities feature mirroring agencies functionality but separate and excluding projects section (May 22, 7:04 PM)
-935 7:07p 🔵 Existing agency architecture mapped across frontend and backend
-936 7:08p 🔵 Current university implementation uses hardcoded constants instead of database
-937 " 🔵 Agency backend implements subscription tiers, owner-based access control, and dual entity support
-938 7:09p 🔵 Agency schema fields and admin UI configuration mapped
-939 " 🔵 Listings table lacks university_id foreign key, admin sidebar has no universities entry
-940 " 🔵 University TypeScript interface lacks database-required fields like id, slug, owner_id
-S445 Add Partner Universities feature mirroring agencies structure but without projects section (May 22, 7:10 PM)
-S446 Add Partner Universities feature mirroring agencies structure but without projects section (May 22, 7:13 PM)
-S447 Add Partner Universities feature mirroring agencies structure but without projects section (May 22, 7:14 PM)
-S448 Add Partner Universities feature mirroring agencies structure but without projects section (May 22, 7:14 PM)
-S449 Add Partner Universities feature mirroring agencies structure but kept separate without projects section (May 22, 7:15 PM)
-941 7:15p ⚖️ Design specification documented for Partner Universities feature
-942 7:16p ✅ Partner Universities design specification written
-943 " ✅ Partner Universities design spec committed to repository
-944 7:17p 🔵 Current backend routing and admin sidebar structure examined
-945 " 🔵 Entity picker, admin CRUD, and detail page patterns examined for universities implementation
-946 7:18p ✅ Comprehensive Partner Universities implementation plan written
-947 7:28p ✅ Partner Universities implementation plan committed to repository
-S450 Implement Partner Universities feature mirroring agencies structure but separate without projects (May 22, 7:28 PM)
-948 7:29p ⚖️ Subagent-driven development approach selected for Partner Universities implementation
-949 7:30p ✅ Task queue populated for 11-task Partner Universities execution pipeline
-950 7:31p ✅ Partner Universities implementation execution phase begun
-951 7:32p 🟣 Universities database table created and schema migration applied
-952 " 🔵 Universities table schema verified with all 17 columns present
-953 " 🔵 Listings table university_id FK column verified present
-954 " 🟣 Task 1 (DB Migration) completed and verified by subagent
-955 " ✅ Task 1 (DB Migration) marked completed in task tracking system
-956 " ✅ Task 2 (Backend universities module) marked in_progress
 ### May 23, 2026
-957 12:04a 🟣 Universities module with public API endpoints
-958 " 🔵 Universities router not registered in FastAPI app
-959 12:05a 🔵 Code review identified N+1 query performance issue in universities router
-960 12:06a 🔴 Registered universities router in FastAPI application
-961 12:07a 🟣 Admin CRUD endpoints for universities management
-962 12:10a 🔵 Python Import Test Failing Silently in Windows Environment
-963 12:19a 🔵 Python Import Successful Using Venv Python Executable
-964 " 🔵 Backend Server Starts Successfully on Port 8099
-965 12:21a 🟣 Universities Router and Admin CRUD Endpoints Implemented
-966 12:22a 🟣 Universities Backend Implementation Verified and Completed
-967 12:26a 🟣 Added TypeScript types for Partner Universities
-968 12:27a ✅ Added university type imports to supabase-queries
-969 " 🟣 Implemented university database query functions
-970 " 🔄 Updated UniversityCard component to use real API types
-971 12:28a 🔄 Converted UniversitiesSection to use React Query and live data
-972 " 🔵 University listings query depends on missing university_id column
-973 12:30a 🟣 Added Universities navigation to admin sidebar
-974 12:31a 🟣 Added universities support to EntityPicker component
-975 " 🟣 Admin navigation and entity picker support for universities
-976 " 🔵 Task 8 blocked by Claude API session limit
-977 12:13p 🔵 Second attempt to implement Task 8 blocked by session limits
-978 12:15p 🟣 Added university association to admin listing editor
+988 5:32p 🟣 Partner Universities Feature Implementation
+989 " ✅ Feature Planning Documentation for Shared Housing and Payment Systems
+990 5:33p 🔵 Uncommitted Booking and Shared Housing Implementation Work
+991 5:35p ✅ CLAUDE.md Documentation File Removed from Repository
+992 " ✅ CLAUDE.md Converted from Tracked to Local-Only Documentation
+993 5:36p ✅ Partner Universities Feature and Recent Work Pushed to Remote Repository
+### May 25, 2026
+995 5:26p 🔵 Missing app.bookings module causing backend startup failure
+996 5:27p 🔵 app.bookings module exists locally but missing from version control
+997 " 🔵 Bookings directory confirmed untracked in git repository
+998 5:28p 🔴 Added missing bookings module to version control
+999 5:46p 🔵 Backend configured to use axiom-llm model via Ollama
+### May 26, 2026
+1000 5:45p 🔵 JWT Token Timing Issue After Account Creation
+1001 5:46p 🔵 JWT Decode Missing Leeway Parameter
+1002 " 🔴 Added 30-Second Leeway to JWT Validation
+1003 5:47p ✅ Created Git Branch for JWT Leeway Fix
+1004 " ✅ Committed JWT Leeway Fix to Version Control
+1005 " ✅ Pushed JWT Fix and Created Pull Request #1
+1006 5:48p ✅ Merged JWT Leeway Fix to Main Branch
+1007 5:58p 🔵 Auth State Management Investigation
+1008 5:59p 🔄 QueryClient Refactored to Singleton Pattern
+1009 " 🔴 Fixed Stale User Data After Login
+1010 6:00p 🔴 Extended Cache Clearing to Logout and Signup Flows
+1011 " ✅ Committed and Pushed Auth Cache Clear Fix
+S469 Fix state management bug causing stale user data after login, commit, PR, and merge to main (May 26, 6:02 PM)
+S470 Fixed auth state management bug causing stale user data; merged to main; verified Ollama service status (May 26, 6:02 PM)
+S471 Install graphify knowledge graph tool for Windows Claude Code environment (May 26, 6:04 PM)
+1012 6:09p 🔵 Graphify Installation Prerequisites Verified
+1013 6:18p 🟣 Installed Graphify Knowledge Graph Tool with Multi-Language Support
+1014 " 🟣 Registered Graphify Skill with Claude Code on Windows
+S472 Install graphify and configure API access for AXIOM-V2 knowledge graph generation (May 26, 6:19 PM)
+1015 6:20p 🔵 No API Keys Configured in Environment Variables
+S473 Complete graphify codebase analysis with community labeling and interactive visualization for AXIOM-V2 project (May 26, 6:20 PM)
+1016 6:22p 🔵 AXIOM-V2 codebase analyzed with graphify tool
+1017 6:23p 🔵 AXIOM-V2 project structure shows frontend-heavy architecture
+1018 6:24p ⚖️ Graphify analysis scope narrowed to core application directories
+1019 6:25p 🔵 Semantic cache cold start requires full extraction of 271 files
+1020 6:28p ✅ AST extraction completed generating graph structure from codebase
+1021 " ✅ Semantic knowledge graph extracted from AXIOM-V2 documentation and assets
+1022 11:11p ✅ Labeled 157 Codebase Communities with Semantic Names
+1023 11:12p 🟣 Generated Interactive HTML Graph Visualization
+1024 " 🔵 Measured 19.6x Token Reduction from Graph Representation
+1025 11:13p 🟣 Implemented Cost Tracking and Cleanup Pipeline
+S474 Add graphify documentation to CLAUDE.md to enforce token-efficient workflows and mandate graph updates (May 26, 11:13 PM)
+1026 11:18p ✅ Added mandatory graphify update step to task completion checklist
+1027 11:19p ✅ Added comprehensive graphify knowledge graph documentation section
+S475 Assessment of signup page improvements needed for Egyptian real estate platform AXIOM (May 26, 11:20 PM)
+1028 11:21p 🔵 Signup page architecture exploration for improvement assessment
+S478 User activated caveman communication mode (May 26, 11:23 PM)
+1029 11:27p 🔵 Phone Number and Country Code Usage Mapped Across Codebase
+1030 " 🔵 Gender Field Currently Allows Three Values Including "Other"
+1031 " 🔵 Country Code Defaults to Egypt +20 with Inconsistent Storage Pattern
+1032 11:28p 🔵 WhatsApp Number and Birth Date Fields Missing from Database Schema
+1033 " 🔵 Gender "Other" Option Found in Four Frontend Locations
+1034 " ⚖️ Comprehensive Implementation Plan Created for Phone and Gender Fixes
+S476 Fix phone number database inconsistencies and restrict gender to male/female only across AXIOM-V2 platform (May 26, 11:30 PM)
+S477 Simplify phone/WhatsApp implementation based on Egypt market insight - merge into single field (May 26, 11:32 PM)
+1035 11:32p 🟣 Phone Normalization Utility Created with E.164 Leading-Zero Strip
+1036 11:34p ✅ GenderType Restricted to Binary Male/Female Values
+1037 " ✅ UpdateProfileInput Gender Type Aligned to Binary Values
+1038 11:35p ✅ Admin Dashboard Gender Dropdown Restricted to Binary Options
 
-Access 857k tokens of past work via get_observations([IDs]) or mem-search skill.
+Access 412k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>

@@ -33,6 +33,8 @@ def test_signup_success(client, mock_supabase):
     data = resp.json()
     assert data["user_id"] == FAKE_USER_ID
     assert "Account created" in data["message"]
+    create_payload = mock_admin.auth.admin.create_user.call_args.args[0]
+    assert create_payload["phone"] == "+201234567890"
 
 
 def test_signup_duplicate_email(client, mock_supabase):
@@ -143,3 +145,28 @@ def test_update_profile(client, mock_supabase, auth_header):
     data = resp.json()
     assert data["full_name"] == "Updated Name"
     assert data["bio"] == "New bio"
+
+
+def test_update_profile_syncs_e164_phone_to_supabase_auth(client, mock_supabase, auth_header):
+    """PUT /api/auth/me syncs E.164 profile phone to the Supabase Auth user."""
+    _mock_client, mock_admin = mock_supabase
+
+    mock_profile_result = MagicMock()
+    mock_profile_result.data = FAKE_PROFILE
+    mock_admin.table.return_value.select.return_value.eq.return_value.single.return_value.execute.return_value = mock_profile_result
+
+    updated_profile = {**FAKE_PROFILE, "phone": "+201001234567"}
+    mock_update_result = MagicMock()
+    mock_update_result.data = [updated_profile]
+    mock_admin.table.return_value.update.return_value.eq.return_value.execute.return_value = mock_update_result
+
+    resp = client.put("/api/auth/me", headers=auth_header, json={
+        "phone": "+201001234567",
+    })
+
+    assert resp.status_code == 200
+    assert resp.json()["phone"] == "+201001234567"
+    mock_admin.auth.admin.update_user_by_id.assert_called_with(
+        FAKE_USER_ID,
+        {"phone": "+201001234567"},
+    )

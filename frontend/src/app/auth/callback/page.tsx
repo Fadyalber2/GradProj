@@ -20,7 +20,6 @@ export default function AuthCallbackPage() {
         return;
       }
       await useAuthStore.getState().refreshProfile();
-      const user = useAuthStore.getState().user;
       router.replace("/dashboard");
     };
 

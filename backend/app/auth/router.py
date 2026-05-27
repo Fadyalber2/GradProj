@@ -45,6 +45,24 @@ def _missing_schema_columns(error_msg: str) -> set[str]:
     return missing
 
 
+def _is_e164_phone(value: str | None) -> bool:
+    return bool(value and re.match(r"^\+[1-9]\d{7,14}$", value))
+
+
+def _sync_auth_phone(user_id: str, phone: str | None) -> None:
+    """
+    Best-effort sync so Supabase Auth owns phone OTP delivery/verification.
+    Phone recovery still requires Supabase to verify the code before a session exists.
+    """
+    try:
+        if phone is None:
+            supabase_admin.auth.admin.update_user_by_id(user_id, {"phone": None})
+        elif _is_e164_phone(phone):
+            supabase_admin.auth.admin.update_user_by_id(user_id, {"phone": phone})
+    except Exception:
+        pass
+
+
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
 async def signup(body: SignUpRequest):
     """
@@ -61,14 +79,16 @@ async def signup(body: SignUpRequest):
         user_metadata["gender"] = body.gender
 
     try:
-        auth_resp = supabase_admin.auth.admin.create_user(
-            {
+        create_payload = {
                 "email": body.email,
                 "password": body.password,
                 "user_metadata": user_metadata,
                 "email_confirm": True,  # auto-confirm so user can log in immediately
-            }
-        )
+        }
+        if _is_e164_phone(body.phone):
+            create_payload["phone"] = body.phone
+
+        auth_resp = supabase_admin.auth.admin.create_user(create_payload)
     except Exception as e:
         error_msg = str(e)
         if "already registered" in error_msg or "already been registered" in error_msg:
@@ -92,6 +112,8 @@ async def signup(body: SignUpRequest):
     if update_data:
         try:
             supabase_admin.table("profiles").update(update_data).eq("id", user_id).execute()
+            if "phone" in update_data:
+                _sync_auth_phone(user_id, update_data["phone"])
         except Exception:
             pass  # Profile update is best-effort; trigger already created the row
 
@@ -166,6 +188,9 @@ async def update_me(
 
     if not result.data:
         raise HTTPException(status_code=404, detail="Profile not found")
+
+    if "phone" in update_data:
+        _sync_auth_phone(user_id, update_data["phone"])
 
     return _with_calculated_age(result.data[0])
 
