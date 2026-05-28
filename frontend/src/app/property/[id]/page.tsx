@@ -12,8 +12,6 @@ import HousematesSection from "@/components/shared-housing/HousematesSection";
 import SharedAmenities from "@/components/shared-housing/SharedAmenities";
 import SharedHousingSidebar from "@/components/shared-housing/SharedHousingSidebar";
 import MobilePropertyCTA from "@/components/property/MobilePropertyCTA";
-import ApplyButton from "@/components/shared-housing/ApplyButton";
-import BookNowButton from "@/components/booking/BookNowButton";
 import { getListing } from "@/lib/supabase-queries";
 import type { ListingDetailWithSimilar } from "@/types/api";
 import type { PropertyDetail, SharedHousingDetail, SharedAmenity } from "@/types";
@@ -181,11 +179,10 @@ export default async function PropertyDetailPage({
             <div className="lg:w-[30%]">
               <SharedHousingSidebar
                 housing={housing}
+                listing={data}
                 contactPhone={property.contactPhone}
                 contactName={property.contactName}
               />
-              <ApplyButton listing={data} />
-              <BookNowButton listing={data} />
             </div>
           </div>
         </div>
@@ -208,8 +205,7 @@ export default async function PropertyDetailPage({
         <div className="flex flex-col lg:flex-row gap-12">
           <PropertyInfo property={property} />
           <div className="lg:w-[30%]">
-            <PropertySidebar property={property} />
-            <BookNowButton listing={data} />
+            <PropertySidebar property={property} listing={data} />
           </div>
         </div>
       </div>

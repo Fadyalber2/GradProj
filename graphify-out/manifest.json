@@ -1,0 +1,1357 @@
+{
+  "E:\\GradProject\\AXIOM-V2\\frontend\\components.json": {
+    "mtime": 1772283841.2411408,
+    "ast_hash": "9d220183f9dc57492600d841853d7ec6",
+    "semantic_hash": "9d220183f9dc57492600d841853d7ec6"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\eslint.config.mjs": {
+    "mtime": 1772283951.340319,
+    "ast_hash": "dfa1f5f6a7037bf39dc510f30b180002",
+    "semantic_hash": "dfa1f5f6a7037bf39dc510f30b180002"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\middleware.ts": {
+    "mtime": 1776111715.184767,
+    "ast_hash": "5c5ae28b58fe0fe1d200877f7caa8aa0",
+    "semantic_hash": "5c5ae28b58fe0fe1d200877f7caa8aa0"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\next.config.ts": {
+    "mtime": 1779076312.6765893,
+    "ast_hash": "3d14bed111137984c11012d36cafca92",
+    "semantic_hash": "3d14bed111137984c11012d36cafca92"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\package.json": {
+    "mtime": 1778872392.3779812,
+    "ast_hash": "6a63cab6c5e80cea6cf03ffe6e4090a8",
+    "semantic_hash": "6a63cab6c5e80cea6cf03ffe6e4090a8"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\postcss.config.mjs": {
+    "mtime": 1772283951.336718,
+    "ast_hash": "239f3ebf717465dc636818a1a619398d",
+    "semantic_hash": "239f3ebf717465dc636818a1a619398d"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\tsconfig.json": {
+    "mtime": 1772283841.242548,
+    "ast_hash": "ee17fd1c97c735e9f3564e3f5251f125",
+    "semantic_hash": "ee17fd1c97c735e9f3564e3f5251f125"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\error.tsx": {
+    "mtime": 1772283841.3298707,
+    "ast_hash": "588e45072a1e513338d9159ff41fd6a7",
+    "semantic_hash": "588e45072a1e513338d9159ff41fd6a7"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\layout.tsx": {
+    "mtime": 1778243529.7062724,
+    "ast_hash": "cf603e5cf2dfdfe9108737dacda6990b",
+    "semantic_hash": "cf603e5cf2dfdfe9108737dacda6990b"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\loading.tsx": {
+    "mtime": 1772283841.3308632,
+    "ast_hash": "92575ee7532e4e471838dbe41112374f",
+    "semantic_hash": "92575ee7532e4e471838dbe41112374f"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\not-found.tsx": {
+    "mtime": 1772283841.3257885,
+    "ast_hash": "9aa0c097ff61541b27bf00fff2e95031",
+    "semantic_hash": "9aa0c097ff61541b27bf00fff2e95031"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\(auth)\\layout.tsx": {
+    "mtime": 1772283841.312364,
+    "ast_hash": "1f9c2a844a2ab633ca5db4b5cd4bac92",
+    "semantic_hash": "1f9c2a844a2ab633ca5db4b5cd4bac92"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\(auth)\\forgot-password\\page.tsx": {
+    "mtime": 1776111715.1898556,
+    "ast_hash": "e46e58f1444fe44b73b9d651ad373506",
+    "semantic_hash": "e46e58f1444fe44b73b9d651ad373506"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\(auth)\\login\\page.tsx": {
+    "mtime": 1776111715.190857,
+    "ast_hash": "40a97c77215fa0753bc9b69d78a91d63",
+    "semantic_hash": "40a97c77215fa0753bc9b69d78a91d63"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\(auth)\\reset-password\\page.tsx": {
+    "mtime": 1772885945.4341722,
+    "ast_hash": "5b73ff0d370554127022292edcb152ce",
+    "semantic_hash": "5b73ff0d370554127022292edcb152ce"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\(auth)\\signup\\page.tsx": {
+    "mtime": 1776111715.1918564,
+    "ast_hash": "3365539035f046ee0ff4d8ffc7aa2c3a",
+    "semantic_hash": "3365539035f046ee0ff4d8ffc7aa2c3a"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\(marketing)\\layout.tsx": {
+    "mtime": 1772283841.2941437,
+    "ast_hash": "e9ee40a6d20dc980918ff13b5ac4519c",
+    "semantic_hash": "e9ee40a6d20dc980918ff13b5ac4519c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\(marketing)\\page.tsx": {
+    "mtime": 1772283841.2951434,
+    "ast_hash": "bea99185a251de9ac061f9e0a7f1b972",
+    "semantic_hash": "bea99185a251de9ac061f9e0a7f1b972"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\about\\layout.tsx": {
+    "mtime": 1772283841.3421466,
+    "ast_hash": "4c79ee320c5f0a3c6679b1862d29272c",
+    "semantic_hash": "4c79ee320c5f0a3c6679b1862d29272c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\about\\page.tsx": {
+    "mtime": 1772283841.3421466,
+    "ast_hash": "1c25b6bac5d11bd30fbdeb0ab8b9de20",
+    "semantic_hash": "1c25b6bac5d11bd30fbdeb0ab8b9de20"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\admin\\layout.tsx": {
+    "mtime": 1772283841.340142,
+    "ast_hash": "a3559a3fd8346259f781180cfb9b222e",
+    "semantic_hash": "a3559a3fd8346259f781180cfb9b222e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\admin\\page.tsx": {
+    "mtime": 1772283841.3386378,
+    "ast_hash": "535919c174e2dadb25eb8c4af50efef5",
+    "semantic_hash": "535919c174e2dadb25eb8c4af50efef5"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\admin\\dashboard\\page.tsx": {
+    "mtime": 1779527800.272858,
+    "ast_hash": "8584106a311303f282e5078740ec61aa",
+    "semantic_hash": "8584106a311303f282e5078740ec61aa"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\admin\\login\\page.tsx": {
+    "mtime": 1777210332.0800743,
+    "ast_hash": "87f1be601f4cd214d18d505356d4a319",
+    "semantic_hash": "87f1be601f4cd214d18d505356d4a319"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\agencies\\error.tsx": {
+    "mtime": 1772283841.323786,
+    "ast_hash": "50043d19521f74542b9d9aad9884e020",
+    "semantic_hash": "50043d19521f74542b9d9aad9884e020"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\agencies\\layout.tsx": {
+    "mtime": 1772283841.316946,
+    "ast_hash": "d8829d588c8a27bacf3afe79a99e3f6e",
+    "semantic_hash": "d8829d588c8a27bacf3afe79a99e3f6e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\agencies\\loading.tsx": {
+    "mtime": 1772283841.3227892,
+    "ast_hash": "02f100169aab5dcc198ecf25a51e37be",
+    "semantic_hash": "02f100169aab5dcc198ecf25a51e37be"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\agencies\\page.tsx": {
+    "mtime": 1777234517.4348688,
+    "ast_hash": "f7adddab41c4a7076309218bba331836",
+    "semantic_hash": "f7adddab41c4a7076309218bba331836"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\agencies\\[slug]\\error.tsx": {
+    "mtime": 1772283841.3202767,
+    "ast_hash": "b1dbb3ad342a3a62cad0fa8f4bff13e2",
+    "semantic_hash": "b1dbb3ad342a3a62cad0fa8f4bff13e2"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\agencies\\[slug]\\layout.tsx": {
+    "mtime": 1772283841.3217812,
+    "ast_hash": "aa1e466f4187945229fe5d23376c454c",
+    "semantic_hash": "aa1e466f4187945229fe5d23376c454c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\agencies\\[slug]\\loading.tsx": {
+    "mtime": 1772283841.3188422,
+    "ast_hash": "7b2f63577d3b72cde4a7dc4028ff26c8",
+    "semantic_hash": "7b2f63577d3b72cde4a7dc4028ff26c8"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\agencies\\[slug]\\page.tsx": {
+    "mtime": 1779138000.1186175,
+    "ast_hash": "a0e06aa8dbd71dc2d768fdeb97f6acbb",
+    "semantic_hash": "a0e06aa8dbd71dc2d768fdeb97f6acbb"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\auth\\callback\\page.tsx": {
+    "mtime": 1776111715.194857,
+    "ast_hash": "cf26859fed41c5a7f1e74763c3570a59",
+    "semantic_hash": "cf26859fed41c5a7f1e74763c3570a59"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\blog\\layout.tsx": {
+    "mtime": 1772283841.3518307,
+    "ast_hash": "057ec65120cf25a2371658da474bb89f",
+    "semantic_hash": "057ec65120cf25a2371658da474bb89f"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\blog\\page.tsx": {
+    "mtime": 1779076151.3408406,
+    "ast_hash": "687c83e39a22ca2ea5888703315311ff",
+    "semantic_hash": "687c83e39a22ca2ea5888703315311ff"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\blog\\[slug]\\page.tsx": {
+    "mtime": 1779077082.8544855,
+    "ast_hash": "396de0c7d987f7baf9a6e5cdff1b5a27",
+    "semantic_hash": "396de0c7d987f7baf9a6e5cdff1b5a27"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\booking\\[id]\\page.tsx": {
+    "mtime": 1778874815.8620198,
+    "ast_hash": "38a8eb125b41e8945cd1032a4c5488c8",
+    "semantic_hash": "38a8eb125b41e8945cd1032a4c5488c8"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\dashboard\\layout.tsx": {
+    "mtime": 1772283841.3278565,
+    "ast_hash": "daa5cf83a79222cd5c3040f59977b1c7",
+    "semantic_hash": "daa5cf83a79222cd5c3040f59977b1c7"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\dashboard\\page.tsx": {
+    "mtime": 1779075276.5039036,
+    "ast_hash": "cda8eea0d63ab2b07611f636cbe23b99",
+    "semantic_hash": "cda8eea0d63ab2b07611f636cbe23b99"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\find-homes\\error.tsx": {
+    "mtime": 1772283841.3001647,
+    "ast_hash": "8802725bc58119e46189a3cf6782af23",
+    "semantic_hash": "8802725bc58119e46189a3cf6782af23"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\find-homes\\layout.tsx": {
+    "mtime": 1772283841.297649,
+    "ast_hash": "e15d3c9bf6934b172be433c194adf5c0",
+    "semantic_hash": "e15d3c9bf6934b172be433c194adf5c0"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\find-homes\\loading.tsx": {
+    "mtime": 1772283841.2991574,
+    "ast_hash": "cbbf17a6af9f51defbaa1bbaf588ac00",
+    "semantic_hash": "cbbf17a6af9f51defbaa1bbaf588ac00"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\find-homes\\page.tsx": {
+    "mtime": 1779074481.152517,
+    "ast_hash": "2a85b90159b9e68bf2de220cdf417ed2",
+    "semantic_hash": "2a85b90159b9e68bf2de220cdf417ed2"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\likes\\layout.tsx": {
+    "mtime": 1778181639.827048,
+    "ast_hash": "893720b7a8697b5f47a1011ff48733f3",
+    "semantic_hash": "893720b7a8697b5f47a1011ff48733f3"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\likes\\page.tsx": {
+    "mtime": 1779073204.8156817,
+    "ast_hash": "052eac638aeb54b76f2d15dae368c16d",
+    "semantic_hash": "052eac638aeb54b76f2d15dae368c16d"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\project\\[id]\\layout.tsx": {
+    "mtime": 1772283841.333488,
+    "ast_hash": "92e9302ed0c16588fd14f2cb73d46416",
+    "semantic_hash": "92e9302ed0c16588fd14f2cb73d46416"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\project\\[id]\\page.tsx": {
+    "mtime": 1777234870.0417404,
+    "ast_hash": "dcb9d20331bb395e2fac26c7ade3b851",
+    "semantic_hash": "dcb9d20331bb395e2fac26c7ade3b851"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\property\\[id]\\error.tsx": {
+    "mtime": 1772283841.3057778,
+    "ast_hash": "b311d8aff3a0c3f7d9b8bb17a6adb6af",
+    "semantic_hash": "b311d8aff3a0c3f7d9b8bb17a6adb6af"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\property\\[id]\\layout.tsx": {
+    "mtime": 1772283841.304675,
+    "ast_hash": "b88006299c6cc93be7c8f0e13469855d",
+    "semantic_hash": "b88006299c6cc93be7c8f0e13469855d"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\property\\[id]\\loading.tsx": {
+    "mtime": 1772283841.304675,
+    "ast_hash": "38b079954c77c39c0a8c78345afad0f4",
+    "semantic_hash": "38b079954c77c39c0a8c78345afad0f4"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\property\\[id]\\page.tsx": {
+    "mtime": 1778874789.067909,
+    "ast_hash": "80a8b2a89a27038ece45b7f87aef9331",
+    "semantic_hash": "80a8b2a89a27038ece45b7f87aef9331"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\shared-housing\\page.tsx": {
+    "mtime": 1778864729.0280733,
+    "ast_hash": "b15b1792256494e756a369ec2ca32a63",
+    "semantic_hash": "b15b1792256494e756a369ec2ca32a63"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\shared-housing\\[id]\\page.tsx": {
+    "mtime": 1772283841.3561502,
+    "ast_hash": "3300ab0be9ea713bbbf1396bfe37eb58",
+    "semantic_hash": "3300ab0be9ea713bbbf1396bfe37eb58"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\universities\\page.tsx": {
+    "mtime": 1779527942.6267135,
+    "ast_hash": "5170ff6c8cae45a9d82fe6c4be588f94",
+    "semantic_hash": "5170ff6c8cae45a9d82fe6c4be588f94"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\app\\universities\\[slug]\\page.tsx": {
+    "mtime": 1779546111.418266,
+    "ast_hash": "8481c81e1890086b8eb4e4c7efb85850",
+    "semantic_hash": "8481c81e1890086b8eb4e4c7efb85850"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\about\\AboutHero.tsx": {
+    "mtime": 1772283841.4414809,
+    "ast_hash": "17e74139a3ed961af1836014da3f5eae",
+    "semantic_hash": "17e74139a3ed961af1836014da3f5eae"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\about\\MissionAndValues.tsx": {
+    "mtime": 1772283841.4389708,
+    "ast_hash": "76b31d2fabeb1ad1a9660147ddda3bea",
+    "semantic_hash": "76b31d2fabeb1ad1a9660147ddda3bea"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\about\\TeamSection.tsx": {
+    "mtime": 1772283841.440475,
+    "ast_hash": "44ba4e2b0313474d30860e1ceed5eefb",
+    "semantic_hash": "44ba4e2b0313474d30860e1ceed5eefb"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\admin\\AdminModal.tsx": {
+    "mtime": 1779159684.5763621,
+    "ast_hash": "680e284eb331ec93cc0e1eac3a28301c",
+    "semantic_hash": "680e284eb331ec93cc0e1eac3a28301c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\admin\\AdminSidebar.tsx": {
+    "mtime": 1779485452.347648,
+    "ast_hash": "788a3eaca394e9f942da471b53367731",
+    "semantic_hash": "788a3eaca394e9f942da471b53367731"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\admin\\AdminTable.tsx": {
+    "mtime": 1779159697.9774735,
+    "ast_hash": "7bd67d9eeff77312cd590eb846d9a354",
+    "semantic_hash": "7bd67d9eeff77312cd590eb846d9a354"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\admin\\EntityPicker.tsx": {
+    "mtime": 1779485466.964984,
+    "ast_hash": "9dd2bb83b27c393ca55b444bb67aac7c",
+    "semantic_hash": "9dd2bb83b27c393ca55b444bb67aac7c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\admin\\RichTextEditor.tsx": {
+    "mtime": 1779077608.8027787,
+    "ast_hash": "b3dcf3cb9641adbfd9a274721501b5c2",
+    "semantic_hash": "b3dcf3cb9641adbfd9a274721501b5c2"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\agencies\\AgenciesHero.tsx": {
+    "mtime": 1776785091.5466652,
+    "ast_hash": "e044d6efb250d7041fa8ea14754884ae",
+    "semantic_hash": "e044d6efb250d7041fa8ea14754884ae"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\agencies\\DeveloperCard.tsx": {
+    "mtime": 1777487175.942094,
+    "ast_hash": "c6c54cfd293525e126ab5ab1a1c32f73",
+    "semantic_hash": "c6c54cfd293525e126ab5ab1a1c32f73"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\agencies\\DevelopersSection.tsx": {
+    "mtime": 1778243543.702542,
+    "ast_hash": "8c93a8445f8e3aed99ff79ff95e89b0b",
+    "semantic_hash": "8c93a8445f8e3aed99ff79ff95e89b0b"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\agencies\\UniversitiesSection.tsx": {
+    "mtime": 1779485268.2998593,
+    "ast_hash": "f6a54f04fce675b564a43bec79ef009a",
+    "semantic_hash": "f6a54f04fce675b564a43bec79ef009a"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\agencies\\UniversityCard.tsx": {
+    "mtime": 1779485255.8186347,
+    "ast_hash": "1c60df4bffe70b687e3c3a5ac2f438a4",
+    "semantic_hash": "1c60df4bffe70b687e3c3a5ac2f438a4"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\agency-details\\AgencyHero.tsx": {
+    "mtime": 1776785700.6709163,
+    "ast_hash": "c3bca26c177b7016a08daa7dea358951",
+    "semantic_hash": "c3bca26c177b7016a08daa7dea358951"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\agency-details\\AgencySidebar.tsx": {
+    "mtime": 1779138035.2345955,
+    "ast_hash": "72cda46e868ec75a058a60711ee11b06",
+    "semantic_hash": "72cda46e868ec75a058a60711ee11b06"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\agency-details\\FeaturedProjects.tsx": {
+    "mtime": 1776805202.8744285,
+    "ast_hash": "e2748ae4cd2dfdfa9e76114c38cad10a",
+    "semantic_hash": "e2748ae4cd2dfdfa9e76114c38cad10a"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\agency-details\\ProjectCard.tsx": {
+    "mtime": 1776805196.7898674,
+    "ast_hash": "6c844c1c78a358a985efeb46292cf44b",
+    "semantic_hash": "6c844c1c78a358a985efeb46292cf44b"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\agency-details\\TopListings.tsx": {
+    "mtime": 1776785687.2200694,
+    "ast_hash": "c2beb4de6b2dd0bc9914398cd5306f38",
+    "semantic_hash": "c2beb4de6b2dd0bc9914398cd5306f38"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ai\\ChatDrawer.tsx": {
+    "mtime": 1778182088.9667382,
+    "ast_hash": "d89ee03bac1a147163f0610dd32bf575",
+    "semantic_hash": "d89ee03bac1a147163f0610dd32bf575"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ai\\ChatMessage.tsx": {
+    "mtime": 1776638196.2208045,
+    "ast_hash": "660e9ecb221faa8024323809d2b7f62e",
+    "semantic_hash": "660e9ecb221faa8024323809d2b7f62e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\auth\\ForgotPasswordForm.tsx": {
+    "mtime": 1776111715.2183044,
+    "ast_hash": "6230150a44e0c9e1a56a9b2c7fab1dec",
+    "semantic_hash": "6230150a44e0c9e1a56a9b2c7fab1dec"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\auth\\LoginForm.tsx": {
+    "mtime": 1778243172.04307,
+    "ast_hash": "a95285acb92208e332f8b91b1b8965e8",
+    "semantic_hash": "a95285acb92208e332f8b91b1b8965e8"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\auth\\OAuthButton.tsx": {
+    "mtime": 1776111715.2203033,
+    "ast_hash": "52cbf0df01206cab38267af1d157cb25",
+    "semantic_hash": "52cbf0df01206cab38267af1d157cb25"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\auth\\OAuthIcons.tsx": {
+    "mtime": 1772629508.4212184,
+    "ast_hash": "f3c006ea1d690845059c5d7adc6ea7c4",
+    "semantic_hash": "f3c006ea1d690845059c5d7adc6ea7c4"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\auth\\PhoneOTPInput.tsx": {
+    "mtime": 1772628754.0522146,
+    "ast_hash": "da0948f7964e6a279d63fbf97fdb3187",
+    "semantic_hash": "da0948f7964e6a279d63fbf97fdb3187"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\auth\\ResetPasswordForm.tsx": {
+    "mtime": 1772885916.6545143,
+    "ast_hash": "04baf2ef3a7754c904350fcb105b4b0e",
+    "semantic_hash": "04baf2ef3a7754c904350fcb105b4b0e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\auth\\SignUpForm.tsx": {
+    "mtime": 1778243170.7107537,
+    "ast_hash": "48a0eca1be70c06cb70e964eeb1b414d",
+    "semantic_hash": "48a0eca1be70c06cb70e964eeb1b414d"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\blog\\BlogCard.tsx": {
+    "mtime": 1779077077.7589846,
+    "ast_hash": "484ef5da3e319d358ea74be4135583e1",
+    "semantic_hash": "484ef5da3e319d358ea74be4135583e1"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\blog\\BlogGrid.tsx": {
+    "mtime": 1779076206.3570342,
+    "ast_hash": "c71f9ca20c7c88537c96fbcbca14462f",
+    "semantic_hash": "c71f9ca20c7c88537c96fbcbca14462f"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\blog\\BlogHero.tsx": {
+    "mtime": 1779077067.0756803,
+    "ast_hash": "356733eb788f612ae03db114181d07cc",
+    "semantic_hash": "356733eb788f612ae03db114181d07cc"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\blog\\BlogSidebar.tsx": {
+    "mtime": 1779077072.1600697,
+    "ast_hash": "af90a7bb2d400d7dd9bcd80d6a646e59",
+    "semantic_hash": "af90a7bb2d400d7dd9bcd80d6a646e59"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\blog-article\\ArticleBody.tsx": {
+    "mtime": 1772283841.4359574,
+    "ast_hash": "a8b849c07d87b36d4ef7b0e7f6cbcf16",
+    "semantic_hash": "a8b849c07d87b36d4ef7b0e7f6cbcf16"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\blog-article\\ArticleHero.tsx": {
+    "mtime": 1772283841.4369562,
+    "ast_hash": "6da2dce187e13ef5c6e57218af74d06c",
+    "semantic_hash": "6da2dce187e13ef5c6e57218af74d06c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\blog-article\\ArticleSidebar.tsx": {
+    "mtime": 1772283841.4349694,
+    "ast_hash": "d3874afd71a595cf841368d310eeb3d7",
+    "semantic_hash": "d3874afd71a595cf841368d310eeb3d7"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\blog-article\\NewsletterCTA.tsx": {
+    "mtime": 1772283841.4324365,
+    "ast_hash": "6924230b272b94d8efaed13143a3dcb4",
+    "semantic_hash": "6924230b272b94d8efaed13143a3dcb4"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\blog-article\\RelatedArticles.tsx": {
+    "mtime": 1772283841.4359574,
+    "ast_hash": "18d53e97ef29ac950697c18419edbecc",
+    "semantic_hash": "18d53e97ef29ac950697c18419edbecc"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\booking\\BookingModal.tsx": {
+    "mtime": 1778960745.438565,
+    "ast_hash": "b813d03dee25e4f32e724be8f3f849e0",
+    "semantic_hash": "b813d03dee25e4f32e724be8f3f849e0"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\booking\\BookNowButton.tsx": {
+    "mtime": 1778872346.822747,
+    "ast_hash": "2522e61ca334ba985be0d83479319152",
+    "semantic_hash": "2522e61ca334ba985be0d83479319152"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\cards\\ListingCard.tsx": {
+    "mtime": 1779074189.9412277,
+    "ast_hash": "e8fc3d7b44394994accdb0bdf898e6b9",
+    "semantic_hash": "e8fc3d7b44394994accdb0bdf898e6b9"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\dashboard\\AddListingModal.tsx": {
+    "mtime": 1779138619.8532634,
+    "ast_hash": "3f6ca8203e88a28d49aa41e3b64729ab",
+    "semantic_hash": "3f6ca8203e88a28d49aa41e3b64729ab"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\dashboard\\ApplicationsReceivedTab.tsx": {
+    "mtime": 1778864947.1655378,
+    "ast_hash": "c0273c46ce9bfcfd3133e370fda82cad",
+    "semantic_hash": "c0273c46ce9bfcfd3133e370fda82cad"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\dashboard\\BookingsReceivedTab.tsx": {
+    "mtime": 1778874820.824298,
+    "ast_hash": "03b4e49c74dcf2c42224cf71c1469b20",
+    "semantic_hash": "03b4e49c74dcf2c42224cf71c1469b20"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\dashboard\\DashboardProfile.tsx": {
+    "mtime": 1776111715.2233033,
+    "ast_hash": "4ca161607245c561bdb61eb2aeb47bf1",
+    "semantic_hash": "4ca161607245c561bdb61eb2aeb47bf1"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\dashboard\\DashboardStats.tsx": {
+    "mtime": 1779071488.1731718,
+    "ast_hash": "afb0d17d83006e34cd1237758578a544",
+    "semantic_hash": "afb0d17d83006e34cd1237758578a544"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\dashboard\\LikedProperties.tsx": {
+    "mtime": 1779073198.9065933,
+    "ast_hash": "8514dda6d0e4840bd6176136ab5d838c",
+    "semantic_hash": "8514dda6d0e4840bd6176136ab5d838c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\dashboard\\MyApplicationsTab.tsx": {
+    "mtime": 1778864947.164539,
+    "ast_hash": "d8f8d6e8484d7725a133eb11d1944530",
+    "semantic_hash": "d8f8d6e8484d7725a133eb11d1944530"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\dashboard\\MyBookingsTab.tsx": {
+    "mtime": 1778960751.1374295,
+    "ast_hash": "54c3e6db664f986f6652c5a5ec781f06",
+    "semantic_hash": "54c3e6db664f986f6652c5a5ec781f06"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\dashboard\\MyListings.tsx": {
+    "mtime": 1778243108.606837,
+    "ast_hash": "cfd177569c274508290292aa90171d98",
+    "semantic_hash": "cfd177569c274508290292aa90171d98"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\dashboard\\MyViewings.tsx": {
+    "mtime": 1779077145.960914,
+    "ast_hash": "2717887f5e5df2678fb2c2a593aa183e",
+    "semantic_hash": "2717887f5e5df2678fb2c2a593aa183e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\dashboard\\ProfileSettings.tsx": {
+    "mtime": 1779105539.647516,
+    "ast_hash": "4cf2474e8f97512f52b4bf847cf8f86f",
+    "semantic_hash": "4cf2474e8f97512f52b4bf847cf8f86f"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\find-homes\\FilterSidebar.tsx": {
+    "mtime": 1779075091.6839354,
+    "ast_hash": "ea9eb575f0f6dbe5c8b660fe072c4483",
+    "semantic_hash": "ea9eb575f0f6dbe5c8b660fe072c4483"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\find-homes\\Pagination.tsx": {
+    "mtime": 1772283841.400064,
+    "ast_hash": "e842804077b86ace9b7e3edd24458b82",
+    "semantic_hash": "e842804077b86ace9b7e3edd24458b82"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\find-homes\\SearchListingCard.tsx": {
+    "mtime": 1779074200.5464466,
+    "ast_hash": "d26afd97517d6712b313c2c5413cb4d1",
+    "semantic_hash": "d26afd97517d6712b313c2c5413cb4d1"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\find-homes\\SearchListingRow.tsx": {
+    "mtime": 1779074211.8231359,
+    "ast_hash": "c0f14e4ace8448cca60230529b9929c2",
+    "semantic_hash": "c0f14e4ace8448cca60230529b9929c2"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\layout\\ChatbotConditional.tsx": {
+    "mtime": 1772283841.383827,
+    "ast_hash": "4f8013d8315b1f0a7778a733d243a615",
+    "semantic_hash": "4f8013d8315b1f0a7778a733d243a615"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\layout\\FloatingAIButton.tsx": {
+    "mtime": 1774384308.331952,
+    "ast_hash": "215da36e6c6f0cd00605d224180213c7",
+    "semantic_hash": "215da36e6c6f0cd00605d224180213c7"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\layout\\Footer.tsx": {
+    "mtime": 1773061067.8246193,
+    "ast_hash": "5be70f03260f7edbeb7ca48c3f6ca153",
+    "semantic_hash": "5be70f03260f7edbeb7ca48c3f6ca153"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\layout\\Navbar.tsx": {
+    "mtime": 1778246739.5009916,
+    "ast_hash": "d5c76d9f7e08d92bb23a0201aa82625f",
+    "semantic_hash": "d5c76d9f7e08d92bb23a0201aa82625f"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\layout\\NotificationBell.tsx": {
+    "mtime": 1777565989.2149765,
+    "ast_hash": "0e91cb73c7d58d2713f5cf74fe85d43a",
+    "semantic_hash": "0e91cb73c7d58d2713f5cf74fe85d43a"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\profile\\LifestylePrefsForm.tsx": {
+    "mtime": 1778874870.916879,
+    "ast_hash": "8883e4bff47a882eace620e050cd3172",
+    "semantic_hash": "8883e4bff47a882eace620e050cd3172"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\project-details\\ProjectHero.tsx": {
+    "mtime": 1772283841.446026,
+    "ast_hash": "46dd2edddb5907a4f5eb21e723b45244",
+    "semantic_hash": "46dd2edddb5907a4f5eb21e723b45244"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\project-details\\ProjectInfo.tsx": {
+    "mtime": 1776111715.2283185,
+    "ast_hash": "60cba93c154f49baeed1fa1da77d174c",
+    "semantic_hash": "60cba93c154f49baeed1fa1da77d174c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\project-details\\ProjectSidebar.tsx": {
+    "mtime": 1776803249.722633,
+    "ast_hash": "a17c57fc112d12002d1026a8c5eeaae2",
+    "semantic_hash": "a17c57fc112d12002d1026a8c5eeaae2"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\project-details\\ResidenceCard.tsx": {
+    "mtime": 1778243173.780918,
+    "ast_hash": "03c822b732c09db1d1ca85ab68f6d539",
+    "semantic_hash": "03c822b732c09db1d1ca85ab68f6d539"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\project-details\\ResidencesGrid.tsx": {
+    "mtime": 1776803234.1040854,
+    "ast_hash": "0d1a9413e6aadc68bd5db0a00fe8187b",
+    "semantic_hash": "0d1a9413e6aadc68bd5db0a00fe8187b"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\property\\GoogleMapEmbed.tsx": {
+    "mtime": 1778159205.4449553,
+    "ast_hash": "44b1158a87a4ab7238f3d3be571c521c",
+    "semantic_hash": "44b1158a87a4ab7238f3d3be571c521c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\property\\MobilePropertyCTA.tsx": {
+    "mtime": 1779073220.0360327,
+    "ast_hash": "c86dc1b7bf20fe5c2e22c72e72472463",
+    "semantic_hash": "c86dc1b7bf20fe5c2e22c72e72472463"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\property\\PropertyHero.tsx": {
+    "mtime": 1778180915.8103416,
+    "ast_hash": "f97b7769ee0941b571f2af79c10ea59b",
+    "semantic_hash": "f97b7769ee0941b571f2af79c10ea59b"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\property\\PropertyInfo.tsx": {
+    "mtime": 1778158559.8600264,
+    "ast_hash": "29b4445722c07a1bb987bf3a0a2d3a00",
+    "semantic_hash": "29b4445722c07a1bb987bf3a0a2d3a00"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\property\\PropertyMap.tsx": {
+    "mtime": 1778159211.971782,
+    "ast_hash": "3010a4053b46e8296e4e33775d0c43b5",
+    "semantic_hash": "3010a4053b46e8296e4e33775d0c43b5"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\property\\PropertySidebar.tsx": {
+    "mtime": 1779073224.8158,
+    "ast_hash": "bbe134def8cd445c62d194a815c4af7c",
+    "semantic_hash": "bbe134def8cd445c62d194a815c4af7c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\property\\WhatsAppCTA.tsx": {
+    "mtime": 1777751241.3483434,
+    "ast_hash": "d352781d264376b14b6b0a8d97ff9564",
+    "semantic_hash": "d352781d264376b14b6b0a8d97ff9564"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\sections\\CTASection.tsx": {
+    "mtime": 1773058485.193933,
+    "ast_hash": "86271a5218fc4a7df68a5c2e244f6b37",
+    "semantic_hash": "86271a5218fc4a7df68a5c2e244f6b37"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\sections\\FeaturesSection.tsx": {
+    "mtime": 1778243164.501549,
+    "ast_hash": "d14344bd25ce17e9979d46ad68d0d28c",
+    "semantic_hash": "d14344bd25ce17e9979d46ad68d0d28c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\sections\\HomeHero.tsx": {
+    "mtime": 1778095629.958162,
+    "ast_hash": "a5453eabb30aed06c5de4e03a71a0fbe",
+    "semantic_hash": "a5453eabb30aed06c5de4e03a71a0fbe"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\sections\\HowItWorksSection.tsx": {
+    "mtime": 1778243167.5531957,
+    "ast_hash": "a17e450ef52460ee9042a98dc299191b",
+    "semantic_hash": "a17e450ef52460ee9042a98dc299191b"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\sections\\NeighborhoodGuides.tsx": {
+    "mtime": 1773061067.8105981,
+    "ast_hash": "a3929296f6ec418e96125923ab317997",
+    "semantic_hash": "a3929296f6ec418e96125923ab317997"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\sections\\RecommendationsSection.tsx": {
+    "mtime": 1779073243.7591848,
+    "ast_hash": "4eb749048e134a9a0e50d9a18cdf6b5e",
+    "semantic_hash": "4eb749048e134a9a0e50d9a18cdf6b5e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\sections\\RecommendationsSectionClient.tsx": {
+    "mtime": 1772283841.3901544,
+    "ast_hash": "8e0aa0a4e89415fde6941dd4a38b9f1f",
+    "semantic_hash": "8e0aa0a4e89415fde6941dd4a38b9f1f"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\sections\\TestimonialsSection.tsx": {
+    "mtime": 1778243163.1997511,
+    "ast_hash": "84de21e99629fba92234e338268b3001",
+    "semantic_hash": "84de21e99629fba92234e338268b3001"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\sections\\TrustedPartners.tsx": {
+    "mtime": 1773061067.8080783,
+    "ast_hash": "250f1f74420a6dd4331ed8e1319d56f3",
+    "semantic_hash": "250f1f74420a6dd4331ed8e1319d56f3"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\sections\\VibeMatchesSection.tsx": {
+    "mtime": 1779074178.0605726,
+    "ast_hash": "b502c41e0654d6772760cbc49dfce10a",
+    "semantic_hash": "b502c41e0654d6772760cbc49dfce10a"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\shared-housing\\AboutHouse.tsx": {
+    "mtime": 1772283841.455659,
+    "ast_hash": "b55f89ba05a3157d9af63f368b2ab298",
+    "semantic_hash": "b55f89ba05a3157d9af63f368b2ab298"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\shared-housing\\ApplyButton.tsx": {
+    "mtime": 1778864770.5223227,
+    "ast_hash": "8d359c7ebb949e615117c14e701fb1bb",
+    "semantic_hash": "8d359c7ebb949e615117c14e701fb1bb"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\shared-housing\\ApplyModal.tsx": {
+    "mtime": 1778864770.5223227,
+    "ast_hash": "29b69b24e0b6334a467a24ba81fa21aa",
+    "semantic_hash": "29b69b24e0b6334a467a24ba81fa21aa"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\shared-housing\\CompatibilityScore.tsx": {
+    "mtime": 1776111715.2369192,
+    "ast_hash": "1d10fb6322e0109e40e60a402032bd97",
+    "semantic_hash": "1d10fb6322e0109e40e60a402032bd97"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\shared-housing\\ForYouSection.tsx": {
+    "mtime": 1778864708.2163005,
+    "ast_hash": "b06b0e51d48db0f6bfa005ac4ca87c62",
+    "semantic_hash": "b06b0e51d48db0f6bfa005ac4ca87c62"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\shared-housing\\HousematesSection.tsx": {
+    "mtime": 1778874784.3083262,
+    "ast_hash": "8c358ba650779ad1521fa4a21da721e9",
+    "semantic_hash": "8c358ba650779ad1521fa4a21da721e9"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\shared-housing\\SharedAmenities.tsx": {
+    "mtime": 1778869269.7909787,
+    "ast_hash": "65011db9f8474405f562daaf0c818613",
+    "semantic_hash": "65011db9f8474405f562daaf0c818613"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\shared-housing\\SharedHousingCard.tsx": {
+    "mtime": 1779074223.761424,
+    "ast_hash": "a701fd24eebb6b4cbd8e358a2ddee547",
+    "semantic_hash": "a701fd24eebb6b4cbd8e358a2ddee547"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\shared-housing\\SharedHousingFilters.tsx": {
+    "mtime": 1778864708.2157955,
+    "ast_hash": "09004475c43600d0dbf17e8e588b8240",
+    "semantic_hash": "09004475c43600d0dbf17e8e588b8240"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\shared-housing\\SharedHousingHero.tsx": {
+    "mtime": 1776111715.2399259,
+    "ast_hash": "a2b46ecda6ab0f098d63f10998048716",
+    "semantic_hash": "a2b46ecda6ab0f098d63f10998048716"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\shared-housing\\SharedHousingSidebar.tsx": {
+    "mtime": 1779073227.7602174,
+    "ast_hash": "b0e1c4573b749df5f542fa2c4a182f7c",
+    "semantic_hash": "b0e1c4573b749df5f542fa2c4a182f7c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\shared-housing\\SharedHousingStats.tsx": {
+    "mtime": 1772283841.4571657,
+    "ast_hash": "f71e7d4c458098b29fcd6d227ebdc737",
+    "semantic_hash": "f71e7d4c458098b29fcd6d227ebdc737"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\avatar.tsx": {
+    "mtime": 1772283841.3723934,
+    "ast_hash": "03163772efa93ff00e813142e35eaeb6",
+    "semantic_hash": "03163772efa93ff00e813142e35eaeb6"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\badge.tsx": {
+    "mtime": 1772283841.3634427,
+    "ast_hash": "752d1eea34a44e1becd88c82c5aa1016",
+    "semantic_hash": "752d1eea34a44e1becd88c82c5aa1016"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\button.tsx": {
+    "mtime": 1772283841.3614395,
+    "ast_hash": "c146cd1d6f1e0d54e4a7bb5f15a0834b",
+    "semantic_hash": "c146cd1d6f1e0d54e4a7bb5f15a0834b"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\card.tsx": {
+    "mtime": 1772283841.3649478,
+    "ast_hash": "a6752f4d1da504c7f03196d90cde4b2c",
+    "semantic_hash": "a6752f4d1da504c7f03196d90cde4b2c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\checkbox.tsx": {
+    "mtime": 1772283841.369992,
+    "ast_hash": "3d00e558330788142093dc5ba88a3edf",
+    "semantic_hash": "3d00e558330788142093dc5ba88a3edf"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\dialog.tsx": {
+    "mtime": 1772283841.380431,
+    "ast_hash": "d04a6c9cfef3709a491429478b4556e3",
+    "semantic_hash": "d04a6c9cfef3709a491429478b4556e3"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\dropdown-menu.tsx": {
+    "mtime": 1772283841.3733976,
+    "ast_hash": "388aafcad8a41631e3ce2efbbbc3d0a4",
+    "semantic_hash": "388aafcad8a41631e3ce2efbbbc3d0a4"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\ImageLightbox.tsx": {
+    "mtime": 1772283841.3799286,
+    "ast_hash": "f67dd53c1989d9c5082083a4b82779d6",
+    "semantic_hash": "f67dd53c1989d9c5082083a4b82779d6"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\input.tsx": {
+    "mtime": 1772283841.3649478,
+    "ast_hash": "6666f8369b53c79d39be8060dc6c4ce5",
+    "semantic_hash": "6666f8369b53c79d39be8060dc6c4ce5"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\LikeButton.tsx": {
+    "mtime": 1779071219.7123551,
+    "ast_hash": "bfaeaccd71776805b9afa0d946b7cf70",
+    "semantic_hash": "bfaeaccd71776805b9afa0d946b7cf70"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\pagination.tsx": {
+    "mtime": 1772283841.3788862,
+    "ast_hash": "ba23d7233a420983feef894ee045234d",
+    "semantic_hash": "ba23d7233a420983feef894ee045234d"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\progress.tsx": {
+    "mtime": 1772283841.3753967,
+    "ast_hash": "322938625d10348ea3f4faebd8f0a96a",
+    "semantic_hash": "322938625d10348ea3f4faebd8f0a96a"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\select.tsx": {
+    "mtime": 1772283841.368992,
+    "ast_hash": "6a0e07cd58ac996abcb87ff5bb702c05",
+    "semantic_hash": "6a0e07cd58ac996abcb87ff5bb702c05"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\separator.tsx": {
+    "mtime": 1772283841.377925,
+    "ast_hash": "a27e39c797c6856cf5843b7b84d81cff",
+    "semantic_hash": "a27e39c797c6856cf5843b7b84d81cff"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\sheet.tsx": {
+    "mtime": 1772283841.3659527,
+    "ast_hash": "bb3ca0588bd13d790f9ab6a159f6bdeb",
+    "semantic_hash": "bb3ca0588bd13d790f9ab6a159f6bdeb"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\skeleton.tsx": {
+    "mtime": 1772283841.3669536,
+    "ast_hash": "ee5017bac14efeda715feaceb488382a",
+    "semantic_hash": "ee5017bac14efeda715feaceb488382a"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\switch.tsx": {
+    "mtime": 1772283841.377411,
+    "ast_hash": "5c8ed3ecdb9e461c52a3d07d50050728",
+    "semantic_hash": "5c8ed3ecdb9e461c52a3d07d50050728"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\table.tsx": {
+    "mtime": 1772283841.368992,
+    "ast_hash": "531bf830b5f3b399abe3fd453157cdb7",
+    "semantic_hash": "531bf830b5f3b399abe3fd453157cdb7"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\tabs.tsx": {
+    "mtime": 1772283841.3753967,
+    "ast_hash": "6dcceea6a7c4551cba3009b58f1c9e21",
+    "semantic_hash": "6dcceea6a7c4551cba3009b58f1c9e21"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\ui\\textarea.tsx": {
+    "mtime": 1772283841.3715134,
+    "ast_hash": "04f9af2a78672f7018b16db2bcec5036",
+    "semantic_hash": "04f9af2a78672f7018b16db2bcec5036"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\universities\\UniversityHero.tsx": {
+    "mtime": 1779546062.3473637,
+    "ast_hash": "4c7a31c75ec63141a296bae766de6e02",
+    "semantic_hash": "4c7a31c75ec63141a296bae766de6e02"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\components\\universities\\UniversitySidebar.tsx": {
+    "mtime": 1779546086.2344108,
+    "ast_hash": "67670772bf186da5d2a2a99094258362",
+    "semantic_hash": "67670772bf186da5d2a2a99094258362"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\lib\\api.ts": {
+    "mtime": 1778867902.1971357,
+    "ast_hash": "a3a8c6212987994a80c88b1f33ff24f4",
+    "semantic_hash": "a3a8c6212987994a80c88b1f33ff24f4"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\lib\\constants.ts": {
+    "mtime": 1779485183.4315472,
+    "ast_hash": "a08d07a37ce79126c067ea03d115a3a3",
+    "semantic_hash": "a08d07a37ce79126c067ea03d115a3a3"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\lib\\demoBookings.ts": {
+    "mtime": 1778874876.208538,
+    "ast_hash": "f23077ae914649100d46e7465541928b",
+    "semantic_hash": "f23077ae914649100d46e7465541928b"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\lib\\queries.ts": {
+    "mtime": 1778960697.5867023,
+    "ast_hash": "78aa84f0058a66b07970658459690fb6",
+    "semantic_hash": "78aa84f0058a66b07970658459690fb6"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\lib\\queryClient.ts": {
+    "mtime": 1779807730.9244003,
+    "ast_hash": "77ecdff0ce21f3dd25ff5f119adbb00d",
+    "semantic_hash": "77ecdff0ce21f3dd25ff5f119adbb00d"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\lib\\supabase-queries.ts": {
+    "mtime": 1779485229.1568627,
+    "ast_hash": "e2fa063a890b631017aadabcc5d36cdc",
+    "semantic_hash": "e2fa063a890b631017aadabcc5d36cdc"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\lib\\supabase.ts": {
+    "mtime": 1778008601.3842483,
+    "ast_hash": "bee5fd8e0fff4f8e564b93e40768f0fb",
+    "semantic_hash": "bee5fd8e0fff4f8e564b93e40768f0fb"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\lib\\utils.ts": {
+    "mtime": 1779077054.6349773,
+    "ast_hash": "095e0bc5c4b27fd259d85e7cc1a252a6",
+    "semantic_hash": "095e0bc5c4b27fd259d85e7cc1a252a6"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\lib\\admin\\api.ts": {
+    "mtime": 1779137845.0935163,
+    "ast_hash": "bfd261ad7f19ad42128dbf2c872bf36d",
+    "semantic_hash": "bfd261ad7f19ad42128dbf2c872bf36d"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\providers\\Providers.tsx": {
+    "mtime": 1779807730.925927,
+    "ast_hash": "331fcfac7450b32425d6a1d6480f59a2",
+    "semantic_hash": "331fcfac7450b32425d6a1d6480f59a2"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\stores\\authStore.ts": {
+    "mtime": 1779807730.925927,
+    "ast_hash": "7a336acdb9590c6215914f2beda01847",
+    "semantic_hash": "7a336acdb9590c6215914f2beda01847"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\types\\api.ts": {
+    "mtime": 1779485106.804752,
+    "ast_hash": "c45c240e40d0670017218f001c1772bc",
+    "semantic_hash": "c45c240e40d0670017218f001c1772bc"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\src\\types\\index.ts": {
+    "mtime": 1779485113.30519,
+    "ast_hash": "73b805dc158f1e030479f85dbc06c69c",
+    "semantic_hash": "73b805dc158f1e030479f85dbc06c69c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\config.py": {
+    "mtime": 1778872267.269925,
+    "ast_hash": "0b435f9fe2497e17c45cb7f12fd38c4c",
+    "semantic_hash": "0b435f9fe2497e17c45cb7f12fd38c4c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\database.py": {
+    "mtime": 1772575566.3189502,
+    "ast_hash": "10a2b30ca7c0861b9c755a58f2ea79f9",
+    "semantic_hash": "10a2b30ca7c0861b9c755a58f2ea79f9"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\dependencies.py": {
+    "mtime": 1779806913.6405027,
+    "ast_hash": "cf5b42531f785b90fb5676d547c2f34e",
+    "semantic_hash": "cf5b42531f785b90fb5676d547c2f34e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\main.py": {
+    "mtime": 1779484011.9503791,
+    "ast_hash": "751aa85911d407db1de3e2717ac5ea1b",
+    "semantic_hash": "751aa85911d407db1de3e2717ac5ea1b"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\__init__.py": {
+    "mtime": 1772575544.3202384,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\admin\\router.py": {
+    "mtime": 1779484035.9977465,
+    "ast_hash": "4c5a8e2a0e8901ceaceaf44d41140505",
+    "semantic_hash": "4c5a8e2a0e8901ceaceaf44d41140505"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\admin\\schemas.py": {
+    "mtime": 1772646058.175002,
+    "ast_hash": "f04bb8959d6ef6e5a33d38b3c555d834",
+    "semantic_hash": "f04bb8959d6ef6e5a33d38b3c555d834"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\admin\\__init__.py": {
+    "mtime": 1772575553.5861628,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\agencies\\router.py": {
+    "mtime": 1772993910.8158782,
+    "ast_hash": "48478ac75940063b8035390342374e77",
+    "semantic_hash": "48478ac75940063b8035390342374e77"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\agencies\\schemas.py": {
+    "mtime": 1772575804.84652,
+    "ast_hash": "669d4ef704c642ff464920dc94e40c64",
+    "semantic_hash": "669d4ef704c642ff464920dc94e40c64"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\agencies\\__init__.py": {
+    "mtime": 1772575550.519109,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\ai\\embeddings.py": {
+    "mtime": 1774212677.0643656,
+    "ast_hash": "7f98293bf0b841405a2851d04129c10f",
+    "semantic_hash": "7f98293bf0b841405a2851d04129c10f"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\ai\\fraud.py": {
+    "mtime": 1774291992.881639,
+    "ast_hash": "6319de2441f42f5a5a46a8348a107d0d",
+    "semantic_hash": "6319de2441f42f5a5a46a8348a107d0d"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\ai\\ollama_client.py": {
+    "mtime": 1779106840.8217404,
+    "ast_hash": "0eaff0dd15bd3339271b8a8e50651b93",
+    "semantic_hash": "0eaff0dd15bd3339271b8a8e50651b93"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\ai\\rag.py": {
+    "mtime": 1774270732.0210574,
+    "ast_hash": "c71752a24316cda8f3fcbad073ea6f6d",
+    "semantic_hash": "c71752a24316cda8f3fcbad073ea6f6d"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\ai\\router.py": {
+    "mtime": 1779120818.4867885,
+    "ast_hash": "8c1a7f65028446755494f17a436d6d23",
+    "semantic_hash": "8c1a7f65028446755494f17a436d6d23"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\ai\\schemas.py": {
+    "mtime": 1774270508.9618335,
+    "ast_hash": "569e9d3b4e12178cd889e2ac1a86ea5a",
+    "semantic_hash": "569e9d3b4e12178cd889e2ac1a86ea5a"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\ai\\__init__.py": {
+    "mtime": 1772575554.6058202,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\applications\\router.py": {
+    "mtime": 1778871931.7765465,
+    "ast_hash": "57834c739ee87e2b2b0fd8f8b51b05e2",
+    "semantic_hash": "57834c739ee87e2b2b0fd8f8b51b05e2"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\applications\\__init__.py": {
+    "mtime": 1772576039.8233275,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\auth\\router.py": {
+    "mtime": 1778936374.5301044,
+    "ast_hash": "fe9434ff1ab3fbc02485b8c6058a59ad",
+    "semantic_hash": "fe9434ff1ab3fbc02485b8c6058a59ad"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\auth\\schemas.py": {
+    "mtime": 1778935720.693863,
+    "ast_hash": "a89bc3ae394cc0c3d1e45437f84ce025",
+    "semantic_hash": "a89bc3ae394cc0c3d1e45437f84ce025"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\auth\\__init__.py": {
+    "mtime": 1772575545.3429084,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\blog\\router.py": {
+    "mtime": 1772992491.5952785,
+    "ast_hash": "56efa6cd89724416ca8251be73c015a6",
+    "semantic_hash": "56efa6cd89724416ca8251be73c015a6"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\blog\\schemas.py": {
+    "mtime": 1772575859.4382913,
+    "ast_hash": "3ca29292b542c5a3bf10c1f0dd7e65ed",
+    "semantic_hash": "3ca29292b542c5a3bf10c1f0dd7e65ed"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\blog\\__init__.py": {
+    "mtime": 1772575552.5669224,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\bookings\\lease_checker.py": {
+    "mtime": 1778864474.9703789,
+    "ast_hash": "c7d2fb3af8a5c4e9919f761c0d31ad6d",
+    "semantic_hash": "c7d2fb3af8a5c4e9919f761c0d31ad6d"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\bookings\\router.py": {
+    "mtime": 1778872242.438791,
+    "ast_hash": "6966402b37441d1f638d84fb8c7b7f01",
+    "semantic_hash": "6966402b37441d1f638d84fb8c7b7f01"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\bookings\\__init__.py": {
+    "mtime": 1778864384.2059255,
+    "ast_hash": "68b329da9893e34099c7d8ad5cb9c940",
+    "semantic_hash": "68b329da9893e34099c7d8ad5cb9c940"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\dashboard\\router.py": {
+    "mtime": 1779073160.6381178,
+    "ast_hash": "8c710e0a6cb55535ca8c816bdbde1760",
+    "semantic_hash": "8c710e0a6cb55535ca8c816bdbde1760"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\dashboard\\__init__.py": {
+    "mtime": 1772575547.4674995,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\leads\\router.py": {
+    "mtime": 1777748420.1464791,
+    "ast_hash": "bc605b5239ea3c0fd37d6bbe95313ad1",
+    "semantic_hash": "bc605b5239ea3c0fd37d6bbe95313ad1"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\leads\\schemas.py": {
+    "mtime": 1777682050.0883248,
+    "ast_hash": "2d60fb1fef13a362ba19187cf408a455",
+    "semantic_hash": "2d60fb1fef13a362ba19187cf408a455"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\leads\\__init__.py": {
+    "mtime": 1777548605.4980989,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\listings\\router.py": {
+    "mtime": 1778873788.0611835,
+    "ast_hash": "0c5e60defa0358392d25e261693f7c98",
+    "semantic_hash": "0c5e60defa0358392d25e261693f7c98"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\listings\\schemas.py": {
+    "mtime": 1778873640.2521806,
+    "ast_hash": "404be0f2338386c8af899c0afdab9e21",
+    "semantic_hash": "404be0f2338386c8af899c0afdab9e21"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\listings\\__init__.py": {
+    "mtime": 1772575546.3620274,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\notifications\\router.py": {
+    "mtime": 1772993895.0929248,
+    "ast_hash": "34ed62ccefc0f9386e882b48dcce0b8a",
+    "semantic_hash": "34ed62ccefc0f9386e882b48dcce0b8a"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\notifications\\__init__.py": {
+    "mtime": 1772575549.506701,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\projects\\router.py": {
+    "mtime": 1772992443.5359657,
+    "ast_hash": "dcb3d7fb08843b4a0faac187a9f1cd1e",
+    "semantic_hash": "dcb3d7fb08843b4a0faac187a9f1cd1e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\projects\\__init__.py": {
+    "mtime": 1772992439.275395,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\universities\\router.py": {
+    "mtime": 1779467769.2877638,
+    "ast_hash": "66832845720bb20af23a2143988f5ad7",
+    "semantic_hash": "66832845720bb20af23a2143988f5ad7"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\universities\\schemas.py": {
+    "mtime": 1779467745.463665,
+    "ast_hash": "30153fa864ff697daea976783b430785",
+    "semantic_hash": "30153fa864ff697daea976783b430785"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\universities\\__init__.py": {
+    "mtime": 1779467739.741544,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\uploads\\router.py": {
+    "mtime": 1772575997.7478964,
+    "ast_hash": "00941c7f5c4c147de720e235957e036d",
+    "semantic_hash": "00941c7f5c4c147de720e235957e036d"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\uploads\\__init__.py": {
+    "mtime": 1772575555.62378,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\viewings\\router.py": {
+    "mtime": 1772994060.4195359,
+    "ast_hash": "af14e67c302d67652e619fe8f9897646",
+    "semantic_hash": "af14e67c302d67652e619fe8f9897646"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\viewings\\schemas.py": {
+    "mtime": 1772575837.711701,
+    "ast_hash": "3c30ba832d7fa5746436b8b7030459ab",
+    "semantic_hash": "3c30ba832d7fa5746436b8b7030459ab"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\app\\viewings\\__init__.py": {
+    "mtime": 1772575551.5417392,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\scripts\\batch_embed.py": {
+    "mtime": 1774212768.208349,
+    "ast_hash": "53563478b31acfbbc2b0c489aaea211a",
+    "semantic_hash": "53563478b31acfbbc2b0c489aaea211a"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\sql\\2026-05-15_all_new_features.sql": {
+    "mtime": 1778872404.239401,
+    "ast_hash": "c7d3d6af5f35d3437aa37089cf4d75b6",
+    "semantic_hash": "c7d3d6af5f35d3437aa37089cf4d75b6"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\sql\\2026-05-16_profile_whatsapp_and_avatars.sql": {
+    "mtime": 1778936086.1112413,
+    "ast_hash": "9b06e6b20f1d8f43cd0119d4edddb437",
+    "semantic_hash": "9b06e6b20f1d8f43cd0119d4edddb437"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\conftest.py": {
+    "mtime": 1778935707.5055566,
+    "ast_hash": "5ea48cca4b11c4b68d21c89431de924c",
+    "semantic_hash": "5ea48cca4b11c4b68d21c89431de924c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\test_admin.py": {
+    "mtime": 1778936359.3284535,
+    "ast_hash": "6119bc449f681ab2a7de2b1bd367c266",
+    "semantic_hash": "6119bc449f681ab2a7de2b1bd367c266"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\test_agencies.py": {
+    "mtime": 1772992307.6283078,
+    "ast_hash": "1a730164bcc21120f89e2ebe9c2e2384",
+    "semantic_hash": "1a730164bcc21120f89e2ebe9c2e2384"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\test_ai.py": {
+    "mtime": 1776111715.1202166,
+    "ast_hash": "80a97ef73f82550d3ea5430cdaa24b01",
+    "semantic_hash": "80a97ef73f82550d3ea5430cdaa24b01"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\test_applications.py": {
+    "mtime": 1778871953.9587133,
+    "ast_hash": "6d7990d484f03159171a63bf380dac77",
+    "semantic_hash": "6d7990d484f03159171a63bf380dac77"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\test_auth.py": {
+    "mtime": 1778936345.5353765,
+    "ast_hash": "71d9a51fb95bb438f44ba444d0b44dd4",
+    "semantic_hash": "71d9a51fb95bb438f44ba444d0b44dd4"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\test_blog.py": {
+    "mtime": 1772992325.7000625,
+    "ast_hash": "36b8013e0b14fb8229281e5aacfa4ca5",
+    "semantic_hash": "36b8013e0b14fb8229281e5aacfa4ca5"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\test_bookings.py": {
+    "mtime": 1778872382.7565615,
+    "ast_hash": "bc68d3fa731044cba976d99de177961d",
+    "semantic_hash": "bc68d3fa731044cba976d99de177961d"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\test_dashboard.py": {
+    "mtime": 1779073136.515491,
+    "ast_hash": "3cd1cdd76b824c2caf79b011ffe9d6f7",
+    "semantic_hash": "3cd1cdd76b824c2caf79b011ffe9d6f7"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\test_leads.py": {
+    "mtime": 1777548674.6191516,
+    "ast_hash": "5dab005921935091c3562b96f8ef5a1b",
+    "semantic_hash": "5dab005921935091c3562b96f8ef5a1b"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\test_listings.py": {
+    "mtime": 1776111715.1212163,
+    "ast_hash": "7d0bb183a41b8ac5de332ebd3f40a0cc",
+    "semantic_hash": "7d0bb183a41b8ac5de332ebd3f40a0cc"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\test_notifications.py": {
+    "mtime": 1772922981.8650699,
+    "ast_hash": "0e1ad3562c0a13f0279491f8429a1f7b",
+    "semantic_hash": "0e1ad3562c0a13f0279491f8429a1f7b"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\test_ollama_client.py": {
+    "mtime": 1774212309.8689349,
+    "ast_hash": "99a2dff9f082242ec6b521452ed4bd33",
+    "semantic_hash": "99a2dff9f082242ec6b521452ed4bd33"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\test_projects.py": {
+    "mtime": 1772992336.5059936,
+    "ast_hash": "f3fbe9ee3a5bca5fb2f1b09adabfa075",
+    "semantic_hash": "f3fbe9ee3a5bca5fb2f1b09adabfa075"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\test_uploads.py": {
+    "mtime": 1772662715.2864077,
+    "ast_hash": "f5b8332fef5c7f59ae270720b2474d56",
+    "semantic_hash": "f5b8332fef5c7f59ae270720b2474d56"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\test_validate_amenity.py": {
+    "mtime": 1776200730.0431366,
+    "ast_hash": "a4ec17da6f5f07670f45fe4a2a63cc23",
+    "semantic_hash": "a4ec17da6f5f07670f45fe4a2a63cc23"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\tests\\__init__.py": {
+    "mtime": 1772646244.8031962,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\docs\\schema\\001_v2_comprehensive_schema.sql": {
+    "mtime": 1772465494.6484053,
+    "ast_hash": "4a14d977aef860f31b892adc01b5af63",
+    "semantic_hash": "4a14d977aef860f31b892adc01b5af63"
+  },
+  "E:\\GradProject\\AXIOM-V2\\docs\\schema\\002_message_requests.sql": {
+    "mtime": 1773088093.160932,
+    "ast_hash": "a4288a3a35ee79bdafb8a6f4d90312b2",
+    "semantic_hash": "a4288a3a35ee79bdafb8a6f4d90312b2"
+  },
+  "E:\\GradProject\\AXIOM-V2\\docs\\schema\\003_conversation_soft_delete.sql": {
+    "mtime": 1774129180.9165246,
+    "ast_hash": "dc8755490a9c69c3bbafc608251fb3cb",
+    "semantic_hash": "dc8755490a9c69c3bbafc608251fb3cb"
+  },
+  "E:\\GradProject\\AXIOM-V2\\docs\\schema\\004_knowledge_chunks.sql": {
+    "mtime": 1774212386.6998801,
+    "ast_hash": "fc13566974a7393fbad4765dc6a9072d",
+    "semantic_hash": "fc13566974a7393fbad4765dc6a9072d"
+  },
+  "E:\\GradProject\\AXIOM-V2\\docs\\schema\\005_leads.sql": {
+    "mtime": 1777548085.4962575,
+    "ast_hash": "cc1aa32030915b83a97b66aa90c7f5fd",
+    "semantic_hash": "cc1aa32030915b83a97b66aa90c7f5fd"
+  },
+  "E:\\GradProject\\AXIOM-V2\\backend\\requirements.txt": {
+    "mtime": 1778872270.6156805,
+    "ast_hash": "077349d86ed119381df7707be4a69357",
+    "semantic_hash": "077349d86ed119381df7707be4a69357"
+  },
+  "E:\\GradProject\\AXIOM-V2\\docs\\AI_FEATURES.md": {
+    "mtime": 1777029548.0038962,
+    "ast_hash": "ec8ca804583a7bacfa887b1150b2d1ae",
+    "semantic_hash": "ec8ca804583a7bacfa887b1150b2d1ae"
+  },
+  "E:\\GradProject\\AXIOM-V2\\docs\\API_REFERENCE.md": {
+    "mtime": 1777726567.5599215,
+    "ast_hash": "3a9d11d648469e7e06fa8cc30285751c",
+    "semantic_hash": "3a9d11d648469e7e06fa8cc30285751c"
+  },
+  "E:\\GradProject\\AXIOM-V2\\docs\\BACKEND.md": {
+    "mtime": 1777029562.1428173,
+    "ast_hash": "c216473d0bd974709942f2993a6c1fff",
+    "semantic_hash": "c216473d0bd974709942f2993a6c1fff"
+  },
+  "E:\\GradProject\\AXIOM-V2\\docs\\ROADMAP.md": {
+    "mtime": 1779546237.1807287,
+    "ast_hash": "cab680d4703b0f0e605496c70700e469",
+    "semantic_hash": "cab680d4703b0f0e605496c70700e469"
+  },
+  "E:\\GradProject\\AXIOM-V2\\docs\\SETUP.md": {
+    "mtime": 1777726551.8048162,
+    "ast_hash": "636538b11b6cbf1c577c74ddad6b4fd6",
+    "semantic_hash": "636538b11b6cbf1c577c74ddad6b4fd6"
+  },
+  "E:\\GradProject\\AXIOM-V2\\docs\\superpowers\\plans\\2026-05-22-partner-universities.md": {
+    "mtime": 1779467277.7301655,
+    "ast_hash": "c04d4455e5b827865b3e4b9144ad9e62",
+    "semantic_hash": "c04d4455e5b827865b3e4b9144ad9e62"
+  },
+  "E:\\GradProject\\AXIOM-V2\\docs\\superpowers\\specs\\2026-05-22-partner-universities-design.md": {
+    "mtime": 1779466574.4563546,
+    "ast_hash": "9cc08dae1eb43ac1abcd67411a964485",
+    "semantic_hash": "9cc08dae1eb43ac1abcd67411a964485"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\public\\file.svg": {
+    "mtime": 1772283951.335214,
+    "ast_hash": "d09f95206c3fa0bb9bd9fefabfd0ea71",
+    "semantic_hash": "d09f95206c3fa0bb9bd9fefabfd0ea71"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\public\\globe.svg": {
+    "mtime": 1772283951.3332143,
+    "ast_hash": "2aaafa6a49b6563925fe440891e32717",
+    "semantic_hash": "2aaafa6a49b6563925fe440891e32717"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\public\\next.svg": {
+    "mtime": 1772283951.3332143,
+    "ast_hash": "8e061864f388b47f33a1c3780831193e",
+    "semantic_hash": "8e061864f388b47f33a1c3780831193e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\public\\vercel.svg": {
+    "mtime": 1772283951.334213,
+    "ast_hash": "c0af2f507b369b085b35ef4bbe3bcf1e",
+    "semantic_hash": "c0af2f507b369b085b35ef4bbe3bcf1e"
+  },
+  "E:\\GradProject\\AXIOM-V2\\frontend\\public\\window.svg": {
+    "mtime": 1772283951.335214,
+    "ast_hash": "a2760511c65806022ad20adf74370ff3",
+    "semantic_hash": "a2760511c65806022ad20adf74370ff3"
+  }
+}

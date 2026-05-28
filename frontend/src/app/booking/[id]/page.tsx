@@ -47,6 +47,7 @@ export default function BookingDetailPage() {
 
   const isRenter = user?.id === data.renter_id;
   const isOwner = user?.id === data.owner_id;
+  const isRent = data.booking_type === "rent";
 
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
@@ -72,9 +73,26 @@ export default function BookingDetailPage() {
               <StatusBadge status={data.status} />
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <Info label={data.booking_type === "rent" ? "Total paid by renter" : "Full purchase price"} value={formatEGP(data.total_price)} />
-              <Info label="AXIOM upfront fee" value={formatEGP(data.platform_cut_amount)} />
-              <Info label="Owner receives" value={formatEGP(data.owner_amount)} />
+              {isRent && data.monthly_price ? (
+                <Info label="Monthly rent" value={formatEGP(data.monthly_price)} />
+              ) : (
+                <Info label="Reservation price" value={formatEGP(data.total_price)} />
+              )}
+              {isRent && data.duration_months ? (
+                <Info label="Duration" value={`${data.duration_months} ${data.duration_months === 1 ? "month" : "months"}`} />
+              ) : (
+                <Info label="Booking type" value={data.booking_type} />
+              )}
+              <Info
+                label={isOwner ? "Renter booking total" : "Booking total"}
+                value={formatEGP(data.total_price)}
+              />
+              {isOwner && (
+                <>
+                  <Info label="AXIOM service fee" value={formatEGP(data.platform_cut_amount)} />
+                  <Info label="Estimated payout" value={formatEGP(data.owner_amount)} />
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -109,12 +127,12 @@ export default function BookingDetailPage() {
         </div>
       </section>
 
-      {data.booking_type === "rent" && (
+      {isRent && isOwner && (
         <section className="rounded-2xl border border-white/10 bg-card-dark p-5">
-          <h2 className="text-lg font-bold text-white">Owner Wire Timeline</h2>
+          <h2 className="text-lg font-bold text-white">Payout Timeline</h2>
           <div className="mt-4 divide-y divide-white/10">
             {data.disbursements.length === 0 && (
-              <p className="py-4 text-sm text-gray-400">Monthly owner wires appear after renter confirmation.</p>
+              <p className="py-4 text-sm text-gray-400">Monthly payout rows appear after renter confirmation.</p>
             )}
             {data.disbursements.map((item) => (
               <div key={item.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">

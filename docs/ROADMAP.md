@@ -1,6 +1,6 @@
 # AXIOM V2 — Roadmap & Current Status
 
-Last updated: 2026-05-23
+Last updated: 2026-05-28
 
 ---
 
@@ -23,7 +23,7 @@ Last updated: 2026-05-23
 | Admin CRUD overhaul            | Done          | Live DB-backed admin views; unified Add/Edit/View/action UI; Listings Add uses dashboard wizard; Listings Edit is category-aware; shared housing is a Listings category filter |
 | WhatsApp lead capture          | ✅ Done       | Messaging system removed; WhatsApp CTAs + leads table + admin view live                                                                                      |
 | Responsive design (400–1200px) | ✅ Done       | FilterSidebar Sheet drawer, admin Sheet hamburger, all page grids fixed                                                                                      |
-| All-new features implementation | ✅ Done       | Shared housing applications/search, housemates in Add Listing, booking flow wired to real backend (`/api/bookings/*`), liked properties wired to `favorites` DB table, dashboard tabs fully live |
+| All-new features implementation | ✅ Done       | Shared housing applications/search, housemates in Add Listing, renter-safe booking request UI, booking flow wired to real backend (`/api/bookings/*`), liked properties wired to `favorites` DB table, dashboard tabs fully live |
 | Partner Universities           | ✅ Done       | DB table, backend CRUD, admin dashboard section, list page, detail page with hero/sidebar/listings |
 | Deployment                     | ❌ Not done   | No CI/CD, no production environment                                                                                                                          |
 

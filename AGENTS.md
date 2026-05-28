@@ -196,77 +196,85 @@ Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
 <claude-mem-context>
 # Memory Context
 
-# [AXIOM-V2] recent context, 2026-05-27 1:48am GMT+3
+# [AXIOM-V2] recent context, 2026-05-28 8:13pm GMT+3
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (17,330t read) | 412,076t work | 96% savings
+Stats: 50 obs (21,139t read) | 595,686t work | 96% savings
 
-### May 23, 2026
-988 5:32p 🟣 Partner Universities Feature Implementation
-989 " ✅ Feature Planning Documentation for Shared Housing and Payment Systems
-990 5:33p 🔵 Uncommitted Booking and Shared Housing Implementation Work
-991 5:35p ✅ CLAUDE.md Documentation File Removed from Repository
-992 " ✅ CLAUDE.md Converted from Tracked to Local-Only Documentation
-993 5:36p ✅ Partner Universities Feature and Recent Work Pushed to Remote Repository
-### May 25, 2026
-995 5:26p 🔵 Missing app.bookings module causing backend startup failure
-996 5:27p 🔵 app.bookings module exists locally but missing from version control
-997 " 🔵 Bookings directory confirmed untracked in git repository
-998 5:28p 🔴 Added missing bookings module to version control
-999 5:46p 🔵 Backend configured to use axiom-llm model via Ollama
 ### May 26, 2026
-1000 5:45p 🔵 JWT Token Timing Issue After Account Creation
-1001 5:46p 🔵 JWT Decode Missing Leeway Parameter
-1002 " 🔴 Added 30-Second Leeway to JWT Validation
-1003 5:47p ✅ Created Git Branch for JWT Leeway Fix
-1004 " ✅ Committed JWT Leeway Fix to Version Control
-1005 " ✅ Pushed JWT Fix and Created Pull Request #1
-1006 5:48p ✅ Merged JWT Leeway Fix to Main Branch
-1007 5:58p 🔵 Auth State Management Investigation
-1008 5:59p 🔄 QueryClient Refactored to Singleton Pattern
-1009 " 🔴 Fixed Stale User Data After Login
-1010 6:00p 🔴 Extended Cache Clearing to Logout and Signup Flows
-1011 " ✅ Committed and Pushed Auth Cache Clear Fix
-S469 Fix state management bug causing stale user data after login, commit, PR, and merge to main (May 26, 6:02 PM)
-S470 Fixed auth state management bug causing stale user data; merged to main; verified Ollama service status (May 26, 6:02 PM)
-S471 Install graphify knowledge graph tool for Windows Claude Code environment (May 26, 6:04 PM)
-1012 6:09p 🔵 Graphify Installation Prerequisites Verified
-1013 6:18p 🟣 Installed Graphify Knowledge Graph Tool with Multi-Language Support
-1014 " 🟣 Registered Graphify Skill with Claude Code on Windows
-S472 Install graphify and configure API access for AXIOM-V2 knowledge graph generation (May 26, 6:19 PM)
-1015 6:20p 🔵 No API Keys Configured in Environment Variables
-S473 Complete graphify codebase analysis with community labeling and interactive visualization for AXIOM-V2 project (May 26, 6:20 PM)
-1016 6:22p 🔵 AXIOM-V2 codebase analyzed with graphify tool
-1017 6:23p 🔵 AXIOM-V2 project structure shows frontend-heavy architecture
-1018 6:24p ⚖️ Graphify analysis scope narrowed to core application directories
-1019 6:25p 🔵 Semantic cache cold start requires full extraction of 271 files
-1020 6:28p ✅ AST extraction completed generating graph structure from codebase
-1021 " ✅ Semantic knowledge graph extracted from AXIOM-V2 documentation and assets
-1022 11:11p ✅ Labeled 157 Codebase Communities with Semantic Names
 1023 11:12p 🟣 Generated Interactive HTML Graph Visualization
-1024 " 🔵 Measured 19.6x Token Reduction from Graph Representation
 1025 11:13p 🟣 Implemented Cost Tracking and Cleanup Pipeline
-S474 Add graphify documentation to CLAUDE.md to enforce token-efficient workflows and mandate graph updates (May 26, 11:13 PM)
 1026 11:18p ✅ Added mandatory graphify update step to task completion checklist
 1027 11:19p ✅ Added comprehensive graphify knowledge graph documentation section
-S475 Assessment of signup page improvements needed for Egyptian real estate platform AXIOM (May 26, 11:20 PM)
 1028 11:21p 🔵 Signup page architecture exploration for improvement assessment
-S478 User activated caveman communication mode (May 26, 11:23 PM)
 1029 11:27p 🔵 Phone Number and Country Code Usage Mapped Across Codebase
 1030 " 🔵 Gender Field Currently Allows Three Values Including "Other"
 1031 " 🔵 Country Code Defaults to Egypt +20 with Inconsistent Storage Pattern
 1032 11:28p 🔵 WhatsApp Number and Birth Date Fields Missing from Database Schema
 1033 " 🔵 Gender "Other" Option Found in Four Frontend Locations
 1034 " ⚖️ Comprehensive Implementation Plan Created for Phone and Gender Fixes
-S476 Fix phone number database inconsistencies and restrict gender to male/female only across AXIOM-V2 platform (May 26, 11:30 PM)
-S477 Simplify phone/WhatsApp implementation based on Egypt market insight - merge into single field (May 26, 11:32 PM)
 1035 11:32p 🟣 Phone Normalization Utility Created with E.164 Leading-Zero Strip
 1036 11:34p ✅ GenderType Restricted to Binary Male/Female Values
 1037 " ✅ UpdateProfileInput Gender Type Aligned to Binary Values
 1038 11:35p ✅ Admin Dashboard Gender Dropdown Restricted to Binary Options
+### May 27, 2026
+1039 8:14a 🔵 Git history reveals 6 unpushed commits completing signup and gender refactor
+1040 " 🔵 Unstaged changes show comprehensive auth and dashboard rewrite totaling 1,435 insertions across 22 files
+1041 " ✅ Staged comprehensive auth refactor including 22 modified files and 3 new additions
+1042 8:15a 🟣 Committed and pushed comprehensive auth UI overhaul with 2,672 insertions across 25 files
+### May 28, 2026
+1043 7:36p 🔵 Payment and Booking System Implementation Plan Exists
+1044 7:40p 🔵 Design Skills Contain Excessive Meta-Instructions for End Users
+1045 7:41p 🔵 Design Agent Skills Expose Internal AI Prompting Strategy to Users
+1046 7:42p 🔵 Backend Bookings Module Implemented
+1047 " 🔵 Payment System Plan File Missing from Expected Location
+1048 " 🔵 Booking Payment Display Shows Incorrect Owner Amount for Rent Transactions
+1050 " 🟣 Booking System API Fully Implemented
+1051 " 🟣 Automated Lease Expiry and Warning System Implemented
+1049 " 🔴 Booking Modal Removes Misleading Owner Payment Display
+1053 7:43p 🔵 Frontend Booking Dashboard Components Exist, Detail Page Missing
+1052 " 🔄 Booking Detail Page Implements Role-Based Financial Visibility
+1054 " ✅ Booking Financial Display Refactor Passes TypeScript Validation
+1055 " 🔵 Booking Payment Refactor Verified Live on Local Server
+1056 " 🔵 ROADMAP.md Table Cell Contains Line Breaks Breaking Patch Match
+1057 7:44p ✅ ROADMAP.md Updated with Renter-Safe Booking UI Note
+1058 " ✅ Cross-Session Memory Updated with Booking UI Cleanup Work
+S483 Booking UI Enhancement - Custom Form Controls and Payment Display Cleanup (May 28, 7:46 PM)
+1059 7:47p ✅ BookingModal Fully Cleaned - Platform Fee Row Removed from Renter View
+1060 7:48p ✅ BookingModal Native Inputs Replaced with Custom Calendar and Duration Pickers
+1061 7:50p 🔴 Ripgrep Regex Parse Error with Escaped Quotes
+1062 " ✅ MEMORY.md Updated with Custom Date and Duration Picker Work
+S484 Booking Modal Calendar UX Refinement - Inline Expansion Pattern (May 28, 7:51 PM)
+1063 7:52p ✅ Calendar Component Refactored from Popover to Inline Expansion
+1064 " ✅ MEMORY.md Updated with Inline Calendar Refinement Note
+S485 Property Sidebar CTA Integration - Consolidate Action Buttons into Sidebar Cards (May 28, 7:53 PM)
+1067 7:55p ✅ BookNowButton and ApplyButton Enhanced with Customizable Spacing and Polished Transitions
+1068 7:56p ✅ Sidebar Components Refactored for Action Button Composition
+1069 " ✅ Property Detail Page Refactored - Action Buttons Integrated into Sidebars
+1070 " ✅ Sidebar Component Composition Simplified - Direct Button Imports Instead of ReactNode Props
+1071 7:57p ✅ Property Detail Page Simplified - Sidebar API Updated to Match Direct Import Pattern
+1072 " ✅ MEMORY.md Updated with Sidebar CTA Integration Work
+S486 Stripe Integration Status Investigation - Check for Active Sandbox Configuration (May 28, 7:58 PM)
+S487 Design automated Stripe payout system to transfer funds from platform to property owners after booking payments (May 28, 8:00 PM)
+1074 8:03p ⚖️ Automated Stripe Payout Design for Rental Platform
+S488 Design automated Stripe payout system with detailed payment flow architecture for rental platform (May 28, 8:05 PM)
+S489 Design database schema and backend architecture for automated Stripe payout system (May 28, 8:07 PM)
+S490 Design frontend components for Stripe payment integration with booking modal and payment flow UI (May 28, 8:08 PM)
+S491 Design error handling and security architecture for Stripe payment and payout system (May 28, 8:09 PM)
+1075 8:10p ⚖️ Automated Stripe Payout Design Approved
+1076 8:11p ✅ Stripe Auto-Payout Design Document Created
+S492 Create and commit comprehensive Stripe booking and auto-payout design specification document (May 28, 8:11 PM)
+**Investigated**: Design document structure including payment flow diagrams, database migrations, backend architecture, frontend components, error handling patterns, and API endpoint specifications
 
-Access 412k tokens of past work via get_observations([IDs]) or mem-search skill.
+**Learned**: Frontend needs polling mechanism to get booking_id after payment since webhook creates booking row asynchronously. Polling endpoint GET /api/bookings/by-intent/{intent_id} allows frontend to poll up to 10 times at 1-second intervals until webhook completes booking creation. This resolves race condition between stripe.confirmCardPayment() completion and webhook firing.
+
+**Completed**: Comprehensive design specification created at docs/superpowers/specs/2026-05-28-stripe-booking-payout-design.md documenting complete Stripe Connect architecture with payment flow, database schema, backend components, frontend components, error handling, and security patterns. Document refined to add GET /api/bookings/by-intent/{intent_id} polling endpoint and explicit polling logic (max 10×, 1s intervals) in Step 3 success flow. Design spec committed to git repository with 236 line addition.
+
+**Next Steps**: Awaiting user review of design specification before proceeding to implementation plan
+
+
+Access 596k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
