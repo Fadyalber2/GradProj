@@ -52,3 +52,15 @@ def test_select_listings_to_pause_keeps_newest():
     assert plans.select_listings_to_pause(ids, cap=1) == ["a", "b", "c"]
     assert plans.select_listings_to_pause(ids, cap=4) == []
     assert plans.select_listings_to_pause(ids, cap=10) == []
+
+
+from app.subscriptions import service
+
+
+def test_should_reset_ai_window_after_a_month():
+    from datetime import datetime, timedelta, timezone
+    old = (datetime.now(timezone.utc) - timedelta(days=32)).isoformat()
+    recent = (datetime.now(timezone.utc) - timedelta(days=3)).isoformat()
+    assert service._window_expired(old) is True
+    assert service._window_expired(recent) is False
+    assert service._window_expired(None) is True
