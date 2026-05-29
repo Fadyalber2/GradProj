@@ -84,6 +84,10 @@ def mock_supabase():
         patch("app.bookings.lease_checker.supabase_admin", mock_admin),
         patch("app.projects.router.supabase_admin", mock_admin),
         patch("app.leads.router.supabase_admin", mock_admin),
+        patch("app.subscriptions.service.supabase_admin", mock_admin),
+        patch("app.subscriptions.router.supabase_admin", mock_admin),
+        patch("app.subscriptions.lapse.supabase_admin", mock_admin),
+        patch("app.stripe_webhooks.router.supabase_admin", mock_admin),
     ]
     with ExitStack() as stack:
         for item in patches:

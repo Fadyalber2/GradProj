@@ -1,4 +1,9 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+BACKEND_DIR = Path(__file__).resolve().parents[1]
 
 
 class Settings(BaseSettings):
@@ -18,8 +23,18 @@ class Settings(BaseSettings):
     twilio_account_sid: str = ""
     twilio_auth_token: str = ""
     twilio_verify_service_sid: str = ""
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+    stripe_publishable_key: str = ""
+    stripe_price_basic: str = ""   # Stripe recurring price id for Basic
+    stripe_price_pro: str = ""     # Stripe recurring price id for Pro
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    # Monetization (platform fees, EGP). See payment-monetization-model spec.
+    sale_reservation_pct: float = 0.01      # 1% of sale price
+    sale_reservation_cap: float = 50000.0   # capped at EGP 50,000
+    rent_booking_fee: float = 2000.0        # flat deposit to secure a rent booking
+
+    model_config = SettingsConfigDict(env_file=BACKEND_DIR / ".env", extra="ignore")
 
 
 settings = Settings()

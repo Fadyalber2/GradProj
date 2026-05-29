@@ -16,23 +16,28 @@ from app.ai.router import router as ai_router
 from app.uploads.router import router as uploads_router
 from app.applications.router import router as applications_router
 from app.bookings.lease_checker import lease_checker_loop
+from app.subscriptions.lapse import lapse_sweep_loop
 from app.bookings.router import router as bookings_router
+from app.stripe_webhooks.router import router as stripe_webhooks_router
 from app.projects.router import router as projects_router
 from app.leads.router import router as leads_router
 from app.universities.router import router as universities_router
+from app.subscriptions.router import router as subscriptions_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     lease_task = asyncio.create_task(lease_checker_loop())
+    lapse_task = asyncio.create_task(lapse_sweep_loop())
     try:
         yield
     finally:
-        lease_task.cancel()
-        try:
-            await lease_task
-        except asyncio.CancelledError:
-            pass
+        for task in (lease_task, lapse_task):
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
 
 
 app = FastAPI(
@@ -78,6 +83,8 @@ app.include_router(ai_router, prefix="/api/ai", tags=["ai"])
 app.include_router(uploads_router, prefix="/api/uploads", tags=["uploads"])
 app.include_router(applications_router, prefix="/api/applications", tags=["applications"])
 app.include_router(bookings_router, prefix="/api/bookings", tags=["bookings"])
+app.include_router(stripe_webhooks_router, prefix="/api/stripe", tags=["stripe"])
 app.include_router(projects_router, prefix="/api/projects", tags=["projects"])
 app.include_router(leads_router, prefix="/api", tags=["leads"])
 app.include_router(universities_router, prefix="/api/universities", tags=["universities"])
+app.include_router(subscriptions_router, prefix="/api/subscriptions", tags=["subscriptions"])
