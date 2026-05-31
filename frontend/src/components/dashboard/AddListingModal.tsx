@@ -21,6 +21,9 @@ import {
 } from "@/lib/constants";
 import { api } from "@/lib/api";
 import { calculatePlatformFee, formatEGP } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { subscriptionQuery } from "@/lib/queries";
+import Link from "next/link";
 
 type DescLang = "english" | "arabic" | "both";
 type ListingCategory = "for_rent" | "for_sale" | "shared_housing";
@@ -211,6 +214,8 @@ export default function AddListingModal({
   getSignedUploadUrl,
 }: AddListingModalProps) {
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
+  const { data: sub } = useQuery(subscriptionQuery);
+  const atCap = sub ? sub.active_listings >= sub.listing_cap : false;
   const [errors, setErrors] = useState<FormErrors>({});
   const [step, setStep] = useState<ListingStep>(0);
 
@@ -1789,6 +1794,11 @@ export default function AddListingModal({
                     )}
                   </div>
                   {/* Generate button */}
+                  {sub && sub.ai_quota > 0 && (
+                    <span className="text-[10px] text-gray-500">
+                      {sub.ai_remaining} AI gen{sub.ai_remaining !== 1 ? "s" : ""} left
+                    </span>
+                  )}
                   <button
                     type="button"
                     onClick={generateDescription}
@@ -1852,19 +1862,38 @@ export default function AddListingModal({
                 >
                   Continue
                 </button>
+              ) : atCap ? (
+                <div className="flex flex-col items-end gap-1">
+                  <p className="text-xs text-amber-400">
+                    {sub?.active_listings ?? 0} of {sub?.listing_cap ?? 1} listings used.
+                  </p>
+                  <Link
+                    href="/pricing"
+                    className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-sm font-bold text-black shadow-lg transition-all whitespace-nowrap"
+                  >
+                    Upgrade to add more
+                  </Link>
+                </div>
               ) : (
-                <button
-                  type="button"
-                  onClick={submitListing}
-                  disabled={submitting}
-                  className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-sm font-bold text-white shadow-lg shadow-primary/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2 whitespace-nowrap"
-                >
-                  {submitting ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    submitLabel
+                <>
+                  {sub && (
+                    <p className="text-xs text-gray-500">
+                      {sub.active_listings} of {sub.listing_cap} listings used.
+                    </p>
                   )}
-                </button>
+                  <button
+                    type="button"
+                    onClick={submitListing}
+                    disabled={submitting}
+                    className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-sm font-bold text-white shadow-lg shadow-primary/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2 whitespace-nowrap"
+                  >
+                    {submitting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      submitLabel
+                    )}
+                  </button>
+                </>
               )}
             </div>
           </div>
