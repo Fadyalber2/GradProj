@@ -352,6 +352,8 @@ export interface BookingBrief {
   platform_cut_pct: number;
   platform_cut_amount: number;
   owner_amount: number;
+  stripe_payment_intent_id?: string | null;
+  stripe_transfer_id?: string | null;
   status:
     | "pending_confirmation"
     | "active"
@@ -372,6 +374,23 @@ export interface CreateBookingResponse {
   platform_cut_amount: number;
   owner_amount: number;
   booking_type: "rent" | "sale";
+}
+
+export interface BookingPaymentPreview {
+  listing_id: string;
+  booking_type: "rent" | "sale";
+  start_date: string | null;
+  duration_months: number | null;
+  monthly_price: number | null;
+  /** The platform fee charged now (reservation fee or booking deposit). */
+  total_price: number;
+  fee_kind: "reservation" | "booking_deposit";
+}
+
+export interface CreatePaymentIntentResponse {
+  client_secret: string;
+  payment_intent_id: string;
+  booking_preview: BookingPaymentPreview;
 }
 
 // ── Shared Housing (legacy — remove when Task 14 redirect is in place) ──
@@ -431,6 +450,21 @@ export interface PaginatedUniversities {
   total: number;
   page: number;
   per_page: number;
+}
+
+// ── Subscriptions ──
+
+export interface SubscriptionStatus {
+  plan: "free" | "trial" | "basic" | "pro" | "agency";
+  status: string | null;
+  listing_cap: number;
+  active_listings: number;
+  ai_quota: number;
+  ai_used: number;
+  ai_remaining: number;
+  trial_used: boolean;
+  trial_ends_at: string | null;
+  current_period_end: string | null;
 }
 
 // ── Notifications ──
