@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
+import { CardElement, Elements, useElements, useStripe } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import {
   CalendarCheck,
   CalendarDays,
@@ -11,6 +13,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  CreditCard,
   Loader2,
   X,
 } from "lucide-react";
@@ -26,33 +29,76 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
-import { createBookingMutation } from "@/lib/queries";
+import { api } from "@/lib/api";
+import { createPaymentIntentMutation } from "@/lib/queries";
 import { formatEGP } from "@/lib/utils";
-import type { CreateBookingResponse, ListingDetailWithSimilar } from "@/types/api";
+import type { BookingBrief, CreatePaymentIntentResponse, ListingDetailWithSimilar } from "@/types/api";
 
 type Props = {
   listing: ListingDetailWithSimilar;
   onClose: () => void;
 };
 
+type Step = "details" | "payment" | "success";
+
+const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
+const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
+
 export default function BookingModal({ listing, onClose }: Props) {
+  const [step, setStep] = useState<Step>("details");
   const [startDate, setStartDate] = useState("");
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [durationMonths, setDurationMonths] = useState(3);
-  const [booking, setBooking] = useState<CreateBookingResponse | null>(null);
-  const mutation = useMutation(createBookingMutation);
-  const isRent = listing.category === "for_rent" || listing.category === "shared_housing";
-  const rentSubtotal = isRent ? listing.price * durationMonths : 0;
-  const totalDue = isRent ? rentSubtotal : listing.price;
+  const [paymentIntent, setPaymentIntent] = useState<CreatePaymentIntentResponse | null>(null);
+  const [bookingId, setBookingId] = useState<string | null>(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const mutation = useMutation(createPaymentIntentMutation);
+  // Rent-only: BookNowButton is hidden for sale listings (those use WhatsApp contact).
+  // Platform fee = flat booking deposit configured in backend app/config.py.
+  const RENT_BOOKING_FEE = 2000;
+  const fullPrice = listing.price * durationMonths;
+  const feeDue = RENT_BOOKING_FEE;
 
-  async function createBooking() {
-    const result = await mutation.mutateAsync({
-      listing_id: listing.id,
-      booking_type: isRent ? "rent" : "sale",
-      start_date: isRent ? startDate : null,
-      duration_months: isRent ? durationMonths : null,
-    });
-    setBooking(result);
+  async function createPaymentIntent() {
+    setPaymentError(null);
+    try {
+      const result = await mutation.mutateAsync({
+        listing_id: listing.id,
+        booking_type: "rent",
+        start_date: startDate,
+        duration_months: durationMonths,
+      });
+      setPaymentIntent(result);
+      setStep("payment");
+    } catch (error) {
+      setPaymentError(error instanceof Error ? error.message : "Payment could not be started.");
+    }
+  }
+
+  async function waitForBooking(intentId: string) {
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      try {
+        const booking = await api.get<BookingBrief>(`/api/bookings/by-intent/${intentId}`);
+        return booking;
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+    throw new Error("Payment succeeded, but the booking is still being created. Try opening your dashboard in a moment.");
+  }
+
+  async function syncPaidBooking(intentId: string) {
+    try {
+      return await api.post<BookingBrief>("/api/bookings/sync-payment", {
+        payment_intent_id: intentId,
+      });
+    } catch (syncError) {
+      try {
+        return await waitForBooking(intentId);
+      } catch {
+        throw syncError;
+      }
+    }
   }
 
   return (
@@ -63,7 +109,7 @@ export default function BookingModal({ listing, onClose }: Props) {
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-4 sm:px-6">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">Booking</p>
-              <h2 className="mt-1 text-lg font-bold text-white">{isRent ? "Book Property" : "Reserve Property"}</h2>
+              <h2 className="mt-1 text-lg font-bold text-white">Book Property</h2>
             </div>
             <button
               type="button"
@@ -75,67 +121,186 @@ export default function BookingModal({ listing, onClose }: Props) {
             </button>
           </div>
 
-          {!booking ? (
+          {step === "details" && (
             <div className="space-y-5 p-5 sm:p-6">
               <ListingSummary listing={listing} />
-              {isRent && (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <MoveInDatePicker
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <MoveInDatePicker
+                  value={startDate}
+                  open={datePickerOpen}
+                  onOpenChange={setDatePickerOpen}
+                />
+                <DurationPicker value={durationMonths} onChange={setDurationMonths} />
+                {datePickerOpen && (
+                  <DateCalendar
                     value={startDate}
-                    open={datePickerOpen}
-                    onOpenChange={setDatePickerOpen}
+                    onChange={setStartDate}
+                    onClose={() => setDatePickerOpen(false)}
                   />
-                  <DurationPicker value={durationMonths} onChange={setDurationMonths} />
-                  {datePickerOpen && (
-                    <DateCalendar
-                      value={startDate}
-                      onChange={setStartDate}
-                      onClose={() => setDatePickerOpen(false)}
-                    />
-                  )}
-                </div>
-              )}
+                )}
+              </div>
               <PriceBreakdown
-                isRent={isRent}
                 monthlyPrice={listing.price}
-                rentSubtotal={rentSubtotal}
-                total={totalDue}
+                durationMonths={durationMonths}
+                fullPrice={fullPrice}
+                feeDue={feeDue}
               />
-              {mutation.isError && (
+              {paymentError && (
                 <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-                  Booking could not be created. Please try again.
+                  {paymentError}
                 </p>
               )}
               <button
                 type="button"
-                onClick={createBooking}
-                disabled={mutation.isPending || (isRent && !startDate)}
+                onClick={createPaymentIntent}
+                disabled={mutation.isPending || !startDate}
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white transition-[background-color,transform,opacity] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-primary-hover active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {mutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-                {isRent ? "Create Booking Request" : "Reserve Property"}
+                Continue to payment
               </button>
             </div>
-          ) : (
+          )}
+
+          {step === "payment" && paymentIntent && (
+            <Elements stripe={stripePromise}>
+              <PaymentStep
+                amount={paymentIntent.booking_preview.total_price}
+                clientSecret={paymentIntent.client_secret}
+                stripeReady={Boolean(stripePublishableKey)}
+                onBack={() => setStep("details")}
+                onPaid={async () => {
+                  const booking = await syncPaidBooking(paymentIntent.payment_intent_id);
+                  setBookingId(booking.id);
+                  setStep("success");
+                }}
+              />
+            </Elements>
+          )}
+
+          {step === "success" && (
             <div className="space-y-5 p-6 text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-300">
                 <Check className="h-7 w-7" />
               </div>
               <div>
-                <h3 className="text-xl font-black text-white">Booking created</h3>
+                <h3 className="text-xl font-black text-white">Booking deposit received</h3>
                 <p className="mt-2 text-sm text-gray-400">
-                  Visit the property in person, then confirm it from your booking page.
+                  Your booking deposit secures this property. Visit in person, then confirm it from your booking page.
                 </p>
               </div>
               <Link
-                href={`/booking/${booking.booking_id}`}
-                className="inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition hover:bg-primary-hover"
+                href={bookingId ? `/booking/${bookingId}` : "/dashboard"}
+                className="inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-[background-color,transform] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-primary-hover active:scale-[0.99]"
               >
-                View My Booking
+                View Booking
               </Link>
             </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function PaymentStep({
+  amount,
+  clientSecret,
+  stripeReady,
+  onBack,
+  onPaid,
+}: {
+  amount: number;
+  clientSecret: string;
+  stripeReady: boolean;
+  onBack: () => void;
+  onPaid: () => Promise<void>;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submitPayment() {
+    if (!stripeReady) {
+      setError("Stripe publishable key is missing.");
+      return;
+    }
+    if (!stripe || !elements) return;
+    const card = elements.getElement(CardElement);
+    if (!card) return;
+
+    setProcessing(true);
+    setError(null);
+    const result = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: { card },
+    });
+    if (result.error) {
+      setError(result.error.message || "Payment failed. Please try another card.");
+      setProcessing(false);
+      return;
+    }
+
+    try {
+      await onPaid();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Payment succeeded, but booking lookup failed.");
+      setProcessing(false);
+    }
+  }
+
+  return (
+    <div className="space-y-5 p-5 sm:p-6">
+      <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+        <div className="mb-3 flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 text-primary">
+            <CreditCard className="h-4 w-4" />
+          </span>
+          <div>
+            <p className="font-bold text-white">Card payment</p>
+            <p className="text-xs text-gray-500">Test card: 4242 4242 4242 4242</p>
+          </div>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-white/[0.06] px-3 py-3">
+          <CardElement
+            options={{
+              style: {
+                base: {
+                  color: "#fff",
+                  fontSize: "15px",
+                  "::placeholder": { color: "#9ca3af" },
+                },
+                invalid: { color: "#fca5a5" },
+              },
+            }}
+          />
+        </div>
+      </div>
+
+      {error && (
+        <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          {error}
+        </p>
+      )}
+
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={processing}
+          className="rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-gray-200 transition-[background-color,transform,opacity] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-white/5 active:scale-[0.99] disabled:opacity-60"
+        >
+          Back
+        </button>
+        <button
+          type="button"
+          onClick={submitPayment}
+          disabled={!stripeReady || !stripe || processing}
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white transition-[background-color,transform,opacity] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-primary-hover active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {processing && <Loader2 className="h-4 w-4 animate-spin" />}
+          Pay {formatEGP(amount)}
+        </button>
       </div>
     </div>
   );
@@ -191,14 +356,14 @@ function DateCalendar({
     [visibleMonth]
   );
 
-  function selectDate(date: Date) {
-    if (isBefore(date, today)) return;
-    onChange(format(date, "yyyy-MM-dd"));
+  function selectDate(dateValue: Date) {
+    if (isBefore(dateValue, today)) return;
+    onChange(format(dateValue, "yyyy-MM-dd"));
     onClose();
   }
 
   return (
-    <div className="sm:col-span-2 rounded-2xl border border-white/10 bg-[#202020] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+    <div className="rounded-2xl border border-white/10 bg-[#202020] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:col-span-2">
       <div className="mb-3 flex items-center justify-between">
         <button
           type="button"
@@ -338,15 +503,15 @@ function ListingSummary({ listing }: { listing: ListingDetailWithSimilar }) {
 }
 
 function PriceBreakdown({
-  isRent,
   monthlyPrice,
-  rentSubtotal,
-  total,
+  durationMonths,
+  fullPrice,
+  feeDue,
 }: {
-  isRent: boolean;
   monthlyPrice: number;
-  rentSubtotal: number;
-  total: number;
+  durationMonths: number;
+  fullPrice: number;
+  feeDue: number;
 }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
@@ -356,21 +521,19 @@ function PriceBreakdown({
         </span>
         <div>
           <p className="font-bold text-white">Payment summary</p>
-          <p className="text-xs text-gray-500">Shown before you create the booking request.</p>
+          <p className="text-xs text-gray-500">A booking deposit secures your booking.</p>
         </div>
       </div>
       <div className="space-y-2">
-        {isRent ? (
-          <>
-            <Row label="Monthly rent" value={formatEGP(monthlyPrice)} />
-            <Row label="Rent for selected duration" value={formatEGP(rentSubtotal)} />
-          </>
-        ) : (
-          <Row label="Full purchase price" value={formatEGP(total)} />
-        )}
+        <Row label="Monthly rent" value={formatEGP(monthlyPrice)} />
+        <Row label="Duration" value={`${durationMonths} ${durationMonths === 1 ? "month" : "months"}`} />
+        <Row label="Lease value" value={formatEGP(fullPrice)} />
         <div className="mt-3 border-t border-white/10 pt-3">
-          <Row label={isRent ? "Booking total" : "Reservation total"} value={formatEGP(total)} strong />
+          <Row label="Booking deposit (due now)" value={formatEGP(feeDue)} strong />
         </div>
+        <p className="pt-1 text-xs text-gray-500">
+          Rent is paid to the owner directly. AXIOM collects only the deposit.
+        </p>
       </div>
     </div>
   );
