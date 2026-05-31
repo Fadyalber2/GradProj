@@ -307,6 +307,55 @@ data: {"type": "done"}
 
 ---
 
+## Subscriptions
+
+Owner-side subscription plans gating listing quantity and AI usage. All endpoints require auth.
+
+| Method | Path                             | Description                                      |
+| ------ | -------------------------------- | ------------------------------------------------ |
+| GET    | `/api/subscriptions/me`          | Current plan, caps, usage.                       |
+| POST   | `/api/subscriptions/start-trial` | Start 7-day trial (once per account).            |
+| POST   | `/api/subscriptions/checkout`    | Create Stripe Checkout session for Basic/Pro.    |
+| POST   | `/api/subscriptions/cancel`      | Schedule cancellation at period end.             |
+
+### GET /api/subscriptions/me
+
+```json
+{
+  "plan": "free | trial | basic | pro | agency",
+  "status": "active | trialing | past_due | canceled | null",
+  "listing_cap": 1,
+  "active_listings": 0,
+  "ai_quota": 0,
+  "ai_used": 0,
+  "ai_remaining": 0,
+  "trial_used": false,
+  "trial_ends_at": null,
+  "current_period_end": null
+}
+```
+
+### POST /api/subscriptions/checkout
+
+Request: `{ "plan": "basic" | "pro" }`
+Response: `{ "checkout_url": "https://checkout.stripe.com/..." }`
+Redirect the user to `checkout_url`. On success Stripe fires `customer.subscription.created` webhook which syncs the plan.
+
+### Plan limits
+
+| Plan   | Price (EGP/mo) | Active listings | AI descriptions/mo |
+| ------ | -------------- | --------------- | ------------------ |
+| free   | 0              | 1               | 0                  |
+| trial  | 0 (7 days)     | 3               | 50                 |
+| basic  | 199            | 5               | 10                 |
+| pro    | 499            | 20              | 50                 |
+| agency | contact us     | 1000            | unlimited          |
+
+Fraud detection and listing validation always run on every plan.
+Buyer-facing AI (chatbot, NLP search, recommendations) is always free.
+
+---
+
 ## Admin (separate auth)
 
 | Method | Path                                 | Description                       |

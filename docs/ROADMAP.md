@@ -1,6 +1,6 @@
 # AXIOM V2 — Roadmap & Current Status
 
-Last updated: 2026-05-28
+Last updated: 2026-05-31
 
 ---
 
@@ -23,7 +23,7 @@ Last updated: 2026-05-28
 | Admin CRUD overhaul            | Done          | Live DB-backed admin views; unified Add/Edit/View/action UI; Listings Add uses dashboard wizard; Listings Edit is category-aware; shared housing is a Listings category filter |
 | WhatsApp lead capture          | ✅ Done       | Messaging system removed; WhatsApp CTAs + leads table + admin view live                                                                                      |
 | Responsive design (400–1200px) | ✅ Done       | FilterSidebar Sheet drawer, admin Sheet hamburger, all page grids fixed                                                                                      |
-| All-new features implementation | ✅ Done       | Shared housing applications/search, housemates in Add Listing, renter-safe booking request UI, booking flow wired to real backend (`/api/bookings/*`), liked properties wired to `favorites` DB table, dashboard tabs fully live |
+| All-new features implementation | ✅ Done       | Shared housing applications/search, housemates in Add Listing, fee-based Stripe booking/payment flow (rent = flat booking deposit, sale = 1% capped reservation fee), single platform account (no Connect/payout), webhook-created bookings, refund/cancel endpoint, `payments` ledger, liked properties wired to `favorites` DB table, dashboard tabs fully live |
 | Partner Universities           | ✅ Done       | DB table, backend CRUD, admin dashboard section, list page, detail page with hero/sidebar/listings |
 | Deployment                     | ❌ Not done   | No CI/CD, no production environment                                                                                                                          |
 
@@ -39,7 +39,7 @@ Last updated: 2026-05-28
 | `/shared-housing`      | ✅    | ✅        | Dedicated shared-housing search with filters and recommendations     |
 | `/shared-housing/[id]` | ✅    | —         | Redirects to `/property/[id]`                                        |
 | `/dashboard`           | ✅    | ✅        | Backend `/api/dashboard/me`, avatar upload, WhatsApp/member-since profile sync, bookings/applications tabs |
-| `/booking/[id]`        | ✅    | ✅        | Backend-wired booking detail — renter confirmation, vacate, owner disbursement requests via `/api/bookings/*` |
+| `/booking/[id]`        | ✅    | ✅        | Backend-wired booking detail — renter confirms (status → active), cancel/refund returns the fee and reverts the listing to active; no owner payout (platform keeps fee) |
 | `/messages`            | —     | —         | Removed — replaced by WhatsApp lead capture                          |
 | `/login`               | ✅    | ✅        | Supabase email, Facebook OAuth, and phone OTP auth wired             |
 | `/signup`              | ✅    | ✅        | Single role, Supabase wired                                          |
@@ -72,11 +72,13 @@ Last updated: 2026-05-28
 
 ## Next Steps
 
-1. **Apply all-new features SQL** — run `backend/sql/2026-05-15_all_new_features.sql` in Supabase
-2. **Demo booking QA** — create rent/sale/shared-housing bookings in the browser, confirm them from `/booking/[id]`, verify dashboard tabs update, and confirm shared-housing renters appear as demo housemates on the listing page
-3. **Wire homepage listings** — replace mock listings on `/` with Supabase query
-4. **Testing** — AI unit tests, auth E2E tests
-5. **Deployment** — Vercel (frontend), Railway (backend), GitHub Actions (CI)
+1. **Apply remaining SQL migrations** — run `backend/sql/2026-05-15_all_new_features.sql` in Supabase (payments model + subscriptions migrations already applied to live DB)
+2. **Configure Stripe subscription prices** — create recurring EGP prices for Basic (199) + Pro (499) in Stripe dashboard, set `STRIPE_PRICE_BASIC` / `STRIPE_PRICE_PRO` in `backend/.env`
+3. **Rotate Stripe keys** — old keys exist in git history pre-`.env` removal; rotate in Stripe dashboard
+4. **Subscription + payment QA** — `stripe listen --forward-to localhost:8000/api/stripe/webhook`, test: free listing cap (402 on 2nd listing), trial activation, Basic/Pro checkout + webhook sync, lapse sweep pausing + grace delete, AI description quota gate, rent/sale booking deposit flow
+5. **Redesign rent/shared-housing deposit + remove sale reservation fee** — Layer 2 spec (separate brainstorm/plan session); shared_housing category not yet bookable
+6. **Wire homepage listings** — replace mock listings on `/` with Supabase query
+7. **Deployment** — Vercel (frontend), Railway (backend), GitHub Actions (CI)
 
 ---
 
