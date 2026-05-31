@@ -64,3 +64,16 @@ def test_should_reset_ai_window_after_a_month():
     assert service._window_expired(old) is True
     assert service._window_expired(recent) is False
     assert service._window_expired(None) is True
+
+
+def test_quota_gate_blocks_at_cap():
+    from app.listings.router import _enforce_listing_quota
+    from fastapi import HTTPException
+    import pytest
+
+    sub_free = {"plan": "free", "status": "active"}
+    with pytest.raises(HTTPException) as exc:
+        _enforce_listing_quota(active_count=1, sub=sub_free)
+    assert exc.value.status_code == 402
+    _enforce_listing_quota(active_count=0, sub=sub_free)
+    _enforce_listing_quota(active_count=10, sub={"plan": "pro", "status": "active"})

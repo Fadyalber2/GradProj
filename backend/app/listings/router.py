@@ -14,6 +14,7 @@ from app.database import supabase_admin
 from app.dependencies import get_current_user, get_optional_user
 from app.ai.embeddings import embed_listing, embed_listing_chunk, delete_listing_chunk
 from app.ai.fraud import score_listing
+from app.subscriptions import plans, service
 
 router = APIRouter()
 
@@ -404,6 +405,15 @@ async def get_listing(
 
 # ─── POST /api/listings ──────────────────────────────────────────────────────
 
+def _enforce_listing_quota(active_count: int, sub: dict | None) -> None:
+    cap = plans.listing_cap(sub)
+    if active_count >= cap:
+        raise HTTPException(
+            status_code=402,
+            detail=f"Listing limit reached for your plan ({cap}). Upgrade to add more listings.",
+        )
+
+
 @router.post("", status_code=201)
 async def create_listing(
     body: CreateListingRequest,
@@ -411,6 +421,9 @@ async def create_listing(
     current_user: dict = Depends(get_current_user),
 ):
     """Create a new listing. Status is set to 'pending' awaiting admin approval."""
+    sub = service.get_or_create(current_user["id"])
+    active_count = service.count_active_listings(current_user["id"])
+    _enforce_listing_quota(active_count, sub)
     listing_data = body.model_dump(exclude_none=True)
     housemates = listing_data.pop("housemates", [])
     listing_data["owner_id"] = current_user["id"]

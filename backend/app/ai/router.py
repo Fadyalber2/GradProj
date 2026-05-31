@@ -9,6 +9,7 @@ from app.ai.ollama_client import ollama
 from app.ai.rag import rag_retriever
 from app.database import supabase_admin
 from app.dependencies import get_current_user, get_optional_user
+from app.subscriptions import plans, service
 
 
 def _extract_json(raw: str) -> str | None:
@@ -1035,6 +1036,14 @@ async def compute_compatibility(
 
 # ─── POST /api/ai/description ────────────────────────────────────────────────
 
+def _enforce_ai_quota(sub: dict | None) -> None:
+    if plans.ai_remaining(sub) <= 0:
+        raise HTTPException(
+            status_code=402,
+            detail="AI description limit reached for your plan. Upgrade for more.",
+        )
+
+
 @router.post("/description")
 async def generate_description(
     body: DescriptionRequest,
@@ -1045,6 +1054,8 @@ async def generate_description(
     Retrieves neighborhood context from knowledge_chunks before generating.
     Returns {ai_unavailable: true} if Ollama is down.
     """
+    sub = service.get_or_create(current_user["id"])
+    _enforce_ai_quota(sub)
     if not await ollama.health():
         return AI_UNAVAILABLE
 
@@ -1100,6 +1111,7 @@ async def generate_description(
         json_str = _extract_json(raw)
         if json_str:
             parsed = json.loads(json_str)
+            service.increment_ai_used(current_user["id"])
             return {
                 "english": parsed.get("english", ""),
                 "arabic": parsed.get("arabic", ""),

@@ -88,6 +88,16 @@ def mock_supabase():
         patch("app.subscriptions.router.supabase_admin", mock_admin),
         patch("app.subscriptions.lapse.supabase_admin", mock_admin),
         patch("app.stripe_webhooks.router.supabase_admin", mock_admin),
+        # Quota gates in listings + AI routers call service.*; stub them out so
+        # existing endpoint tests aren't blocked by the subscription check.
+        patch("app.listings.router.service", MagicMock(
+            get_or_create=MagicMock(return_value={"plan": "pro", "status": "active", "ai_descriptions_used": 0}),
+            count_active_listings=MagicMock(return_value=0),
+        )),
+        patch("app.ai.router.service", MagicMock(
+            get_or_create=MagicMock(return_value={"plan": "pro", "status": "active", "ai_descriptions_used": 0}),
+            increment_ai_used=MagicMock(),
+        )),
     ]
     with ExitStack() as stack:
         for item in patches:
