@@ -258,7 +258,9 @@ function PaymentStep({
           </span>
           <div>
             <p className="font-bold text-white">Card payment</p>
-            <p className="text-xs text-gray-500">Test card: 4242 4242 4242 4242</p>
+            {process.env.NODE_ENV === "development" && (
+              <p className="text-xs text-gray-500">Test card: 4242 4242 4242 4242</p>
+            )}
           </div>
         </div>
         <div className="rounded-xl border border-white/10 bg-white/[0.06] px-3 py-3">

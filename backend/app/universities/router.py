@@ -1,7 +1,10 @@
+import logging
+
 from fastapi import APIRouter, HTTPException, Query
 from app.database import supabase_admin
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 def _compute_trust_score(
@@ -53,13 +56,15 @@ async def list_universities(
     offset = (page - 1) * per_page
     query = supabase_admin.table("universities").select("*", count="exact")
     if city:
-        query = query.ilike("city", f"%{city}%")
+        city_safe = city.replace("%", "").replace("_", "")[:100]
+        query = query.ilike("city", f"%{city_safe}%")
     query = query.order("created_at", desc=True).range(offset, offset + per_page - 1)
 
     try:
         result = query.execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("universities DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     enriched = []
     for uni in (result.data or []):
@@ -116,7 +121,8 @@ async def get_university_listings(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("universities DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     return {
         "listings": [_build_listing_brief(l) for l in (result.data or [])],

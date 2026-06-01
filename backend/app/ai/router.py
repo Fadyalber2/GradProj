@@ -35,7 +35,8 @@ class NLSearchRequest(BaseModel):
 
 class ChatRequest(BaseModel):
     message: str = Field(..., max_length=2000)
-    conversation_history: list[dict] = []
+    # Cap history to prevent a single request from sending a 10k-item prompt to Ollama
+    conversation_history: list[dict] = Field(default=[], max_length=20)
 
 
 class CompatibilityRequest(BaseModel):
@@ -349,7 +350,9 @@ async def _search_listings_for_chat(
         if filters.get("bathrooms") is not None:
             db_query = db_query.eq("bathrooms", filters["bathrooms"])
         if filters.get("location"):
-            loc = filters["location"]
+            # Strip PostgREST special chars to prevent prompt-injection → filter-injection:
+            # an adversarial prompt could coerce the LLM to return "cairo,owner_id.neq.null"
+            loc = re.sub(r"[,().\[\]\"'`\\]", "", filters["location"])[:100]
             db_query = db_query.or_(f"city.ilike.%{loc}%,location.ilike.%{loc}%")
         # size_sqm and amenities are soft filters — applied via match_score, not DB filter
         if filters.get("min_size_sqm") is not None:
@@ -432,7 +435,7 @@ async def nl_search(body: NLSearchRequest):
             )
             listings = [_build_listing_brief(r) for r in (details_result.data or [])]
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Database error: {e}")
+            raise HTTPException(status_code=500, detail="Internal server error")
 
         return {
             "query": body.query,
@@ -465,14 +468,14 @@ async def nl_search(body: NLSearchRequest):
     if filters.get("bathrooms") is not None:
         db_query = db_query.gte("bathrooms", filters["bathrooms"])
     if filters.get("location"):
-        location = filters["location"]
+        location = re.sub(r"[,().\[\]\"'`\\]", "", filters["location"])[:100]
         db_query = db_query.or_(f"city.ilike.%{location}%,location.ilike.%{location}%")
 
     try:
         result = db_query.order("views_count", desc=True).limit(body.limit).execute()
         listings = [_build_listing_brief(r) for r in (result.data or [])]
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     return {
         "query": body.query,

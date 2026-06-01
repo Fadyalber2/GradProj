@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, Request
@@ -7,6 +8,8 @@ from fastapi import APIRouter, HTTPException, Request
 from app.config import settings
 from app.database import supabase_admin
 from app.stripe_client import get_stripe
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -32,14 +35,17 @@ def _sync_subscription(obj) -> None:
     plan = (md.get("plan") if isinstance(md, dict) else None) or "basic"
     if status in ("canceled", "unpaid", "incomplete_expired"):
         plan, status = "free", "canceled"
-    supabase_admin.table("subscriptions").update({
+    # upsert: if the subscription row doesn't exist yet (e.g. customer.subscription.created
+    # fires before our own insert), create it rather than silently no-op with .update()
+    supabase_admin.table("subscriptions").upsert({
+        "user_id": user_id,
         "plan": plan,
         "status": status if status in ("active", "trialing", "past_due", "canceled") else "active",
         "stripe_subscription_id": _field(obj, "id"),
         "stripe_customer_id": _field(obj, "customer"),
         "current_period_end": _epoch_to_iso(_field(obj, "current_period_end")),
         "updated_at": datetime.now(timezone.utc).isoformat(),
-    }).eq("user_id", user_id).execute()
+    }, on_conflict="user_id").execute()
     # Lazy import: lapse.py created in Task 6; only reached for live subscription events.
     from app.subscriptions.lapse import pause_excess_for_user
     pause_excess_for_user(user_id)
@@ -77,7 +83,14 @@ async def stripe_webhook(request: Request):
             "customer.subscription.deleted",
         ):
             _sync_subscription(obj)
-    except Exception:
-        pass
+    except HTTPException:
+        # Re-raise known HTTP errors (e.g. 409 duplicate booking) — these are
+        # idempotent; returning non-2xx would cause Stripe to retry unnecessarily.
+        raise
+    except Exception as e:
+        # Log and return 500 so Stripe retries the webhook (up to 3 days).
+        # Swallowing here would mean a charged user with no booking and no retry.
+        logger.error("Stripe webhook handler failed for event %s: %s", event_type, e)
+        raise HTTPException(status_code=500, detail="Webhook processing failed")
 
     return {"received": True}
