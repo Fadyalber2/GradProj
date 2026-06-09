@@ -78,7 +78,7 @@ async def get_current_user(
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError as e:
         logger.error("JWT decode failed: %s", e)
-        raise HTTPException(status_code=401, detail=f"Invalid token: {e}")
+        raise HTTPException(status_code=401, detail="Invalid token")
 
     try:
         result = (

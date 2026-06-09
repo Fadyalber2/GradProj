@@ -1,9 +1,12 @@
+import logging
+
 from fastapi import APIRouter, HTTPException, Depends
 from app.viewings.schemas import CreateViewingRequest, UpdateViewingRequest
 from app.database import supabase_admin
 from app.dependencies import get_current_user
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.post("", status_code=201)
@@ -57,7 +60,8 @@ async def create_viewing(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create viewing: {e}")
+        logger.error("create_viewing failed for listing %s: %s", body.listing_id, e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     # Notify the listing owner
     try:
@@ -116,7 +120,8 @@ async def update_viewing(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update viewing: {e}")
+        logger.error("update_viewing failed for viewing %s: %s", viewing_id, e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     # Notify the requester on confirmation
     if body.status == "confirmed":

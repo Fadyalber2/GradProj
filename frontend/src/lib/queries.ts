@@ -17,7 +17,8 @@ import type {
   ListingBrief,
   ListingLifestylePreferences,
   BookingBrief,
-  CreateBookingResponse,
+  CreatePaymentIntentResponse,
+  SubscriptionStatus,
 } from "@/types/api";
 
 const SERVER_API_BASE =
@@ -261,15 +262,20 @@ export const bookingsQueries = {
     queryKey: ["bookings", id],
     queryFn: () => api.get<BookingBrief>(`/api/bookings/${id}`),
   }),
+
+  byIntent: (intentId: string) => ({
+    queryKey: ["bookings", "intent", intentId],
+    queryFn: () => api.get<BookingBrief>(`/api/bookings/by-intent/${intentId}`),
+  }),
 };
 
-export const createBookingMutation = {
+export const createPaymentIntentMutation = {
   mutationFn: (data: {
     listing_id: string;
     booking_type: "rent" | "sale";
     start_date?: string | null;
     duration_months?: number | null;
-  }) => api.post<CreateBookingResponse>("/api/bookings", data),
+  }) => api.post<CreatePaymentIntentResponse>("/api/bookings/payment-intent", data),
 };
 
 export const confirmBookingMutation = {
@@ -278,6 +284,10 @@ export const confirmBookingMutation = {
 
 export const vacateBookingMutation = {
   mutationFn: (id: string) => api.post<BookingBrief>(`/api/bookings/${id}/vacate`),
+};
+
+export const cancelBookingMutation = {
+  mutationFn: (id: string) => api.post<BookingBrief>(`/api/bookings/${id}/refund`),
 };
 
 export const requestDisbursementMutation = {
@@ -349,4 +359,24 @@ export interface RAGSearchResponse {
 export const ragSearchMutation = {
   mutationFn: (data: { query: string; limit?: number }) =>
     api.post<RAGSearchResponse>("/api/ai/search", data),
+};
+
+// ── Subscriptions ──
+
+export const subscriptionQuery = {
+  queryKey: ["subscription", "me"],
+  queryFn: () => api.get<SubscriptionStatus>("/api/subscriptions/me"),
+};
+
+export const startTrialMutation = {
+  mutationFn: () => api.post<SubscriptionStatus>("/api/subscriptions/start-trial", {}),
+};
+
+export const checkoutMutation = {
+  mutationFn: (plan: "basic" | "pro") =>
+    api.post<{ checkout_url: string }>("/api/subscriptions/checkout", { plan }),
+};
+
+export const cancelSubscriptionMutation = {
+  mutationFn: () => api.post<{ status: string }>("/api/subscriptions/cancel", {}),
 };

@@ -8,6 +8,15 @@ function slugHeading(text: string) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
+// Strips script tags, event-handler attributes, and javascript: URLs.
+// Runs on both server and client (no DOMParser dependency).
+function sanitizeHtml(html: string): string {
+  return html
+    .replace(/<(script|iframe|object|embed|style)\b[^>]*>[\s\S]*?<\/\1>/gi, "")
+    .replace(/(<[^>]+)\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)/gi, "$1")
+    .replace(/href\s*=\s*["']?\s*javascript:[^"'\s>]*/gi, 'href="#"');
+}
+
 interface ArticleBodyProps {
   article: BlogArticle;
 }
@@ -31,7 +40,7 @@ export default function ArticleBody({ article }: ArticleBodyProps) {
                 return (
                   <p
                     key={i}
-                    dangerouslySetInnerHTML={{ __html: block.text }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(block.text) }}
                   />
                 );
 
@@ -96,7 +105,7 @@ export default function ArticleBody({ article }: ArticleBodyProps) {
                     {block.items.map((item, j) => (
                       <li
                         key={j}
-                        dangerouslySetInnerHTML={{ __html: item }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(item) }}
                       />
                     ))}
                   </ul>

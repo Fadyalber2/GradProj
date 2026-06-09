@@ -6,20 +6,41 @@ from datetime import date, datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from app.config import settings
 from app.database import supabase_admin
 from app.dependencies import get_current_user
+from app.stripe_client import get_stripe
 
 router = APIRouter()
 
-PLATFORM_CUT_PCT = 5.0
 RENT_DURATIONS = {1, 2, 3, 6, 12}
 
+# Payment model: AXIOM charges a small platform fee only — a reservation fee for
+# sales and a booking deposit for rentals. Every charge lands in the single
+# platform Stripe account; there is no Stripe Connect and no owner payout.
+# See docs/superpowers/specs/2026-05-29-payment-monetization-model.md.
 
-class CreateBookingRequest(BaseModel):
+
+class CreatePaymentIntentRequest(BaseModel):
     listing_id: str
     booking_type: str  # "rent" | "sale"
     start_date: date | None = None
     duration_months: int | None = None
+
+
+class SyncPaymentRequest(BaseModel):
+    payment_intent_id: str
+
+
+# ── helpers ──────────────────────────────────────────────────────────────
+
+
+def _money(value) -> float:
+    return float(value or 0)
+
+
+def _to_piastres(value) -> int:
+    return int(round(_money(value) * 100))
 
 
 def _add_months(value: date, months: int) -> date:
@@ -34,13 +55,34 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _money(value) -> float:
-    return float(value or 0)
+def _stripe_error_detail(error: Exception) -> str:
+    return getattr(error, "user_message", None) or str(error)
+
+
+def _field(source, key: str):
+    if isinstance(source, dict):
+        return source.get(key)
+    return getattr(source, key, None)
+
+
+def _stripe_mapping(value) -> dict:
+    if not value:
+        return {}
+    if hasattr(value, "to_dict"):
+        return value.to_dict()
+    if isinstance(value, dict):
+        return value
+    return dict(value)
 
 
 def _image(listing: dict | None) -> str | None:
     images = (listing or {}).get("images") or []
     return images[0] if images else None
+
+
+def _listing_status_for(booking_type: str) -> str:
+    """Sale listings become 'reserved'; rent listings become 'booked'."""
+    return "reserved" if booking_type == "sale" else "booked"
 
 
 def _fetch_booking_related(row: dict) -> tuple[dict, dict, list[dict]]:
@@ -127,94 +169,216 @@ def _select_booking_query():
     return supabase_admin.table("bookings").select("*")
 
 
-@router.post("", status_code=201)
-async def create_booking(
-    body: CreateBookingRequest,
-    current_user: dict = Depends(get_current_user),
-):
-    user_id = current_user["id"]
-    if body.booking_type not in ("rent", "sale"):
-        raise HTTPException(status_code=400, detail="booking_type must be rent or sale")
-    if body.booking_type == "rent" and (
-        body.start_date is None or body.duration_months not in RENT_DURATIONS
-    ):
-        raise HTTPException(status_code=400, detail="Rent bookings require start_date and duration 1, 2, 3, 6, or 12")
-
+def _fetch_active_listing(listing_id: str) -> dict:
     try:
         listing = (
             supabase_admin.table("listings")
             .select("id, owner_id, category, status, price")
-            .eq("id", body.listing_id)
+            .eq("id", listing_id)
             .is_("deleted_at", "null")
             .single()
             .execute()
         ).data
     except Exception:
         raise HTTPException(status_code=404, detail="Listing not found")
-
     if not listing:
         raise HTTPException(status_code=404, detail="Listing not found")
-    if listing["owner_id"] == user_id:
-        raise HTTPException(status_code=403, detail="Cannot book your own listing")
-    if body.booking_type == "rent" and listing.get("category") not in ("for_rent", "shared_housing"):
-        raise HTTPException(status_code=400, detail="Rent bookings require a rental or shared housing listing")
-    if body.booking_type == "sale" and listing.get("category") != "for_sale":
-        raise HTTPException(status_code=400, detail="Sale bookings require a sale listing")
-    if listing.get("status") == "sold":
-        raise HTTPException(status_code=409, detail="Listing is already sold")
+    if listing.get("status") in ("sold", "rented"):
+        raise HTTPException(status_code=409, detail="Listing is no longer available")
+    if listing.get("status") in ("reserved", "booked", "pending_payment"):
+        raise HTTPException(status_code=409, detail="Listing already has a pending booking")
     if listing.get("status") != "active":
         raise HTTPException(status_code=400, detail="Listing is not active")
+    return listing
 
-    if body.booking_type == "sale":
-        existing = (
-            supabase_admin.table("bookings")
-            .select("id")
-            .eq("listing_id", body.listing_id)
-            .eq("booking_type", "sale")
-            .in_("status", ["pending_confirmation", "active"])
-            .limit(1)
+
+def _compute_fee(body: CreatePaymentIntentRequest, listing: dict) -> dict:
+    """Returns the platform fee to charge. Only rent bookings are paid online.
+    Sale listings use lead-gen / WhatsApp contact — no online payment."""
+    if body.booking_type != "rent":
+        raise HTTPException(status_code=400, detail="Only rent bookings can be paid online. Sale listings use contact/WhatsApp.")
+
+    if body.start_date is None or body.duration_months not in RENT_DURATIONS:
+        raise HTTPException(
+            status_code=400,
+            detail="Rent bookings require start_date and duration 1, 2, 3, 6, or 12",
+        )
+    if listing.get("category") != "for_rent":
+        raise HTTPException(status_code=400, detail="Rent bookings require a rental listing")
+    return {
+        "kind": "booking_deposit",
+        "fee": round(_money(settings.rent_booking_fee), 2),
+        "monthly_price": _money(listing["price"]),
+        "end_date": _add_months(body.start_date, int(body.duration_months)),
+    }
+
+
+def _create_booking_from_paid_intent(intent) -> dict:
+    intent_id = _field(intent, "id")
+    if not intent_id:
+        raise HTTPException(status_code=400, detail="Missing PaymentIntent id")
+    if _field(intent, "status") != "succeeded":
+        raise HTTPException(status_code=400, detail="Payment is not complete")
+
+    existing = (
+        supabase_admin.table("bookings")
+        .select("*")
+        .eq("stripe_payment_intent_id", intent_id)
+        .limit(1)
+        .execute()
+    )
+    if existing.data:
+        return existing.data[0]
+
+    metadata = _stripe_mapping(_field(intent, "metadata"))
+    listing_id = metadata.get("listing_id")
+    renter_id = metadata.get("renter_id")
+    booking_type = metadata.get("booking_type")
+    if not listing_id or not renter_id or booking_type not in ("rent", "sale"):
+        raise HTTPException(status_code=400, detail="PaymentIntent metadata is incomplete")
+
+    body = CreatePaymentIntentRequest(
+        listing_id=listing_id,
+        booking_type=booking_type,
+        start_date=date.fromisoformat(metadata["start_date"]) if metadata.get("start_date") else None,
+        duration_months=int(metadata["duration_months"]) if metadata.get("duration_months") else None,
+    )
+    listing = _fetch_active_listing(listing_id)
+    values = _compute_fee(body, listing)
+    paid_amount = _field(intent, "amount_received") or _field(intent, "amount")
+    if int(paid_amount or 0) < _to_piastres(values["fee"]):
+        raise HTTPException(status_code=400, detail="Payment amount is below the required fee")
+
+    fee = values["fee"]
+    insert_data = {
+        "listing_id": listing_id,
+        "renter_id": renter_id,
+        "owner_id": listing["owner_id"],
+        "booking_type": booking_type,
+        "start_date": body.start_date.isoformat() if body.start_date else None,
+        "end_date": values["end_date"].isoformat() if values["end_date"] else None,
+        "duration_months": body.duration_months,
+        "monthly_price": values["monthly_price"],
+        "total_price": fee,
+        "platform_cut_pct": 100.0,
+        "platform_cut_amount": fee,
+        "owner_amount": 0,
+        "status": "pending_confirmation",
+        "stripe_payment_intent_id": intent_id,
+    }
+    result = supabase_admin.table("bookings").insert(insert_data).execute()
+    booking = (result.data or [None])[0]
+    if not booking:
+        raise HTTPException(status_code=500, detail="Failed to create booking from payment")
+
+    # Record the charge in the platform payments ledger.
+    try:
+        supabase_admin.table("payments").insert({
+            "user_id": renter_id,
+            "listing_id": listing_id,
+            "booking_id": booking["id"],
+            "kind": values["kind"],
+            "amount": fee,
+            "currency": "egp",
+            "stripe_payment_intent_id": intent_id,
+            "status": "succeeded",
+        }).execute()
+    except Exception:
+        pass
+
+    # Lock the listing so it cannot be double-booked.
+    try:
+        (
+            supabase_admin.table("listings")
+            .update({"status": _listing_status_for(booking_type)})
+            .eq("id", listing_id)
             .execute()
         )
-        if existing.data:
-            raise HTTPException(status_code=409, detail="This listing already has an active sale booking")
+    except Exception:
+        pass
 
-    monthly_price = _money(listing["price"]) if body.booking_type == "rent" else None
-    total_price = monthly_price * int(body.duration_months or 1) if body.booking_type == "rent" else _money(listing["price"])
-    platform_cut_amount = round(total_price * (PLATFORM_CUT_PCT / 100), 2)
-    owner_amount = round(total_price - platform_cut_amount, 2)
-    end_date = _add_months(body.start_date, int(body.duration_months)) if body.booking_type == "rent" and body.start_date else None
+    return booking
 
-    insert_data = {
+
+# ── endpoints ────────────────────────────────────────────────────────────
+
+
+@router.post("/payment-intent")
+async def create_payment_intent(
+    body: CreatePaymentIntentRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    stripe = get_stripe()
+    user_id = current_user["id"]
+    listing = _fetch_active_listing(body.listing_id)
+    if not listing.get("owner_id"):
+        raise HTTPException(status_code=400, detail="Listing has no owner assigned")
+    if listing["owner_id"] == user_id:
+        raise HTTPException(status_code=403, detail="Cannot book your own listing")
+    values = _compute_fee(body, listing)
+
+    metadata = {
         "listing_id": body.listing_id,
         "renter_id": user_id,
         "owner_id": listing["owner_id"],
         "booking_type": body.booking_type,
-        "start_date": body.start_date.isoformat() if body.start_date else None,
-        "end_date": end_date.isoformat() if end_date else None,
-        "duration_months": body.duration_months,
-        "monthly_price": monthly_price,
-        "total_price": total_price,
-        "platform_cut_pct": PLATFORM_CUT_PCT,
-        "platform_cut_amount": platform_cut_amount,
-        "owner_amount": owner_amount,
-        "status": "pending_confirmation",
+        "kind": values["kind"],
+        "start_date": body.start_date.isoformat() if body.start_date else "",
+        "duration_months": str(body.duration_months or ""),
+        "monthly_price": str(values["monthly_price"] or ""),
+        "fee": str(values["fee"]),
     }
-
     try:
-        result = supabase_admin.table("bookings").insert(insert_data).execute()
-        booking = (result.data or [None])[0]
+        intent = stripe.PaymentIntent.create(
+            amount=_to_piastres(values["fee"]),
+            currency="egp",
+            payment_method_types=["card"],
+            metadata=metadata,
+        )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create booking: {e}")
-    if not booking:
-        raise HTTPException(status_code=500, detail="Failed to create booking: no row returned")
+        raise HTTPException(status_code=502, detail=_stripe_error_detail(e))
+
+    # Lock listing immediately so a second concurrent buyer cannot also get a PaymentIntent.
+    # Reverted to "active" by the payment_intent.canceled webhook if the user abandons payment.
+    try:
+        supabase_admin.table("listings").update({"status": "pending_payment"}).eq(
+            "id", body.listing_id
+        ).execute()
+    except Exception:
+        pass
 
     return {
-        "booking_id": booking["id"],
-        "total_price": total_price,
-        "platform_cut_amount": platform_cut_amount,
-        "owner_amount": owner_amount,
-        "booking_type": body.booking_type,
+        "client_secret": intent.client_secret,
+        "payment_intent_id": intent.id,
+        "booking_preview": {
+            "listing_id": body.listing_id,
+            "booking_type": body.booking_type,
+            "start_date": body.start_date.isoformat() if body.start_date else None,
+            "duration_months": body.duration_months,
+            "monthly_price": values["monthly_price"],
+            "total_price": values["fee"],
+            "fee_kind": values["kind"],
+        },
     }
+
+
+@router.post("/sync-payment")
+async def sync_payment(
+    body: SyncPaymentRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    stripe = get_stripe()
+    try:
+        intent = stripe.PaymentIntent.retrieve(body.payment_intent_id)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=_stripe_error_detail(e))
+
+    metadata = _stripe_mapping(_field(intent, "metadata"))
+    if metadata.get("renter_id") != current_user["id"]:
+        raise HTTPException(status_code=403, detail="Not allowed")
+
+    booking = _create_booking_from_paid_intent(intent)
+    return _booking_response(booking)
 
 
 @router.get("/my")
@@ -245,6 +409,24 @@ async def get_received_bookings(current_user: dict = Depends(get_current_user)):
         # The dashboard should remain usable before the booking migration is applied.
         return []
     return [_booking_response(row) for row in result.data or []]
+
+
+@router.get("/by-intent/{intent_id}")
+async def get_booking_by_intent(intent_id: str, current_user: dict = Depends(get_current_user)):
+    try:
+        booking = (
+            _select_booking_query()
+            .eq("stripe_payment_intent_id", intent_id)
+            .single()
+            .execute()
+        ).data
+    except Exception:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    if current_user["id"] not in (booking["renter_id"], booking["owner_id"]):
+        raise HTTPException(status_code=403, detail="Not allowed")
+    return _booking_response(booking)
 
 
 @router.get("/{booking_id}")
@@ -293,38 +475,46 @@ async def confirm_booking(booking_id: str, current_user: dict = Depends(get_curr
         .eq("id", booking_id)
         .execute()
     )
+    return await get_booking(booking_id, current_user)
 
-    if booking["booking_type"] == "rent":
-        existing = (
-            supabase_admin.table("booking_disbursements")
-            .select("id")
-            .eq("booking_id", booking_id)
-            .limit(1)
+
+@router.post("/{booking_id}/refund")
+async def refund_booking(booking_id: str, current_user: dict = Depends(get_current_user)):
+    """Cancel an unconfirmed booking and refund the platform fee."""
+    booking = _get_booking_for_action(booking_id, current_user["id"])
+    if booking["status"] != "pending_confirmation":
+        raise HTTPException(status_code=400, detail="Only unconfirmed bookings can be cancelled")
+
+    intent_id = booking.get("stripe_payment_intent_id")
+    if intent_id:
+        stripe = get_stripe()
+        try:
+            stripe.Refund.create(payment_intent=intent_id)
+        except Exception as e:
+            raise HTTPException(status_code=502, detail=_stripe_error_detail(e))
+        (
+            supabase_admin.table("payments")
+            .update({"status": "refunded", "refunded_at": _now_iso()})
+            .eq("stripe_payment_intent_id", intent_id)
             .execute()
         )
-        if not existing.data:
-            start = date.fromisoformat(booking["start_date"])
-            rows = []
-            for month_number in range(1, int(booking["duration_months"] or 0) + 1):
-                monthly_price = _money(booking["monthly_price"])
-                amount = monthly_price - _money(booking["platform_cut_amount"]) if month_number == 1 else monthly_price
-                rows.append({
-                    "booking_id": booking_id,
-                    "month_number": month_number,
-                    "amount": max(0, amount),
-                    "scheduled_date": _add_months(start, month_number - 1).isoformat(),
-                    "status": "scheduled",
-                })
-            if rows:
-                supabase_admin.table("booking_disbursements").insert(rows).execute()
-    else:
+
+    now = _now_iso()
+    (
+        supabase_admin.table("bookings")
+        .update({"status": "cancelled", "updated_at": now})
+        .eq("id", booking_id)
+        .execute()
+    )
+    try:
         (
             supabase_admin.table("listings")
-            .update({"status": "sold"})
+            .update({"status": "active"})
             .eq("id", booking["listing_id"])
             .execute()
         )
-
+    except Exception:
+        pass
     return await get_booking(booking_id, current_user)
 
 
@@ -346,29 +536,13 @@ async def vacate_booking(booking_id: str, current_user: dict = Depends(get_curre
         .eq("id", booking_id)
         .execute()
     )
+    try:
+        (
+            supabase_admin.table("listings")
+            .update({"status": "active"})
+            .eq("id", booking["listing_id"])
+            .execute()
+        )
+    except Exception:
+        pass
     return await get_booking(booking_id, current_user)
-
-
-@router.post("/{booking_id}/disbursements/{month_number}/request")
-async def request_disbursement(
-    booking_id: str,
-    month_number: int,
-    current_user: dict = Depends(get_current_user),
-):
-    booking = _get_booking_for_action(booking_id, current_user["id"])
-    if booking["owner_id"] != current_user["id"]:
-        raise HTTPException(status_code=403, detail="Only the owner can request disbursement")
-    if booking["status"] != "active":
-        raise HTTPException(status_code=400, detail="Disbursement requests require an active booking")
-
-    now = _now_iso()
-    result = (
-        supabase_admin.table("booking_disbursements")
-        .update({"owner_requested_at": now, "status": "released", "released_at": now})
-        .eq("booking_id", booking_id)
-        .eq("month_number", month_number)
-        .execute()
-    )
-    if not result.data:
-        raise HTTPException(status_code=404, detail="Disbursement not found")
-    return result.data[0]

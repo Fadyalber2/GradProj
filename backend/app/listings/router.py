@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends, Query
 from app.listings.schemas import (
@@ -14,8 +15,10 @@ from app.database import supabase_admin
 from app.dependencies import get_current_user, get_optional_user
 from app.ai.embeddings import embed_listing, embed_listing_chunk, delete_listing_chunk
 from app.ai.fraud import score_listing
+from app.subscriptions import plans, service
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -120,7 +123,9 @@ async def list_listings(
     if category:
         query = query.eq("category", category)
     if city:
-        query = query.ilike("city", f"%{city}%")
+        # Strip LIKE metacharacters to prevent regex-like catastrophic backtrack on full-table scan
+        city_safe = city.replace("%", "").replace("_", "")[:100]
+        query = query.ilike("city", f"%{city_safe}%")
     if neighborhood_id:
         query = query.eq("neighborhood_id", neighborhood_id)
     if neighborhood:
@@ -167,7 +172,8 @@ async def list_listings(
         if available_before:
             query = query.lte("available_date", available_before)
     if compound_name:
-        query = query.ilike("compound_name", f"%{compound_name}%")
+        compound_name_safe = compound_name.replace("%", "").replace("_", "")[:100]
+        query = query.ilike("compound_name", f"%{compound_name_safe}%")
     if floor_min is not None:
         query = query.gte("floor_number", floor_min)
     if floor_max is not None:
@@ -180,7 +186,8 @@ async def list_listings(
     try:
         result = query.execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("listings DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     rows = result.data or []
     if category == "shared_housing" and has_spots:
@@ -210,7 +217,8 @@ async def get_favorites(current_user: dict = Depends(get_current_user)):
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("listings DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     listings = []
     for row in result.data or []:
@@ -404,6 +412,15 @@ async def get_listing(
 
 # ─── POST /api/listings ──────────────────────────────────────────────────────
 
+def _enforce_listing_quota(active_count: int, sub: dict | None) -> None:
+    cap = plans.listing_cap(sub)
+    if active_count >= cap:
+        raise HTTPException(
+            status_code=402,
+            detail=f"Listing limit reached for your plan ({cap}). Upgrade to add more listings.",
+        )
+
+
 @router.post("", status_code=201)
 async def create_listing(
     body: CreateListingRequest,
@@ -411,6 +428,9 @@ async def create_listing(
     current_user: dict = Depends(get_current_user),
 ):
     """Create a new listing. Status is set to 'pending' awaiting admin approval."""
+    sub = service.get_or_create(current_user["id"])
+    active_count = service.count_active_listings(current_user["id"])
+    _enforce_listing_quota(active_count, sub)
     listing_data = body.model_dump(exclude_none=True)
     housemates = listing_data.pop("housemates", [])
     listing_data["owner_id"] = current_user["id"]
@@ -426,7 +446,8 @@ async def create_listing(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create listing: {e}")
+        logger.error("create_listing failed: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to create listing")
 
     listing_id = result.data[0]["id"]
 
@@ -523,7 +544,8 @@ async def update_listing(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update listing: {e}")
+        logger.error("update_listing failed: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to update listing")
 
     # Re-embed the listing chunk so RAG reflects the latest content
     background_tasks.add_task(embed_listing_chunk, listing_id)
@@ -561,7 +583,8 @@ async def delete_listing(
     try:
         supabase_admin.table("listings").update({"deleted_at": now}).eq("id", listing_id).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to delete listing: {e}")
+        logger.error("delete_listing failed: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to delete listing")
 
     # Remove from knowledge_chunks so it no longer surfaces in RAG results
     background_tasks.add_task(delete_listing_chunk, listing_id)
@@ -583,7 +606,8 @@ async def toggle_favorite(
         ).execute()
         favorited = bool(result.data)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to toggle favorite: {e}")
+        logger.error("toggle_favorite failed: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to toggle favorite")
 
     return {"favorited": favorited, "listing_id": listing_id}
 
@@ -664,7 +688,8 @@ async def apply_to_listing(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to submit application: {e}")
+        logger.error("submit_application failed: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to submit application")
 
     # Notify the listing owner
     try:
@@ -720,7 +745,8 @@ async def get_applications(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("listings DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     listing_title = None
     listing_image = None

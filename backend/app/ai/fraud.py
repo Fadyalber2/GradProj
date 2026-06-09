@@ -47,7 +47,7 @@ async def _price_anomaly(listing: dict) -> float:
             supabase_admin.table("listings")
             .select("price")
             .eq("category", category)
-            .ilike("city", f"%{city}%")
+            .ilike("city", f"%{city.replace('%', '').replace('_', '')[:100]}%")
             .eq("status", "active")
             .is_("deleted_at", "null")
             .limit(100)

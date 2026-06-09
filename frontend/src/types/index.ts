@@ -363,7 +363,7 @@ export interface DashboardListing {
   listingId: string;
   image?: string;
   location: string;
-  status: "active" | "pending" | "rejected" | "draft";
+  status: "active" | "pending" | "rejected" | "draft" | "paused";
   price: string;
   priceSuffix?: string;
   views: string;

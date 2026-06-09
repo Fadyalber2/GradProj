@@ -17,11 +17,11 @@ export default function BookNowButton({ listing, className }: Props) {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const isOwner = user?.id === listing.owner_id;
-  const sold = listing.status === "sold";
-  const label = listing.category === "for_sale" ? "Reserve Property" : "Book Property";
+  const unavailable = listing.status !== "active";
+  const label = "Book Property";
   const spacing = className ?? "mt-4";
 
-  if (isOwner) return null;
+  if (isOwner || listing.category === "for_sale" || listing.category === "shared_housing") return null;
 
   function handleClick() {
     if (!user) {
@@ -35,12 +35,12 @@ export default function BookNowButton({ listing, className }: Props) {
     <>
       <button
         type="button"
-        disabled={sold}
+        disabled={unavailable}
         onClick={handleClick}
         className={`${spacing} flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white transition-[background-color,transform,opacity] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-primary-hover active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-gray-400`}
       >
         <CalendarCheck className="h-4 w-4" />
-        {sold ? "Sold" : label}
+        {unavailable ? "Unavailable" : label}
       </button>
       {open && <BookingModal listing={listing} onClose={() => setOpen(false)} />}
     </>

@@ -81,7 +81,57 @@ def test_admin_list_listings(client, mock_supabase):
     assert "total_pages" in data
 
 
+def test_admin_update_listing_allows_owner_assignment(client, mock_supabase):
+    _, mock_admin = mock_supabase
+
+    chain = MagicMock()
+    chain.update.return_value = chain
+    chain.eq.return_value = chain
+
+    result = MagicMock()
+    result.data = [{"id": "l1", "owner_id": "owner-123", "title": "Assigned"}]
+    chain.execute.return_value = result
+
+    mock_admin.table.return_value = chain
+
+    res = client.put(
+        "/api/admin/listings/l1",
+        json={"owner_id": "owner-123", "title": "Assigned"},
+        headers=_admin_header(),
+    )
+
+    assert res.status_code == 200
+    sent_payload = chain.update.call_args.args[0]
+    assert sent_payload["owner_id"] == "owner-123"
+
+
 # ── Fraud ─────────────────────────────────────────────────────────────────────
+
+def test_admin_update_listing_retries_stale_owner_assignment(client, mock_supabase):
+    _, mock_admin = mock_supabase
+
+    chain = MagicMock()
+    chain.update.return_value = chain
+    chain.eq.return_value = chain
+
+    stale_result = MagicMock()
+    stale_result.data = [{"id": "l1", "owner_id": "old-owner", "title": "Assigned"}]
+    owner_result = MagicMock()
+    owner_result.data = [{"id": "l1", "owner_id": "owner-123", "title": "Assigned"}]
+    chain.execute.side_effect = [stale_result, owner_result]
+
+    mock_admin.table.return_value = chain
+
+    res = client.put(
+        "/api/admin/listings/l1",
+        json={"owner_id": "owner-123", "title": "Assigned"},
+        headers=_admin_header(),
+    )
+
+    assert res.status_code == 200
+    assert res.json()["owner_id"] == "owner-123"
+    assert chain.update.call_args_list[-1].args[0] == {"owner_id": "owner-123"}
+
 
 def test_admin_fraud_review(client, mock_supabase):
     _, mock_admin = mock_supabase

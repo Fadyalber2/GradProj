@@ -9,6 +9,7 @@ from app.ai.ollama_client import ollama
 from app.ai.rag import rag_retriever
 from app.database import supabase_admin
 from app.dependencies import get_current_user, get_optional_user
+from app.subscriptions import plans, service
 
 
 def _extract_json(raw: str) -> str | None:
@@ -34,7 +35,8 @@ class NLSearchRequest(BaseModel):
 
 class ChatRequest(BaseModel):
     message: str = Field(..., max_length=2000)
-    conversation_history: list[dict] = []
+    # Cap history to prevent a single request from sending a 10k-item prompt to Ollama
+    conversation_history: list[dict] = Field(default=[], max_length=20)
 
 
 class CompatibilityRequest(BaseModel):
@@ -348,7 +350,9 @@ async def _search_listings_for_chat(
         if filters.get("bathrooms") is not None:
             db_query = db_query.eq("bathrooms", filters["bathrooms"])
         if filters.get("location"):
-            loc = filters["location"]
+            # Strip PostgREST special chars to prevent prompt-injection → filter-injection:
+            # an adversarial prompt could coerce the LLM to return "cairo,owner_id.neq.null"
+            loc = re.sub(r"[,().\[\]\"'`\\]", "", filters["location"])[:100]
             db_query = db_query.or_(f"city.ilike.%{loc}%,location.ilike.%{loc}%")
         # size_sqm and amenities are soft filters — applied via match_score, not DB filter
         if filters.get("min_size_sqm") is not None:
@@ -431,7 +435,7 @@ async def nl_search(body: NLSearchRequest):
             )
             listings = [_build_listing_brief(r) for r in (details_result.data or [])]
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Database error: {e}")
+            raise HTTPException(status_code=500, detail="Internal server error")
 
         return {
             "query": body.query,
@@ -464,14 +468,14 @@ async def nl_search(body: NLSearchRequest):
     if filters.get("bathrooms") is not None:
         db_query = db_query.gte("bathrooms", filters["bathrooms"])
     if filters.get("location"):
-        location = filters["location"]
+        location = re.sub(r"[,().\[\]\"'`\\]", "", filters["location"])[:100]
         db_query = db_query.or_(f"city.ilike.%{location}%,location.ilike.%{location}%")
 
     try:
         result = db_query.order("views_count", desc=True).limit(body.limit).execute()
         listings = [_build_listing_brief(r) for r in (result.data or [])]
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     return {
         "query": body.query,
@@ -1035,6 +1039,14 @@ async def compute_compatibility(
 
 # ─── POST /api/ai/description ────────────────────────────────────────────────
 
+def _enforce_ai_quota(sub: dict | None) -> None:
+    if plans.ai_remaining(sub) <= 0:
+        raise HTTPException(
+            status_code=402,
+            detail="AI description limit reached for your plan. Upgrade for more.",
+        )
+
+
 @router.post("/description")
 async def generate_description(
     body: DescriptionRequest,
@@ -1045,6 +1057,8 @@ async def generate_description(
     Retrieves neighborhood context from knowledge_chunks before generating.
     Returns {ai_unavailable: true} if Ollama is down.
     """
+    sub = service.get_or_create(current_user["id"])
+    _enforce_ai_quota(sub)
     if not await ollama.health():
         return AI_UNAVAILABLE
 
@@ -1100,6 +1114,7 @@ async def generate_description(
         json_str = _extract_json(raw)
         if json_str:
             parsed = json.loads(json_str)
+            service.increment_ai_used(current_user["id"])
             return {
                 "english": parsed.get("english", ""),
                 "arabic": parsed.get("arabic", ""),

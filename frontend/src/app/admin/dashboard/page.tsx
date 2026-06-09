@@ -186,6 +186,19 @@ const SECTIONS: Record<string, SectionConfig> = {
     ],
     columns: [
       { key: "title", label: "Title" },
+      {
+        key: "owner_id",
+        label: "Owner",
+        render: (_v, row) => {
+          const owner = row.profiles as Record<string, unknown> | null | undefined;
+          const label = owner?.full_name || owner?.email;
+          return label ? (
+            <span className="font-semibold text-zinc-800">{String(label)}</span>
+          ) : (
+            <Badge color="red">No owner</Badge>
+          );
+        },
+      },
       { key: "price", label: "Price", render: (v) => formatPrice(v) },
       { key: "location", label: "Location" },
       { key: "property_type", label: "Type", render: (v) => <Badge color="purple">{String(v ?? "")}</Badge> },
@@ -204,6 +217,7 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "created_at", label: "Created", render: (v) => formatDate(v) },
     ],
     editFields: [
+      { key: "owner_id", label: "Owner", type: "picker", pickerSection: "users", required: true },
       { key: "title", label: "Title", required: true },
       { key: "description", label: "Description", type: "textarea" },
       { key: "price", label: "Price (EGP)", type: "number", required: true },
@@ -475,6 +489,25 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "owner_name", label: "Owner" },
       { key: "total_price", label: "Total", render: (v) => formatPrice(v) },
       { key: "platform_cut_amount", label: "Platform", render: (v) => formatPrice(v) },
+      { key: "owner_amount", label: "Owner", render: (v) => formatPrice(v) },
+      {
+        key: "payment_state", label: "Payment",
+        render: (v) => {
+          const value = String(v ?? "");
+          const color = value === "payout sent" ? "green" : value.includes("paid") ? "yellow" : "gray";
+          return <Badge color={color}>{value || "legacy/manual"}</Badge>;
+        },
+      },
+      {
+        key: "stripe_payment_intent_id",
+        label: "PaymentIntent",
+        render: (v) => v ? <span className="font-mono text-xs text-slate-500">{String(v)}</span> : "—",
+      },
+      {
+        key: "stripe_transfer_id",
+        label: "Transfer",
+        render: (v) => v ? <span className="font-mono text-xs text-slate-500">{String(v)}</span> : "—",
+      },
       { key: "booking_type", label: "Type", render: (v) => <Badge color={v === "sale" ? "green" : "blue"}>{String(v ?? "")}</Badge> },
       {
         key: "status", label: "Status",
@@ -1129,6 +1162,7 @@ function AdminListingEditForm({
   const initialAgency = initial.agencies as Record<string, unknown> | null | undefined;
   const initialProject = initial.projects as Record<string, unknown> | null | undefined;
   const initialUniversity = initial.universities as Record<string, unknown> | null | undefined;
+  const initialOwner = initial.profiles as Record<string, unknown> | null | undefined;
   const [form, setForm] = useState<Record<string, unknown>>({
     ...initial,
     category: asText(initial.category || "for_rent"),
@@ -1141,6 +1175,7 @@ function AdminListingEditForm({
     agency_id_label: asText(initialAgency?.name),
     project_id_label: asText(initialProject?.title),
     university_id_label: asText(initialUniversity?.name),
+    owner_id_label: asText(initialOwner?.full_name || initialOwner?.email),
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [uploadingImage, setUploadingImage] = useState<Record<number, boolean>>({});
@@ -1190,6 +1225,7 @@ function AdminListingEditForm({
 
   function validate() {
     const nextErrors: Record<string, string> = {};
+    if (!asText(form.owner_id).trim()) nextErrors.owner_id = "Owner is required";
     if (!asText(form.title).trim()) nextErrors.title = "Title is required";
     if (!asText(form.price).trim() || Number(form.price) <= 0) nextErrors.price = "Enter a valid price";
     if (!asText(form.full_address || form.location).trim()) nextErrors.full_address = "Address is required";
@@ -1212,6 +1248,7 @@ function AdminListingEditForm({
       : parseCommaList(form.amenities);
 
     onSave({
+      owner_id: asText(form.owner_id) || null,
       title: asText(form.title).trim(),
       description: asText(form.description),
       status: asText(form.status || "pending"),
@@ -1316,7 +1353,19 @@ function AdminListingEditForm({
         </div>
       </div>
 
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-4">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-5">
+        <FieldShell label="Owner" error={errors.owner_id}>
+          <EntityPicker
+            value={asText(form.owner_id)}
+            displayValue={asText(form.owner_id_label)}
+            section="users"
+            placeholder="Search users..."
+            onChange={(id, label) => {
+              setField("owner_id", id);
+              setForm((prev) => ({ ...prev, owner_id_label: label }));
+            }}
+          />
+        </FieldShell>
         <FieldShell label="Status">
           <select value={asText(form.status)} onChange={(e) => setField("status", e.target.value)} className={inputClass}>
             {["active", "pending", "rejected", "sold", "rented"].map((status) => <option key={status} value={status}>{status}</option>)}

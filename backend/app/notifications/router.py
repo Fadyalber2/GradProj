@@ -1,8 +1,11 @@
+import logging
+
 from fastapi import APIRouter, HTTPException, Depends
 from app.database import supabase_admin
 from app.dependencies import get_current_user
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.get("")
@@ -18,7 +21,8 @@ async def list_notifications(current_user: dict = Depends(get_current_user)):
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("list_notifications failed for user %s: %s", user_id, e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     return result.data or []
 
@@ -34,7 +38,8 @@ async def mark_all_notifications_read(current_user: dict = Depends(get_current_u
             "user_id", user_id
         ).eq("is_read", False).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("mark_all_notifications_read failed for user %s: %s", user_id, e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     return {"message": "All notifications marked as read"}
 
@@ -55,7 +60,8 @@ async def mark_notification_read(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("mark_notification_read failed for notification %s: %s", notification_id, e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     if not result.data:
         raise HTTPException(status_code=404, detail="Notification not found")

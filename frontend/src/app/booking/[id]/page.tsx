@@ -7,11 +7,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import {
   bookingsQueries,
+  cancelBookingMutation,
   confirmBookingMutation,
-  requestDisbursementMutation,
   vacateBookingMutation,
 } from "@/lib/queries";
-import { formatDate, formatEGP } from "@/lib/utils";
+import { formatEGP } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import type { BookingBrief } from "@/types/api";
 
@@ -22,15 +22,21 @@ export default function BookingDetailPage() {
   const { data, isLoading, isError } = useQuery(bookingsQueries.detail(params.id));
   const confirm = useMutation({
     ...confirmBookingMutation,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["bookings"] }),
+    onSuccess: (booking) => {
+      queryClient.setQueryData(["bookings", booking.id], booking);
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+    },
   });
   const vacate = useMutation({
     ...vacateBookingMutation,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["bookings"] }),
   });
-  const releaseDisbursement = useMutation({
-    ...requestDisbursementMutation,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["bookings"] }),
+  const cancel = useMutation({
+    ...cancelBookingMutation,
+    onSuccess: (booking) => {
+      queryClient.setQueryData(["bookings", booking.id], booking);
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+    },
   });
 
   if (isLoading) {
@@ -76,22 +82,20 @@ export default function BookingDetailPage() {
               {isRent && data.monthly_price ? (
                 <Info label="Monthly rent" value={formatEGP(data.monthly_price)} />
               ) : (
-                <Info label="Reservation price" value={formatEGP(data.total_price)} />
+                <Info label="Booking type" value={data.booking_type} />
               )}
               {isRent && data.duration_months ? (
                 <Info label="Duration" value={`${data.duration_months} ${data.duration_months === 1 ? "month" : "months"}`} />
-              ) : (
-                <Info label="Booking type" value={data.booking_type} />
-              )}
+              ) : null}
               <Info
-                label={isOwner ? "Renter booking total" : "Booking total"}
+                label={isRent ? "Booking deposit" : "Reservation fee"}
                 value={formatEGP(data.total_price)}
               />
               {isOwner && (
-                <>
-                  <Info label="AXIOM service fee" value={formatEGP(data.platform_cut_amount)} />
-                  <Info label="Estimated payout" value={formatEGP(data.owner_amount)} />
-                </>
+                <Info
+                  label="Held by AXIOM"
+                  value={formatEGP(data.total_price)}
+                />
               )}
             </div>
           </div>
@@ -100,15 +104,30 @@ export default function BookingDetailPage() {
 
       <section className="rounded-2xl border border-white/10 bg-card-dark p-5">
         <h2 className="text-lg font-bold text-white">Actions</h2>
+        {confirm.isError && (
+          <p className="mt-3 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-200">
+            {confirm.error instanceof Error ? confirm.error.message : "Confirmation failed"}
+          </p>
+        )}
         <div className="mt-4 flex flex-wrap gap-3">
           {data.status === "pending_confirmation" && isRenter && (
             <button
               type="button"
               onClick={() => confirm.mutate(data.id)}
-              disabled={confirm.isPending}
-              className="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
+              disabled={confirm.isPending || cancel.isPending}
+              className="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white transition-[background-color,transform,opacity] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-primary-hover active:scale-[0.99] disabled:opacity-60"
             >
-              Confirm Rent and Add Me to Listing
+              {isRent ? "Confirm Booking" : "Confirm Reservation"}
+            </button>
+          )}
+          {data.status === "pending_confirmation" && (isRenter || isOwner) && (
+            <button
+              type="button"
+              onClick={() => cancel.mutate(data.id)}
+              disabled={confirm.isPending || cancel.isPending}
+              className="rounded-xl border border-white/10 px-4 py-2 text-sm font-bold text-gray-200 transition-[background-color,transform,opacity] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-white/5 active:scale-[0.99] disabled:opacity-60"
+            >
+              {cancel.isPending ? "Cancelling…" : "Cancel & Refund"}
             </button>
           )}
           {data.status === "active" && (isRenter || isOwner) && (
@@ -124,37 +143,19 @@ export default function BookingDetailPage() {
           {data.status === "completed" && (
             <p className="text-sm text-gray-400">This booking has been completed.</p>
           )}
+          {data.status === "cancelled" && (
+            <p className="text-sm text-gray-400">This booking was cancelled and the fee refunded.</p>
+          )}
         </div>
       </section>
 
-      {isRent && isOwner && (
+      {isOwner && (
         <section className="rounded-2xl border border-white/10 bg-card-dark p-5">
-          <h2 className="text-lg font-bold text-white">Payout Timeline</h2>
-          <div className="mt-4 divide-y divide-white/10">
-            {data.disbursements.length === 0 && (
-              <p className="py-4 text-sm text-gray-400">Monthly payout rows appear after renter confirmation.</p>
-            )}
-            {data.disbursements.map((item) => (
-              <div key={item.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="font-semibold text-white">Month {item.month_number}</p>
-                  <p className="text-sm text-gray-400">{formatDate(item.scheduled_date)} · {formatEGP(item.amount)}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <StatusPill label={item.status} />
-                  {isOwner && data.status === "active" && item.status === "scheduled" && (
-                    <button
-                      type="button"
-                      onClick={() => releaseDisbursement.mutate({ id: data.id, month: item.month_number })}
-                      className="rounded-lg bg-primary px-3 py-2 text-xs font-bold text-white"
-                    >
-                      Mark Released
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+          <h2 className="text-lg font-bold text-white">Payout</h2>
+          <p className="mt-3 text-sm text-gray-400">
+            AXIOM holds the {isRent ? "booking deposit" : "reservation fee"} of {formatEGP(data.total_price)}. Owner
+            payouts are settled outside the platform; automated payout is planned for a future release.
+          </p>
         </section>
       )}
     </main>

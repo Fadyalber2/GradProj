@@ -19,6 +19,7 @@ const STATUS_STYLES: Record<string, string> = {
   pending:  "bg-yellow-500/10 text-yellow-400 border-yellow-500/10",
   rejected: "bg-red-500/10 text-red-400 border-red-500/10",
   draft:    "bg-gray-500/10 text-gray-400 border-gray-500/10",
+  paused:   "bg-amber-500/10 text-amber-400 border-amber-500/10",
 };
 
 const STATUS_DOT: Record<string, string> = {
@@ -26,6 +27,7 @@ const STATUS_DOT: Record<string, string> = {
   pending:  "bg-yellow-500",
   rejected: "bg-red-500",
   draft:    "bg-gray-500",
+  paused:   "bg-amber-500",
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -33,6 +35,7 @@ const STATUS_LABEL: Record<string, string> = {
   pending:  "Pending Review",
   rejected: "Rejected",
   draft:    "Draft",
+  paused:   "Paused",
 };
 
 export default function MyListings({ listings, onAddNew, onEdit }: MyListingsProps) {
@@ -126,6 +129,11 @@ export default function MyListings({ listings, onAddNew, onEdit }: MyListingsPro
                         <div>
                           <p className="text-white font-bold text-base">{listing.name}</p>
                           <p className="text-gray-500 text-xs">ID: {listing.listingId}</p>
+                          {listing.status === "paused" && (
+                            <p className="mt-1 text-xs text-amber-400">
+                              Hidden — <a href="/pricing" className="underline hover:text-amber-300">subscribe to restore</a>. Deleted after grace period.
+                            </p>
+                          )}
                         </div>
                       </div>
                     </td>

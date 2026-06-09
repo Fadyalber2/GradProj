@@ -1,9 +1,12 @@
+import logging
+
 from fastapi import APIRouter, HTTPException, Depends, Query
 from app.agencies.schemas import CreateAgencyRequest, UpdateAgencyRequest, SubscribeRequest
 from app.database import supabase_admin
 from app.dependencies import get_current_user
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 # Subscription plan pricing (EGP/month) and listing quotas
 PLAN_CONFIG = {
@@ -51,14 +54,16 @@ async def list_agencies(
     query = supabase_admin.table("agencies").select("*", count="exact")
 
     if city:
-        query = query.ilike("city", f"%{city}%")
+        city_safe = city.replace("%", "").replace("_", "")[:100]
+        query = query.ilike("city", f"%{city_safe}%")
 
     query = query.order("created_at", desc=True).range(offset, offset + per_page - 1)
 
     try:
         result = query.execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("agencies DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     agencies = result.data or []
 
@@ -122,7 +127,8 @@ async def get_agency_projects(slug: str):
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("agencies DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     projects = [
         {
@@ -179,7 +185,8 @@ async def get_agency_listings(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("agencies DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     return {
         "listings": [_build_listing_brief(l) for l in (result.data or [])],
@@ -290,7 +297,8 @@ async def create_agency(
         error_str = str(e)
         if "duplicate" in error_str.lower() or "unique" in error_str.lower():
             raise HTTPException(status_code=409, detail="Agency slug already taken")
-        raise HTTPException(status_code=500, detail=f"Failed to create agency: {e}")
+        logger.error("create_agency failed: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to create agency")
 
     return result.data
 
@@ -332,7 +340,8 @@ async def update_agency(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update agency: {e}")
+        logger.error("update_agency failed: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to update agency")
 
     return result.data[0] if result.data else {}
 

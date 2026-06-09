@@ -7,6 +7,8 @@ from app.dependencies import get_current_user
 router = APIRouter()
 
 ALLOWED_BUCKETS = {"avatars", "listing-images", "attachments"}
+# SVG can carry inline scripts and execute as HTML; exe/html are obviously dangerous.
+ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "gif", "pdf"}
 
 
 class SignedUrlRequest(BaseModel):
@@ -33,7 +35,9 @@ async def get_signed_upload_url(
     # Scope uploads to the user's folder to prevent path traversal
     user_id = current_user["id"]
     # Generate a unique filename to avoid collisions
-    ext = body.filename.rsplit(".", 1)[-1] if "." in body.filename else ""
+    ext = body.filename.rsplit(".", 1)[-1].lower() if "." in body.filename else ""
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(status_code=400, detail=f"File type not allowed. Allowed: {', '.join(sorted(ALLOWED_EXTENSIONS))}")
     unique_name = f"{uuid.uuid4().hex}.{ext}" if ext else uuid.uuid4().hex
     storage_path = f"{user_id}/{unique_name}"
 
@@ -41,7 +45,7 @@ async def get_signed_upload_url(
         # supabase-py >= 2.0 storage API
         response = supabase_admin.storage.from_(body.bucket).create_signed_upload_url(storage_path)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to generate signed URL: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate signed URL")
 
     # supabase-py returns a dict with 'signedURL' and 'path'
     if isinstance(response, dict):
