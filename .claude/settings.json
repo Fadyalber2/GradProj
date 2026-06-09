@@ -114,7 +114,6 @@
       "e:\\GradProject\\AXIOM-V2\\frontend"
     ]
   },
-  "enabledPlugins": {},
   "hooks": {
     "PostToolUse": [
       {
@@ -140,5 +139,6 @@
         ]
       }
     ]
-  }
+  },
+  "enabledPlugins": {}
 }

@@ -1,8 +1,13 @@
 import asyncio
+import time
+from collections import defaultdict
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 from app.config import settings
 from app.auth.router import router as auth_router
 from app.listings.router import router as listings_router
@@ -23,6 +28,45 @@ from app.projects.router import router as projects_router
 from app.leads.router import router as leads_router
 from app.universities.router import router as universities_router
 from app.subscriptions.router import router as subscriptions_router
+
+
+_rate_windows: dict[str, list[float]] = defaultdict(list)
+_RATE_RULES = [
+    ("/api/ai/", 10, 60),       # AI endpoints: 10 req/min per IP (Ollama cost)
+    ("/api/auth/login", 5, 60), # Login brute-force protection
+    ("/api/auth/signup", 5, 60),
+]
+
+
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        ip = request.client.host if request.client else "unknown"
+        path = request.url.path
+        now = time.time()
+        for prefix, max_req, window in _RATE_RULES:
+            if path.startswith(prefix):
+                key = f"{ip}:{prefix}"
+                calls = [t for t in _rate_windows[key] if now - t < window]
+                if len(calls) >= max_req:
+                    return JSONResponse(
+                        {"detail": "Too many requests"},
+                        status_code=429,
+                        headers={"Retry-After": str(window)},
+                    )
+                calls.append(now)
+                _rate_windows[key] = calls
+                break
+        return await call_next(request)
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        return response
 
 
 @asynccontextmanager
@@ -55,13 +99,15 @@ _dev_origins = [
     "http://127.0.0.1:3001",
 ]
 
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RateLimitMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=(
         _dev_origins if settings.environment == "development" else [settings.frontend_url]
     ),
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 

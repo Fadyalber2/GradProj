@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     ollama_embed_model: str = "nomic-embed-text"
     admin_username: str = "admin"
     admin_password: str = "changeme"
+    # Separate signing secret for admin JWTs — prevents user-token → admin-token forgery.
+    # If left empty, falls back to jwt_secret (backward-compat for existing deployments).
+    admin_jwt_secret: str = ""
     redis_url: str = ""
     sentry_dsn: str = ""
     twilio_account_sid: str = ""

@@ -1,3 +1,4 @@
+import logging
 import math
 import secrets
 import time
@@ -14,6 +15,12 @@ from app.database import supabase_admin
 from app.config import settings
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
+
+
+def _admin_secret() -> str:
+    """Admin JWT uses a separate secret so a leaked user jwt_secret cannot forge admin tokens."""
+    return settings.admin_jwt_secret or settings.jwt_secret
 
 ADMIN_TOKEN_EXPIRY = 24 * 60 * 60  # 24 hours
 ALLOWED_ADMIN_UPLOAD_BUCKETS = {"avatars", "listing-images", "attachments", "agency-images"}
@@ -55,7 +62,7 @@ def _create_admin_token(username: str) -> str:
         "iat": int(time.time()),
         "exp": int(time.time()) + ADMIN_TOKEN_EXPIRY,
     }
-    return jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
+    return jwt.encode(payload, _admin_secret(), algorithm="HS256")
 
 
 def _verify_admin_token(token: str) -> str:
@@ -63,7 +70,7 @@ def _verify_admin_token(token: str) -> str:
     try:
         payload = jwt.decode(
             token,
-            settings.jwt_secret,
+            _admin_secret(),
             algorithms=["HS256"],
             options={"verify_aud": False},
         )
@@ -243,7 +250,8 @@ async def admin_list_listings(
     try:
         result = query.order("created_at", desc=False).range(offset, offset + per_page - 1).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("admin DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     return _paged(result.data or [], result.count or 0, page, per_page)
 
@@ -268,7 +276,7 @@ async def admin_create_listing(
     try:
         result = supabase_admin.table("listings").insert(body).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create listing: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create listing")
     listing = result.data[0]
 
     if listing.get("category") == "shared_housing" and isinstance(housemates, list):
@@ -316,7 +324,7 @@ async def admin_get_signed_upload_url(
     try:
         response = supabase_admin.storage.from_(bucket).create_signed_upload_url(storage_path)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to generate signed URL: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate signed URL")
 
     if isinstance(response, dict):
         signed_url = response.get("signedURL") or response.get("signed_url") or ""
@@ -341,9 +349,9 @@ async def admin_update_listing(
 ):
     """Admin-update any listing field."""
     body.pop("id", None)
-    body.pop("owner_id", None)
     body.pop("neighborhoods", None)
     body.pop("profiles", None)
+    requested_owner_id = body.get("owner_id") if "owner_id" in body else None
     try:
         result = (
             supabase_admin.table("listings")
@@ -352,10 +360,24 @@ async def admin_update_listing(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update listing: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update listing")
     if not result.data:
         raise HTTPException(status_code=404, detail="Listing not found")
-    return result.data[0]
+    listing = result.data[0]
+    if "owner_id" in body and listing.get("owner_id") != requested_owner_id:
+        try:
+            owner_result = (
+                supabase_admin.table("listings")
+                .update({"owner_id": requested_owner_id})
+                .eq("id", listing_id)
+                .execute()
+            )
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to assign listing owner")
+        if not owner_result.data or owner_result.data[0].get("owner_id") != requested_owner_id:
+            raise HTTPException(status_code=500, detail="Listing owner assignment did not persist")
+        listing = owner_result.data[0]
+    return listing
 
 
 @router.delete("/listings/{listing_id}")
@@ -382,7 +404,7 @@ async def admin_delete_listing(
             {"deleted_at": datetime.now(timezone.utc).isoformat()}
         ).eq("id", listing_id).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to delete listing: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete listing")
 
     # Notify owner
     if listing_result and listing_result.data:
@@ -434,7 +456,7 @@ async def admin_approve_listing(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to approve listing: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to approve listing")
 
     try:
         supabase_admin.table("notifications").insert({
@@ -481,7 +503,7 @@ async def admin_reject_listing(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to reject listing: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to reject listing")
 
     try:
         supabase_admin.table("notifications").insert({
@@ -518,7 +540,8 @@ async def admin_list_users(
     try:
         result = query.order("created_at", desc=True).range(offset, offset + per_page - 1).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("admin DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     return _paged(result.data or [], result.count or 0, page, per_page)
 
@@ -538,7 +561,8 @@ async def admin_verify_user(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("admin DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     if not result.data:
         raise HTTPException(status_code=404, detail="User not found")
@@ -601,7 +625,8 @@ async def admin_update_user(
             except Exception as retry_error:
                 raise HTTPException(status_code=500, detail=f"Database error: {retry_error}")
         else:
-            raise HTTPException(status_code=500, detail=f"Database error: {e}")
+            logger.error("admin DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
     if not result.data:
         raise HTTPException(status_code=404, detail="User not found")
     return result.data[0]
@@ -616,7 +641,8 @@ async def admin_delete_user(
     try:
         supabase_admin.table("profiles").delete().eq("id", user_id).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("admin DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
     return {"message": "User profile deleted"}
 
 
@@ -638,7 +664,8 @@ async def admin_list_agencies(
     try:
         result = query.order("created_at", desc=True).range(offset, offset + per_page - 1).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("admin DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     return _paged(result.data or [], result.count or 0, page, per_page)
 
@@ -657,7 +684,7 @@ async def admin_create_agency(
     try:
         result = supabase_admin.table("agencies").insert(body).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create agency: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create agency")
     return result.data[0]
 
 
@@ -681,7 +708,7 @@ async def admin_update_agency(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update agency: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update agency")
     if not result.data:
         raise HTTPException(status_code=404, detail="Agency not found")
     return result.data[0]
@@ -696,7 +723,7 @@ async def admin_delete_agency(
     try:
         supabase_admin.table("agencies").delete().eq("id", agency_id).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to delete agency: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete agency")
     return {"message": "Agency deleted"}
 
 
@@ -717,7 +744,8 @@ async def admin_list_universities(
     try:
         result = query.order("created_at", desc=True).range(offset, offset + per_page - 1).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("admin DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
     return _paged(result.data or [], result.count or 0, page, per_page)
 
 
@@ -739,7 +767,7 @@ async def admin_create_university(
     try:
         result = supabase_admin.table("universities").insert(body).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create university: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create university")
     return result.data[0]
 
 
@@ -767,7 +795,7 @@ async def admin_update_university(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update university: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update university")
     if not result.data:
         raise HTTPException(status_code=404, detail="University not found")
     return result.data[0]
@@ -782,7 +810,7 @@ async def admin_delete_university(
     try:
         supabase_admin.table("universities").delete().eq("id", university_id).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to delete university: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete university")
     return {"message": "University deleted"}
 
 
@@ -807,7 +835,8 @@ async def admin_list_projects(
     try:
         result = query.order("created_at", desc=True).range(offset, offset + per_page - 1).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("admin DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     return _paged(result.data or [], result.count or 0, page, per_page)
 
@@ -826,7 +855,7 @@ async def admin_create_project(
     try:
         result = supabase_admin.table("projects").insert(body).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create project: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create project")
     return result.data[0]
 
 
@@ -850,7 +879,7 @@ async def admin_update_project(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update project: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update project")
     if not result.data:
         raise HTTPException(status_code=404, detail="Project not found")
     return result.data[0]
@@ -865,7 +894,7 @@ async def admin_delete_project(
     try:
         supabase_admin.table("projects").delete().eq("id", project_id).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to delete project: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete project")
     return {"message": "Project deleted"}
 
 
@@ -892,7 +921,8 @@ async def admin_list_blog(
     try:
         result = query.order("created_at", desc=True).range(offset, offset + per_page - 1).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("admin DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     return _paged(result.data or [], result.count or 0, page, per_page)
 
@@ -919,7 +949,7 @@ async def admin_create_blog_post(
     try:
         result = supabase_admin.table("blog_posts").insert(body).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create blog post: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create blog post")
     return result.data[0]
 
 
@@ -943,7 +973,7 @@ async def admin_update_blog_post(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update blog post: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update blog post")
     if not result.data:
         raise HTTPException(status_code=404, detail="Blog post not found")
     return result.data[0]
@@ -958,7 +988,7 @@ async def admin_delete_blog_post(
     try:
         supabase_admin.table("blog_posts").delete().eq("id", post_id).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to delete blog post: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete blog post")
     return {"message": "Blog post deleted"}
 
 
@@ -983,7 +1013,8 @@ async def admin_list_fraud(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("admin DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     return _paged(result.data or [], result.count or 0, page, per_page)
 
@@ -1008,7 +1039,7 @@ async def admin_review_fraud(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to review listing: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to review listing")
     if not result.data:
         raise HTTPException(status_code=404, detail="Listing not found")
     return {"message": f"Listing {action}d", "listing": result.data[0]}
@@ -1032,7 +1063,8 @@ async def admin_list_notifications(
     try:
         result = query.order("created_at", desc=True).range(offset, offset + per_page - 1).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("admin DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     return _paged(result.data or [], result.count or 0, page, per_page)
 
@@ -1052,7 +1084,7 @@ async def admin_list_bookings(
     offset = (page - 1) * per_page
     query = supabase_admin.table("bookings").select(
         "id, booking_type, status, total_price, platform_cut_amount, owner_amount, "
-        "start_date, end_date, created_at, "
+        "start_date, end_date, created_at, stripe_payment_intent_id, stripe_transfer_id, "
         "listings(title), renter:profiles!bookings_renter_id_fkey(full_name, email), "
         "owner:profiles!bookings_owner_id_fkey(full_name, email)",
         count="exact",
@@ -1067,7 +1099,8 @@ async def admin_list_bookings(
     try:
         result = query.order("created_at", desc=True).range(offset, offset + per_page - 1).execute()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {e}")
+        logger.error("admin DB error: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     rows = []
     for row in result.data or []:
@@ -1084,6 +1117,17 @@ async def admin_list_bookings(
             "total_price": row.get("total_price"),
             "platform_cut_amount": row.get("platform_cut_amount"),
             "owner_amount": row.get("owner_amount"),
+            "stripe_payment_intent_id": row.get("stripe_payment_intent_id"),
+            "stripe_transfer_id": row.get("stripe_transfer_id"),
+            "payment_state": (
+                "payout sent"
+                if row.get("stripe_transfer_id")
+                else "confirmed, payout pending"
+                if row.get("stripe_payment_intent_id") and row.get("status") == "active"
+                else "paid, waiting confirmation"
+                if row.get("stripe_payment_intent_id")
+                else "legacy/manual"
+            ),
             "start_date": row.get("start_date"),
             "end_date": row.get("end_date"),
             "created_at": row.get("created_at"),

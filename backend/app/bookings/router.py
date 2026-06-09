@@ -185,7 +185,7 @@ def _fetch_active_listing(listing_id: str) -> dict:
         raise HTTPException(status_code=404, detail="Listing not found")
     if listing.get("status") in ("sold", "rented"):
         raise HTTPException(status_code=409, detail="Listing is no longer available")
-    if listing.get("status") in ("reserved", "booked"):
+    if listing.get("status") in ("reserved", "booked", "pending_payment"):
         raise HTTPException(status_code=409, detail="Listing already has a pending booking")
     if listing.get("status") != "active":
         raise HTTPException(status_code=400, detail="Listing is not active")
@@ -337,6 +337,15 @@ async def create_payment_intent(
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=_stripe_error_detail(e))
+
+    # Lock listing immediately so a second concurrent buyer cannot also get a PaymentIntent.
+    # Reverted to "active" by the payment_intent.canceled webhook if the user abandons payment.
+    try:
+        supabase_admin.table("listings").update({"status": "pending_payment"}).eq(
+            "id", body.listing_id
+        ).execute()
+    except Exception:
+        pass
 
     return {
         "client_secret": intent.client_secret,

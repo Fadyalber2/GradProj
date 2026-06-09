@@ -77,6 +77,17 @@ async def stripe_webhook(request: Request):
         if event_type == "payment_intent.succeeded":
             from app.bookings.router import _create_booking_from_paid_intent
             _create_booking_from_paid_intent(obj)
+        elif event_type == "payment_intent.canceled":
+            # Revert the listing lock set when the PaymentIntent was created.
+            md = _field(obj, "metadata") or {}
+            listing_id = (md.get("listing_id") if isinstance(md, dict) else None)
+            if listing_id:
+                try:
+                    supabase_admin.table("listings").update({"status": "active"}).eq(
+                        "id", listing_id
+                    ).eq("status", "pending_payment").execute()
+                except Exception as e:
+                    logger.error("Failed to revert listing %s from pending_payment: %s", listing_id, e)
         elif event_type in (
             "customer.subscription.created",
             "customer.subscription.updated",

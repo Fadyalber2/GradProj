@@ -297,7 +297,8 @@ async def create_agency(
         error_str = str(e)
         if "duplicate" in error_str.lower() or "unique" in error_str.lower():
             raise HTTPException(status_code=409, detail="Agency slug already taken")
-        raise HTTPException(status_code=500, detail=f"Failed to create agency: {e}")
+        logger.error("create_agency failed: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to create agency")
 
     return result.data
 
@@ -339,7 +340,8 @@ async def update_agency(
             .execute()
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update agency: {e}")
+        logger.error("update_agency failed: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to update agency")
 
     return result.data[0] if result.data else {}
 

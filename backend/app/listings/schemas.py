@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, Any
+from typing import Literal, Optional, Any
 
 
 # ─── Request Bodies ──────────────────────────────────────────────────────────
@@ -17,8 +17,12 @@ class HousemateInput(BaseModel):
 class CreateListingRequest(BaseModel):
     title: str
     description: Optional[str] = None
-    category: str  # "for_rent" | "for_sale" | "shared_housing"
-    property_type: str
+    category: Literal["for_rent", "for_sale", "shared_housing"]
+    property_type: Literal[
+        "apartment", "villa", "studio", "duplex", "penthouse",
+        "commercial", "room", "chalet", "townhouse", "twin_house",
+        "land", "whole_building", "office",
+    ]
     price: float
     currency: str = "EGP"
     price_period: Optional[str] = None
