@@ -8,11 +8,18 @@ frontend/.env.local
 
 # Local AI assistant/tooling state
 CLAUDE.md
+AGENTS.md
 .agents/skills/
 .claude/
 .code-review-graph/
 .codex/
+.jules/
 .planning/
 .playwright-mcp/
+.qwen/
 .superpowers/
 .worktrees/
+
+# Build artifacts / tooling output
+graphify-out/
+testsprite_tests/
