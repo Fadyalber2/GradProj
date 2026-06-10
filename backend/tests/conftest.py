@@ -49,6 +49,15 @@ def make_supabase_jwt(user_id: str = FAKE_USER_ID, expired: bool = False) -> str
     return jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
 
 
+@pytest.fixture(autouse=True)
+def _reset_rate_limit():
+    """RateLimitMiddleware counts per-IP; every TestClient request shares one
+    fake IP, so the whole suite would trip the 10 req/min AI limit."""
+    from app.main import _rate_windows
+    _rate_windows.clear()
+    yield
+
+
 @pytest.fixture
 def mock_supabase():
     """Patch both supabase_client and supabase_admin with MagicMocks."""

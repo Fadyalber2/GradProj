@@ -89,11 +89,11 @@ def test_ai_chat_streams(client, mock_supabase):
     ollama = _get_ollama(client)
     ollama.health = AsyncMock(return_value=True)
 
-    async def fake_stream(prompt, system=""):
+    async def fake_stream(messages, **kwargs):
         for token in ["Hello", " there", "!"]:
             yield token
 
-    ollama.generate_stream = fake_stream
+    ollama.chat_stream = fake_stream
 
     resp = client.post("/api/ai/chat", json={"message": "Hi"})
     assert resp.status_code == 200
@@ -368,7 +368,7 @@ def test_rag_chat_with_context(client, mock_supabase):
          patch.object(ai_router.rag_retriever, "format_citations", return_value=[fake_citation]):
 
         ai_router.ollama.health = AsyncMock(return_value=True)
-        ai_router.ollama.generate_stream = MagicMock(
+        ai_router.ollama.chat_stream = MagicMock(
             return_value=_async_iter(["Found ", "it!"])
         )
 
@@ -389,7 +389,7 @@ def test_rag_chat_no_context(client, mock_supabase):
          patch.object(ai_router.rag_retriever, "format_citations", return_value=[]):
 
         ai_router.ollama.health = AsyncMock(return_value=True)
-        ai_router.ollama.generate_stream = MagicMock(return_value=_async_iter(["Hello"]))
+        ai_router.ollama.chat_stream = MagicMock(return_value=_async_iter(["Hello"]))
 
         resp = client.post("/api/ai/chat", json={"message": "hello", "conversation_history": []})
         assert resp.status_code == 200

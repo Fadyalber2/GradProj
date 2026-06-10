@@ -181,10 +181,11 @@ def _detect_property_search(message: str) -> int:
 
     amenity_words = [
         "pool", "swimming", "gym", "parking", "garden", "security", "elevator",
-        "ac", "air condition", "balcony", "storage", "maid", "rooftop",
+        "air condition", "balcony", "storage", "maid", "rooftop",
         "حمام سباحة", "جيم", "موقف", "حديقة", "أمن", "مصعد", "بلكونة",
     ]
-    if any(w in msg for w in amenity_words):
+    # "ac" needs word boundaries — bare substring matches "place", "space", "beach"
+    if any(w in msg for w in amenity_words) or re.search(r"\ba/?c\b", msg):
         score += 20
 
     question_words = ["how ", "what is", "explain", "كيف", "ما هو"]
