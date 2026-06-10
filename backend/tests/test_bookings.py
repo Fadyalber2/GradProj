@@ -68,6 +68,18 @@ def test_compute_fee_rejects_category_mismatch():
         _compute_fee(body, listing)
 
 
+def test_compute_fee_shared_housing_is_flat_deposit():
+    """Shared housing uses same flat deposit model as for_rent."""
+    listing = {"category": "shared_housing", "price": 3000}
+    body = CreatePaymentIntentRequest(
+        listing_id="x", booking_type="rent", start_date=date(2026, 6, 1), duration_months=3
+    )
+    values = _compute_fee(body, listing)
+    assert values["fee"] == 2000
+    assert values["kind"] == "booking_deposit"
+    assert values["monthly_price"] == 3000
+
+
 # ── payment intent ────────────────────────────────────────────────────────
 
 

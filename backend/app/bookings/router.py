@@ -203,8 +203,8 @@ def _compute_fee(body: CreatePaymentIntentRequest, listing: dict) -> dict:
             status_code=400,
             detail="Rent bookings require start_date and duration 1, 2, 3, 6, or 12",
         )
-    if listing.get("category") != "for_rent":
-        raise HTTPException(status_code=400, detail="Rent bookings require a rental listing")
+    if listing.get("category") not in ("for_rent", "shared_housing"):
+        raise HTTPException(status_code=400, detail="Rent bookings require a rental or shared housing listing")
     return {
         "kind": "booking_deposit",
         "fee": round(_money(settings.rent_booking_fee), 2),

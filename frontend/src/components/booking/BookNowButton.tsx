@@ -21,7 +21,7 @@ export default function BookNowButton({ listing, className }: Props) {
   const label = "Book Property";
   const spacing = className ?? "mt-4";
 
-  if (isOwner || listing.category === "for_sale" || listing.category === "shared_housing") return null;
+  if (isOwner || listing.category === "for_sale") return null;
 
   function handleClick() {
     if (!user) {
