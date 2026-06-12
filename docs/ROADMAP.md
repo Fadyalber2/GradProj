@@ -1,6 +1,6 @@
 # AXIOM V2 — Roadmap & Current Status
 
-Last updated: 2026-05-31
+Last updated: 2026-06-12
 
 ---
 
@@ -25,7 +25,8 @@ Last updated: 2026-05-31
 | Responsive design (400–1200px) | ✅ Done       | FilterSidebar Sheet drawer, admin Sheet hamburger, all page grids fixed                                                                                      |
 | All-new features implementation | ✅ Done       | Shared housing applications/search, housemates in Add Listing, fee-based Stripe booking/payment flow (rent = flat booking deposit, sale = 1% capped reservation fee), single platform account (no Connect/payout), webhook-created bookings, refund/cancel endpoint, `payments` ledger, liked properties wired to `favorites` DB table, dashboard tabs fully live |
 | Partner Universities           | ✅ Done       | DB table, backend CRUD, admin dashboard section, list page, detail page with hero/sidebar/listings |
-| Deployment                     | ❌ Not done   | No CI/CD, no production environment                                                                                                                          |
+| Deployment                     | ⚠️ Infra ready | Dockerfile + railway.toml + GitHub Actions CI committed; Railway/Vercel deploy itself not done                                                              |
+| Backend tests                  | ✅ Green      | 123/123 passing (rate-limit fixture, chat_stream mocks, shared-housing booking test)                                                                        |
 
 ---
 
@@ -33,7 +34,7 @@ Last updated: 2026-05-31
 
 | Route                  | Built | API Wired | Notes                                                                |
 | ---------------------- | ----- | --------- | -------------------------------------------------------------------- |
-| `/`                    | ✅    | ❌        | Mock listings + testimonials                                         |
+| `/`                    | ✅    | ✅        | Top Listings + Recommendations + Guides live; testimonials static by design |
 | `/find-homes`          | ✅    | ✅        | Direct Supabase query via `supabase-queries`                         |
 | `/property/[id]`       | ✅    | ✅        | Direct Supabase — handles regular + shared_housing                   |
 | `/shared-housing`      | ✅    | ✅        | Dedicated shared-housing search with filters and recommendations     |
@@ -76,9 +77,11 @@ Last updated: 2026-05-31
 2. **Configure Stripe subscription prices** — create recurring EGP prices for Basic (199) + Pro (499) in Stripe dashboard, set `STRIPE_PRICE_BASIC` / `STRIPE_PRICE_PRO` in `backend/.env`
 3. **Rotate Stripe keys** — old keys exist in git history pre-`.env` removal; rotate in Stripe dashboard
 4. **Subscription + payment QA** — `stripe listen --forward-to localhost:8000/api/stripe/webhook`, test: free listing cap (402 on 2nd listing), trial activation, Basic/Pro checkout + webhook sync, lapse sweep pausing + grace delete, AI description quota gate, rent/sale booking deposit flow
-5. **Redesign rent/shared-housing deposit + remove sale reservation fee** — Layer 2 spec (separate brainstorm/plan session); shared_housing category not yet bookable
-6. **Wire homepage listings** — replace mock listings on `/` with Supabase query
-7. **Deployment** — Vercel (frontend), Railway (backend), GitHub Actions (CI)
+5. **Recreate `backend/.env`** — file is missing locally; copy from `.env.example` and fill rotated keys (backend cannot start without it)
+6. **Deployment** — deploy to Vercel (frontend) + Railway (backend); CI workflow, Dockerfile, and railway.toml are already in the repo
+7. **Replace demoBookings.ts** — `HousematesSection` still reads confirmed housemates from the demo layer instead of real bookings
+
+Done since 2026-05-31: shared_housing bookable (flat EGP 2000 deposit), homepage fully live, `/pricing` in navbar, booking fee served by `GET /api/bookings/fees` (no frontend hardcode), 123/123 backend tests green, dead code purged (mock constants, sale reservation config/branches), deployment infra committed.
 
 ---
 
