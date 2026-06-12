@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   Listing,
   Feature,
   Neighborhood,
@@ -19,12 +19,12 @@ import type {
   BlogArticle,
   RelatedArticle,
 } from "@/types";
-import type { AgencyBrief } from "@/types/api";
 
 export const NAV_ITEMS: NavItem[] = [
   { label: "Find Homes", href: "/find-homes" },
   { label: "Shared Housing", href: "/find-homes?category=shared_housing" },
   { label: "Agencies", href: "/agencies" },
+  { label: "Pricing", href: "/pricing" },
   { label: "Blog", href: "/blog" },
   { label: "About Us", href: "/about" },
 ];
@@ -297,231 +297,6 @@ export const AGENCIES: Agency[] = [
   },
 ];
 
-export const MOCK_AGENCIES: AgencyBrief[] = [
-  {
-    id: "emaar-misr",
-    slug: "emaar-misr",
-    name: "Emaar Misr",
-    subtitle: "Premium Developer",
-    description:
-      "Pioneering luxury lifestyles and vibrant communities that redefine modern living standards across Egypt.",
-    logo_url:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBumw6lAGggH7DHD_FLgnoRaX0mYhdN5irB86UZDza7C_sqaI8bYzCJR6ceE57hiM5-i7jJb5BWS3H9tCZT0G0whF-9aZdzKJuZruB6yWb35TdEjJT9m89WXSXQNS6os2lBwPqHGFHPyH4cEYc7z3Y3qs5aGVbW7dy1oVjb5QnqqRBoWO3eQB_Lk1zzV-qEJXuP7CDCL_FW_6uVq42wjkd1PIoNG-h_uydw7mf3YUwA5BX3Ket5a23sziGbo2H67JA9Mvxldp_1D6yv",
-    verified: true,
-    active_projects: 12,
-    listings_count: 150,
-  },
-  {
-    id: "sodic",
-    slug: "sodic",
-    name: "SODIC",
-    subtitle: "Real Estate",
-    description:
-      "Creating award-winning residential, commercial, and retail developments in Egypt's finest locations.",
-    logo_url:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCTtR5WrDPIc6P08fHmEOmmQ-_bPUvkCEnWzFBnnVA1NitUBt30VBEMja0WhnaZkhztgx4jhquYNqFn5geJ3kEfGPwj3q1e6TaDkzH11iePwmyfL8iZCau2yQSUZzIDWFQ_ascjK1c-NtMc5QM6fXVftW-WL3gFII9UiFE3rKd9wPEGEVD1serwwRQOsHJ9Ak3wgFLiQoyrBd5sK0OmR-WJGeuxncY5bPvOxNzlLgccfJfgMB-bWHB_8obAAnOgCT0SJf3Odoh0HlVo",
-    verified: true,
-    active_projects: 8,
-    listings_count: 85,
-  },
-  {
-    id: "mountain-view",
-    slug: "mountain-view",
-    name: "Mountain View",
-    subtitle: "Community Living",
-    description:
-      "Delivering a life of happiness through innovative design and world-class integrated communities across Egypt.",
-    logo_url: null,
-    verified: true,
-    active_projects: 15,
-    listings_count: 210,
-  },
-  {
-    id: "palm-hills",
-    slug: "palm-hills",
-    name: "Palm Hills",
-    subtitle: "Developments",
-    description:
-      "A leading real estate company primarily developing integrated residential communities for modern families.",
-    logo_url: null,
-    verified: false,
-    active_projects: 10,
-    listings_count: 120,
-  },
-  {
-    id: "ora-developers",
-    slug: "ora-developers",
-    name: "Ora Developers",
-    subtitle: "Luxury Living",
-    description:
-      "Bringing a new dimension to modern living with projects that blend exceptional lifestyle and bold design.",
-    logo_url: null,
-    verified: true,
-    active_projects: 4,
-    listings_count: 45,
-  },
-  {
-    id: "talaat-moustafa",
-    slug: "talaat-moustafa",
-    name: "Talaat Moustafa",
-    subtitle: "Urban Development",
-    description:
-      "The largest listed real estate developer in Egypt, creating fully integrated cities and communities at scale.",
-    logo_url: null,
-    verified: false,
-    active_projects: 6,
-    listings_count: 300,
-  },
-];
-
-// Keyed by slug — shown when the backend returns 404 for an agency detail page
-export const MOCK_AGENCY_DETAILS: Record<string, AgencyDetail> = {
-  "emaar-misr": {
-    slug: "emaar-misr",
-    name: "Emaar Misr",
-    logoText: "EM",
-    badge: "Verified Developer",
-    location: "Cairo, Egypt",
-    bannerImage:
-      "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1600&q=80",
-    description:
-      "Pioneering luxury lifestyles and vibrant communities that redefine modern living standards across Egypt. Emaar Misr has been delivering iconic real estate projects since 2005, combining world-class design with sustainable community living.",
-    trustScore: "98",
-    trustBreakdown: "40 (verified) + 30 (projects) + 28 (listings)",
-    projectsForSale: "12",
-    developmentHistory: "19 Years",
-    logo_url: null,
-    website: null,
-    phone: null,
-    email: null,
-    awards: [
-      { title: "Best Developer 2023", subtitle: "Egypt Real Estate Awards", gold: true },
-      { title: "Sustainability Award", subtitle: "Green Building Council", gold: false },
-    ],
-    featuredProjects: [
-      {
-        id: "uptown-cairo",
-        title: "Uptown Cairo",
-        location: "Mokattam Hills, Cairo",
-        image:
-          "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80",
-        price: "EGP 4,500,000",
-        priceLabel: "Starting from",
-        beds: "2–4",
-        area: "120–280 m²",
-        status: "active",
-        statusColor: "text-green-400",
-        progressPercent: 85,
-        progressColor: "bg-primary",
-        progressLabel: "85% Complete",
-        completionLabel: "85%",
-        cta: "Learn More",
-      },
-      {
-        id: "mivida",
-        title: "Mivida",
-        location: "New Cairo",
-        image:
-          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80",
-        price: "EGP 3,200,000",
-        priceLabel: "Starting from",
-        beds: "2–5",
-        area: "100–320 m²",
-        status: "active",
-        statusColor: "text-green-400",
-        progressPercent: 100,
-        progressColor: "bg-green-500",
-        progressLabel: "100% Complete",
-        completionLabel: "100%",
-        cta: "Learn More",
-      },
-      {
-        id: "cairo-festival-city",
-        title: "Cairo Festival City",
-        location: "New Cairo",
-        image:
-          "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80",
-        price: "EGP 6,000,000",
-        priceLabel: "Starting from",
-        beds: "3–6",
-        area: "180–450 m²",
-        status: "under_construction",
-        statusColor: "text-yellow-400",
-        progressPercent: 55,
-        progressColor: "bg-yellow-500",
-        progressLabel: "55% Complete",
-        completionLabel: "55%",
-        cta: "Learn More",
-      },
-    ],
-    topListings: [
-      {
-        id: "mock-l1",
-        title: "Luxury Villa — Uptown Cairo",
-        location: "Mokattam Hills, Cairo",
-        image:
-          "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80",
-        price: "EGP 25,000",
-        priceLabel: "/month",
-        beds: "4",
-        area: "280 m²",
-        status: "active",
-        statusColor: "text-green-400",
-        progressPercent: 100,
-        progressColor: "bg-primary",
-        progressLabel: "Active",
-        completionLabel: "Active",
-        cta: "View Listing",
-      },
-      {
-        id: "mock-l2",
-        title: "Modern Apartment — Mivida",
-        location: "New Cairo",
-        image:
-          "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80",
-        price: "EGP 12,000",
-        priceLabel: "/month",
-        beds: "2",
-        area: "120 m²",
-        status: "active",
-        statusColor: "text-green-400",
-        progressPercent: 100,
-        progressColor: "bg-primary",
-        progressLabel: "Active",
-        completionLabel: "Active",
-        cta: "View Listing",
-      },
-    ],
-    totalListings: 150,
-    totalCities: 3,
-  },
-  "sodic": {
-    slug: "sodic",
-    name: "SODIC",
-    logoText: "SD",
-    badge: "Verified Developer",
-    location: "Cairo, Egypt",
-    bannerImage:
-      "https://images.unsplash.com/photo-1600607686527-6fb886090705?w=1600&q=80",
-    description:
-      "Creating award-winning residential, commercial, and retail developments in Egypt's finest locations. SODIC has consistently delivered premium communities that set the benchmark for quality and innovation.",
-    trustScore: "95",
-    trustBreakdown: "40 (verified) + 30 (projects) + 25 (listings)",
-    projectsForSale: "8",
-    developmentHistory: "26 Years",
-    logo_url: null,
-    website: null,
-    phone: null,
-    email: null,
-    awards: [
-      { title: "Best Residential Project", subtitle: "Africa Real Estate Summit", gold: true },
-    ],
-    featuredProjects: [],
-    topListings: [],
-    totalListings: 85,
-    totalCities: 2,
-  },
-};
 
 const LISTING_IMAGE =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuDIgpp5RaTRHgduce7EJNsecsSIvCfIcE7G8b-6UddfNkO6SwIluzJzuD2vJmVzf3P7SEtFr3eebmTH2GhU6sJsLqBW_M9k_4uTUnuTcUmFNHFCzhSCMmbR_prcpFUYDpGogXf0qXYQepi1KPrv2JveaYiKsNkY6GrgUSymxhAv7YKbYU_HvNVVGlWj95qcgr9co8da1CQsoOLdknAR6fT3a8vd4pGCTqv8z9tuHSTFB-nf9uqyqKm3Yvm0r8E-eRc_lYNvjZvL7Dqq";
@@ -881,7 +656,7 @@ export const PROJECT_DETAIL: ProjectDetail = {
     {
       id: "r1",
       title: "Penthouse Collection A",
-      subtitle: "Top Floor • Ocean View",
+      subtitle: "Top Floor â€¢ Ocean View",
       image: LISTING_IMAGE,
       beds: "4",
       baths: "4.5",
@@ -891,7 +666,7 @@ export const PROJECT_DETAIL: ProjectDetail = {
     {
       id: "r2",
       title: "Garden Villa",
-      subtitle: "Ground Level • Private Patio",
+      subtitle: "Ground Level â€¢ Private Patio",
       image: LISTING_IMAGE_2,
       beds: "3",
       baths: "3",
@@ -901,7 +676,7 @@ export const PROJECT_DETAIL: ProjectDetail = {
     {
       id: "r3",
       title: "Sky Residence Type B",
-      subtitle: "Mid-High Floor • City View",
+      subtitle: "Mid-High Floor â€¢ City View",
       image: LISTING_IMAGE_3,
       beds: "2",
       baths: "2.5",
@@ -911,7 +686,7 @@ export const PROJECT_DETAIL: ProjectDetail = {
     {
       id: "r4",
       title: "Executive Suite",
-      subtitle: "Low Floor • Minimalist",
+      subtitle: "Low Floor â€¢ Minimalist",
       image: LISTING_IMAGE_4,
       beds: "1",
       baths: "1.5",
@@ -932,12 +707,12 @@ export const PROJECT_DETAIL: ProjectDetail = {
     "General Inquiry",
   ],
   documents: [
-    { title: "Floor Plans Brochure", size: "PDF • 12.5 MB", icon: "FileText" },
-    { title: "Price List Q3", size: "PDF • 2.1 MB", icon: "Receipt" },
+    { title: "Floor Plans Brochure", size: "PDF â€¢ 12.5 MB", icon: "FileText" },
+    { title: "Price List Q3", size: "PDF â€¢ 2.1 MB", icon: "Receipt" },
   ],
 };
 
-/* ── Dashboard (Mock Data) ─────────────────────────────── */
+/* â”€â”€ Dashboard (Mock Data) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 export const ANALYTICS_STATS: AnalyticsStat[] = [
   {
@@ -1013,7 +788,7 @@ export const LISTING_AMENITIES = [
   "Maid's Room",
 ];
 
-/* ── User Dashboard ───────────────────────────────────── */
+/* â”€â”€ User Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const USER_AVATAR =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuDP9htRA-NqUYvVw7A1ZbiJNNdEBy7s5kluqVzKpHu5Clf7wLxzaRhd_4yIzEZRTlEa8x34GStStdDUCPrUMhhS70hIrIcw2vgy_Ld0UKMCHEaps6_bZgvkJNYuQ_I7f_-PMQSSuahE-mdS0DIneumTpHxG70UlfkaLKrzvDoLrwn6K0BBt7mQtCe05qlLw7bvdHXDmcMHmMwDPYKeEBugJw7FQl1CKM2WKUYpN0EO9n3MT0s69wMnX7QWwShmO03yLwqO9QQtxaZ7n";
@@ -1023,7 +798,7 @@ export const USER_PROFILE: UserProfile = {
   avatar: USER_AVATAR,
   isVerifiedSeller: false,
   subtitle:
-    "Software Engineer • Moving to San Francisco • Looking for 1BR/Studio",
+    "Software Engineer â€¢ Moving to San Francisco â€¢ Looking for 1BR/Studio",
   info: [
     { label: "Age / Gender", value: "28 Years, Female" },
     { label: "Birthday", value: "October 14, 1995" },
@@ -1059,7 +834,7 @@ export const LIKED_PROPERTIES: LikedProperty[] = [
   },
 ];
 
-/* ── Blog Article ─────────────────────────────────────── */
+/* â”€â”€ Blog Article â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 export const BLOG_ARTICLE: BlogArticle = {
   slug: "future-of-co-living",
@@ -1083,7 +858,7 @@ export const BLOG_ARTICLE: BlogArticle = {
     },
     {
       type: "paragraph",
-      text: 'At Axiom, we\'ve observed a 300% increase in demand for managed co-living spaces over the last two years. But it\'s not just about shared amenities or lower costs—it\'s about the <strong class="text-white">human connection</strong>.',
+      text: 'At Axiom, we\'ve observed a 300% increase in demand for managed co-living spaces over the last two years. But it\'s not just about shared amenities or lower costsâ€”it\'s about the <strong class="text-white">human connection</strong>.',
     },
     {
       type: "takeaways",

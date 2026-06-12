@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { CardElement, Elements, useElements, useStripe } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import {
@@ -30,7 +30,7 @@ import {
   startOfWeek,
 } from "date-fns";
 import { api } from "@/lib/api";
-import { createPaymentIntentMutation } from "@/lib/queries";
+import { bookingsQueries, createPaymentIntentMutation } from "@/lib/queries";
 import { formatEGP } from "@/lib/utils";
 import type { BookingBrief, CreatePaymentIntentResponse, ListingDetailWithSimilar } from "@/types/api";
 
@@ -54,10 +54,11 @@ export default function BookingModal({ listing, onClose }: Props) {
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const mutation = useMutation(createPaymentIntentMutation);
   // Rent-only: BookNowButton is hidden for sale listings (those use WhatsApp contact).
-  // Platform fee = flat booking deposit configured in backend app/config.py.
-  const RENT_BOOKING_FEE = 2000;
+  // Fee comes from the backend (/api/bookings/fees) so the preview can never
+  // diverge from the amount Stripe actually charges; 2000 is a display fallback.
+  const feesQuery = useQuery(bookingsQueries.fees());
   const fullPrice = listing.price * durationMonths;
-  const feeDue = RENT_BOOKING_FEE;
+  const feeDue = feesQuery.data?.rent_booking_fee ?? 2000;
 
   async function createPaymentIntent() {
     setPaymentError(null);
@@ -280,9 +281,14 @@ function PaymentStep({
       </div>
 
       {error && (
-        <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+        <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
           {error}
-        </p>
+          {error.includes("dashboard") && (
+            <Link href="/dashboard?tab=bookings" className="mt-1 block font-bold text-red-100 underline underline-offset-2">
+              Open my bookings
+            </Link>
+          )}
+        </div>
       )}
 
       <div className="flex gap-3">

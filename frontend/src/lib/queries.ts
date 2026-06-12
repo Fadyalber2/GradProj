@@ -17,6 +17,7 @@ import type {
   ListingBrief,
   ListingLifestylePreferences,
   BookingBrief,
+  BookingFees,
   CreatePaymentIntentResponse,
   SubscriptionStatus,
 } from "@/types/api";
@@ -267,12 +268,18 @@ export const bookingsQueries = {
     queryKey: ["bookings", "intent", intentId],
     queryFn: () => api.get<BookingBrief>(`/api/bookings/by-intent/${intentId}`),
   }),
+
+  fees: () => ({
+    queryKey: ["bookings", "fees"],
+    queryFn: () => api.get<BookingFees>("/api/bookings/fees"),
+    staleTime: 60 * 60 * 1000,
+  }),
 };
 
 export const createPaymentIntentMutation = {
   mutationFn: (data: {
     listing_id: string;
-    booking_type: "rent" | "sale";
+    booking_type: "rent";
     start_date?: string | null;
     duration_months?: number | null;
   }) => api.post<CreatePaymentIntentResponse>("/api/bookings/payment-intent", data),

@@ -33,8 +33,7 @@ class Settings(BaseSettings):
     stripe_price_pro: str = ""     # Stripe recurring price id for Pro
 
     # Monetization (platform fees, EGP). See payment-monetization-model spec.
-    sale_reservation_pct: float = 0.01      # 1% of sale price
-    sale_reservation_cap: float = 50000.0   # capped at EGP 50,000
+    # Sales are lead-gen only (WhatsApp contact) — no sale payment fees.
     rent_booking_fee: float = 2000.0        # flat deposit to secure a rent booking
 
     model_config = SettingsConfigDict(env_file=BACKEND_DIR / ".env", extra="ignore")

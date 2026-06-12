@@ -23,7 +23,7 @@ RENT_DURATIONS = {1, 2, 3, 6, 12}
 
 class CreatePaymentIntentRequest(BaseModel):
     listing_id: str
-    booking_type: str  # "rent" | "sale"
+    booking_type: str  # "rent" — sale listings are lead-gen only, no online payment
     start_date: date | None = None
     duration_months: int | None = None
 
@@ -78,11 +78,6 @@ def _stripe_mapping(value) -> dict:
 def _image(listing: dict | None) -> str | None:
     images = (listing or {}).get("images") or []
     return images[0] if images else None
-
-
-def _listing_status_for(booking_type: str) -> str:
-    """Sale listings become 'reserved'; rent listings become 'booked'."""
-    return "reserved" if booking_type == "sale" else "booked"
 
 
 def _fetch_booking_related(row: dict) -> tuple[dict, dict, list[dict]]:
@@ -234,7 +229,7 @@ def _create_booking_from_paid_intent(intent) -> dict:
     listing_id = metadata.get("listing_id")
     renter_id = metadata.get("renter_id")
     booking_type = metadata.get("booking_type")
-    if not listing_id or not renter_id or booking_type not in ("rent", "sale"):
+    if not listing_id or not renter_id or booking_type != "rent":
         raise HTTPException(status_code=400, detail="PaymentIntent metadata is incomplete")
 
     body = CreatePaymentIntentRequest(
@@ -290,7 +285,7 @@ def _create_booking_from_paid_intent(intent) -> dict:
     try:
         (
             supabase_admin.table("listings")
-            .update({"status": _listing_status_for(booking_type)})
+            .update({"status": "booked"})
             .eq("id", listing_id)
             .execute()
         )
@@ -301,6 +296,15 @@ def _create_booking_from_paid_intent(intent) -> dict:
 
 
 # ── endpoints ────────────────────────────────────────────────────────────
+
+
+@router.get("/fees")
+async def get_fees():
+    """Public fee config — frontend reads this instead of hardcoding amounts."""
+    return {
+        "rent_booking_fee": round(_money(settings.rent_booking_fee), 2),
+        "currency": "EGP",
+    }
 
 
 @router.post("/payment-intent")

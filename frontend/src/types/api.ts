@@ -393,6 +393,11 @@ export interface CreatePaymentIntentResponse {
   booking_preview: BookingPaymentPreview;
 }
 
+export interface BookingFees {
+  rent_booking_fee: number;
+  currency: string;
+}
+
 // ── Shared Housing (legacy — remove when Task 14 redirect is in place) ──
 
 /** @deprecated Use ListingDetail with category==="shared_housing" instead */
