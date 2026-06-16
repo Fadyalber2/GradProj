@@ -8,8 +8,6 @@ import type { SharedHousingDetail } from "@/types";
 import type { ListingDetailWithSimilar } from "@/types/api";
 import CompatibilityScore from "@/components/shared-housing/CompatibilityScore";
 import WhatsAppCTA from "@/components/property/WhatsAppCTA";
-import ApplyButton from "@/components/shared-housing/ApplyButton";
-import BookNowButton from "@/components/booking/BookNowButton";
 import { formatEGP } from "@/lib/utils";
 
 interface SharedHousingSidebarProps {
@@ -21,7 +19,6 @@ interface SharedHousingSidebarProps {
 
 export default function SharedHousingSidebar({
   housing,
-  listing,
   contactPhone,
   contactName,
 }: SharedHousingSidebarProps) {
@@ -65,10 +62,6 @@ export default function SharedHousingSidebar({
             contactName={contactName}
             showSchedule={false}
           />
-          <div className="space-y-3 border-t border-white/10 pt-3">
-            <ApplyButton listing={listing} className="mt-0" />
-            <BookNowButton listing={listing} className="mt-0" />
-          </div>
         </div>
 
         <div className="flex items-center justify-center gap-2 text-xs text-gray-500 mt-4">

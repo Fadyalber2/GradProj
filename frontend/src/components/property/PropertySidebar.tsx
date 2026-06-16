@@ -8,14 +8,13 @@ import type { PropertyDetail } from "@/types";
 import type { ListingDetailWithSimilar } from "@/types/api";
 import { formatEGP, getListingPriceSuffix } from "@/lib/utils";
 import WhatsAppCTA from "@/components/property/WhatsAppCTA";
-import BookNowButton from "@/components/booking/BookNowButton";
 
 interface PropertySidebarProps {
   property: PropertyDetail;
   listing: ListingDetailWithSimilar;
 }
 
-export default function PropertySidebar({ property, listing }: PropertySidebarProps) {
+export default function PropertySidebar({ property }: PropertySidebarProps) {
   const suffix = getListingPriceSuffix(property.category);
 
   return (
@@ -52,16 +51,13 @@ export default function PropertySidebar({ property, listing }: PropertySidebarPr
               listingId={property.id}
               contactPhone={property.contactPhone}
               contactName={property.contactName}
-              showSchedule={true}
+              showSchedule={false}
             />
-            <div className="border-t border-white/10 pt-3">
-              <BookNowButton listing={listing} className="mt-0" />
-            </div>
           </div>
 
           <div className="flex items-center justify-center gap-2 text-xs text-gray-500 mt-4">
             <ShieldCheck className="h-3.5 w-3.5" />
-            <span>Secure transaction with Axiom Shield</span>
+            <span>Secure verification via Axiom Shield</span>
           </div>
         </motion.div>
 
