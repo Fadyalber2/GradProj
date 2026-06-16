@@ -619,8 +619,12 @@ def test_summary() -> dict[str, str]:
 
 
 def write_mermaid_erd(tables: list[Table]) -> None:
-    core_order = [
+    # Preferred display order for readability. Any table parsed from the SQL
+    # migrations that is not listed here is still rendered (appended in name
+    # order), so new migrations can never silently drop entities from the ERD.
+    preferred_order = [
         "profiles",
+        "subscriptions",
         "neighborhoods",
         "agencies",
         "projects",
@@ -631,24 +635,34 @@ def write_mermaid_erd(tables: list[Table]) -> None:
         "leads",
         "viewings",
         "bookings",
+        "booking_disbursements",
         "payments",
-        "subscriptions",
+        "conversations",
+        "messages",
+        "blocked_users",
         "notifications",
+        "blog_posts",
+        "knowledge_chunks",
     ]
     table_by_name = {table.name: table for table in tables}
-    tables = [table_by_name[name] for name in core_order if name in table_by_name]
+    ordered_names = [name for name in preferred_order if name in table_by_name]
+    ordered_names += sorted(name for name in table_by_name if name not in preferred_order)
+    tables = [table_by_name[name] for name in ordered_names]
+    rendered = set(ordered_names)
     lines = ["erDiagram"]
     for table in tables:
         lines.append(f"  {table.name} {{")
         for col in table.columns[:8]:
-            marker = " PK" if col.pk else ""
+            marker = " PK" if col.pk else (" FK" if col.fk_table else "")
             type_name = re.sub(r"[^A-Za-z0-9_]", "_", col.type_name)
             lines.append(f"    {type_name} {col.name}{marker}")
         lines.append("  }")
     seen = set()
     for table in tables:
         for col in table.columns:
-            if col.fk_table and col.fk_table != table.name:
+            # Skip self references and references to tables outside the diagram
+            # (e.g. Supabase-managed auth.users) to avoid phantom entities.
+            if col.fk_table and col.fk_table != table.name and col.fk_table in rendered:
                 rel = (col.fk_table, table.name, col.name)
                 if rel in seen:
                     continue

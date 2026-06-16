@@ -2,9 +2,12 @@ erDiagram
     PROFILES {
         UUID id PK
         TEXT email
+        TEXT full_name
         USER_ROLE role
         BOOLEAN is_verified_seller
+        TEXT gender
         JSONB lifestyle_preferences
+        TEXT stripe_account_id
     }
 
     SUBSCRIPTIONS {
@@ -12,7 +15,16 @@ erDiagram
         UUID user_id FK
         SUBSCRIPTION_PLAN plan
         TEXT status
+        TEXT stripe_subscription_id
         INTEGER ai_descriptions_used
+    }
+
+    NEIGHBORHOODS {
+        UUID id PK
+        TEXT name
+        TEXT name_ar
+        TEXT city
+        TEXT slug
     }
 
     AGENCIES {
@@ -27,14 +39,9 @@ erDiagram
         UUID id PK
         UUID agency_id FK
         TEXT title
-        PROJECT_STATUS status
-    }
-
-    NEIGHBORHOODS {
-        UUID id PK
-        TEXT name
-        TEXT city
         TEXT slug
+        NUMERIC starting_price
+        PROJECT_STATUS status
     }
 
     LISTINGS {
@@ -45,8 +52,9 @@ erDiagram
         UUID neighborhood_id FK
         LISTING_CATEGORY category
         PROPERTY_TYPE property_type
-        LISTING_STATUS status
         NUMERIC price
+        LISTING_STATUS status
+        FLOAT fraud_score
         VECTOR embedding
     }
 
@@ -55,12 +63,14 @@ erDiagram
         UUID listing_id FK
         UUID user_id FK
         TEXT name
+        INTEGER age
     }
 
     LISTING_APPLICATIONS {
         UUID id PK
         UUID listing_id FK
         UUID applicant_id FK
+        JSONB lifestyle_data
         INTEGER compatibility_score
         APPLICATION_STATUS status
     }
@@ -77,6 +87,7 @@ erDiagram
         UUID listing_id FK
         UUID agency_id FK
         TEXT source
+        BOOLEAN is_billable
     }
 
     VIEWINGS {
@@ -84,6 +95,7 @@ erDiagram
         UUID listing_id FK
         UUID requester_id FK
         UUID owner_id FK
+        TIMESTAMPTZ scheduled_at
         VIEWING_STATUS status
     }
 
@@ -93,6 +105,17 @@ erDiagram
         UUID renter_id FK
         UUID owner_id FK
         TEXT booking_type
+        NUMERIC total_price
+        TEXT status
+        TEXT stripe_payment_intent_id
+    }
+
+    BOOKING_DISBURSEMENTS {
+        UUID id PK
+        UUID booking_id FK
+        INTEGER month_number
+        NUMERIC amount
+        DATE scheduled_date
         TEXT status
     }
 
@@ -102,29 +125,60 @@ erDiagram
         UUID listing_id FK
         UUID booking_id FK
         TEXT kind
+        NUMERIC amount
         TEXT status
     }
 
-    BOOKING_DISBURSEMENTS {
+    CONVERSATIONS {
         UUID id PK
-        UUID booking_id FK
-        INTEGER month_number
-        NUMERIC amount
+        UUID user_a_id FK
+        UUID user_b_id FK
+        UUID listing_id FK
+        UUID initiated_by FK
         TEXT status
+        TIMESTAMPTZ last_message_at
+    }
+
+    MESSAGES {
+        UUID id PK
+        UUID conversation_id FK
+        UUID sender_id FK
+        TEXT text
+        TEXT attachment_url
+        TIMESTAMPTZ created_at
+    }
+
+    BLOCKED_USERS {
+        UUID id PK
+        UUID blocker_id FK
+        UUID blocked_id FK
+        TEXT reason
     }
 
     NOTIFICATIONS {
         UUID id PK
         UUID user_id FK
         TEXT type
+        TEXT title
         BOOLEAN is_read
+    }
+
+    BLOG_POSTS {
+        UUID id PK
+        UUID author_id FK
+        TEXT title
+        TEXT slug
+        TEXT category
+        BOOLEAN is_published
     }
 
     KNOWLEDGE_CHUNKS {
         UUID id PK
         TEXT source_type
         TEXT source_id
+        TEXT chunk_text
         VECTOR embedding
+        JSONB metadata
     }
 
     PROFILES ||--|| SUBSCRIPTIONS : has
@@ -152,8 +206,18 @@ erDiagram
     LISTINGS ||--o{ BOOKINGS : booked_by
     PROFILES ||--o{ BOOKINGS : rents
     PROFILES ||--o{ BOOKINGS : owns_booking
-    BOOKINGS ||--o{ PAYMENTS : paid_by
     BOOKINGS ||--o{ BOOKING_DISBURSEMENTS : schedules
+    BOOKINGS ||--o{ PAYMENTS : paid_by
     PROFILES ||--o{ PAYMENTS : pays
     LISTINGS ||--o{ PAYMENTS : charged_for
+
+    PROFILES ||--o{ CONVERSATIONS : user_a
+    PROFILES ||--o{ CONVERSATIONS : user_b
+    LISTINGS ||--o{ CONVERSATIONS : about
+    CONVERSATIONS ||--o{ MESSAGES : contains
+    PROFILES ||--o{ MESSAGES : sends
+    PROFILES ||--o{ BLOCKED_USERS : blocker
+    PROFILES ||--o{ BLOCKED_USERS : blocked
+
     PROFILES ||--o{ NOTIFICATIONS : receives
+    PROFILES ||--o{ BLOG_POSTS : authors
