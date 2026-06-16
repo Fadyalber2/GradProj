@@ -162,6 +162,8 @@ export default function PropertyInfo({ property }: PropertyInfoProps) {
         <PropertyMap
           title={property.title}
           address={property.fullAddress || property.location}
+          lat={property.latitude}
+          lng={property.longitude}
         />
       </motion.div>
     </div>

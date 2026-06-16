@@ -49,12 +49,6 @@ export default function WhatsAppCTA({
       router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
       return;
     }
-    if (!user.phone) {
-      toast.error("Please add your phone number in your profile to contact listings.", {
-        action: { label: "Go to Profile", onClick: () => router.push("/dashboard") },
-      });
-      return;
-    }
     action();
   }
 

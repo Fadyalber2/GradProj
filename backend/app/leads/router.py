@@ -38,11 +38,9 @@ async def create_lead(
     if body.source not in _TEMPLATES:
         raise HTTPException(status_code=422, detail="Invalid source. Must be 'whatsapp_click' or 'schedule_viewing'.")
 
-    user_phone: str | None = current_user.get("phone")
+    # Phone number doubles as the WhatsApp number; fall back accordingly.
+    user_phone: str | None = current_user.get("phone") or current_user.get("whatsapp_number")
     user_name: str = current_user.get("full_name") or "A buyer"
-
-    if not user_phone:
-        raise HTTPException(status_code=422, detail="Please add a phone number to your profile before contacting listings.")
 
     # Fetch listing
     try:
@@ -88,38 +86,43 @@ async def create_lead(
             try:
                 ow_res = (
                     supabase_admin.table("profiles")
-                    .select("phone")
+                    .select("phone, whatsapp_number")
                     .eq("id", owner_id)
                     .single()
                     .execute()
                 )
-                if ow_res.data and ow_res.data.get("phone"):
-                    contact_phone = _normalize_phone(ow_res.data["phone"])
+                owner_phone = (ow_res.data.get("phone") or ow_res.data.get("whatsapp_number")) if ow_res.data else None
+                if owner_phone:
+                    contact_phone = _normalize_phone(owner_phone)
             except Exception:
                 pass
 
     if not contact_phone:
         raise HTTPException(status_code=422, detail="Contact information is not available for this listing.")
 
-    # Upsert lead (ON CONFLICT DO NOTHING)
-    lead_data = {
-        "user_id": current_user["id"],
-        "listing_id": body.listing_id,
-        "agency_id": agency_id,
-        "contact_name": user_name,
-        "contact_phone": current_user["phone"],
-        "source": body.source,
-        "is_billable": is_billable,
-    }
-    try:
-        insert_res = (
-            supabase_admin.table("leads")
-            .upsert(lead_data, on_conflict="user_id,listing_id", ignore_duplicates=True)
-            .execute()
-        )
-        already_existed = not bool(insert_res.data)
-    except Exception:
-        already_existed = True
+    # Upsert lead (ON CONFLICT DO NOTHING). contact_phone is NOT NULL, so only
+    # record the lead when we have the buyer's number; the WhatsApp link is
+    # always returned regardless so contacting the lister never breaks.
+    already_existed = False
+    if user_phone:
+        lead_data = {
+            "user_id": current_user["id"],
+            "listing_id": body.listing_id,
+            "agency_id": agency_id,
+            "contact_name": user_name,
+            "contact_phone": user_phone,
+            "source": body.source,
+            "is_billable": is_billable,
+        }
+        try:
+            insert_res = (
+                supabase_admin.table("leads")
+                .upsert(lead_data, on_conflict="user_id,listing_id", ignore_duplicates=True)
+                .execute()
+            )
+            already_existed = not bool(insert_res.data)
+        except Exception:
+            already_existed = True
 
     # Build wa.me URL
     price_str = f"{int(listing.get('price', 0)):,}"

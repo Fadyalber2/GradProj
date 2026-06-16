@@ -57,6 +57,16 @@ class DescriptionRequest(BaseModel):
     extra_notes: Optional[str] = None
 
 
+class RecommendationRequest(BaseModel):
+    budget_max: Optional[float] = None
+    location: Optional[str] = None
+    bedrooms: Optional[int] = None
+    # "rent" | "buy" | "shared" from the "What are you looking for?" modal
+    property_type: Optional[str] = None
+    vibes: list[str] = []
+    limit: int = Field(default=6, ge=1, le=24)
+
+
 class AmenityValidationRequest(BaseModel):
     amenity: str = Field(..., max_length=200)
 
@@ -878,6 +888,73 @@ async def get_recommendations(
         return candidates
     except Exception:
         return []
+
+
+_PROPERTY_TYPE_TO_CATEGORY = {
+    "rent": "for_rent",
+    "buy": "for_sale",
+    "shared": "shared_housing",
+}
+
+
+@router.post("/recommendations")
+async def post_recommendations(
+    body: RecommendationRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Return listings filtered by the preferences submitted from the home
+    "What are you looking for?" modal (budget, location, bedrooms, type, vibes).
+    Hard-filters on budget/location/bedrooms/category, then ranks the remaining
+    candidates by how many requested vibes match the listing amenities.
+    """
+    try:
+        query = (
+            supabase_admin.table("listings")
+            .select("*, neighborhoods(name)")
+            .eq("status", "active")
+            .is_("deleted_at", "null")
+        )
+
+        category = _PROPERTY_TYPE_TO_CATEGORY.get((body.property_type or "").lower())
+        if category:
+            query = query.eq("category", category)
+        if body.budget_max is not None:
+            query = query.lte("price", body.budget_max)
+        if body.bedrooms is not None:
+            query = query.gte("bedrooms", body.bedrooms)
+        if body.location:
+            loc = body.location.replace(",", " ").strip()
+            query = query.or_(f"location.ilike.%{loc}%,city.ilike.%{loc}%")
+
+        result = query.order("views_count", desc=True).limit(50).execute()
+        rows = result.data or []
+    except Exception:
+        rows = []
+
+    wanted_vibes = [v.lower() for v in (body.vibes or [])]
+
+    def vibe_score(row: dict) -> int:
+        if not wanted_vibes:
+            return 0
+        haystack = " ".join(str(a).lower() for a in (row.get("amenities") or []))
+        return sum(1 for v in wanted_vibes if v in haystack)
+
+    ranked = sorted(
+        rows,
+        key=lambda r: (vibe_score(r), r.get("views_count", 0)),
+        reverse=True,
+    )
+
+    recommendations = []
+    for row in ranked[: body.limit]:
+        brief = _build_listing_brief(row)
+        matched = vibe_score(row)
+        if matched:
+            brief["reasoning"] = f"Matches {matched} of your selected vibes"
+        recommendations.append(brief)
+
+    return {"recommendations": recommendations, "total": len(recommendations)}
 
 
 # ─── POST /api/ai/compatibility ──────────────────────────────────────────────

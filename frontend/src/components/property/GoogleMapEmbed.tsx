@@ -3,12 +3,16 @@
 interface GoogleMapEmbedProps {
   address: string;
   title: string;
+  lat?: number | null;
+  lng?: number | null;
 }
 
-const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "";
-
-export default function GoogleMapEmbed({ address, title }: GoogleMapEmbedProps) {
-  const src = `https://www.google.com/maps/embed/v1/place?key=${API_KEY}&q=${encodeURIComponent(address)}`;
+// Keyless Google Maps embed — works without an API key.
+// Prefers exact coordinates when available, otherwise geocodes the address text.
+export default function GoogleMapEmbed({ address, title, lat, lng }: GoogleMapEmbedProps) {
+  const query =
+    lat != null && lng != null ? `${lat},${lng}` : address;
+  const src = `https://www.google.com/maps?q=${encodeURIComponent(query)}&z=15&output=embed`;
 
   return (
     <iframe

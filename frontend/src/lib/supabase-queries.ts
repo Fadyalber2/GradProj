@@ -300,12 +300,12 @@ export async function getListing(id: string) {
   const [{ data, error }, housematesRes] = await Promise.all([
     supabase
       .from("listings")
-      .select("*, profiles!listings_owner_id_fkey(full_name, avatar_url, phone), agencies!listings_agency_id_fkey(name, phone)")
+      .select("*, profiles!listings_owner_id_fkey(full_name, avatar_url, phone, whatsapp_number), agencies!listings_agency_id_fkey(name, phone)")
       .eq("id", id)
       .single(),
     supabase
       .from("housemates")
-      .select("id, listing_id, user_id, name, age, occupation, avatar_url, tags, lifestyle_preferences")
+      .select("id, listing_id, user_id, name, age, occupation, avatar_url, tags")
       .eq("listing_id", id),
   ]);
 
@@ -313,13 +313,13 @@ export async function getListing(id: string) {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const d = data as any;
-  const profile = d.profiles as { full_name: string | null; phone: string | null } | null;
+  const profile = d.profiles as { full_name: string | null; phone: string | null; whatsapp_number: string | null } | null;
   const agency  = d.agencies  as { name: string | null; phone: string | null } | null;
   const listing = {
     ...data,
     housemates: housematesRes.data ?? [],
     similar_listings: [],
-    contact_phone: profile?.phone ?? agency?.phone ?? null,
+    contact_phone: profile?.phone ?? profile?.whatsapp_number ?? agency?.phone ?? null,
     contact_name:  profile?.full_name ?? agency?.name ?? null,
   } as unknown as ListingDetailWithSimilar;
   return { data: listing, error: null };

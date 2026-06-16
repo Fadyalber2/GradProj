@@ -73,6 +73,8 @@ function mapProperty(data: ListingDetailWithSimilar): PropertyDetail {
     title: data.title,
     location: data.location,
     fullAddress: data.full_address ?? data.location,
+    latitude: data.latitude ?? null,
+    longitude: data.longitude ?? null,
     price: data.price,
     rating: 4.5,
     reviewCount: 0,
@@ -174,6 +176,8 @@ export default async function PropertyDetailPage({
               <PropertyMap
                 title={property.title}
                 address={property.fullAddress || property.location}
+                lat={property.latitude}
+                lng={property.longitude}
               />
             </div>
             <div className="lg:w-[30%]">

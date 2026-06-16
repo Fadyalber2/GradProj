@@ -104,6 +104,8 @@ export interface ListingDetail extends ListingBrief {
   // Location
   neighborhood_id: string | null;
   total_floors: number | null;
+  latitude: number | null;
+  longitude: number | null;
   // Rental fields (for_rent + shared_housing)
   lease_type: "monthly" | "yearly" | null;
   min_stay_months: number | null;

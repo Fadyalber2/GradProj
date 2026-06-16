@@ -402,6 +402,8 @@ export interface PropertyDetail {
   title: string;
   location: string;
   fullAddress: string;
+  latitude?: number | null;
+  longitude?: number | null;
   price: number;
   rating: number;
   reviewCount: number;
