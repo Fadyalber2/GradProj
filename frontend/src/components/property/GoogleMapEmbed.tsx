@@ -7,12 +7,14 @@ interface GoogleMapEmbedProps {
   lng?: number | null;
 }
 
-// Keyless Google Maps embed — works without an API key.
-// Prefers exact coordinates when available, otherwise geocodes the address text.
+const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "";
+
+// Uses the Google Maps Embed API (requires NEXT_PUBLIC_GOOGLE_MAPS_API_KEY with
+// the "Maps Embed API" enabled). Prefers exact coordinates when available,
+// otherwise geocodes the address text.
 export default function GoogleMapEmbed({ address, title, lat, lng }: GoogleMapEmbedProps) {
-  const query =
-    lat != null && lng != null ? `${lat},${lng}` : address;
-  const src = `https://www.google.com/maps?q=${encodeURIComponent(query)}&z=15&output=embed`;
+  const q = lat != null && lng != null ? `${lat},${lng}` : address;
+  const src = `https://www.google.com/maps/embed/v1/place?key=${API_KEY}&q=${encodeURIComponent(q)}`;
 
   return (
     <iframe
