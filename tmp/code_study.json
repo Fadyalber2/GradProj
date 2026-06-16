@@ -1,0 +1,5085 @@
+{
+  "counts": {
+    "files": 268,
+    "lines": 38512,
+    "by_ext": {
+      ".css": {
+        "files": 1,
+        "lines": 237
+      },
+      ".py": {
+        "files": 75,
+        "lines": 10797
+      },
+      ".sql": {
+        "files": 11,
+        "lines": 1056
+      },
+      ".ts": {
+        "files": 13,
+        "lines": 3217
+      },
+      ".tsx": {
+        "files": 168,
+        "lines": 23205
+      }
+    }
+  },
+  "largest_files": [
+    {
+      "path": "frontend/src/app/admin/dashboard/page.tsx",
+      "suffix": ".tsx",
+      "lines": 2790,
+      "chars": 128690
+    },
+    {
+      "path": "frontend/src/components/dashboard/AddListingModal.tsx",
+      "suffix": ".tsx",
+      "lines": 1905,
+      "chars": 83652
+    },
+    {
+      "path": "backend/app/ai/router.py",
+      "suffix": ".py",
+      "lines": 1318,
+      "chars": 54159
+    },
+    {
+      "path": "backend/app/admin/router.py",
+      "suffix": ".py",
+      "lines": 1146,
+      "chars": 40445
+    },
+    {
+      "path": "backend/tests/test_ai.py",
+      "suffix": ".py",
+      "lines": 927,
+      "chars": 31719
+    },
+    {
+      "path": "backend/app/listings/router.py",
+      "suffix": ".py",
+      "lines": 799,
+      "chars": 29276
+    },
+    {
+      "path": "docs/schema/001_v2_comprehensive_schema.sql",
+      "suffix": ".sql",
+      "lines": 679,
+      "chars": 29440
+    },
+    {
+      "path": "frontend/src/lib/supabase-queries.ts",
+      "suffix": ".ts",
+      "lines": 676,
+      "chars": 24277
+    },
+    {
+      "path": "frontend/src/components/dashboard/ProfileSettings.tsx",
+      "suffix": ".tsx",
+      "lines": 635,
+      "chars": 24238
+    },
+    {
+      "path": "frontend/src/app/pricing/page.tsx",
+      "suffix": ".tsx",
+      "lines": 632,
+      "chars": 22550
+    },
+    {
+      "path": "frontend/src/components/booking/BookingModal.tsx",
+      "suffix": ".tsx",
+      "lines": 557,
+      "chars": 21111
+    },
+    {
+      "path": "backend/app/bookings/router.py",
+      "suffix": ".py",
+      "lines": 552,
+      "chars": 19393
+    },
+    {
+      "path": "frontend/src/components/ai/ChatDrawer.tsx",
+      "suffix": ".tsx",
+      "lines": 499,
+      "chars": 19320
+    },
+    {
+      "path": "frontend/src/types/api.ts",
+      "suffix": ".ts",
+      "lines": 487,
+      "chars": 11938
+    },
+    {
+      "path": "frontend/src/types/index.ts",
+      "suffix": ".ts",
+      "lines": 482,
+      "chars": 10097
+    },
+    {
+      "path": "frontend/src/components/layout/Navbar.tsx",
+      "suffix": ".tsx",
+      "lines": 452,
+      "chars": 19143
+    },
+    {
+      "path": "frontend/src/app/find-homes/page.tsx",
+      "suffix": ".tsx",
+      "lines": 426,
+      "chars": 17212
+    },
+    {
+      "path": "frontend/src/components/find-homes/FilterSidebar.tsx",
+      "suffix": ".tsx",
+      "lines": 419,
+      "chars": 11972
+    },
+    {
+      "path": "backend/app/agencies/router.py",
+      "suffix": ".py",
+      "lines": 390,
+      "chars": 11750
+    },
+    {
+      "path": "backend/tests/test_listings.py",
+      "suffix": ".py",
+      "lines": 390,
+      "chars": 14508
+    },
+    {
+      "path": "frontend/src/lib/queries.ts",
+      "suffix": ".ts",
+      "lines": 389,
+      "chars": 10272
+    },
+    {
+      "path": "frontend/src/components/auth/SignUpForm.tsx",
+      "suffix": ".tsx",
+      "lines": 373,
+      "chars": 15115
+    },
+    {
+      "path": "frontend/src/components/sections/RecommendationsSection.tsx",
+      "suffix": ".tsx",
+      "lines": 351,
+      "chars": 12664
+    },
+    {
+      "path": "frontend/src/components/auth/LoginForm.tsx",
+      "suffix": ".tsx",
+      "lines": 347,
+      "chars": 13679
+    },
+    {
+      "path": "frontend/src/components/auth/ForgotPasswordForm.tsx",
+      "suffix": ".tsx",
+      "lines": 313,
+      "chars": 11866
+    },
+    {
+      "path": "frontend/src/components/ai/ChatMessage.tsx",
+      "suffix": ".tsx",
+      "lines": 310,
+      "chars": 10520
+    },
+    {
+      "path": "frontend/src/stores/authStore.ts",
+      "suffix": ".ts",
+      "lines": 305,
+      "chars": 10139
+    },
+    {
+      "path": "frontend/src/components/auth/ResetPasswordForm.tsx",
+      "suffix": ".tsx",
+      "lines": 303,
+      "chars": 11813
+    },
+    {
+      "path": "frontend/src/components/layout/NotificationBell.tsx",
+      "suffix": ".tsx",
+      "lines": 296,
+      "chars": 9893
+    },
+    {
+      "path": "backend/app/applications/router.py",
+      "suffix": ".py",
+      "lines": 293,
+      "chars": 10224
+    },
+    {
+      "path": "frontend/src/app/dashboard/page.tsx",
+      "suffix": ".tsx",
+      "lines": 267,
+      "chars": 12180
+    },
+    {
+      "path": "frontend/src/components/ui/dropdown-menu.tsx",
+      "suffix": ".tsx",
+      "lines": 257,
+      "chars": 8418
+    },
+    {
+      "path": "backend/app/auth/router.py",
+      "suffix": ".py",
+      "lines": 246,
+      "chars": 8937
+    },
+    {
+      "path": "frontend/src/lib/demoBookings.ts",
+      "suffix": ".ts",
+      "lines": 245,
+      "chars": 8038
+    },
+    {
+      "path": "backend/tests/test_agencies.py",
+      "suffix": ".py",
+      "lines": 240,
+      "chars": 6973
+    },
+    {
+      "path": "frontend/src/app/globals.css",
+      "suffix": ".css",
+      "lines": 237,
+      "chars": 6392
+    },
+    {
+      "path": "backend/app/ai/embeddings.py",
+      "suffix": ".py",
+      "lines": 237,
+      "chars": 7274
+    },
+    {
+      "path": "frontend/src/components/property/PropertyHero.tsx",
+      "suffix": ".tsx",
+      "lines": 235,
+      "chars": 9238
+    },
+    {
+      "path": "backend/app/listings/schemas.py",
+      "suffix": ".py",
+      "lines": 233,
+      "chars": 7347
+    },
+    {
+      "path": "frontend/src/components/auth/AuthProductPreview.tsx",
+      "suffix": ".tsx",
+      "lines": 230,
+      "chars": 9524
+    },
+    {
+      "path": "frontend/src/app/property/[id]/page.tsx",
+      "suffix": ".tsx",
+      "lines": 221,
+      "chars": 8343
+    },
+    {
+      "path": "frontend/src/components/dashboard/MyListings.tsx",
+      "suffix": ".tsx",
+      "lines": 214,
+      "chars": 10053
+    },
+    {
+      "path": "backend/app/dashboard/router.py",
+      "suffix": ".py",
+      "lines": 214,
+      "chars": 7842
+    },
+    {
+      "path": "frontend/src/components/universities/UniversitySidebar.tsx",
+      "suffix": ".tsx",
+      "lines": 213,
+      "chars": 8863
+    },
+    {
+      "path": "frontend/src/components/admin/AdminTable.tsx",
+      "suffix": ".tsx",
+      "lines": 207,
+      "chars": 8339
+    },
+    {
+      "path": "frontend/src/components/project-details/ResidencesGrid.tsx",
+      "suffix": ".tsx",
+      "lines": 197,
+      "chars": 8096
+    },
+    {
+      "path": "backend/app/universities/router.py",
+      "suffix": ".py",
+      "lines": 194,
+      "chars": 6342
+    },
+    {
+      "path": "backend/app/leads/router.py",
+      "suffix": ".py",
+      "lines": 191,
+      "chars": 6235
+    },
+    {
+      "path": "frontend/src/components/ui/select.tsx",
+      "suffix": ".tsx",
+      "lines": 190,
+      "chars": 6353
+    },
+    {
+      "path": "frontend/src/components/shared-housing/CompatibilityScore.tsx",
+      "suffix": ".tsx",
+      "lines": 188,
+      "chars": 5899
+    }
+  ],
+  "backend_routes": [
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "POST",
+      "path": "/auth/login",
+      "handler": "admin_login",
+      "line": 134,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "GET",
+      "path": "/stats",
+      "handler": "admin_stats",
+      "line": 146,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "GET",
+      "path": "/listings",
+      "handler": "admin_list_listings",
+      "line": 225,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "POST",
+      "path": "/listings",
+      "handler": "admin_create_listing",
+      "line": 260,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "POST",
+      "path": "/uploads/signed-url",
+      "handler": "admin_get_signed_upload_url",
+      "line": 307,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "PUT",
+      "path": "/listings/{listing_id}",
+      "handler": "admin_update_listing",
+      "line": 345,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "DELETE",
+      "path": "/listings/{listing_id}",
+      "handler": "admin_delete_listing",
+      "line": 384,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "PUT",
+      "path": "/listings/{listing_id}/approve",
+      "handler": "admin_approve_listing",
+      "line": 427,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "PUT",
+      "path": "/listings/{listing_id}/reject",
+      "handler": "admin_reject_listing",
+      "line": 476,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "GET",
+      "path": "/users",
+      "handler": "admin_list_users",
+      "line": 525,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "PUT",
+      "path": "/users/{user_id}/verify",
+      "handler": "admin_verify_user",
+      "line": 550,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "PUT",
+      "path": "/users/{user_id}",
+      "handler": "admin_update_user",
+      "line": 578,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "DELETE",
+      "path": "/users/{user_id}",
+      "handler": "admin_delete_user",
+      "line": 636,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "GET",
+      "path": "/agencies",
+      "handler": "admin_list_agencies",
+      "line": 652,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "POST",
+      "path": "/agencies",
+      "handler": "admin_create_agency",
+      "line": 674,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "PUT",
+      "path": "/agencies/{agency_id}",
+      "handler": "admin_update_agency",
+      "line": 692,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "DELETE",
+      "path": "/agencies/{agency_id}",
+      "handler": "admin_delete_agency",
+      "line": 718,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "GET",
+      "path": "/universities",
+      "handler": "admin_list_universities",
+      "line": 733,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "POST",
+      "path": "/universities",
+      "handler": "admin_create_university",
+      "line": 753,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "PUT",
+      "path": "/universities/{university_id}",
+      "handler": "admin_update_university",
+      "line": 775,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "DELETE",
+      "path": "/universities/{university_id}",
+      "handler": "admin_delete_university",
+      "line": 805,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "GET",
+      "path": "/projects",
+      "handler": "admin_list_projects",
+      "line": 820,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "POST",
+      "path": "/projects",
+      "handler": "admin_create_project",
+      "line": 845,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "PUT",
+      "path": "/projects/{project_id}",
+      "handler": "admin_update_project",
+      "line": 863,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "DELETE",
+      "path": "/projects/{project_id}",
+      "handler": "admin_delete_project",
+      "line": 889,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "GET",
+      "path": "/blog",
+      "handler": "admin_list_blog",
+      "line": 904,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "POST",
+      "path": "/blog",
+      "handler": "admin_create_blog_post",
+      "line": 931,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "PUT",
+      "path": "/blog/{post_id}",
+      "handler": "admin_update_blog_post",
+      "line": 957,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "DELETE",
+      "path": "/blog/{post_id}",
+      "handler": "admin_delete_blog_post",
+      "line": 983,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "GET",
+      "path": "/fraud",
+      "handler": "admin_list_fraud",
+      "line": 998,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "PUT",
+      "path": "/fraud/{listing_id}",
+      "handler": "admin_review_fraud",
+      "line": 1023,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "GET",
+      "path": "/notifications",
+      "handler": "admin_list_notifications",
+      "line": 1051,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "GET",
+      "path": "/bookings",
+      "handler": "admin_list_bookings",
+      "line": 1075,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/admin/router.py",
+      "method": "GET",
+      "path": "/transactions",
+      "handler": "admin_list_transactions",
+      "line": 1140,
+      "auth": "admin"
+    },
+    {
+      "file": "backend/app/agencies/router.py",
+      "method": "GET",
+      "path": "",
+      "handler": "list_agencies",
+      "line": 47,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/agencies/router.py",
+      "method": "GET",
+      "path": "/{slug}/projects",
+      "handler": "get_agency_projects",
+      "line": 103,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/agencies/router.py",
+      "method": "GET",
+      "path": "/{slug}/listings",
+      "handler": "get_agency_listings",
+      "line": 151,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/agencies/router.py",
+      "method": "GET",
+      "path": "/{slug}",
+      "handler": "get_agency",
+      "line": 202,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/agencies/router.py",
+      "method": "POST",
+      "path": "",
+      "handler": "create_agency",
+      "line": 261,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/agencies/router.py",
+      "method": "PUT",
+      "path": "/{agency_id}",
+      "handler": "update_agency",
+      "line": 307,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/agencies/router.py",
+      "method": "POST",
+      "path": "/{agency_id}/subscribe",
+      "handler": "subscribe_agency",
+      "line": 350,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/ai/router.py",
+      "method": "POST",
+      "path": "/search",
+      "handler": "nl_search",
+      "line": 412,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/ai/router.py",
+      "method": "POST",
+      "path": "/chat",
+      "handler": "chat",
+      "line": 493,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/ai/router.py",
+      "method": "GET",
+      "path": "/recommendations",
+      "handler": "get_recommendations",
+      "line": 767,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/ai/router.py",
+      "method": "POST",
+      "path": "/compatibility",
+      "handler": "compute_compatibility",
+      "line": 886,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/ai/router.py",
+      "method": "POST",
+      "path": "/description",
+      "handler": "generate_description",
+      "line": 1052,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/ai/router.py",
+      "method": "POST",
+      "path": "/validate-amenity",
+      "handler": "validate_amenity",
+      "line": 1133,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/ai/router.py",
+      "method": "POST",
+      "path": "/format-article",
+      "handler": "format_article",
+      "line": 1236,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/applications/router.py",
+      "method": "POST",
+      "path": "",
+      "handler": "create_application",
+      "line": 96,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/applications/router.py",
+      "method": "GET",
+      "path": "/my",
+      "handler": "get_my_applications",
+      "line": 186,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/applications/router.py",
+      "method": "PUT",
+      "path": "/{application_id}",
+      "handler": "update_application",
+      "line": 218,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/auth/router.py",
+      "method": "POST",
+      "path": "/signup",
+      "handler": "signup",
+      "line": 67,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/auth/router.py",
+      "method": "POST",
+      "path": "/login",
+      "handler": "login",
+      "line": 124,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/auth/router.py",
+      "method": "GET",
+      "path": "/me",
+      "handler": "get_me",
+      "line": 146,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/auth/router.py",
+      "method": "PUT",
+      "path": "/me",
+      "handler": "update_me",
+      "line": 152,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/auth/router.py",
+      "method": "POST",
+      "path": "/send-phone-otp",
+      "handler": "send_phone_otp",
+      "line": 199,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/auth/router.py",
+      "method": "POST",
+      "path": "/verify-phone-otp",
+      "handler": "verify_phone_otp",
+      "line": 223,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/blog/router.py",
+      "method": "GET",
+      "path": "",
+      "handler": "list_blog_posts",
+      "line": 25,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/blog/router.py",
+      "method": "GET",
+      "path": "/{slug}/related",
+      "handler": "get_related_posts",
+      "line": 60,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/blog/router.py",
+      "method": "GET",
+      "path": "/{slug}",
+      "handler": "get_blog_post",
+      "line": 101,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/bookings/router.py",
+      "method": "GET",
+      "path": "/fees",
+      "handler": "get_fees",
+      "line": 302,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/bookings/router.py",
+      "method": "POST",
+      "path": "/payment-intent",
+      "handler": "create_payment_intent",
+      "line": 311,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/bookings/router.py",
+      "method": "POST",
+      "path": "/sync-payment",
+      "handler": "sync_payment",
+      "line": 370,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/bookings/router.py",
+      "method": "GET",
+      "path": "/my",
+      "handler": "get_my_bookings",
+      "line": 389,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/bookings/router.py",
+      "method": "GET",
+      "path": "/received",
+      "handler": "get_received_bookings",
+      "line": 404,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/bookings/router.py",
+      "method": "GET",
+      "path": "/by-intent/{intent_id}",
+      "handler": "get_booking_by_intent",
+      "line": 419,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/bookings/router.py",
+      "method": "GET",
+      "path": "/{booking_id}",
+      "handler": "get_booking",
+      "line": 437,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/bookings/router.py",
+      "method": "POST",
+      "path": "/{booking_id}/confirm",
+      "handler": "confirm_booking",
+      "line": 468,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/bookings/router.py",
+      "method": "POST",
+      "path": "/{booking_id}/refund",
+      "handler": "refund_booking",
+      "line": 486,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/bookings/router.py",
+      "method": "POST",
+      "path": "/{booking_id}/vacate",
+      "handler": "vacate_booking",
+      "line": 526,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/dashboard/router.py",
+      "method": "GET",
+      "path": "/me",
+      "handler": "get_dashboard",
+      "line": 22,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/leads/router.py",
+      "method": "POST",
+      "path": "/leads",
+      "handler": "create_lead",
+      "line": 34,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/leads/router.py",
+      "method": "GET",
+      "path": "/admin/leads",
+      "handler": "get_admin_leads",
+      "line": 137,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/listings/router.py",
+      "method": "GET",
+      "path": "",
+      "handler": "list_listings",
+      "line": 82,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/listings/router.py",
+      "method": "GET",
+      "path": "/favorites",
+      "handler": "get_favorites",
+      "line": 209,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/listings/router.py",
+      "method": "GET",
+      "path": "/{listing_id}",
+      "handler": "get_listing",
+      "line": 235,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/listings/router.py",
+      "method": "POST",
+      "path": "",
+      "handler": "create_listing",
+      "line": 425,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/listings/router.py",
+      "method": "PUT",
+      "path": "/{listing_id}",
+      "handler": "update_listing",
+      "line": 510,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/listings/router.py",
+      "method": "DELETE",
+      "path": "/{listing_id}",
+      "handler": "delete_listing",
+      "line": 559,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/listings/router.py",
+      "method": "POST",
+      "path": "/{listing_id}/favorite",
+      "handler": "toggle_favorite",
+      "line": 596,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/listings/router.py",
+      "method": "POST",
+      "path": "/{listing_id}/apply",
+      "handler": "apply_to_listing",
+      "line": 618,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/listings/router.py",
+      "method": "GET",
+      "path": "/{listing_id}/applications",
+      "handler": "get_applications",
+      "line": 716,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/main.py",
+      "method": "GET",
+      "path": "/api/health",
+      "handler": "health",
+      "line": 116,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/notifications/router.py",
+      "method": "GET",
+      "path": "",
+      "handler": "list_notifications",
+      "line": 12,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/notifications/router.py",
+      "method": "PUT",
+      "path": "/read-all",
+      "handler": "mark_all_notifications_read",
+      "line": 33,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/notifications/router.py",
+      "method": "PUT",
+      "path": "/{notification_id}/read",
+      "handler": "mark_notification_read",
+      "line": 48,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/projects/router.py",
+      "method": "GET",
+      "path": "/{project_id}",
+      "handler": "get_project",
+      "line": 8,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/stripe_webhooks/router.py",
+      "method": "POST",
+      "path": "/webhook",
+      "handler": "stripe_webhook",
+      "line": 55,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/subscriptions/router.py",
+      "method": "GET",
+      "path": "/me",
+      "handler": "my_subscription",
+      "line": 26,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/subscriptions/router.py",
+      "method": "POST",
+      "path": "/start-trial",
+      "handler": "start_trial",
+      "line": 44,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/subscriptions/router.py",
+      "method": "POST",
+      "path": "/checkout",
+      "handler": "checkout",
+      "line": 60,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/subscriptions/router.py",
+      "method": "POST",
+      "path": "/cancel",
+      "handler": "cancel",
+      "line": 83,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/universities/router.py",
+      "method": "GET",
+      "path": "",
+      "handler": "list_universities",
+      "line": 51,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/universities/router.py",
+      "method": "GET",
+      "path": "/{slug}/listings",
+      "handler": "get_university_listings",
+      "line": 93,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/universities/router.py",
+      "method": "GET",
+      "path": "/{slug}",
+      "handler": "get_university",
+      "line": 136,
+      "auth": "public/implicit"
+    },
+    {
+      "file": "backend/app/uploads/router.py",
+      "method": "POST",
+      "path": "/signed-url",
+      "handler": "get_signed_upload_url",
+      "line": 20,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/viewings/router.py",
+      "method": "POST",
+      "path": "",
+      "handler": "create_viewing",
+      "line": 13,
+      "auth": "JWT user"
+    },
+    {
+      "file": "backend/app/viewings/router.py",
+      "method": "PUT",
+      "path": "/{viewing_id}",
+      "handler": "update_viewing",
+      "line": 82,
+      "auth": "JWT user"
+    }
+  ],
+  "backend_classes": [
+    {
+      "file": "backend/app/admin/schemas.py",
+      "name": "AdminLoginRequest",
+      "line": 5,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "username",
+        "password"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/admin/schemas.py",
+      "name": "AdminLoginResponse",
+      "line": 10,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "token"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/admin/schemas.py",
+      "name": "RejectListingRequest",
+      "line": 14,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "reason"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/admin/schemas.py",
+      "name": "VerifyUserRequest",
+      "line": 18,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "is_verified_seller"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/agencies/schemas.py",
+      "name": "CreateAgencyRequest",
+      "line": 5,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "name",
+        "slug",
+        "description",
+        "logo_url",
+        "banner_url",
+        "website",
+        "phone",
+        "email",
+        "city"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/agencies/schemas.py",
+      "name": "UpdateAgencyRequest",
+      "line": 17,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "name",
+        "description",
+        "logo_url",
+        "banner_url",
+        "website",
+        "phone",
+        "email",
+        "city"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/agencies/schemas.py",
+      "name": "SubscribeRequest",
+      "line": 28,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "plan",
+        "payment_method"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/ai/ollama_client.py",
+      "name": "OllamaClient",
+      "line": 5,
+      "bases": [],
+      "fields": [],
+      "methods": [
+        "__init__",
+        "health",
+        "generate",
+        "embed",
+        "generate_stream",
+        "chat_stream"
+      ]
+    },
+    {
+      "file": "backend/app/ai/rag.py",
+      "name": "RAGRetriever",
+      "line": 19,
+      "bases": [],
+      "fields": [],
+      "methods": [
+        "retrieve",
+        "build_context",
+        "format_citations"
+      ]
+    },
+    {
+      "file": "backend/app/ai/router.py",
+      "name": "NLSearchRequest",
+      "line": 31,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "query",
+        "limit"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/ai/router.py",
+      "name": "ChatRequest",
+      "line": 36,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "message",
+        "conversation_history"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/ai/router.py",
+      "name": "CompatibilityRequest",
+      "line": 42,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "listing_id",
+        "lifestyle_data"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/ai/router.py",
+      "name": "DescriptionRequest",
+      "line": 47,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "title",
+        "property_type",
+        "category",
+        "city",
+        "bedrooms",
+        "bathrooms",
+        "size_sqm",
+        "amenities",
+        "price",
+        "extra_notes"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/ai/router.py",
+      "name": "AmenityValidationRequest",
+      "line": 60,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "amenity"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/ai/router.py",
+      "name": "FormatArticleRequest",
+      "line": 64,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "text"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/ai/schemas.py",
+      "name": "Chunk",
+      "line": 7,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "id",
+        "source_type",
+        "source_id",
+        "chunk_text",
+        "metadata",
+        "score"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/ai/schemas.py",
+      "name": "Citation",
+      "line": 18,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "source_type",
+        "source_id",
+        "title",
+        "url"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/ai/schemas.py",
+      "name": "RAGResponse",
+      "line": 27,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "answer",
+        "citations"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/applications/router.py",
+      "name": "CreateApplicationRequest",
+      "line": 14,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "listing_id",
+        "message",
+        "lifestyle_data"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/applications/router.py",
+      "name": "UpdateApplicationRequest",
+      "line": 20,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "status"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/auth/schemas.py",
+      "name": "SignUpRequest",
+      "line": 5,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "email",
+        "password",
+        "full_name",
+        "phone",
+        "country_code",
+        "gender"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/auth/schemas.py",
+      "name": "LoginRequest",
+      "line": 14,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "email",
+        "password"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/auth/schemas.py",
+      "name": "UpdateProfileRequest",
+      "line": 19,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "full_name",
+        "phone",
+        "whatsapp_number",
+        "avatar_url",
+        "bio",
+        "country_code",
+        "gender",
+        "birth_date",
+        "age",
+        "occupation",
+        "lifestyle_preferences"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/auth/schemas.py",
+      "name": "ProfileResponse",
+      "line": 33,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "id",
+        "email",
+        "full_name",
+        "avatar_url",
+        "phone",
+        "whatsapp_number",
+        "bio",
+        "role",
+        "is_verified_seller",
+        "gender",
+        "country_code",
+        "badges",
+        "birth_date",
+        "age",
+        "occupation",
+        "lifestyle_preferences",
+        "created_at",
+        "updated_at"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/auth/schemas.py",
+      "name": "SendPhoneOTPRequest",
+      "line": 54,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "phone"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/auth/schemas.py",
+      "name": "VerifyPhoneOTPRequest",
+      "line": 58,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "phone",
+        "code"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/blog/schemas.py",
+      "name": "BlogPostBriefResponse",
+      "line": 5,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "id",
+        "slug",
+        "title",
+        "excerpt",
+        "cover_image",
+        "published_at",
+        "tags",
+        "category",
+        "read_time"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/blog/schemas.py",
+      "name": "BlogPostDetailResponse",
+      "line": 17,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "id",
+        "slug",
+        "title",
+        "lead",
+        "excerpt",
+        "cover_image",
+        "content",
+        "tags",
+        "category",
+        "read_time",
+        "published_at",
+        "author_id",
+        "created_at"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/bookings/router.py",
+      "name": "CreatePaymentIntentRequest",
+      "line": 24,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "listing_id",
+        "booking_type",
+        "start_date",
+        "duration_months"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/bookings/router.py",
+      "name": "SyncPaymentRequest",
+      "line": 31,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "payment_intent_id"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/config.py",
+      "name": "Settings",
+      "line": 9,
+      "bases": [
+        "BaseSettings"
+      ],
+      "fields": [
+        "supabase_url",
+        "supabase_anon_key",
+        "supabase_service_role_key",
+        "jwt_secret",
+        "frontend_url",
+        "environment",
+        "ollama_base_url",
+        "ollama_model",
+        "ollama_embed_model",
+        "admin_username",
+        "admin_password",
+        "admin_jwt_secret",
+        "redis_url",
+        "sentry_dsn",
+        "twilio_account_sid",
+        "twilio_auth_token",
+        "twilio_verify_service_sid",
+        "stripe_secret_key",
+        "stripe_webhook_secret",
+        "stripe_publishable_key",
+        "stripe_price_basic",
+        "stripe_price_pro",
+        "rent_booking_fee"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/leads/schemas.py",
+      "name": "CreateLeadRequest",
+      "line": 5,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "listing_id",
+        "source"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/leads/schemas.py",
+      "name": "LeadResponse",
+      "line": 10,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "whatsapp_url",
+        "already_existed"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/leads/schemas.py",
+      "name": "AdminLeadRow",
+      "line": 15,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "id",
+        "contact_name",
+        "contact_phone",
+        "listing_title",
+        "agency_name",
+        "source",
+        "is_billable",
+        "created_at"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/leads/schemas.py",
+      "name": "AdminLeadsResponse",
+      "line": 26,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "data",
+        "total",
+        "page",
+        "per_page",
+        "total_pages"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/listings/schemas.py",
+      "name": "HousemateInput",
+      "line": 7,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "user_id",
+        "name",
+        "age",
+        "occupation",
+        "avatar_url",
+        "tags",
+        "lifestyle_preferences"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/listings/schemas.py",
+      "name": "CreateListingRequest",
+      "line": 17,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "title",
+        "description",
+        "category",
+        "property_type",
+        "price",
+        "currency",
+        "price_period",
+        "location",
+        "full_address",
+        "city",
+        "neighborhood_id",
+        "compound_name",
+        "latitude",
+        "longitude",
+        "bedrooms",
+        "bathrooms",
+        "size_sqm",
+        "floor_number",
+        "total_floors",
+        "images",
+        "amenities",
+        "lease_type",
+        "min_stay_months",
+        "available_date",
+        "payment_plan",
+        "delivery_date",
+        "title_deed_status",
+        "room_type",
+        "lifestyle_preferences",
+        "total_spots",
+        "availability",
+        "furnishing",
+        "utilities_included",
+        "bathroom_type",
+        "private_amenities",
+        "shared_amenities",
+        "housemates",
+        "agency_id",
+        "project_id"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/listings/schemas.py",
+      "name": "UpdateListingRequest",
+      "line": 70,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "title",
+        "description",
+        "price",
+        "currency",
+        "price_period",
+        "location",
+        "full_address",
+        "city",
+        "neighborhood_id",
+        "compound_name",
+        "latitude",
+        "longitude",
+        "bedrooms",
+        "bathrooms",
+        "size_sqm",
+        "floor_number",
+        "total_floors",
+        "images",
+        "amenities",
+        "lease_type",
+        "min_stay_months",
+        "available_date",
+        "payment_plan",
+        "delivery_date",
+        "title_deed_status",
+        "room_type",
+        "lifestyle_preferences",
+        "total_spots",
+        "availability",
+        "furnishing",
+        "utilities_included",
+        "bathroom_type",
+        "private_amenities",
+        "shared_amenities"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/listings/schemas.py",
+      "name": "ApplyRequest",
+      "line": 107,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "message",
+        "lifestyle_data"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/listings/schemas.py",
+      "name": "UpdateApplicationRequest",
+      "line": 112,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "status"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/listings/schemas.py",
+      "name": "ListingBriefResponse",
+      "line": 118,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "id",
+        "title",
+        "location",
+        "price",
+        "currency",
+        "price_period",
+        "category",
+        "property_type",
+        "images",
+        "verified",
+        "is_new",
+        "status",
+        "bedrooms",
+        "bathrooms",
+        "size_sqm",
+        "floor_number",
+        "neighborhood",
+        "compound_name",
+        "room_type",
+        "lifestyle_preferences",
+        "total_spots",
+        "filled_spots",
+        "utilities_included",
+        "available_date",
+        "views_count",
+        "created_at"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/listings/schemas.py",
+      "name": "HousemateResponse",
+      "line": 147,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "id",
+        "listing_id",
+        "user_id",
+        "name",
+        "age",
+        "occupation",
+        "avatar_url",
+        "tags",
+        "lifestyle_preferences"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/listings/schemas.py",
+      "name": "ListingDetailResponse",
+      "line": 159,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "id",
+        "owner_id",
+        "agency_id",
+        "title",
+        "location",
+        "full_address",
+        "price",
+        "currency",
+        "price_period",
+        "category",
+        "property_type",
+        "status",
+        "verified",
+        "is_new",
+        "images",
+        "description",
+        "bedrooms",
+        "bathrooms",
+        "size_sqm",
+        "floor_number",
+        "total_floors",
+        "neighborhood",
+        "neighborhood_id",
+        "compound_name",
+        "amenities",
+        "latitude",
+        "longitude",
+        "views_count",
+        "similar_listings",
+        "lease_type",
+        "min_stay_months",
+        "available_date",
+        "payment_plan",
+        "delivery_date",
+        "title_deed_status",
+        "room_type",
+        "lifestyle_preferences",
+        "total_spots",
+        "filled_spots",
+        "availability"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/listings/schemas.py",
+      "name": "ListingsPageResponse",
+      "line": 214,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "listings",
+        "total",
+        "page",
+        "per_page"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/listings/schemas.py",
+      "name": "ApplicationDetailResponse",
+      "line": 221,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "id",
+        "listing_id",
+        "listing_title",
+        "listing_image",
+        "applicant_id",
+        "applicant_name",
+        "applicant_avatar",
+        "compatibility_score",
+        "status",
+        "message",
+        "lifestyle_data",
+        "created_at"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/main.py",
+      "name": "RateLimitMiddleware",
+      "line": 41,
+      "bases": [
+        "BaseHTTPMiddleware"
+      ],
+      "fields": [],
+      "methods": [
+        "dispatch"
+      ]
+    },
+    {
+      "file": "backend/app/main.py",
+      "name": "SecurityHeadersMiddleware",
+      "line": 62,
+      "bases": [
+        "BaseHTTPMiddleware"
+      ],
+      "fields": [],
+      "methods": [
+        "dispatch"
+      ]
+    },
+    {
+      "file": "backend/app/subscriptions/plans.py",
+      "name": "PlanLimits",
+      "line": 13,
+      "bases": [],
+      "fields": [
+        "listing_cap",
+        "ai_quota",
+        "price_egp"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/subscriptions/router.py",
+      "name": "CheckoutRequest",
+      "line": 17,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "plan"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/universities/schemas.py",
+      "name": "CreateUniversityRequest",
+      "line": 5,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "name",
+        "slug",
+        "description",
+        "logo_url",
+        "banner_url",
+        "website",
+        "phone",
+        "email",
+        "city",
+        "founded_year",
+        "type",
+        "student_count",
+        "accreditation"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/universities/schemas.py",
+      "name": "UpdateUniversityRequest",
+      "line": 21,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "name",
+        "description",
+        "logo_url",
+        "banner_url",
+        "website",
+        "phone",
+        "email",
+        "city",
+        "founded_year",
+        "type",
+        "student_count",
+        "accreditation",
+        "verified"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/uploads/router.py",
+      "name": "SignedUrlRequest",
+      "line": 14,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "bucket",
+        "filename"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/viewings/schemas.py",
+      "name": "CreateViewingRequest",
+      "line": 5,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "listing_id",
+        "scheduled_at",
+        "notes"
+      ],
+      "methods": []
+    },
+    {
+      "file": "backend/app/viewings/schemas.py",
+      "name": "UpdateViewingRequest",
+      "line": 11,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "status"
+      ],
+      "methods": []
+    }
+  ],
+  "backend_functions_count": 327,
+  "frontend_pages": [
+    {
+      "file": "frontend/src/app/(auth)/forgot-password/page.tsx",
+      "route": "/forgot-password",
+      "lines": 17,
+      "uses_client": false
+    },
+    {
+      "file": "frontend/src/app/(auth)/login/page.tsx",
+      "route": "/login",
+      "lines": 22,
+      "uses_client": false
+    },
+    {
+      "file": "frontend/src/app/(auth)/reset-password/page.tsx",
+      "route": "/reset-password",
+      "lines": 16,
+      "uses_client": false
+    },
+    {
+      "file": "frontend/src/app/(auth)/signup/page.tsx",
+      "route": "/signup",
+      "lines": 23,
+      "uses_client": false
+    },
+    {
+      "file": "frontend/src/app/(marketing)/page.tsx",
+      "route": "/(marketing)",
+      "lines": 27,
+      "uses_client": false
+    },
+    {
+      "file": "frontend/src/app/about/page.tsx",
+      "route": "/about",
+      "lines": 22,
+      "uses_client": false
+    },
+    {
+      "file": "frontend/src/app/admin/dashboard/page.tsx",
+      "route": "/admin/dashboard",
+      "lines": 2790,
+      "uses_client": true
+    },
+    {
+      "file": "frontend/src/app/admin/login/page.tsx",
+      "route": "/admin/login",
+      "lines": 122,
+      "uses_client": true
+    },
+    {
+      "file": "frontend/src/app/admin/page.tsx",
+      "route": "/admin",
+      "lines": 5,
+      "uses_client": false
+    },
+    {
+      "file": "frontend/src/app/agencies/[slug]/page.tsx",
+      "route": "/agencies/[slug]",
+      "lines": 134,
+      "uses_client": false
+    },
+    {
+      "file": "frontend/src/app/agencies/page.tsx",
+      "route": "/agencies",
+      "lines": 22,
+      "uses_client": true
+    },
+    {
+      "file": "frontend/src/app/auth/callback/page.tsx",
+      "route": "/auth/callback",
+      "lines": 50,
+      "uses_client": true
+    },
+    {
+      "file": "frontend/src/app/blog/[slug]/page.tsx",
+      "route": "/blog/[slug]",
+      "lines": 68,
+      "uses_client": false
+    },
+    {
+      "file": "frontend/src/app/blog/page.tsx",
+      "route": "/blog",
+      "lines": 78,
+      "uses_client": true
+    },
+    {
+      "file": "frontend/src/app/booking/[id]/page.tsx",
+      "route": "/booking/[id]",
+      "lines": 184,
+      "uses_client": true
+    },
+    {
+      "file": "frontend/src/app/dashboard/page.tsx",
+      "route": "/dashboard",
+      "lines": 267,
+      "uses_client": true
+    },
+    {
+      "file": "frontend/src/app/find-homes/page.tsx",
+      "route": "/find-homes",
+      "lines": 426,
+      "uses_client": true
+    },
+    {
+      "file": "frontend/src/app/likes/page.tsx",
+      "route": "/likes",
+      "lines": 174,
+      "uses_client": true
+    },
+    {
+      "file": "frontend/src/app/pricing/page.tsx",
+      "route": "/pricing",
+      "lines": 632,
+      "uses_client": true
+    },
+    {
+      "file": "frontend/src/app/project/[id]/page.tsx",
+      "route": "/project/[id]",
+      "lines": 79,
+      "uses_client": false
+    },
+    {
+      "file": "frontend/src/app/property/[id]/page.tsx",
+      "route": "/property/[id]",
+      "lines": 221,
+      "uses_client": false
+    },
+    {
+      "file": "frontend/src/app/shared-housing/[id]/page.tsx",
+      "route": "/shared-housing/[id]",
+      "lines": 10,
+      "uses_client": false
+    },
+    {
+      "file": "frontend/src/app/shared-housing/page.tsx",
+      "route": "/shared-housing",
+      "lines": 83,
+      "uses_client": true
+    },
+    {
+      "file": "frontend/src/app/universities/[slug]/page.tsx",
+      "route": "/universities/[slug]",
+      "lines": 150,
+      "uses_client": false
+    },
+    {
+      "file": "frontend/src/app/universities/page.tsx",
+      "route": "/universities",
+      "lines": 93,
+      "uses_client": true
+    }
+  ],
+  "frontend_components_by_dir": {
+    "about": {
+      "count": 3,
+      "lines": 255,
+      "components": [
+        {
+          "name": "AboutHero",
+          "file": "frontend/src/components/about/AboutHero.tsx",
+          "lines": 40,
+          "uses_client": true
+        },
+        {
+          "name": "MissionAndValues",
+          "file": "frontend/src/components/about/MissionAndValues.tsx",
+          "lines": 118,
+          "uses_client": true
+        },
+        {
+          "name": "TeamSection",
+          "file": "frontend/src/components/about/TeamSection.tsx",
+          "lines": 97,
+          "uses_client": true
+        }
+      ]
+    },
+    "admin": {
+      "count": 5,
+      "lines": 739,
+      "components": [
+        {
+          "name": "AdminModal",
+          "file": "frontend/src/components/admin/AdminModal.tsx",
+          "lines": 74,
+          "uses_client": true
+        },
+        {
+          "name": "AdminSidebar",
+          "file": "frontend/src/components/admin/AdminSidebar.tsx",
+          "lines": 167,
+          "uses_client": true
+        },
+        {
+          "name": "AdminTable",
+          "file": "frontend/src/components/admin/AdminTable.tsx",
+          "lines": 207,
+          "uses_client": true
+        },
+        {
+          "name": "EntityPicker",
+          "file": "frontend/src/components/admin/EntityPicker.tsx",
+          "lines": 164,
+          "uses_client": true
+        },
+        {
+          "name": "RichTextEditor",
+          "file": "frontend/src/components/admin/RichTextEditor.tsx",
+          "lines": 127,
+          "uses_client": true
+        }
+      ]
+    },
+    "agencies": {
+      "count": 5,
+      "lines": 434,
+      "components": [
+        {
+          "name": "AgenciesHero",
+          "file": "frontend/src/components/agencies/AgenciesHero.tsx",
+          "lines": 75,
+          "uses_client": true
+        },
+        {
+          "name": "DeveloperCard",
+          "file": "frontend/src/components/agencies/DeveloperCard.tsx",
+          "lines": 144,
+          "uses_client": true
+        },
+        {
+          "name": "DevelopersSection",
+          "file": "frontend/src/components/agencies/DevelopersSection.tsx",
+          "lines": 59,
+          "uses_client": true
+        },
+        {
+          "name": "UniversitiesSection",
+          "file": "frontend/src/components/agencies/UniversitiesSection.tsx",
+          "lines": 55,
+          "uses_client": true
+        },
+        {
+          "name": "UniversityCard",
+          "file": "frontend/src/components/agencies/UniversityCard.tsx",
+          "lines": 101,
+          "uses_client": true
+        }
+      ]
+    },
+    "agency-details": {
+      "count": 5,
+      "lines": 458,
+      "components": [
+        {
+          "name": "AgencyHero",
+          "file": "frontend/src/components/agency-details/AgencyHero.tsx",
+          "lines": 54,
+          "uses_client": true
+        },
+        {
+          "name": "AgencySidebar",
+          "file": "frontend/src/components/agency-details/AgencySidebar.tsx",
+          "lines": 184,
+          "uses_client": true
+        },
+        {
+          "name": "FeaturedProjects",
+          "file": "frontend/src/components/agency-details/FeaturedProjects.tsx",
+          "lines": 48,
+          "uses_client": true
+        },
+        {
+          "name": "ProjectCard",
+          "file": "frontend/src/components/agency-details/ProjectCard.tsx",
+          "lines": 104,
+          "uses_client": true
+        },
+        {
+          "name": "TopListings",
+          "file": "frontend/src/components/agency-details/TopListings.tsx",
+          "lines": 68,
+          "uses_client": true
+        }
+      ]
+    },
+    "ai": {
+      "count": 2,
+      "lines": 809,
+      "components": [
+        {
+          "name": "ChatDrawer",
+          "file": "frontend/src/components/ai/ChatDrawer.tsx",
+          "lines": 499,
+          "uses_client": true
+        },
+        {
+          "name": "ChatMessage",
+          "file": "frontend/src/components/ai/ChatMessage.tsx",
+          "lines": 310,
+          "uses_client": true
+        }
+      ]
+    },
+    "auth": {
+      "count": 8,
+      "lines": 1822,
+      "components": [
+        {
+          "name": "AuthProductPreview",
+          "file": "frontend/src/components/auth/AuthProductPreview.tsx",
+          "lines": 230,
+          "uses_client": false
+        },
+        {
+          "name": "ForgotPasswordForm",
+          "file": "frontend/src/components/auth/ForgotPasswordForm.tsx",
+          "lines": 313,
+          "uses_client": true
+        },
+        {
+          "name": "LoginForm",
+          "file": "frontend/src/components/auth/LoginForm.tsx",
+          "lines": 347,
+          "uses_client": true
+        },
+        {
+          "name": "OAuthButton",
+          "file": "frontend/src/components/auth/OAuthButton.tsx",
+          "lines": 48,
+          "uses_client": true
+        },
+        {
+          "name": "OAuthIcons",
+          "file": "frontend/src/components/auth/OAuthIcons.tsx",
+          "lines": 33,
+          "uses_client": false
+        },
+        {
+          "name": "PhoneOTPInput",
+          "file": "frontend/src/components/auth/PhoneOTPInput.tsx",
+          "lines": 175,
+          "uses_client": true
+        },
+        {
+          "name": "ResetPasswordForm",
+          "file": "frontend/src/components/auth/ResetPasswordForm.tsx",
+          "lines": 303,
+          "uses_client": true
+        },
+        {
+          "name": "SignUpForm",
+          "file": "frontend/src/components/auth/SignUpForm.tsx",
+          "lines": 373,
+          "uses_client": true
+        }
+      ]
+    },
+    "blog": {
+      "count": 4,
+      "lines": 385,
+      "components": [
+        {
+          "name": "BlogCard",
+          "file": "frontend/src/components/blog/BlogCard.tsx",
+          "lines": 78,
+          "uses_client": true
+        },
+        {
+          "name": "BlogGrid",
+          "file": "frontend/src/components/blog/BlogGrid.tsx",
+          "lines": 86,
+          "uses_client": true
+        },
+        {
+          "name": "BlogHero",
+          "file": "frontend/src/components/blog/BlogHero.tsx",
+          "lines": 78,
+          "uses_client": true
+        },
+        {
+          "name": "BlogSidebar",
+          "file": "frontend/src/components/blog/BlogSidebar.tsx",
+          "lines": 143,
+          "uses_client": true
+        }
+      ]
+    },
+    "blog-article": {
+      "count": 5,
+      "lines": 479,
+      "components": [
+        {
+          "name": "ArticleBody",
+          "file": "frontend/src/components/blog-article/ArticleBody.tsx",
+          "lines": 179,
+          "uses_client": true
+        },
+        {
+          "name": "ArticleHero",
+          "file": "frontend/src/components/blog-article/ArticleHero.tsx",
+          "lines": 85,
+          "uses_client": true
+        },
+        {
+          "name": "ArticleSidebar",
+          "file": "frontend/src/components/blog-article/ArticleSidebar.tsx",
+          "lines": 115,
+          "uses_client": true
+        },
+        {
+          "name": "NewsletterCTA",
+          "file": "frontend/src/components/blog-article/NewsletterCTA.tsx",
+          "lines": 39,
+          "uses_client": true
+        },
+        {
+          "name": "RelatedArticles",
+          "file": "frontend/src/components/blog-article/RelatedArticles.tsx",
+          "lines": 61,
+          "uses_client": true
+        }
+      ]
+    },
+    "booking": {
+      "count": 2,
+      "lines": 605,
+      "components": [
+        {
+          "name": "BookingModal",
+          "file": "frontend/src/components/booking/BookingModal.tsx",
+          "lines": 557,
+          "uses_client": true
+        },
+        {
+          "name": "BookNowButton",
+          "file": "frontend/src/components/booking/BookNowButton.tsx",
+          "lines": 48,
+          "uses_client": true
+        }
+      ]
+    },
+    "cards": {
+      "count": 1,
+      "lines": 114,
+      "components": [
+        {
+          "name": "ListingCard",
+          "file": "frontend/src/components/cards/ListingCard.tsx",
+          "lines": 114,
+          "uses_client": true
+        }
+      ]
+    },
+    "dashboard": {
+      "count": 11,
+      "lines": 3475,
+      "components": [
+        {
+          "name": "AddListingModal",
+          "file": "frontend/src/components/dashboard/AddListingModal.tsx",
+          "lines": 1905,
+          "uses_client": true
+        },
+        {
+          "name": "ApplicationsReceivedTab",
+          "file": "frontend/src/components/dashboard/ApplicationsReceivedTab.tsx",
+          "lines": 105,
+          "uses_client": true
+        },
+        {
+          "name": "BookingsReceivedTab",
+          "file": "frontend/src/components/dashboard/BookingsReceivedTab.tsx",
+          "lines": 72,
+          "uses_client": true
+        },
+        {
+          "name": "DashboardProfile",
+          "file": "frontend/src/components/dashboard/DashboardProfile.tsx",
+          "lines": 57,
+          "uses_client": true
+        },
+        {
+          "name": "DashboardStats",
+          "file": "frontend/src/components/dashboard/DashboardStats.tsx",
+          "lines": 122,
+          "uses_client": true
+        },
+        {
+          "name": "LikedProperties",
+          "file": "frontend/src/components/dashboard/LikedProperties.tsx",
+          "lines": 153,
+          "uses_client": true
+        },
+        {
+          "name": "MyApplicationsTab",
+          "file": "frontend/src/components/dashboard/MyApplicationsTab.tsx",
+          "lines": 73,
+          "uses_client": true
+        },
+        {
+          "name": "MyBookingsTab",
+          "file": "frontend/src/components/dashboard/MyBookingsTab.tsx",
+          "lines": 75,
+          "uses_client": true
+        },
+        {
+          "name": "MyListings",
+          "file": "frontend/src/components/dashboard/MyListings.tsx",
+          "lines": 214,
+          "uses_client": true
+        },
+        {
+          "name": "MyViewings",
+          "file": "frontend/src/components/dashboard/MyViewings.tsx",
+          "lines": 64,
+          "uses_client": true
+        },
+        {
+          "name": "ProfileSettings",
+          "file": "frontend/src/components/dashboard/ProfileSettings.tsx",
+          "lines": 635,
+          "uses_client": true
+        }
+      ]
+    },
+    "find-homes": {
+      "count": 4,
+      "lines": 714,
+      "components": [
+        {
+          "name": "FilterSidebar",
+          "file": "frontend/src/components/find-homes/FilterSidebar.tsx",
+          "lines": 419,
+          "uses_client": true
+        },
+        {
+          "name": "Pagination",
+          "file": "frontend/src/components/find-homes/Pagination.tsx",
+          "lines": 68,
+          "uses_client": true
+        },
+        {
+          "name": "SearchListingCard",
+          "file": "frontend/src/components/find-homes/SearchListingCard.tsx",
+          "lines": 114,
+          "uses_client": true
+        },
+        {
+          "name": "SearchListingRow",
+          "file": "frontend/src/components/find-homes/SearchListingRow.tsx",
+          "lines": 113,
+          "uses_client": true
+        }
+      ]
+    },
+    "layout": {
+      "count": 5,
+      "lines": 946,
+      "components": [
+        {
+          "name": "ChatbotConditional",
+          "file": "frontend/src/components/layout/ChatbotConditional.tsx",
+          "lines": 13,
+          "uses_client": true
+        },
+        {
+          "name": "FloatingAIButton",
+          "file": "frontend/src/components/layout/FloatingAIButton.tsx",
+          "lines": 52,
+          "uses_client": true
+        },
+        {
+          "name": "Footer",
+          "file": "frontend/src/components/layout/Footer.tsx",
+          "lines": 133,
+          "uses_client": false
+        },
+        {
+          "name": "Navbar",
+          "file": "frontend/src/components/layout/Navbar.tsx",
+          "lines": 452,
+          "uses_client": true
+        },
+        {
+          "name": "NotificationBell",
+          "file": "frontend/src/components/layout/NotificationBell.tsx",
+          "lines": 296,
+          "uses_client": true
+        }
+      ]
+    },
+    "profile": {
+      "count": 1,
+      "lines": 181,
+      "components": [
+        {
+          "name": "LifestylePrefsForm",
+          "file": "frontend/src/components/profile/LifestylePrefsForm.tsx",
+          "lines": 181,
+          "uses_client": true
+        }
+      ]
+    },
+    "project-details": {
+      "count": 5,
+      "lines": 605,
+      "components": [
+        {
+          "name": "ProjectHero",
+          "file": "frontend/src/components/project-details/ProjectHero.tsx",
+          "lines": 69,
+          "uses_client": true
+        },
+        {
+          "name": "ProjectInfo",
+          "file": "frontend/src/components/project-details/ProjectInfo.tsx",
+          "lines": 103,
+          "uses_client": true
+        },
+        {
+          "name": "ProjectSidebar",
+          "file": "frontend/src/components/project-details/ProjectSidebar.tsx",
+          "lines": 153,
+          "uses_client": true
+        },
+        {
+          "name": "ResidenceCard",
+          "file": "frontend/src/components/project-details/ResidenceCard.tsx",
+          "lines": 83,
+          "uses_client": true
+        },
+        {
+          "name": "ResidencesGrid",
+          "file": "frontend/src/components/project-details/ResidencesGrid.tsx",
+          "lines": 197,
+          "uses_client": true
+        }
+      ]
+    },
+    "property": {
+      "count": 7,
+      "lines": 742,
+      "components": [
+        {
+          "name": "GoogleMapEmbed",
+          "file": "frontend/src/components/property/GoogleMapEmbed.tsx",
+          "lines": 25,
+          "uses_client": true
+        },
+        {
+          "name": "MobilePropertyCTA",
+          "file": "frontend/src/components/property/MobilePropertyCTA.tsx",
+          "lines": 45,
+          "uses_client": true
+        },
+        {
+          "name": "PropertyHero",
+          "file": "frontend/src/components/property/PropertyHero.tsx",
+          "lines": 235,
+          "uses_client": true
+        },
+        {
+          "name": "PropertyInfo",
+          "file": "frontend/src/components/property/PropertyInfo.tsx",
+          "lines": 169,
+          "uses_client": true
+        },
+        {
+          "name": "PropertyMap",
+          "file": "frontend/src/components/property/PropertyMap.tsx",
+          "lines": 26,
+          "uses_client": true
+        },
+        {
+          "name": "PropertySidebar",
+          "file": "frontend/src/components/property/PropertySidebar.tsx",
+          "lines": 121,
+          "uses_client": true
+        },
+        {
+          "name": "WhatsAppCTA",
+          "file": "frontend/src/components/property/WhatsAppCTA.tsx",
+          "lines": 121,
+          "uses_client": true
+        }
+      ]
+    },
+    "sections": {
+      "count": 10,
+      "lines": 936,
+      "components": [
+        {
+          "name": "CTASection",
+          "file": "frontend/src/components/sections/CTASection.tsx",
+          "lines": 40,
+          "uses_client": true
+        },
+        {
+          "name": "FeaturesSection",
+          "file": "frontend/src/components/sections/FeaturesSection.tsx",
+          "lines": 45,
+          "uses_client": true
+        },
+        {
+          "name": "HomeHero",
+          "file": "frontend/src/components/sections/HomeHero.tsx",
+          "lines": 128,
+          "uses_client": true
+        },
+        {
+          "name": "HowItWorksSection",
+          "file": "frontend/src/components/sections/HowItWorksSection.tsx",
+          "lines": 49,
+          "uses_client": true
+        },
+        {
+          "name": "NeighborhoodGuides",
+          "file": "frontend/src/components/sections/NeighborhoodGuides.tsx",
+          "lines": 94,
+          "uses_client": true
+        },
+        {
+          "name": "RecommendationsSection",
+          "file": "frontend/src/components/sections/RecommendationsSection.tsx",
+          "lines": 351,
+          "uses_client": true
+        },
+        {
+          "name": "RecommendationsSectionClient",
+          "file": "frontend/src/components/sections/RecommendationsSectionClient.tsx",
+          "lines": 13,
+          "uses_client": true
+        },
+        {
+          "name": "TestimonialsSection",
+          "file": "frontend/src/components/sections/TestimonialsSection.tsx",
+          "lines": 62,
+          "uses_client": true
+        },
+        {
+          "name": "TrustedPartners",
+          "file": "frontend/src/components/sections/TrustedPartners.tsx",
+          "lines": 48,
+          "uses_client": true
+        },
+        {
+          "name": "VibeMatchesSection",
+          "file": "frontend/src/components/sections/VibeMatchesSection.tsx",
+          "lines": 106,
+          "uses_client": true
+        }
+      ]
+    },
+    "shared-housing": {
+      "count": 12,
+      "lines": 1136,
+      "components": [
+        {
+          "name": "AboutHouse",
+          "file": "frontend/src/components/shared-housing/AboutHouse.tsx",
+          "lines": 31,
+          "uses_client": true
+        },
+        {
+          "name": "ApplyButton",
+          "file": "frontend/src/components/shared-housing/ApplyButton.tsx",
+          "lines": 78,
+          "uses_client": true
+        },
+        {
+          "name": "ApplyModal",
+          "file": "frontend/src/components/shared-housing/ApplyModal.tsx",
+          "lines": 119,
+          "uses_client": true
+        },
+        {
+          "name": "CompatibilityScore",
+          "file": "frontend/src/components/shared-housing/CompatibilityScore.tsx",
+          "lines": 188,
+          "uses_client": true
+        },
+        {
+          "name": "ForYouSection",
+          "file": "frontend/src/components/shared-housing/ForYouSection.tsx",
+          "lines": 35,
+          "uses_client": true
+        },
+        {
+          "name": "HousematesSection",
+          "file": "frontend/src/components/shared-housing/HousematesSection.tsx",
+          "lines": 103,
+          "uses_client": true
+        },
+        {
+          "name": "SharedAmenities",
+          "file": "frontend/src/components/shared-housing/SharedAmenities.tsx",
+          "lines": 114,
+          "uses_client": true
+        },
+        {
+          "name": "SharedHousingCard",
+          "file": "frontend/src/components/shared-housing/SharedHousingCard.tsx",
+          "lines": 99,
+          "uses_client": true
+        },
+        {
+          "name": "SharedHousingFilters",
+          "file": "frontend/src/components/shared-housing/SharedHousingFilters.tsx",
+          "lines": 81,
+          "uses_client": true
+        },
+        {
+          "name": "SharedHousingHero",
+          "file": "frontend/src/components/shared-housing/SharedHousingHero.tsx",
+          "lines": 113,
+          "uses_client": true
+        },
+        {
+          "name": "SharedHousingSidebar",
+          "file": "frontend/src/components/shared-housing/SharedHousingSidebar.tsx",
+          "lines": 132,
+          "uses_client": true
+        },
+        {
+          "name": "SharedHousingStats",
+          "file": "frontend/src/components/shared-housing/SharedHousingStats.tsx",
+          "lines": 43,
+          "uses_client": false
+        }
+      ]
+    },
+    "ui": {
+      "count": 20,
+      "lines": 1790,
+      "components": [
+        {
+          "name": "avatar",
+          "file": "frontend/src/components/ui/avatar.tsx",
+          "lines": 109,
+          "uses_client": true
+        },
+        {
+          "name": "badge",
+          "file": "frontend/src/components/ui/badge.tsx",
+          "lines": 48,
+          "uses_client": false
+        },
+        {
+          "name": "button",
+          "file": "frontend/src/components/ui/button.tsx",
+          "lines": 64,
+          "uses_client": false
+        },
+        {
+          "name": "card",
+          "file": "frontend/src/components/ui/card.tsx",
+          "lines": 92,
+          "uses_client": false
+        },
+        {
+          "name": "checkbox",
+          "file": "frontend/src/components/ui/checkbox.tsx",
+          "lines": 32,
+          "uses_client": true
+        },
+        {
+          "name": "dialog",
+          "file": "frontend/src/components/ui/dialog.tsx",
+          "lines": 158,
+          "uses_client": true
+        },
+        {
+          "name": "dropdown-menu",
+          "file": "frontend/src/components/ui/dropdown-menu.tsx",
+          "lines": 257,
+          "uses_client": true
+        },
+        {
+          "name": "ImageLightbox",
+          "file": "frontend/src/components/ui/ImageLightbox.tsx",
+          "lines": 134,
+          "uses_client": true
+        },
+        {
+          "name": "input",
+          "file": "frontend/src/components/ui/input.tsx",
+          "lines": 21,
+          "uses_client": false
+        },
+        {
+          "name": "LikeButton",
+          "file": "frontend/src/components/ui/LikeButton.tsx",
+          "lines": 83,
+          "uses_client": true
+        },
+        {
+          "name": "pagination",
+          "file": "frontend/src/components/ui/pagination.tsx",
+          "lines": 127,
+          "uses_client": false
+        },
+        {
+          "name": "progress",
+          "file": "frontend/src/components/ui/progress.tsx",
+          "lines": 31,
+          "uses_client": true
+        },
+        {
+          "name": "select",
+          "file": "frontend/src/components/ui/select.tsx",
+          "lines": 190,
+          "uses_client": true
+        },
+        {
+          "name": "separator",
+          "file": "frontend/src/components/ui/separator.tsx",
+          "lines": 28,
+          "uses_client": true
+        },
+        {
+          "name": "sheet",
+          "file": "frontend/src/components/ui/sheet.tsx",
+          "lines": 143,
+          "uses_client": true
+        },
+        {
+          "name": "skeleton",
+          "file": "frontend/src/components/ui/skeleton.tsx",
+          "lines": 13,
+          "uses_client": false
+        },
+        {
+          "name": "switch",
+          "file": "frontend/src/components/ui/switch.tsx",
+          "lines": 35,
+          "uses_client": true
+        },
+        {
+          "name": "table",
+          "file": "frontend/src/components/ui/table.tsx",
+          "lines": 116,
+          "uses_client": true
+        },
+        {
+          "name": "tabs",
+          "file": "frontend/src/components/ui/tabs.tsx",
+          "lines": 91,
+          "uses_client": true
+        },
+        {
+          "name": "textarea",
+          "file": "frontend/src/components/ui/textarea.tsx",
+          "lines": 18,
+          "uses_client": false
+        }
+      ]
+    },
+    "universities": {
+      "count": 2,
+      "lines": 287,
+      "components": [
+        {
+          "name": "UniversityHero",
+          "file": "frontend/src/components/universities/UniversityHero.tsx",
+          "lines": 74,
+          "uses_client": true
+        },
+        {
+          "name": "UniversitySidebar",
+          "file": "frontend/src/components/universities/UniversitySidebar.tsx",
+          "lines": 213,
+          "uses_client": true
+        }
+      ]
+    }
+  },
+  "frontend_exports_sample": [
+    {
+      "file": "frontend/src/app/(auth)/forgot-password/page.tsx",
+      "kind": "function",
+      "name": "ForgotPasswordPage"
+    },
+    {
+      "file": "frontend/src/app/(auth)/forgot-password/page.tsx",
+      "kind": "const",
+      "name": "metadata"
+    },
+    {
+      "file": "frontend/src/app/(auth)/layout.tsx",
+      "kind": "function",
+      "name": "AuthLayout"
+    },
+    {
+      "file": "frontend/src/app/(auth)/login/page.tsx",
+      "kind": "function",
+      "name": "LoginPage"
+    },
+    {
+      "file": "frontend/src/app/(auth)/login/page.tsx",
+      "kind": "const",
+      "name": "metadata"
+    },
+    {
+      "file": "frontend/src/app/(auth)/reset-password/page.tsx",
+      "kind": "function",
+      "name": "ResetPasswordPage"
+    },
+    {
+      "file": "frontend/src/app/(auth)/reset-password/page.tsx",
+      "kind": "const",
+      "name": "metadata"
+    },
+    {
+      "file": "frontend/src/app/(auth)/signup/page.tsx",
+      "kind": "function",
+      "name": "SignUpPage"
+    },
+    {
+      "file": "frontend/src/app/(auth)/signup/page.tsx",
+      "kind": "const",
+      "name": "metadata"
+    },
+    {
+      "file": "frontend/src/app/(marketing)/layout.tsx",
+      "kind": "function",
+      "name": "MarketingLayout"
+    },
+    {
+      "file": "frontend/src/app/(marketing)/page.tsx",
+      "kind": "function",
+      "name": "HomePage"
+    },
+    {
+      "file": "frontend/src/app/about/layout.tsx",
+      "kind": "function",
+      "name": "AboutLayout"
+    },
+    {
+      "file": "frontend/src/app/about/page.tsx",
+      "kind": "function",
+      "name": "AboutPage"
+    },
+    {
+      "file": "frontend/src/app/about/page.tsx",
+      "kind": "const",
+      "name": "metadata"
+    },
+    {
+      "file": "frontend/src/app/admin/dashboard/page.tsx",
+      "kind": "function",
+      "name": "AdminDashboardPage"
+    },
+    {
+      "file": "frontend/src/app/admin/layout.tsx",
+      "kind": "function",
+      "name": "AdminLayout"
+    },
+    {
+      "file": "frontend/src/app/admin/login/page.tsx",
+      "kind": "function",
+      "name": "AdminLoginPage"
+    },
+    {
+      "file": "frontend/src/app/admin/page.tsx",
+      "kind": "function",
+      "name": "AdminRootPage"
+    },
+    {
+      "file": "frontend/src/app/agencies/[slug]/error.tsx",
+      "kind": "function",
+      "name": "AgencyError"
+    },
+    {
+      "file": "frontend/src/app/agencies/[slug]/layout.tsx",
+      "kind": "function",
+      "name": "AgencyDetailLayout"
+    },
+    {
+      "file": "frontend/src/app/agencies/[slug]/loading.tsx",
+      "kind": "function",
+      "name": "AgencyLoading"
+    },
+    {
+      "file": "frontend/src/app/agencies/[slug]/page.tsx",
+      "kind": "function",
+      "name": "generateMetadata"
+    },
+    {
+      "file": "frontend/src/app/agencies/[slug]/page.tsx",
+      "kind": "function",
+      "name": "AgencyDetailPage"
+    },
+    {
+      "file": "frontend/src/app/agencies/error.tsx",
+      "kind": "function",
+      "name": "AgenciesError"
+    },
+    {
+      "file": "frontend/src/app/agencies/layout.tsx",
+      "kind": "function",
+      "name": "AgenciesLayout"
+    },
+    {
+      "file": "frontend/src/app/agencies/loading.tsx",
+      "kind": "function",
+      "name": "AgenciesLoading"
+    },
+    {
+      "file": "frontend/src/app/agencies/page.tsx",
+      "kind": "function",
+      "name": "AgenciesPage"
+    },
+    {
+      "file": "frontend/src/app/auth/callback/page.tsx",
+      "kind": "function",
+      "name": "AuthCallbackPage"
+    },
+    {
+      "file": "frontend/src/app/blog/[slug]/page.tsx",
+      "kind": "function",
+      "name": "BlogArticlePage"
+    },
+    {
+      "file": "frontend/src/app/blog/layout.tsx",
+      "kind": "function",
+      "name": "BlogLayout"
+    },
+    {
+      "file": "frontend/src/app/blog/page.tsx",
+      "kind": "function",
+      "name": "BlogPage"
+    },
+    {
+      "file": "frontend/src/app/booking/[id]/page.tsx",
+      "kind": "function",
+      "name": "BookingDetailPage"
+    },
+    {
+      "file": "frontend/src/app/dashboard/layout.tsx",
+      "kind": "function",
+      "name": "DashboardLayout"
+    },
+    {
+      "file": "frontend/src/app/dashboard/page.tsx",
+      "kind": "function",
+      "name": "DashboardPage"
+    },
+    {
+      "file": "frontend/src/app/error.tsx",
+      "kind": "function",
+      "name": "RootError"
+    },
+    {
+      "file": "frontend/src/app/find-homes/error.tsx",
+      "kind": "function",
+      "name": "FindHomesError"
+    },
+    {
+      "file": "frontend/src/app/find-homes/layout.tsx",
+      "kind": "function",
+      "name": "FindHomesLayout"
+    },
+    {
+      "file": "frontend/src/app/find-homes/loading.tsx",
+      "kind": "function",
+      "name": "FindHomesLoading"
+    },
+    {
+      "file": "frontend/src/app/find-homes/page.tsx",
+      "kind": "function",
+      "name": "FindHomesPage"
+    },
+    {
+      "file": "frontend/src/app/layout.tsx",
+      "kind": "function",
+      "name": "RootLayout"
+    },
+    {
+      "file": "frontend/src/app/layout.tsx",
+      "kind": "const",
+      "name": "metadata"
+    },
+    {
+      "file": "frontend/src/app/layout.tsx",
+      "kind": "const",
+      "name": "viewport"
+    },
+    {
+      "file": "frontend/src/app/likes/layout.tsx",
+      "kind": "function",
+      "name": "LikesLayout"
+    },
+    {
+      "file": "frontend/src/app/likes/page.tsx",
+      "kind": "function",
+      "name": "LikesPage"
+    },
+    {
+      "file": "frontend/src/app/loading.tsx",
+      "kind": "function",
+      "name": "RootLoading"
+    },
+    {
+      "file": "frontend/src/app/not-found.tsx",
+      "kind": "function",
+      "name": "NotFound"
+    },
+    {
+      "file": "frontend/src/app/pricing/layout.tsx",
+      "kind": "function",
+      "name": "PricingLayout"
+    },
+    {
+      "file": "frontend/src/app/pricing/page.tsx",
+      "kind": "function",
+      "name": "PricingPage"
+    },
+    {
+      "file": "frontend/src/app/project/[id]/layout.tsx",
+      "kind": "function",
+      "name": "ProjectLayout"
+    },
+    {
+      "file": "frontend/src/app/project/[id]/page.tsx",
+      "kind": "function",
+      "name": "generateMetadata"
+    },
+    {
+      "file": "frontend/src/app/project/[id]/page.tsx",
+      "kind": "function",
+      "name": "ProjectDetailPage"
+    },
+    {
+      "file": "frontend/src/app/property/[id]/error.tsx",
+      "kind": "function",
+      "name": "PropertyError"
+    },
+    {
+      "file": "frontend/src/app/property/[id]/layout.tsx",
+      "kind": "function",
+      "name": "PropertyLayout"
+    },
+    {
+      "file": "frontend/src/app/property/[id]/loading.tsx",
+      "kind": "function",
+      "name": "PropertyLoading"
+    },
+    {
+      "file": "frontend/src/app/property/[id]/page.tsx",
+      "kind": "function",
+      "name": "PropertyDetailPage"
+    },
+    {
+      "file": "frontend/src/app/property/[id]/page.tsx",
+      "kind": "const",
+      "name": "dynamic"
+    },
+    {
+      "file": "frontend/src/app/shared-housing/[id]/page.tsx",
+      "kind": "function",
+      "name": "SharedHousingRedirect"
+    },
+    {
+      "file": "frontend/src/app/shared-housing/page.tsx",
+      "kind": "function",
+      "name": "SharedHousingPage"
+    },
+    {
+      "file": "frontend/src/app/universities/[slug]/page.tsx",
+      "kind": "function",
+      "name": "generateMetadata"
+    },
+    {
+      "file": "frontend/src/app/universities/[slug]/page.tsx",
+      "kind": "function",
+      "name": "UniversityDetailPage"
+    },
+    {
+      "file": "frontend/src/app/universities/page.tsx",
+      "kind": "function",
+      "name": "UniversitiesPage"
+    },
+    {
+      "file": "frontend/src/components/about/AboutHero.tsx",
+      "kind": "function",
+      "name": "AboutHero"
+    },
+    {
+      "file": "frontend/src/components/about/MissionAndValues.tsx",
+      "kind": "function",
+      "name": "MissionAndValues"
+    },
+    {
+      "file": "frontend/src/components/about/TeamSection.tsx",
+      "kind": "function",
+      "name": "TeamSection"
+    },
+    {
+      "file": "frontend/src/components/admin/AdminModal.tsx",
+      "kind": "function",
+      "name": "AdminModal"
+    },
+    {
+      "file": "frontend/src/components/admin/AdminSidebar.tsx",
+      "kind": "function",
+      "name": "AdminSidebar"
+    },
+    {
+      "file": "frontend/src/components/admin/AdminTable.tsx",
+      "kind": "function",
+      "name": "AdminTable"
+    },
+    {
+      "file": "frontend/src/components/admin/AdminTable.tsx",
+      "kind": "type",
+      "name": "Column"
+    },
+    {
+      "file": "frontend/src/components/admin/EntityPicker.tsx",
+      "kind": "function",
+      "name": "EntityPicker"
+    },
+    {
+      "file": "frontend/src/components/admin/RichTextEditor.tsx",
+      "kind": "function",
+      "name": "RichTextEditor"
+    },
+    {
+      "file": "frontend/src/components/agencies/AgenciesHero.tsx",
+      "kind": "function",
+      "name": "AgenciesHero"
+    },
+    {
+      "file": "frontend/src/components/agencies/DeveloperCard.tsx",
+      "kind": "function",
+      "name": "DeveloperCard"
+    },
+    {
+      "file": "frontend/src/components/agencies/DevelopersSection.tsx",
+      "kind": "function",
+      "name": "DevelopersSection"
+    },
+    {
+      "file": "frontend/src/components/agencies/UniversitiesSection.tsx",
+      "kind": "function",
+      "name": "UniversitiesSection"
+    },
+    {
+      "file": "frontend/src/components/agencies/UniversityCard.tsx",
+      "kind": "function",
+      "name": "UniversityCard"
+    },
+    {
+      "file": "frontend/src/components/agency-details/AgencyHero.tsx",
+      "kind": "function",
+      "name": "AgencyHero"
+    },
+    {
+      "file": "frontend/src/components/agency-details/AgencySidebar.tsx",
+      "kind": "function",
+      "name": "AgencySidebar"
+    },
+    {
+      "file": "frontend/src/components/agency-details/FeaturedProjects.tsx",
+      "kind": "function",
+      "name": "FeaturedProjects"
+    },
+    {
+      "file": "frontend/src/components/agency-details/ProjectCard.tsx",
+      "kind": "function",
+      "name": "ProjectCard"
+    },
+    {
+      "file": "frontend/src/components/agency-details/TopListings.tsx",
+      "kind": "function",
+      "name": "TopListings"
+    },
+    {
+      "file": "frontend/src/components/ai/ChatDrawer.tsx",
+      "kind": "function",
+      "name": "ChatDrawer"
+    },
+    {
+      "file": "frontend/src/components/ai/ChatMessage.tsx",
+      "kind": "function",
+      "name": "ChatMessage"
+    },
+    {
+      "file": "frontend/src/components/ai/ChatMessage.tsx",
+      "kind": "function",
+      "name": "TypingIndicator"
+    },
+    {
+      "file": "frontend/src/components/ai/ChatMessage.tsx",
+      "kind": "type",
+      "name": "ListingRef"
+    },
+    {
+      "file": "frontend/src/components/ai/ChatMessage.tsx",
+      "kind": "type",
+      "name": "ChatMessageData"
+    },
+    {
+      "file": "frontend/src/components/auth/AuthProductPreview.tsx",
+      "kind": "function",
+      "name": "AuthProductPreview"
+    },
+    {
+      "file": "frontend/src/components/auth/ForgotPasswordForm.tsx",
+      "kind": "function",
+      "name": "ForgotPasswordForm"
+    },
+    {
+      "file": "frontend/src/components/auth/LoginForm.tsx",
+      "kind": "function",
+      "name": "LoginForm"
+    },
+    {
+      "file": "frontend/src/components/auth/OAuthButton.tsx",
+      "kind": "function",
+      "name": "OAuthButton"
+    },
+    {
+      "file": "frontend/src/components/auth/OAuthIcons.tsx",
+      "kind": "function",
+      "name": "GoogleIcon"
+    },
+    {
+      "file": "frontend/src/components/auth/OAuthIcons.tsx",
+      "kind": "function",
+      "name": "FacebookIcon"
+    },
+    {
+      "file": "frontend/src/components/auth/PhoneOTPInput.tsx",
+      "kind": "function",
+      "name": "PhoneOTPInput"
+    },
+    {
+      "file": "frontend/src/components/auth/ResetPasswordForm.tsx",
+      "kind": "function",
+      "name": "ResetPasswordForm"
+    },
+    {
+      "file": "frontend/src/components/auth/SignUpForm.tsx",
+      "kind": "function",
+      "name": "SignUpForm"
+    },
+    {
+      "file": "frontend/src/components/blog/BlogCard.tsx",
+      "kind": "function",
+      "name": "BlogCard"
+    },
+    {
+      "file": "frontend/src/components/blog/BlogGrid.tsx",
+      "kind": "function",
+      "name": "BlogGrid"
+    },
+    {
+      "file": "frontend/src/components/blog/BlogHero.tsx",
+      "kind": "function",
+      "name": "BlogHero"
+    },
+    {
+      "file": "frontend/src/components/blog/BlogSidebar.tsx",
+      "kind": "function",
+      "name": "BlogSidebar"
+    },
+    {
+      "file": "frontend/src/components/blog-article/ArticleBody.tsx",
+      "kind": "function",
+      "name": "ArticleBody"
+    },
+    {
+      "file": "frontend/src/components/blog-article/ArticleHero.tsx",
+      "kind": "function",
+      "name": "ArticleHero"
+    },
+    {
+      "file": "frontend/src/components/blog-article/ArticleSidebar.tsx",
+      "kind": "function",
+      "name": "ArticleSidebar"
+    },
+    {
+      "file": "frontend/src/components/blog-article/NewsletterCTA.tsx",
+      "kind": "function",
+      "name": "NewsletterCTA"
+    },
+    {
+      "file": "frontend/src/components/blog-article/RelatedArticles.tsx",
+      "kind": "function",
+      "name": "RelatedArticles"
+    },
+    {
+      "file": "frontend/src/components/booking/BookingModal.tsx",
+      "kind": "function",
+      "name": "BookingModal"
+    },
+    {
+      "file": "frontend/src/components/booking/BookNowButton.tsx",
+      "kind": "function",
+      "name": "BookNowButton"
+    },
+    {
+      "file": "frontend/src/components/cards/ListingCard.tsx",
+      "kind": "function",
+      "name": "ListingCard"
+    },
+    {
+      "file": "frontend/src/components/dashboard/AddListingModal.tsx",
+      "kind": "function",
+      "name": "AddListingModal"
+    },
+    {
+      "file": "frontend/src/components/dashboard/ApplicationsReceivedTab.tsx",
+      "kind": "function",
+      "name": "ApplicationsReceivedTab"
+    },
+    {
+      "file": "frontend/src/components/dashboard/BookingsReceivedTab.tsx",
+      "kind": "function",
+      "name": "BookingsReceivedTab"
+    },
+    {
+      "file": "frontend/src/components/dashboard/DashboardProfile.tsx",
+      "kind": "function",
+      "name": "DashboardProfile"
+    },
+    {
+      "file": "frontend/src/components/dashboard/DashboardStats.tsx",
+      "kind": "function",
+      "name": "DashboardStats"
+    },
+    {
+      "file": "frontend/src/components/dashboard/LikedProperties.tsx",
+      "kind": "function",
+      "name": "LikedProperties"
+    },
+    {
+      "file": "frontend/src/components/dashboard/MyApplicationsTab.tsx",
+      "kind": "function",
+      "name": "MyApplicationsTab"
+    },
+    {
+      "file": "frontend/src/components/dashboard/MyBookingsTab.tsx",
+      "kind": "function",
+      "name": "MyBookingsTab"
+    },
+    {
+      "file": "frontend/src/components/dashboard/MyListings.tsx",
+      "kind": "function",
+      "name": "MyListings"
+    },
+    {
+      "file": "frontend/src/components/dashboard/MyViewings.tsx",
+      "kind": "function",
+      "name": "MyViewings"
+    },
+    {
+      "file": "frontend/src/components/dashboard/ProfileSettings.tsx",
+      "kind": "function",
+      "name": "ProfileSettings"
+    },
+    {
+      "file": "frontend/src/components/find-homes/FilterSidebar.tsx",
+      "kind": "function",
+      "name": "FilterSidebar"
+    },
+    {
+      "file": "frontend/src/components/find-homes/FilterSidebar.tsx",
+      "kind": "type",
+      "name": "FilterValues"
+    },
+    {
+      "file": "frontend/src/components/find-homes/Pagination.tsx",
+      "kind": "function",
+      "name": "Pagination"
+    },
+    {
+      "file": "frontend/src/components/find-homes/SearchListingCard.tsx",
+      "kind": "function",
+      "name": "SearchListingCard"
+    },
+    {
+      "file": "frontend/src/components/find-homes/SearchListingRow.tsx",
+      "kind": "function",
+      "name": "SearchListingRow"
+    },
+    {
+      "file": "frontend/src/components/layout/ChatbotConditional.tsx",
+      "kind": "function",
+      "name": "ChatbotConditional"
+    },
+    {
+      "file": "frontend/src/components/layout/FloatingAIButton.tsx",
+      "kind": "function",
+      "name": "FloatingAIButton"
+    },
+    {
+      "file": "frontend/src/components/layout/Footer.tsx",
+      "kind": "function",
+      "name": "Footer"
+    },
+    {
+      "file": "frontend/src/components/layout/Navbar.tsx",
+      "kind": "function",
+      "name": "Navbar"
+    },
+    {
+      "file": "frontend/src/components/layout/NotificationBell.tsx",
+      "kind": "function",
+      "name": "NotificationBell"
+    },
+    {
+      "file": "frontend/src/components/profile/LifestylePrefsForm.tsx",
+      "kind": "function",
+      "name": "LifestylePrefsForm"
+    },
+    {
+      "file": "frontend/src/components/project-details/ProjectHero.tsx",
+      "kind": "function",
+      "name": "ProjectHero"
+    },
+    {
+      "file": "frontend/src/components/project-details/ProjectInfo.tsx",
+      "kind": "function",
+      "name": "ProjectInfo"
+    },
+    {
+      "file": "frontend/src/components/project-details/ProjectSidebar.tsx",
+      "kind": "function",
+      "name": "ProjectSidebar"
+    },
+    {
+      "file": "frontend/src/components/project-details/ResidenceCard.tsx",
+      "kind": "function",
+      "name": "ResidenceCard"
+    },
+    {
+      "file": "frontend/src/components/project-details/ResidencesGrid.tsx",
+      "kind": "function",
+      "name": "ResidencesGrid"
+    },
+    {
+      "file": "frontend/src/components/property/GoogleMapEmbed.tsx",
+      "kind": "function",
+      "name": "GoogleMapEmbed"
+    },
+    {
+      "file": "frontend/src/components/property/MobilePropertyCTA.tsx",
+      "kind": "function",
+      "name": "MobilePropertyCTA"
+    },
+    {
+      "file": "frontend/src/components/property/PropertyHero.tsx",
+      "kind": "function",
+      "name": "PropertyHero"
+    },
+    {
+      "file": "frontend/src/components/property/PropertyInfo.tsx",
+      "kind": "function",
+      "name": "PropertyInfo"
+    },
+    {
+      "file": "frontend/src/components/property/PropertyMap.tsx",
+      "kind": "function",
+      "name": "PropertyMap"
+    },
+    {
+      "file": "frontend/src/components/property/PropertySidebar.tsx",
+      "kind": "function",
+      "name": "PropertySidebar"
+    },
+    {
+      "file": "frontend/src/components/property/WhatsAppCTA.tsx",
+      "kind": "function",
+      "name": "WhatsAppCTA"
+    },
+    {
+      "file": "frontend/src/components/sections/CTASection.tsx",
+      "kind": "function",
+      "name": "CTASection"
+    },
+    {
+      "file": "frontend/src/components/sections/FeaturesSection.tsx",
+      "kind": "function",
+      "name": "FeaturesSection"
+    },
+    {
+      "file": "frontend/src/components/sections/HomeHero.tsx",
+      "kind": "function",
+      "name": "HomeHero"
+    },
+    {
+      "file": "frontend/src/components/sections/HowItWorksSection.tsx",
+      "kind": "function",
+      "name": "HowItWorksSection"
+    },
+    {
+      "file": "frontend/src/components/sections/NeighborhoodGuides.tsx",
+      "kind": "function",
+      "name": "NeighborhoodGuides"
+    },
+    {
+      "file": "frontend/src/components/sections/RecommendationsSection.tsx",
+      "kind": "function",
+      "name": "RecommendationsSection"
+    },
+    {
+      "file": "frontend/src/components/sections/RecommendationsSectionClient.tsx",
+      "kind": "function",
+      "name": "RecommendationsSectionClient"
+    },
+    {
+      "file": "frontend/src/components/sections/TestimonialsSection.tsx",
+      "kind": "function",
+      "name": "TestimonialsSection"
+    },
+    {
+      "file": "frontend/src/components/sections/TrustedPartners.tsx",
+      "kind": "function",
+      "name": "TrustedPartners"
+    },
+    {
+      "file": "frontend/src/components/sections/VibeMatchesSection.tsx",
+      "kind": "function",
+      "name": "VibeMatchesSection"
+    },
+    {
+      "file": "frontend/src/components/shared-housing/AboutHouse.tsx",
+      "kind": "function",
+      "name": "AboutHouse"
+    },
+    {
+      "file": "frontend/src/components/shared-housing/ApplyButton.tsx",
+      "kind": "function",
+      "name": "ApplyButton"
+    },
+    {
+      "file": "frontend/src/components/shared-housing/ApplyModal.tsx",
+      "kind": "function",
+      "name": "ApplyModal"
+    },
+    {
+      "file": "frontend/src/components/shared-housing/CompatibilityScore.tsx",
+      "kind": "function",
+      "name": "CompatibilityScore"
+    },
+    {
+      "file": "frontend/src/components/shared-housing/ForYouSection.tsx",
+      "kind": "function",
+      "name": "ForYouSection"
+    },
+    {
+      "file": "frontend/src/components/shared-housing/HousematesSection.tsx",
+      "kind": "function",
+      "name": "HousematesSection"
+    },
+    {
+      "file": "frontend/src/components/shared-housing/SharedAmenities.tsx",
+      "kind": "function",
+      "name": "SharedAmenities"
+    },
+    {
+      "file": "frontend/src/components/shared-housing/SharedHousingCard.tsx",
+      "kind": "function",
+      "name": "SharedHousingCard"
+    },
+    {
+      "file": "frontend/src/components/shared-housing/SharedHousingFilters.tsx",
+      "kind": "function",
+      "name": "SharedHousingFilters"
+    },
+    {
+      "file": "frontend/src/components/shared-housing/SharedHousingHero.tsx",
+      "kind": "function",
+      "name": "SharedHousingHero"
+    },
+    {
+      "file": "frontend/src/components/shared-housing/SharedHousingSidebar.tsx",
+      "kind": "function",
+      "name": "SharedHousingSidebar"
+    },
+    {
+      "file": "frontend/src/components/shared-housing/SharedHousingStats.tsx",
+      "kind": "function",
+      "name": "SharedHousingStats"
+    },
+    {
+      "file": "frontend/src/components/ui/ImageLightbox.tsx",
+      "kind": "function",
+      "name": "ImageLightbox"
+    },
+    {
+      "file": "frontend/src/components/ui/LikeButton.tsx",
+      "kind": "function",
+      "name": "LikeButton"
+    },
+    {
+      "file": "frontend/src/components/universities/UniversityHero.tsx",
+      "kind": "function",
+      "name": "UniversityHero"
+    },
+    {
+      "file": "frontend/src/components/universities/UniversitySidebar.tsx",
+      "kind": "function",
+      "name": "UniversitySidebar"
+    },
+    {
+      "file": "frontend/src/lib/admin/api.ts",
+      "kind": "function",
+      "name": "saveToken"
+    },
+    {
+      "file": "frontend/src/lib/admin/api.ts",
+      "kind": "function",
+      "name": "clearToken"
+    },
+    {
+      "file": "frontend/src/lib/admin/api.ts",
+      "kind": "function",
+      "name": "isLoggedIn"
+    },
+    {
+      "file": "frontend/src/lib/admin/api.ts",
+      "kind": "function",
+      "name": "adminLogin"
+    },
+    {
+      "file": "frontend/src/lib/admin/api.ts",
+      "kind": "function",
+      "name": "getStats"
+    },
+    {
+      "file": "frontend/src/lib/admin/api.ts",
+      "kind": "function",
+      "name": "listItems"
+    },
+    {
+      "file": "frontend/src/lib/admin/api.ts",
+      "kind": "function",
+      "name": "getItem"
+    },
+    {
+      "file": "frontend/src/lib/admin/api.ts",
+      "kind": "function",
+      "name": "createItem"
+    },
+    {
+      "file": "frontend/src/lib/admin/api.ts",
+      "kind": "function",
+      "name": "getAdminSignedUploadUrl"
+    },
+    {
+      "file": "frontend/src/lib/admin/api.ts",
+      "kind": "function",
+      "name": "updateItem"
+    },
+    {
+      "file": "frontend/src/lib/admin/api.ts",
+      "kind": "function",
+      "name": "deleteItem"
+    },
+    {
+      "file": "frontend/src/lib/admin/api.ts",
+      "kind": "function",
+      "name": "approveListing"
+    },
+    {
+      "file": "frontend/src/lib/admin/api.ts",
+      "kind": "function",
+      "name": "rejectListing"
+    },
+    {
+      "file": "frontend/src/lib/admin/api.ts",
+      "kind": "function",
+      "name": "reviewFraud"
+    },
+    {
+      "file": "frontend/src/lib/admin/api.ts",
+      "kind": "type",
+      "name": "PagedResult"
+    },
+    {
+      "file": "frontend/src/lib/api.ts",
+      "kind": "function",
+      "name": "serverFetch"
+    },
+    {
+      "file": "frontend/src/lib/api.ts",
+      "kind": "const",
+      "name": "API_BASE_URL"
+    },
+    {
+      "file": "frontend/src/lib/api.ts",
+      "kind": "const",
+      "name": "api"
+    },
+    {
+      "file": "frontend/src/lib/constants.ts",
+      "kind": "const",
+      "name": "NAV_ITEMS"
+    },
+    {
+      "file": "frontend/src/lib/constants.ts",
+      "kind": "const",
+      "name": "FEATURES"
+    },
+    {
+      "file": "frontend/src/lib/constants.ts",
+      "kind": "const",
+      "name": "TESTIMONIALS"
+    },
+    {
+      "file": "frontend/src/lib/constants.ts",
+      "kind": "const",
+      "name": "HOW_IT_WORKS_STEPS"
+    },
+    {
+      "file": "frontend/src/lib/constants.ts",
+      "kind": "const",
+      "name": "QUICK_LINKS"
+    },
+    {
+      "file": "frontend/src/lib/constants.ts",
+      "kind": "const",
+      "name": "LEGAL_LINKS"
+    },
+    {
+      "file": "frontend/src/lib/constants.ts",
+      "kind": "const",
+      "name": "LISTING_CATEGORIES"
+    },
+    {
+      "file": "frontend/src/lib/constants.ts",
+      "kind": "const",
+      "name": "PROPERTY_TYPES"
+    },
+    {
+      "file": "frontend/src/lib/constants.ts",
+      "kind": "const",
+      "name": "FURNISHING_OPTIONS"
+    },
+    {
+      "file": "frontend/src/lib/constants.ts",
+      "kind": "const",
+      "name": "LISTING_AMENITIES"
+    },
+    {
+      "file": "frontend/src/lib/demoBookings.ts",
+      "kind": "const",
+      "name": "demoBookings"
+    },
+    {
+      "file": "frontend/src/lib/phoneUtils.ts",
+      "kind": "function",
+      "name": "buildE164"
+    },
+    {
+      "file": "frontend/src/lib/phoneUtils.ts",
+      "kind": "function",
+      "name": "isValidE164"
+    },
+    {
+      "file": "frontend/src/lib/phoneUtils.ts",
+      "kind": "function",
+      "name": "phonePlaceholder"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "function",
+      "name": "serverFetch"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "listingsQueries"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "favoritesQueries"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "favoriteMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "createListingMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "updateListingMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "deleteListingMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "agenciesQueries"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "projectsQueries"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "blogQueries"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "dashboardQueries"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "updateProfileMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "applicationsQueries"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "createApplicationMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "updateApplicationMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "bookingsQueries"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "createPaymentIntentMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "confirmBookingMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "vacateBookingMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "cancelBookingMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "requestDisbursementMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "recommendationsQueries"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "notificationsQueries"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "markNotificationReadMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "markAllNotificationsReadMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "ragSearchMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "subscriptionQuery"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "startTrialMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "checkoutMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "const",
+      "name": "cancelSubscriptionMutation"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "type",
+      "name": "ListingsParams"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "type",
+      "name": "CreateListingInput"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "type",
+      "name": "UpdateProfileInput"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "kind": "type",
+      "name": "RAGSearchResponse"
+    },
+    {
+      "file": "frontend/src/lib/queryClient.ts",
+      "kind": "const",
+      "name": "queryClient"
+    },
+    {
+      "file": "frontend/src/lib/supabase-queries.ts",
+      "kind": "function",
+      "name": "parseSearchQuery"
+    },
+    {
+      "file": "frontend/src/lib/supabase-queries.ts",
+      "kind": "function",
+      "name": "getListings"
+    },
+    {
+      "file": "frontend/src/lib/supabase-queries.ts",
+      "kind": "function",
+      "name": "getListing"
+    },
+    {
+      "file": "frontend/src/lib/supabase-queries.ts",
+      "kind": "function",
+      "name": "getAgencies"
+    },
+    {
+      "file": "frontend/src/lib/supabase-queries.ts",
+      "kind": "function",
+      "name": "getAgency"
+    },
+    {
+      "file": "frontend/src/lib/supabase-queries.ts",
+      "kind": "function",
+      "name": "getProject"
+    },
+    {
+      "file": "frontend/src/lib/supabase-queries.ts",
+      "kind": "function",
+      "name": "getBlogPosts"
+    },
+    {
+      "file": "frontend/src/lib/supabase-queries.ts",
+      "kind": "function",
+      "name": "getBlogPost"
+    },
+    {
+      "file": "frontend/src/lib/supabase-queries.ts",
+      "kind": "function",
+      "name": "getDashboardListings"
+    },
+    {
+      "file": "frontend/src/lib/supabase-queries.ts",
+      "kind": "function",
+      "name": "getLikedListings"
+    },
+    {
+      "file": "frontend/src/lib/supabase-queries.ts",
+      "kind": "function",
+      "name": "getUniversities"
+    },
+    {
+      "file": "frontend/src/lib/supabase-queries.ts",
+      "kind": "function",
+      "name": "getUniversity"
+    },
+    {
+      "file": "frontend/src/lib/supabase-queries.ts",
+      "kind": "type",
+      "name": "ListingFilters"
+    },
+    {
+      "file": "frontend/src/lib/supabase-queries.ts",
+      "kind": "type",
+      "name": "BlogFilters"
+    },
+    {
+      "file": "frontend/src/lib/supabase.ts",
+      "kind": "const",
+      "name": "supabase"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "function",
+      "name": "cn"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "function",
+      "name": "formatEGP"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "function",
+      "name": "calculatePlatformFee"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "function",
+      "name": "formatPrice"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "function",
+      "name": "getListingPriceSuffix"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "function",
+      "name": "getListingCategoryBadge"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "function",
+      "name": "formatListingType"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "function",
+      "name": "isListingNewWithinWeek"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "function",
+      "name": "formatDate"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "function",
+      "name": "formatRelativeTime"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "function",
+      "name": "truncate"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "function",
+      "name": "slugify"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "function",
+      "name": "bedroomsLabel"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "function",
+      "name": "propertyTypeLabel"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "function",
+      "name": "formatLocation"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "const",
+      "name": "PLATFORM_FEE_RATE"
+    },
+    {
+      "file": "frontend/src/lib/utils.ts",
+      "kind": "const",
+      "name": "LISTING_CATEGORY_BADGES"
+    },
+    {
+      "file": "frontend/src/providers/Providers.tsx",
+      "kind": "function",
+      "name": "Providers"
+    },
+    {
+      "file": "frontend/src/stores/authStore.ts",
+      "kind": "const",
+      "name": "useAuthStore"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ApiProfileResponse"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ListingLifestylePreferences"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "PaymentPlan"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "NeighborhoodBrief"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "HousemateResponse"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ListingBrief"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ListingDetail"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ListingDetailWithSimilar"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ApiListingBrief"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ApiListingDetail"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "PaginatedListings"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "AgencyBrief"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ApiAgencyDetail"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "PaginatedAgencies"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ProjectBrief"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ApiProjectDetail"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "BlogPostBrief"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "BlogPostDetail"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "PaginatedBlogPosts"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "LikedPropertyBrief"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ApiDashboardListing"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ApiAnalyticsStat"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ApiViewingBrief"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "DashboardResponse"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ApplicationBrief"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "MyApplicationBrief"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "BookingDisbursement"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "BookingBrief"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "CreateBookingResponse"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "BookingPaymentPreview"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "CreatePaymentIntentResponse"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "BookingFees"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ApiSharedHousingDetail"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ApiUniversity"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "PaginatedUniversities"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "SubscriptionStatus"
+    },
+    {
+      "file": "frontend/src/types/api.ts",
+      "kind": "type",
+      "name": "ApiNotification"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "CitationSourceType"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "Citation"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "UserRole"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "GenderType"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "LifestylePreferences"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "PaymentPlan"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "AuthUser"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "SignUpData"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "NotificationType"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "Notification"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "Listing"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "Feature"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "Neighborhood"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "Testimonial"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "NavItem"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "FooterLink"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "HowItWorksStep"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "Amenity"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "SimilarProperty"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "Agency"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "UniversityDetail"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "Residence"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "ProjectDocument"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "ProjectDetail"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "Housemate"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "SharedAmenity"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "SimilarRoom"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "SharedHousingDetail"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "BlogPost"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "PopularPost"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "AgencyProject"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "Award"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "AgencyDetail"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "AnalyticsStat"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "DashboardListing"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "UserProfile"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "LikedProperty"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "DashboardViewingBrief"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "PropertyDetail"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "BlogArticle"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "ArticleBlock"
+    },
+    {
+      "file": "frontend/src/types/index.ts",
+      "kind": "type",
+      "name": "RelatedArticle"
+    }
+  ],
+  "table_refs": {
+    "frontend/src/lib/supabase-queries.ts": [
+      "agencies",
+      "blog_posts",
+      "housemates",
+      "listings",
+      "projects",
+      "universities"
+    ],
+    "frontend/src/stores/authStore.ts": [
+      "profiles"
+    ],
+    "backend/app/admin/router.py": [
+      "agencies",
+      "blog_posts",
+      "bookings",
+      "housemates",
+      "listings",
+      "notifications",
+      "profiles",
+      "projects",
+      "universities"
+    ],
+    "backend/app/agencies/router.py": [
+      "agencies",
+      "listings",
+      "projects"
+    ],
+    "backend/app/ai/embeddings.py": [
+      "knowledge_chunks",
+      "listings"
+    ],
+    "backend/app/ai/fraud.py": [
+      "listings"
+    ],
+    "backend/app/ai/router.py": [
+      "favorites",
+      "housemates",
+      "listings",
+      "profiles"
+    ],
+    "backend/app/applications/router.py": [
+      "housemates",
+      "listing_applications",
+      "listings",
+      "notifications"
+    ],
+    "backend/app/auth/router.py": [
+      "profiles"
+    ],
+    "backend/app/blog/router.py": [
+      "blog_posts"
+    ],
+    "backend/app/bookings/lease_checker.py": [
+      "bookings",
+      "notifications"
+    ],
+    "backend/app/bookings/router.py": [
+      "booking_disbursements",
+      "bookings",
+      "listings",
+      "payments",
+      "profiles"
+    ],
+    "backend/app/dashboard/router.py": [
+      "favorites",
+      "listing_applications",
+      "listings",
+      "viewings"
+    ],
+    "backend/app/dependencies.py": [
+      "profiles"
+    ],
+    "backend/app/leads/router.py": [
+      "agencies",
+      "leads",
+      "listings",
+      "profiles"
+    ],
+    "backend/app/listings/router.py": [
+      "agencies",
+      "favorites",
+      "housemates",
+      "listing_applications",
+      "listings",
+      "neighborhoods",
+      "notifications",
+      "profiles"
+    ],
+    "backend/app/notifications/router.py": [
+      "notifications"
+    ],
+    "backend/app/projects/router.py": [
+      "projects"
+    ],
+    "backend/app/stripe_webhooks/router.py": [
+      "listings",
+      "subscriptions"
+    ],
+    "backend/app/subscriptions/lapse.py": [
+      "listings"
+    ],
+    "backend/app/subscriptions/router.py": [
+      "subscriptions"
+    ],
+    "backend/app/subscriptions/service.py": [
+      "listings",
+      "subscriptions"
+    ],
+    "backend/app/universities/router.py": [
+      "listings",
+      "universities"
+    ],
+    "backend/app/viewings/router.py": [
+      "listings",
+      "notifications",
+      "viewings"
+    ],
+    "backend/tests/test_ai.py": [
+      "favorites",
+      "listings",
+      "profiles"
+    ],
+    "backend/tests/test_notifications.py": [
+      "notifications",
+      "profiles"
+    ],
+    "backend/sql/2026-05-15_all_new_features.sql": [
+      "booking_disbursements",
+      "bookings"
+    ],
+    "backend/sql/2026-05-29_payment_fees_model.sql": [
+      "payments"
+    ],
+    "backend/sql/2026-05-30_owner_subscriptions.sql": [
+      "subscriptions"
+    ],
+    "docs/schema/001_v2_comprehensive_schema.sql": [
+      "agencies",
+      "blog_posts",
+      "conversations",
+      "favorites",
+      "housemates",
+      "listing_applications",
+      "listings",
+      "messages",
+      "neighborhoods",
+      "notifications",
+      "profiles",
+      "projects",
+      "viewings"
+    ],
+    "docs/schema/002_message_requests.sql": [
+      "blocked_users"
+    ],
+    "docs/schema/004_knowledge_chunks.sql": [
+      "knowledge_chunks"
+    ],
+    "docs/schema/005_leads.sql": [
+      "leads"
+    ]
+  },
+  "frontend_api_paths": [
+    {
+      "file": "frontend/src/components/booking/BookingModal.tsx",
+      "path": "/api/bookings/sync-payment"
+    },
+    {
+      "file": "frontend/src/components/dashboard/AddListingModal.tsx",
+      "path": "/api/ai/validate-amenity"
+    },
+    {
+      "file": "frontend/src/components/dashboard/AddListingModal.tsx",
+      "path": "/api/uploads/signed-url"
+    },
+    {
+      "file": "frontend/src/components/dashboard/AddListingModal.tsx",
+      "path": "/api/ai/description"
+    },
+    {
+      "file": "frontend/src/components/dashboard/AddListingModal.tsx",
+      "path": "/api/listings"
+    },
+    {
+      "file": "frontend/src/components/dashboard/ProfileSettings.tsx",
+      "path": "/api/uploads/signed-url"
+    },
+    {
+      "file": "frontend/src/components/property/WhatsAppCTA.tsx",
+      "path": "/api/leads"
+    },
+    {
+      "file": "frontend/src/components/sections/RecommendationsSection.tsx",
+      "path": "/api/ai/recommendations"
+    },
+    {
+      "file": "frontend/src/components/shared-housing/CompatibilityScore.tsx",
+      "path": "/api/ai/compatibility"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/listings"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/listings/favorites"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/listings"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/agencies"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/blog"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/dashboard/me"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/auth/me"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/applications/my"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/applications"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/bookings/my"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/bookings/received"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/bookings/fees"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/bookings/payment-intent"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/ai/recommendations"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/notifications"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/notifications/read-all"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/ai/search"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/subscriptions/me"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/subscriptions/start-trial"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/subscriptions/checkout"
+    },
+    {
+      "file": "frontend/src/lib/queries.ts",
+      "path": "/api/subscriptions/cancel"
+    }
+  ]
+}

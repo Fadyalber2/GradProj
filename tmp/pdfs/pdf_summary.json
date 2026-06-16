@@ -1,0 +1,992 @@
+{
+  "Graduation project template.pdf": {
+    "file": "E:\\GradProject\\AXIOM-V2\\docs\\Graduation project template.pdf",
+    "pages": 6,
+    "metadata": {
+      "/Author": "Ahmed Seif",
+      "/Creator": "Microsoft® Word 2024",
+      "/CreationDate": "D:20260615165300+03'00'",
+      "/ModDate": "D:20260615165300+03'00'",
+      "/Producer": "Microsoft® Word 2024"
+    },
+    "page_text_lengths": [
+      256,
+      323,
+      680,
+      463,
+      1200,
+      1012
+    ],
+    "tables_per_page": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "heading_candidates": [
+      {
+        "page": 1,
+        "line": "Submitted by:"
+      },
+      {
+        "page": 1,
+        "line": "Supervised by:"
+      },
+      {
+        "page": 2,
+        "line": "Examiner:"
+      },
+      {
+        "page": 2,
+        "line": "Name:"
+      },
+      {
+        "page": 2,
+        "line": "Signature:"
+      },
+      {
+        "page": 3,
+        "line": "Names:"
+      },
+      {
+        "page": 3,
+        "line": "Supervisor:"
+      },
+      {
+        "page": 4,
+        "line": "Names:"
+      },
+      {
+        "page": 5,
+        "line": "Table of Contents"
+      },
+      {
+        "page": 5,
+        "line": "Abstract"
+      },
+      {
+        "page": 5,
+        "line": "Table of contents"
+      },
+      {
+        "page": 5,
+        "line": "List of figures"
+      },
+      {
+        "page": 5,
+        "line": "List of tables"
+      },
+      {
+        "page": 5,
+        "line": "List of abbreviations and acronyms"
+      },
+      {
+        "page": 5,
+        "line": "Chapter 1: introduction"
+      },
+      {
+        "page": 5,
+        "line": "1.1 Overview"
+      },
+      {
+        "page": 5,
+        "line": "1.2 Motivation"
+      },
+      {
+        "page": 5,
+        "line": "1.3 Objective"
+      },
+      {
+        "page": 5,
+        "line": "1.4 Aim"
+      },
+      {
+        "page": 5,
+        "line": "1.5 Scope ………………………….........................................................7"
+      },
+      {
+        "page": 5,
+        "line": "1.6 General"
+      },
+      {
+        "page": 5,
+        "line": "1.7 Organization of the dissertation………………………………………………..…9"
+      },
+      {
+        "page": 5,
+        "line": "Chapter 2 Background and Previous work"
+      },
+      {
+        "page": 5,
+        "line": "2.1 Background………………………………………………………………..……….7"
+      },
+      {
+        "page": 5,
+        "line": "2.2 Previous"
+      },
+      {
+        "page": 5,
+        "line": "Chapter 3 planning and analysis"
+      },
+      {
+        "page": 5,
+        "line": "3.1 Planning……………………………………………………………………..10"
+      },
+      {
+        "page": 5,
+        "line": "3.1.1 Feasibility study and estimated cost"
+      },
+      {
+        "page": 5,
+        "line": "3.1.2 Gantt chart"
+      },
+      {
+        "page": 5,
+        "line": "3.2 Analysis and limitations of existing"
+      },
+      {
+        "page": 5,
+        "line": "3.3 Need for new"
+      },
+      {
+        "page": 5,
+        "line": "3.4 Analysis of new"
+      },
+      {
+        "page": 5,
+        "line": "3.4.1 User Requirements 16"
+      },
+      {
+        "page": 5,
+        "line": "3.4.2 System Requirements 18"
+      },
+      {
+        "page": 5,
+        "line": "3.4.3 Domain Requirements 20"
+      },
+      {
+        "page": 5,
+        "line": "3.4.4 Functional Requirements 21"
+      },
+      {
+        "page": 5,
+        "line": "3.4.5 Non- Functional Requirements 27"
+      },
+      {
+        "page": 5,
+        "line": "3.5 Advantages of new"
+      },
+      {
+        "page": 5,
+        "line": "3.6 User characteristics……………………………………………………………27"
+      },
+      {
+        "page": 5,
+        "line": "Chapter 4: design"
+      },
+      {
+        "page": 5,
+        "line": "4.1 Design and Implementation Constraints……………………………………..28"
+      },
+      {
+        "page": 6,
+        "line": "4.2 Assumptions and"
+      },
+      {
+        "page": 6,
+        "line": "4.3 Risks and risk management………………………….…………………………..30"
+      },
+      {
+        "page": 6,
+        "line": "4.4 Design of database ERD…..…………………………………………………38"
+      },
+      {
+        "page": 6,
+        "line": "4.1.1 Entity Relationship Diagram…………………………………………38"
+      },
+      {
+        "page": 6,
+        "line": "4.1.2 Mapping of Entity Relationship"
+      },
+      {
+        "page": 6,
+        "line": "4.5 Class diagram…………………………………………………………..41"
+      },
+      {
+        "page": 6,
+        "line": "4.6 Use case diagram………………………………………………….42"
+      },
+      {
+        "page": 6,
+        "line": "4.3.1 Primary Use-case Diagram………………………………………..42"
+      },
+      {
+        "page": 6,
+        "line": "4.3.2 Use-case Scenarios………………………………42"
+      },
+      {
+        "page": 6,
+        "line": "4.7 Activity diagram…………………………………………………………51"
+      },
+      {
+        "page": 6,
+        "line": "4.8 Sequence diagram………………………………………………………………..59"
+      },
+      {
+        "page": 6,
+        "line": "4.9 State diagram………………………………………………………………..59"
+      },
+      {
+        "page": 6,
+        "line": "Chapter 5: Implementation"
+      },
+      {
+        "page": 6,
+        "line": "5.1 Software"
+      },
+      {
+        "page": 6,
+        "line": "5.2 User Interface…………………………………………………………………….71"
+      },
+      {
+        "page": 6,
+        "line": "5.3 Results and"
+      },
+      {
+        "page": 6,
+        "line": "Chapter 6: Testing"
+      },
+      {
+        "page": 6,
+        "line": "6.1 Unit Testing"
+      },
+      {
+        "page": 6,
+        "line": "6.2 Integration Testing…………………………………………………………….86"
+      },
+      {
+        "page": 6,
+        "line": "Conclusion………………………………………………………………………….87"
+      },
+      {
+        "page": 6,
+        "line": "References…………………………………………………………………….………"
+      }
+    ],
+    "text_output": "E:\\GradProject\\AXIOM-V2\\tmp\\pdfs\\Graduation_project_template.txt"
+  },
+  "Broker System Doc.pdf": {
+    "file": "E:\\GradProject\\AXIOM-V2\\docs\\Broker System Doc.pdf",
+    "pages": 62,
+    "metadata": {
+      "/CreationDate": "D:20260615165217",
+      "/Creator": "PDFium",
+      "/Producer": "PDFium"
+    },
+    "page_text_lengths": [
+      455,
+      358,
+      825,
+      591,
+      1408,
+      1047,
+      25,
+      2917,
+      2486,
+      2482,
+      2524,
+      1475,
+      42,
+      2232,
+      1451,
+      1903,
+      2028,
+      1551,
+      1369,
+      35,
+      2354,
+      220,
+      1833,
+      2223,
+      1780,
+      1497,
+      1007,
+      812,
+      1113,
+      514,
+      683,
+      779,
+      1414,
+      866,
+      789,
+      21,
+      1536,
+      1908,
+      1701,
+      1422,
+      954,
+      36,
+      47,
+      20,
+      33,
+      801,
+      683,
+      726,
+      650,
+      644,
+      645,
+      603,
+      579,
+      573,
+      595,
+      620,
+      653,
+      35,
+      33,
+      23,
+      25,
+      20
+    ],
+    "tables_per_page": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      4,
+      4,
+      3,
+      4,
+      0,
+      9,
+      7,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "heading_candidates": [
+      {
+        "page": 1,
+        "line": "Submitted by:"
+      },
+      {
+        "page": 1,
+        "line": "1 42210130 Baher Mohamed"
+      },
+      {
+        "page": 1,
+        "line": "2 42210128 Shrouk Saber"
+      },
+      {
+        "page": 1,
+        "line": "3 42210137 Youssef Mohamed"
+      },
+      {
+        "page": 1,
+        "line": "4 42210165 Abanoub Attia"
+      },
+      {
+        "page": 1,
+        "line": "5 42210106 Ehab Ashraf"
+      },
+      {
+        "page": 1,
+        "line": "6 42210101 Abdelrahman Wael"
+      },
+      {
+        "page": 1,
+        "line": "7 42210136 Fady Alber"
+      },
+      {
+        "page": 1,
+        "line": "Supervised by:"
+      },
+      {
+        "page": 2,
+        "line": "Examiner:"
+      },
+      {
+        "page": 2,
+        "line": "Name:"
+      },
+      {
+        "page": 2,
+        "line": "Signature:"
+      },
+      {
+        "page": 3,
+        "line": "Names:"
+      },
+      {
+        "page": 4,
+        "line": "Names:"
+      },
+      {
+        "page": 5,
+        "line": "Table of Contents"
+      },
+      {
+        "page": 5,
+        "line": "Abstract"
+      },
+      {
+        "page": 5,
+        "line": "Table of contents"
+      },
+      {
+        "page": 5,
+        "line": "List of figures"
+      },
+      {
+        "page": 5,
+        "line": "List of tables"
+      },
+      {
+        "page": 5,
+        "line": "List of abbreviations and acronyms"
+      },
+      {
+        "page": 5,
+        "line": "Chapter 1: introduction"
+      },
+      {
+        "page": 5,
+        "line": "1.1 Overview………………………………………………….……………………..8"
+      },
+      {
+        "page": 5,
+        "line": "1.2 Motivation……………………………………………….………………………8"
+      },
+      {
+        "page": 5,
+        "line": "1.3 Objective ………………………………………….……………………………..9"
+      },
+      {
+        "page": 5,
+        "line": "1.4 Aim ……………………………………………….……………………………...10"
+      },
+      {
+        "page": 5,
+        "line": "1.5 Scope …………………………................……......................................................10"
+      },
+      {
+        "page": 5,
+        "line": "1.6 General constraints………………………………...…………………………..…11"
+      },
+      {
+        "page": 5,
+        "line": "1.7 Organization of the dissertation ........................................................................ ...12"
+      },
+      {
+        "page": 5,
+        "line": "Chapter 2 : Background and Previous work"
+      },
+      {
+        "page": 5,
+        "line": "2.1 Background…………………………………………………………..………… 14"
+      },
+      {
+        "page": 5,
+        "line": "2.2 Previous work…………………………………………………………..………..16"
+      },
+      {
+        "page": 5,
+        "line": "Chapter 3 : planning and analysis"
+      },
+      {
+        "page": 5,
+        "line": "3.1 Planning……………………………………...…………………………………..21"
+      },
+      {
+        "page": 5,
+        "line": "3.1.1 Feasibility study and estimated cost …………………………21"
+      },
+      {
+        "page": 5,
+        "line": "3.1.2 Gantt chart ………………………………..…………………...22"
+      },
+      {
+        "page": 5,
+        "line": "3.2 Analysis and limitations of existing system…………………………………...23"
+      },
+      {
+        "page": 5,
+        "line": "3.3 Need for new system……………………………………..……………………..24"
+      },
+      {
+        "page": 5,
+        "line": "3.4 Analysis of new system……………………………………………..………......25"
+      },
+      {
+        "page": 5,
+        "line": "3.4.1 User Requirement……………………………….25"
+      },
+      {
+        "page": 5,
+        "line": "3.4.2 System Requirements……..…………………….26"
+      },
+      {
+        "page": 5,
+        "line": "3.4.3 Domain Requirements …..……………………...27"
+      },
+      {
+        "page": 5,
+        "line": "3.4.4 Functional Requirements..………………………29"
+      },
+      {
+        "page": 5,
+        "line": "3.4.5 Non- Functional Requirements..………………...31"
+      },
+      {
+        "page": 5,
+        "line": "3.5 Advantages of new system……………………………………….….………….33"
+      },
+      {
+        "page": 5,
+        "line": "3.6 User characteristics………………………………….……….………………….34"
+      },
+      {
+        "page": 6,
+        "line": "Chapter 4 : design"
+      },
+      {
+        "page": 6,
+        "line": "4.1 Design and Implementation Constraints…………………..……..………...37"
+      },
+      {
+        "page": 6,
+        "line": "4.2 Assumptions and dependencies………………………………….………….39"
+      },
+      {
+        "page": 6,
+        "line": "4.3 Risks and risk management………………………….…………………….. 40"
+      },
+      {
+        "page": 6,
+        "line": "4.4 Design of database ERD…..…………………………………………….…..42"
+      },
+      {
+        "page": 6,
+        "line": "4.4.1 Entity Relationship Diagram…………………….42"
+      },
+      {
+        "page": 6,
+        "line": "4.4.2 Mapping of Entity Relationship Diagram ………43"
+      },
+      {
+        "page": 6,
+        "line": "4.5 Class diagram………………………………………….…………………….44"
+      },
+      {
+        "page": 6,
+        "line": "4.6 Use case diagram……………………………………………………….……45"
+      },
+      {
+        "page": 6,
+        "line": "4.6.1 Primary Use-case Diagram……………….……45"
+      },
+      {
+        "page": 6,
+        "line": "4.6.2 Use-case Scenarios………………………………46"
+      },
+      {
+        "page": 6,
+        "line": "4.7 Activity diagram…………………………………..58"
+      },
+      {
+        "page": 6,
+        "line": "4.8 Sequence diagram………..………………………..60"
+      },
+      {
+        "page": 6,
+        "line": "4.9 State diagram…………………………..…………..62"
+      },
+      {
+        "page": 6,
+        "line": "Chapter 5: Implementation"
+      },
+      {
+        "page": 6,
+        "line": "5.1 Software Architecture………….…………………………………..……….#"
+      },
+      {
+        "page": 6,
+        "line": "5.2 User Interface………………..………………………..……………………..#"
+      },
+      {
+        "page": 6,
+        "line": "5.3 Results and Discussion……………………………………..………………..#"
+      },
+      {
+        "page": 6,
+        "line": "Chapter 6: Testing"
+      },
+      {
+        "page": 6,
+        "line": "6.1 Unit Testing ……………………………………..……….…………………..#"
+      },
+      {
+        "page": 6,
+        "line": "6.2 Integration Testing………………………………………..………………….#"
+      },
+      {
+        "page": 6,
+        "line": "Conclusion……………………………………………………………………….#"
+      },
+      {
+        "page": 6,
+        "line": "References………………………………………………………………….…… #"
+      },
+      {
+        "page": 7,
+        "line": "Chapter 1:"
+      },
+      {
+        "page": 7,
+        "line": "Introduction"
+      },
+      {
+        "page": 8,
+        "line": "1.1 Overview"
+      },
+      {
+        "page": 8,
+        "line": "1.2 Motivation"
+      },
+      {
+        "page": 9,
+        "line": "1.3 Objective"
+      },
+      {
+        "page": 10,
+        "line": "1.4 Aim"
+      },
+      {
+        "page": 10,
+        "line": "1.5 Scope"
+      },
+      {
+        "page": 10,
+        "line": "Functional Scope:"
+      },
+      {
+        "page": 10,
+        "line": "Technical Scope:"
+      },
+      {
+        "page": 11,
+        "line": "User Scope:"
+      },
+      {
+        "page": 11,
+        "line": "1.6 General constraints"
+      },
+      {
+        "page": 12,
+        "line": "1.7 Organization of the dissertation"
+      },
+      {
+        "page": 12,
+        "line": "Chapter 1: Introduces the project and outlines its foundation, including the motivation,"
+      },
+      {
+        "page": 12,
+        "line": "Chapter 2: Presents the background and literature review, discussing related systems,"
+      },
+      {
+        "page": 12,
+        "line": "Chapter 3: Focuses on system planning and analysis, describing both functional and"
+      },
+      {
+        "page": 12,
+        "line": "Chapter 4: Details the system design phase, including the architectural structure,"
+      },
+      {
+        "page": 12,
+        "line": "Chapter 5: Covers the implementation phase, explaining the development tools,"
+      },
+      {
+        "page": 12,
+        "line": "Chapter 6: Discusses testing and evaluation procedures, presenting test results,"
+      },
+      {
+        "page": 13,
+        "line": "Chapter 2:"
+      },
+      {
+        "page": 14,
+        "line": "2.1 Background"
+      },
+      {
+        "page": 14,
+        "line": "Digital Transformation in Real Estate :"
+      },
+      {
+        "page": 14,
+        "line": "Technological Advancements and Smart Systems :"
+      },
+      {
+        "page": 15,
+        "line": "Need for a Modernized Local Solution :"
+      },
+      {
+        "page": 16,
+        "line": "2.2 Previous work"
+      },
+      {
+        "page": 19,
+        "line": "Summary and Gaps :"
+      },
+      {
+        "page": 20,
+        "line": "Chapter 3:"
+      },
+      {
+        "page": 21,
+        "line": "3.1.1 Feasibility Study"
+      },
+      {
+        "page": 21,
+        "line": "450 EGP per year), web hosting on a shared server (900–2,400 EGP per year), and"
+      },
+      {
+        "page": 22,
+        "line": "3.1.2 Gantt Chart"
+      },
+      {
+        "page": 22,
+        "line": "0 10 20 30 40 50 60 70"
+      },
+      {
+        "page": 22,
+        "line": "DAYS TO COMPLETE"
+      },
+      {
+        "page": 23,
+        "line": "3.2 Analysis and limitations of existing system"
+      },
+      {
+        "page": 23,
+        "line": "Analysis of Existing System:"
+      },
+      {
+        "page": 23,
+        "line": "Wide Property Listings:"
+      },
+      {
+        "page": 23,
+        "line": "Direct Communication:"
+      },
+      {
+        "page": 23,
+        "line": "Basic Search Filters:"
+      },
+      {
+        "page": 23,
+        "line": "Online Property Browsing:"
+      },
+      {
+        "page": 23,
+        "line": "Limitations of Existing System:"
+      },
+      {
+        "page": 23,
+        "line": "Lack of AI Personalization:"
+      },
+      {
+        "page": 24,
+        "line": "Limited Transparency:"
+      },
+      {
+        "page": 24,
+        "line": "No Smart Filtering or Behavioral Matching:"
+      },
+      {
+        "page": 24,
+        "line": "Inadequate Safety and Secure Communication:"
+      },
+      {
+        "page": 24,
+        "line": "3.3 Need for new system"
+      },
+      {
+        "page": 24,
+        "line": "A new system is required to address these challenges by:"
+      },
+      {
+        "page": 25,
+        "line": "3.4.1 User Requirement"
+      },
+      {
+        "page": 26,
+        "line": "3.4.2 System Requirement"
+      },
+      {
+        "page": 26,
+        "line": "Software Requirement:"
+      },
+      {
+        "page": 26,
+        "line": "Hardware Requirements:"
+      },
+      {
+        "page": 27,
+        "line": "3.4.3 Domain Requirement"
+      },
+      {
+        "page": 29,
+        "line": "3.4.2 Functional Requirement"
+      },
+      {
+        "page": 31,
+        "line": "3.4.3 Non-Functional Requirement"
+      },
+      {
+        "page": 33,
+        "line": "3.5 Advantages of new system"
+      },
+      {
+        "page": 34,
+        "line": "3.6 User characteristics"
+      },
+      {
+        "page": 36,
+        "line": "Chapter 4 : design"
+      },
+      {
+        "page": 37,
+        "line": "4.1 Design and Implementation Constraints"
+      },
+      {
+        "page": 37,
+        "line": "4.1.1 Technical Constraints"
+      },
+      {
+        "page": 38,
+        "line": "4.1.2 Regulatory and Legal Constraints"
+      },
+      {
+        "page": 38,
+        "line": "4.1.3 Resource Constraints"
+      },
+      {
+        "page": 39,
+        "line": "4.2 Assumptions and Dependencies"
+      },
+      {
+        "page": 39,
+        "line": "4.2.1 Assumptions"
+      },
+      {
+        "page": 39,
+        "line": "4.2.2 Dependencies"
+      },
+      {
+        "page": 40,
+        "line": "4.3 Risks and Risk Management"
+      },
+      {
+        "page": 40,
+        "line": "4.3.1 Technical Risks"
+      },
+      {
+        "page": 40,
+        "line": "4.3.2 Security and Privacy Risks"
+      },
+      {
+        "page": 41,
+        "line": "4.3.3 Operational Risks"
+      },
+      {
+        "page": 41,
+        "line": "4.3.4 Ethical and Market Risks"
+      },
+      {
+        "page": 42,
+        "line": "4.4.1 Entity Relationship Diagram"
+      },
+      {
+        "page": 43,
+        "line": "4.4.2 Mapping of Entity Relationship Diagram"
+      },
+      {
+        "page": 44,
+        "line": "4.5 Class diagram"
+      },
+      {
+        "page": 45,
+        "line": "4.6.1 Primary Use-case Diagram"
+      },
+      {
+        "page": 46,
+        "line": "4.6.2 Use-case Scenarios"
+      },
+      {
+        "page": 58,
+        "line": "4.7 Activity diagram ( user )"
+      },
+      {
+        "page": 59,
+        "line": "4.7 Activity diagram ( admin )"
+      },
+      {
+        "page": 60,
+        "line": "4.8 Sequence diagram"
+      },
+      {
+        "page": 62,
+        "line": "4.9 State diagram"
+      }
+    ],
+    "text_output": "E:\\GradProject\\AXIOM-V2\\tmp\\pdfs\\Broker_System_Doc.txt"
+  }
+}
