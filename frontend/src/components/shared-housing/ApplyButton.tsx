@@ -34,6 +34,7 @@ export default function ApplyButton({ listing, className }: Props) {
   }
 
   if (!isInitialized || isOwner) return null;
+  if (listing.category !== "shared_housing") return null;
   const spacing = className ?? "mt-4";
 
   if (sent) {
