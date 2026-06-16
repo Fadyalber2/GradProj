@@ -11,6 +11,8 @@
 
 You are writing my Bachelor graduation dissertation for **AXIOM — an AI-powered real estate platform for the Egyptian market**. There is an old early-stage version of this report at `docs/Broker System Doc.pdf` (62 pages, title "Broker Website"). It is **outdated**: it describes an abandoned PHP/MySQL design with a broker/seeker role split. You will reuse its *structure, chapter flow, motivation, and competitor analysis*, but rewrite all technical content to match what the project **actually is today**. The faculty template is `docs/Graduation project template.pdf` (cover page, committee report, IP declaration, anti-plagiarism declaration, TOC layout) — match that template's front matter and formatting. Before writing technical chapters, read `docs/AXIOM_DEEP_OVERVIEW.md` for the project narrative and `docs/CODEBASE_STUDY.md` for the source-grounded frontend, backend, database, tests, and drift-risk evidence.
 
+Additional reference: study `docs/Graduation_Project_xray 1 report.pdf` and `docs/XRAY_REPORT_STRUCTURE_STUDY.md` for report depth and Chapter 6 testing structure. Use its pattern of unit-testing explanation, testing evidence, integration testing, and manual test-case tables, but rewrite everything for AXIOM and do not copy X-ray project content.
+
 ## HARD RULES (what changed since the old report — do NOT carry the old design forward)
 
 | Old report (WRONG now) | AXIOM today (USE THIS) |
@@ -70,7 +72,7 @@ Output a single **Word document** `docs/AXIOM_Report.docx` (generate via `python
 - **Ch.3 Planning & Analysis:** feasibility + estimated cost, Gantt, analysis & limitations of existing systems, need for new system, user/system/domain/functional/non-functional requirements (rewrite FR/NR tables for AXIOM's real features incl. AI, payments, fraud), advantages, user characteristics (User, Admin).
 - **Ch.4 Design:** design & implementation constraints, assumptions & dependencies, risks & risk management, all diagrams above.
 - **Ch.5 Implementation:** software architecture (real stack), key modules (auth, listings, AI/RAG, fraud, bookings/Stripe, subscriptions, dashboard), user interface (reference real pages), results & discussion.
-- **Ch.6 Testing:** unit + integration testing (reference real backend tests / frontend `tsc` checks), then Conclusion, Future Work, References (include the 2025 Rental Law and the competitor URLs from the old doc).
+- **Ch.6 Testing:** follow the deeper reference-report pattern from `Graduation_Project_xray 1 report.pdf`: unit-testing explanation, real backend pytest coverage, module-level test evidence, integration testing flows, manual system test-case tables with expected/actual/status columns, frontend `npx tsc --noEmit` verification, limitations, then Conclusion, Future Work, References (include the 2025 Rental Law and the competitor URLs from the old doc).
 
 ## STYLE
 

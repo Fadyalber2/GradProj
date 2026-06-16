@@ -1,0 +1,768 @@
+{
+  "file": "docs\\Graduation_Project_xray 1 report.pdf",
+  "pages": 104,
+  "metadata": {
+    "/Author": "Ahmed Seif",
+    "/Comments": "",
+    "/Company": "",
+    "/CreationDate": "D:20250612132026+03'00'",
+    "/Creator": "WPS Writer",
+    "/Keywords": "",
+    "/ModDate": "D:20250612132026+03'00'",
+    "/Producer": "",
+    "/SourceModified": "D:20250612132026+03'00'",
+    "/Subject": "",
+    "/Title": "",
+    "/Trapped": "/False"
+  },
+  "hits": [
+    {
+      "page": 5,
+      "pattern": "Table of Contents",
+      "snippet": "5 Table of Contents Table of contents List of figures List of tables Abstract List of abbreviations and acronyms Chapter 1: introduction 1.1 Overview ………………………………………………….…………………………..12 1.2 Motivation ……………………………………………….……………………………12 1.3 Objective ……………………………………………….……………………………..13 1.4 Aim …………………………………………………….……………………………...13 1.5 Scope …………………………................…….............................................................14 1.6 General constraints…………………………………….………………………………14 Chapter 2 Background and Previous work "
+    },
+    {
+      "page": 6,
+      "pattern": "Testing",
+      "snippet": "…………………………..…………..65 Chapter 5: Implementation 5.1 Software Architecture………………………………………………………..……….67 5.2 User Interface………………..………………………………………………………..80 5.3 Results and Discussion………………………………………………………………..84 Chapter 6: Testing 6.1 Unit Testing ……………………………………………………….…………………..91 6.2 Integration Testing…………………………………………………………………….99 Conclusion………………………………………….…………………………………….100 Future work…………………………………………….………………………………...101 References………………………………………………………………………….…… 102"
+    },
+    {
+      "page": 8,
+      "pattern": "Testing",
+      "snippet": "ble\" ……………………88 Figure32: Doctor service tests in .NET API ……………………………………………92 Figure33: Token service tests in .NET API …………………………………………….93 Figure34: Authentication service tests in .NET AP …………………………………… 94 Figure35: Testing a Viral pneumonia diagnosed chest X-ray in FastAPI ………………94 Figure36: Testing a Normal diagnosed chest X-ray in FastAPI ………………………..95 Figure37: Testing a Normal diagnosed chest X-ray in fastAPI ………………………...95 Figure38: Testing a Lung-Opacity diagnosed chest X-ray in fastAPI ………………….95"
+    },
+    {
+      "page": 10,
+      "pattern": "Result",
+      "snippet": "el has been fine-tuned through preprocessing techniques like resizing, normalization, and data augmentation to enhance its accuracy and generalization. This enables the system to provide fast and reliable classification results, supporting medical practitioners and users in identifying pneumonia cases without the need for advanced radiological infrastructure. As a web-based application, Chest Pneumonia Detection offers platform-independent access, allowing users to upload chest X-ray images and instantly receive diagnostic predictions. Built with a focus on usability and accessibility, the system is particularly beneficial for remote or underserved regions where expert radiologists and diagn"
+    },
+    {
+      "page": 12,
+      "pattern": "Integration",
+      "snippet": "12 Chapter 1: introduction 1.1 Overview In recent years, the integration of artificial intelligence (AI) in healthcare has transformed the way medical diagnostics are approached—enhancing accuracy, speed, and accessibility. Chest Pneumonia Detection is a web-based diagnostic tool designed to support the early identification of pneumonia through the analysis of chest X-ray images using deep learning. The application leverages a Convolutional Neural Network (CNN) trained on the publicly available COVID-19 Radiography Database from Kaggle, which contains thousands of chest X-ra"
+    },
+    {
+      "page": 14,
+      "pattern": "Integration",
+      "snippet": "ssible through modern browsers. It is designed to work across various devices, removing barriers to adoption and allowing broad user reach.  Scalable and Secure Architecture: The application architecture supports cloud integration for secure data storage, user management, and potential future expansion. It is built with scalability in mind, allowing for the integration of additional diagnostic features and health monitoring tools.  Support for Underserved Regions: By removing the need for costly diagnostic infrastructure and expert radiological services, the application addresses healthcare gaps in remote and resource-limited environments. 1.6 General Constraints The development and deploy"
+    },
+    {
+      "page": 15,
+      "pattern": "Testing",
+      "snippet": "generalizability across diverse patient populations.  Browser and Device Compatibility: Ensuring the application functions correctly across a range of web browsers and devices (desktop, tablet, mobile) poses design and testing challenges."
+    },
+    {
+      "page": 20,
+      "pattern": "test",
+      "snippet": "le pixel values to the range [0, 1] for faster convergence. o Augmentation: Apply transformations like rotation, flipping, and zooming to increase dataset variability. o Split Data: Divide into training, validation, and test sets (e.g., 70-20-10) [33]."
+    },
+    {
+      "page": 21,
+      "pattern": "test",
+      "snippet": "odels like VGG16, ResNet50, or EfficientNet for transfer learning [34]. 4. Train the Model: o Fine-tune the model on the pneumonia dataset using techniques like gradient descent and backpropagation [35]. 5. Evaluate and Test: o Measure performance using metrics like accuracy, precision, recall, and F1- score [36]. 6. Interpret Results: o Use visualization techniques like Grad-CAM to highlight regions of the X-ray that influenced the model’s decision [37]. Advanced Considerations: 1. Use Pretrained Models: o Leverage transfer learning with models like VGG16, DenseNet201,InceptionV3, ResNet50 or EfficientNet-B0 to reduce training time and improve performance . 2. Explainability: o Use techniqu"
+    },
+    {
+      "page": 22,
+      "pattern": "Result",
+      "snippet": "-rays. The study explores the impact of pre-trained models such as VGG16, ResNet50, and DenseNet on the classification task. By fine-tuning these models on the pneumonia dataset, the authors achieved impressive accuracy results. The authors also emphasized the importance of hyperparameter optimization in achieving higher classification performance. Algorithm and Results: The study primarily focuses on CNNs, using both transfer learning and fine-tuning strategies. The accuracy results for pneumonia detection were reported to exceed 90%. The main advantage of this approach is the use of pre-trained models, which significantly reduces the time and computational resources needed for training fro"
+    },
+    {
+      "page": 23,
+      "pattern": "Result",
+      "snippet": " to address the problem of class imbalance. Their findings suggest that the CNN model significantly outperforms traditional machine learning models such as support vector machines (SVM) and random forests. Algorithm and Results: The authors employed a custom CNN architecture, which was trained using a balanced dataset. They achieved high accuracy, but their model’s performance could still be improved in detecting viral pneumonia, which is often more challenging due to its subtle image features. Difference and Relevance: Unlike the MDPI et al. study, which uses pre-trained models, Alghamdi et al. developed a custom CNN to tackle pneumonia classification. Your work could build on this by explo"
+    },
+    {
+      "page": 24,
+      "pattern": "Result",
+      "snippet": "-tuning pre-trained deep neural networks, such as ResNet, on a pneumonia dataset. This method showed good performance in terms of accuracy, but it struggled when the dataset contained highly varied images. Algorithm and Results: Transfer learning was used with pre-trained ResNet models, and the authors reported a classification accuracy of 90%. They also discussed the importance of pre- processing images to standardize the input data and improve model performance. Difference and Relevance: This study’s results are quite similar to MDPI et al., but with more emphasis on the image preprocessing phase. The use of transfer learning is a key area of focus, which offers a starting point for your w"
+    },
+    {
+      "page": 25,
+      "pattern": "Result",
+      "snippet": "eployment of pneumonia detection models in resource-constrained environments. Their approach aimed to develop lightweight models capable of operating on low-cost hardware, such as mobile devices. They achieved promising results by employing smaller, more efficient CNN architectures optimized for edge devices. Algorithm and Results: The authors used lightweight CNN architectures, such as MobileNet, achieving reasonable accuracy (~85%) while maintaining low computational requirements. Their work is particularly valuable for clinical environments with limited resources. Difference and Relevance: Unlike the other studies, which focus on maximizing classification accuracy, Choi et al. prioritize "
+    },
+    {
+      "page": 28,
+      "pattern": "Implementation",
+      "snippet": "28 Expertise Assessment: Successful implementation of the project required expertise in both deep learning and medical imaging. While the development team was proficient in deep learning techniques and programming frameworks, the lack of direct medical expertise posed a challenge. Challenges: Absence of domain-specific knowledge could lead to misinterpretation of medical imaging data or failure to address nuanced clinical requirements. Resolution: Extensive literature reviews and consultations with publicly available research helped bridge the knowle"
+    },
+    {
+      "page": 29,
+      "pattern": "Integration",
+      "snippet": "tations persist, the proposed system represents a significant step toward improving diagnostic efficiency and accuracy in resource-constrained environments. Future iterations can explore enhanced scalability, real-world integration, and expanded diagnostic capabilities."
+    },
+    {
+      "page": 30,
+      "pattern": "Integration",
+      "snippet": "essing, training, validation, and inference in a structured pipeline. The use of labeled, public datasets ensures reliable evaluation. The proposed system is suitable for both clinical and academic environments, and its integration can be scaled as needed depending on the healthcare facility’s capacity. Economic Feasibility A cost-benefit analysis reveals that the project is highly cost-effective, with zero direct monetary investment due to the use of free and open-source resources. Estimated Costs Breakdown[1]: Component Estimated Cost Data Acquisition $0 (Public datasets used) Development Tools $0 (Open-source libraries) Training Resources $0 (Google Colab – free tier) Cloud Deployment (Op"
+    },
+    {
+      "page": 33,
+      "pattern": "Black",
+      "snippet": "biased datasets can lead to poor generalization. -Imbalanced datasets (e.g., more healthy cases than pneumonia cases) can skew predictions.  Interpretability: -AI models, especially deep learning, are often considered \"black boxes,\" making it hard for clinicians to trust the results without explainability features.  Image Quality: -Poor-quality X-rays due to noise, incorrect positioning, or artifacts can reduce the system's accuracy.  Limited Scope: -The system might only focus on pneumonia detection and fail to detect other abnormalities present in the X-ray.  Regulatory Compliance: -Meeting medical software standards and certifications (like FDA or CE) can be a complex and lengthy proc"
+    },
+    {
+      "page": 34,
+      "pattern": "Result",
+      "snippet": "which is crucial for appropriate treatment. A system capable of multiclass diagnosis can bridge this gap.  Increasing Reliability: By reducing reliance on subjective judgment, this system ensures consistent and precise results.  Enhancing Accessibility: Deploying the system in a format that can be used across different locations helps provide diagnostic support in underserved or rural areas.  Saving Time: Faster analysis of chest X-rays allows healthcare professionals to prioritize critical cases and reduce the overall burden on medical staff."
+    },
+    {
+      "page": 36,
+      "pattern": "Result",
+      "snippet": "port (e.g., GTX 1050 or higher, RTX 3060 or higher for larger datasets). o VRAM: At least 4 GB (8 GB or more is ideal for deep learning models).  Storage: o 100 GB free disk space (for datasets, pre-trained models, and result storage). o SSD recommended faster data access and model training.  Display: Monitor with a resolution of at least 1080p for visualization and debugging."
+    },
+    {
+      "page": 38,
+      "pattern": "test",
+      "snippet": " as necessary).  File Format: o Images in JPEG or PNG format. o CSV/Excel files for any additional metadata (if applicable). 4. Performance Requirements  The system should achieve a training accuracy of over 85% and a test accuracy of at least 80% for pneumonia classification tasks.  GPU-based training should not exceed a runtime of 2 hours for a medium-sized dataset (~5,000 images).  Memory consumption should be optimized to prevent crashes during training."
+    },
+    {
+      "page": 40,
+      "pattern": "Validation",
+      "snippet": "User Authentication: Login functionality with username and password for access control. - Image Upload: Users can upload chest X-ray images (JPEG, PNG). - Image Viewing: Display both uploaded and preprocessed images for validation purposes. - Results Display: After image upload, the UI displays the classification result ('Pneumonia' or 'Normal') with a confidence score. - Progress Bar: Show a progress bar indicating when the model is processing the image. - Error Handling: Inform users of any issues with image formats or upload problems. - Responsiveness: The UI should be responsive on both desktop and mobile devices. Output: - A clean, intuitive user interface displaying results, progress, "
+    },
+    {
+      "page": 41,
+      "pattern": "Result",
+      "snippet": "ike failed predictions, corrupt images, or database errors. - Model Management: Load and invoke the pretrained model for inference based on the incoming API request. - Response Construction: Send back the classification result and confidence score to the frontend for display. Output: - A backend system that handles image uploads, model inference, and response generation. 6. Database and Data Storage Input: - Chest X-ray images and patient metadata. Process: - Image Storage: Store the uploaded X-ray images temporarily or permanently, depending on system requirements (e.g., AWS S3, Azure Blob Storage). - Metadata Storage: Store patient-related metadata (e.g., patient ID, image processing resul"
+    },
+    {
+      "page": 42,
+      "pattern": "Result",
+      "snippet": "l: Implement different access levels (e.g., admin, healthcare professional) to restrict functionality as required. Output: - A secure authentication system to ensure that only authorized users can upload images and view results. 8. Evaluation and Reporting Metrics: - Accuracy: Percentage of correctly classified images. - Precision: Measures the ability of the model to correctly identify pneumonia cases (minimizing false positives). - Recall: Measures the model’s ability to detect actual pneumonia cases (minimizing false negatives). - F1-Score: A balanced metric that combines precision and recall. Output: - Evaluation report with metrics (accuracy, precision, recall, F1-score) and a confusion"
+    },
+    {
+      "page": 46,
+      "pattern": "Integration",
+      "snippet": "ging deep learning models like DenseNet-201, InceptionV3, and EfficientNet-B0, the system achieves high performance in terms of sensitivity, specificity, and overall accuracy in detecting pneumonia.  Automated Workflow Integration: The system can be integrated into hospital workflows, allowing for rapid pre-screening of chest X-rays before review by a radiologist, thereby enhancing clinical efficiency.  Cost-Effective Solution: Utilizing publicly available datasets, open-source tools, and free cloud- based resources such as Google Collab ensures minimal financial burden, making the system viable for low-resource settings.  Scalability and Portability: The system can be deployed across a w"
+    },
+    {
+      "page": 47,
+      "pattern": "Result",
+      "snippet": ": 1. Doctors  Roles and Permissions: o Upload X-ray images to the system for diagnosis. o Monitor patient conditions, prepare medical reports, and share findings with patients. o Prioritize urgent cases based on system results.  User Requirements[9]: Requirement Details Age Above 28 years. Gender Both genders. Education Level Master’s degree in medicine or radiology. Previous Experience Preferably experienced in reading X- rays. Special Skills Basic knowledge of using desktop applications. 2. Patients  Roles and Permissions: o Send symptoms to the system for analysis. o Receive recommendations for specialists based on their condition. o Book appointments with doctors or request detailed h"
+    },
+    {
+      "page": 48,
+      "pattern": "test",
+      "snippet": " No prior experience required. Special Skills Basic familiarity with smartphones or computers. 3. Researchers[11]  Roles and Permissions: o Analyze data and study disease patterns using the system. o Classify cases and test new diagnostic methods.  User Requirements: Requirement Details Age Above 25 years. Gender Both genders. Education Level Preferably a master’s or Ph.D. in medical or research fields. Previous Experience Experience in research and medical data analysis. Special Skills Familiarity with medical analysis tools and software."
+    },
+    {
+      "page": 51,
+      "pattern": "Result",
+      "snippet": "51  Common User Needs 1. Clarity: o Clear and straightforward presentation of results, including visual indicators on X-rays to highlight affected areas. 2. Efficiency: o Fast image processing provides timely results and support quick decision- making. 3. Reliability: o Consistent and accurate classification of chest X-rays into normal, bacterial pneumonia, or viral pneumonia categories. 4. User-Friendly Design: o A system interface designed to accommodate users with varying levels of technical expertise, ensuring ease of use for all."
+    },
+    {
+      "page": 53,
+      "pattern": "test",
+      "snippet": "ility: The application must maintain consistent functionality across all major web browsers (Chrome, Firefox, Edge, Safari) and devices (desktop, tablet, mobile). UI responsiveness and image upload functionality must be tested and optimized for various screen sizes and performance profiles.  Cloud Infrastructure and Cost Management: Hosting a CNN-based model on cloud servers (e.g., Google Cloud) requires managing both costs and resource scalability. Efficient containerization (e.g., Docker) and auto-scaling strategies are needed to balance performance with affordability. 4.1.2 Regulatory and Legal Constraints  Data Privacy and Security: As the web application processes sensitive medical im"
+    },
+    {
+      "page": 54,
+      "pattern": "Testing",
+      "snippet": "kend APIs, and web hosting without compromising performance or security.  Time Constraints: With a development window of six months, the project must adhere to a tightly managed timeline covering planning, prototyping, testing, and deployment. A detailed Gantt chart, milestone tracking, and continuous integration workflows will be essential to avoid bottlenecks and ensure timely delivery. 4.2 Assumptions and Dependencies 4.2.1 Assumptions  User Access to Internet and Devices: It is assumed that users will have access to a device with a modern web browser (desktop, tablet, or smartphone) and a stable internet connection. This enables users to upload chest X-ray images and receive diagnostic"
+    },
+    {
+      "page": 55,
+      "pattern": "Testing",
+      "snippet": "lenecks, especially under high traffic conditions. ➤ Mitigation: Use scalable, containerized infrastructure (e.g., Docker, Kubernetes) with load balancing and auto-scaling on cloud platforms. Conduct regular performance testing and monitor uptime with health checks and alerts.  Browser and Device Compatibility Issues: Users accessing the application via various browsers and devices may encounter inconsistent behavior, especially during image uploads or rendering results. ➤ Mitigation: Apply responsive web design principles and conduct cross-browser testing. Use JavaScript-based image validation tools to standardize preprocessing across devices. 4.3.2 Security and Privacy Risks  Sensitive D"
+    },
+    {
+      "page": 56,
+      "pattern": "Result",
+      "snippet": " diverse training data and implement fairness- aware evaluation metrics. Involve clinical advisors in model auditing to detect and correct bias early.  Over-Reliance on AI Recommendations: Users may mistakenly treat AI results as final medical conclusions, delaying professional care in critical cases. ➤ Mitigation: Prominently display disclaimers and instructions encouraging users to consult a physician. Label AI predictions clearly as “preliminary” and avoid definitive diagnostic language."
+    },
+    {
+      "page": 59,
+      "pattern": "Result",
+      "snippet": "ve specific goals within the application. In this context, the actor is the Application User, who interacts with the system primarily to upload chest X-ray images, receive AI-based pneumonia predictions, view historical results, and access educational information. Figure[5]: Use-case Diagram"
+    },
+    {
+      "page": 60,
+      "pattern": "Result",
+      "snippet": "60 4.5.2 Use-case scenario Use Case Title: Detect Pneumonia from Chest X-Ray Primary Actor: Application User (e.g., patient, general user, or healthcare staff) Stakeholders and Interests: User: Wants fast, accurate results for pneumonia detection based on an uploaded chest X-ray System Owner/Developer: Wants to provide an intuitive, reliable, and medically compliant tool. Healthcare Professionals (optional): May use the tool to support early screening. Preconditions:  The user has access to a device with an internet connection and a browser.  The user has a digital chest X-ray image (in JPG/PNG format).  The system is online and the AI model is loaded. Main Success Scenario (Basic Flow): "
+    },
+    {
+      "page": 61,
+      "pattern": "Result",
+      "snippet": "61 o The system restricts access to certain features like viewing previous results or saving images unless logged in. Postconditions:  The user receives an AI-generated prediction regarding the presence or absence of pneumonia in the X-ray.  The image and result may be saved in the system if the user is authenticated and storage is enabled. 4.6 Activity Diagram Figure[6]: Activity Diagram"
+    },
+    {
+      "page": 66,
+      "pattern": "Implementation",
+      "snippet": "66 Chapter4: Implementation"
+    },
+    {
+      "page": 67,
+      "pattern": "Result",
+      "snippet": "ng-Opacity  Normal By applying augmentation techniques such as rotation, flipping, zooming, and contrast adjustments, we artificially expanded our dataset. This increased the number and variability of training samples, resulting in a more balanced and diverse dataset. As a result, we significantly improved the model’s ability to detect and classify different types of pneumonia, especially in ambiguous or overlapping cases. This enriched dataset helped in training a deep convolutional neural network (CNN) capable of accurately classifying chest X-ray images across multiple pneumonia categories."
+    },
+    {
+      "page": 69,
+      "pattern": "test",
+      "snippet": "69 1.5 Dataset Split 1.6 Data Loading Subset Percentage Train 70% Validation 15% Test 15% DataLoaders: train_loader, val_loader, test_loader Batch Size: 64 Parallelization: num_workers=4, pin_memory=True 2. Model Architecture We have 3 individual pretrained models which process the same input image in parallel: 2.1Google Net (Inception v1) Architecture Summary: Figure[11]: GoogleNet Architecture"
+    },
+    {
+      "page": 74,
+      "pattern": "test",
+      "snippet": "scription: Training is terminated early if no improvement is seen in the validation loss after a fixed number of consecutive epochs.  Configuration: o Patience: 5 epochs 6. Evaluation Layer  Metrics: o Accuracy: Final Test Results - Loss: 0.2020, Accuracy: 85.27%"
+    },
+    {
+      "page": 75,
+      "pattern": "Validation",
+      "snippet": "75 o Precision, Recall, F1-Score o Confusion Matrix  Visualization: o Training & Validation Loss Curves o Accuracy Curves o Classification Report o Confusion Matrix Heatmap Conclusion In the initial phase of this project, an ensemble-based deep learning model was developed for multi- class classification of chest X-ray images. This ensemble combined multiple pretrained convolutional neural networks (GoogLeNet, ResNet-18, DenseNet-121) with a learnable weighted fusion layer. Despite employing advanced preprocessing techniques, data augmentation, focal loss to handle class imbalance, and optimiza"
+    },
+    {
+      "page": 76,
+      "pattern": "Unit",
+      "snippet": "76 o Padding: Adds zeros around the image to maintain size. 3. Activation Layer (ReLU)  Purpose: Introduces non-linearity to the model.  Common activation: ReLU (Rectified Linear Unit): f(x) = max(0, x)  Why it's needed: Without non-linear activation, CNN would behave like a linear model. 4. Pooling Layer (Downsampling)  Purpose: Reduces the spatial size (height and width), making computation faster and reducing overfitting.  Types: o Max Pooling: Takes the max value in a region. o Average Pooling: Takes the average value. 5. Flatten Layer  Purpose: Converts the 2D feature maps into a 1D vector.  Why: Fully connected layers that follow require 1D input.  Example: A (7, 7, 64) feature"
+    },
+    {
+      "page": 77,
+      "pattern": "test",
+      "snippet": "design patterns? Using a normal, unstructured code style or random architectural decisions might work for small, throwaway projects—but they often lead to:  Tight coupling between layers (UI, database, logic)  Hard-to-test components  Poor scalability  Difficult maintenance, especially as the app grows Clean Architecture and MVI provide a well-organized, testable, and maintainable structure that makes the system more modular, independent, and future-proof. Clean Architecture for Web Applications: Clean architecture is crucial for long-term, scalable web apps. It separates the system into layers, ensuring that:  Business logic is isolated from frameworks  UI and external APIs do not inf"
+    },
+    {
+      "page": 79,
+      "pattern": "test",
+      "snippet": "s that are easy to maintain and scale as requirements grow.  Fits Well with Large Teams and Projects: By clearly separating concerns, teams can work independently on different layers like frontend, backend, and APIs.  Testability: Each layer is isolated, making it easier to write unit and integration tests for your web services, business logic, and components.  Flexibility and Adaptability: Clean architecture supports changes in the tech stack (e.g., switching from REST to GraphQL) without impacting core business rules."
+    },
+    {
+      "page": 84,
+      "pattern": "Testing",
+      "snippet": "ted to the final prediction through a soft-voting mechanism. While the ensemble achieved decent performance, it did not surpass the CNN model. Performance Metrics: The CNN model achieved a training accuracy of 94% and a testing accuracy of 85%, as indicated by the classification report and confusion matrix. The ensemble model, by comparison, achieved slightly lower performance metrics, with training accuracy around 91% and testing accuracy at 83%. The classification report for the CNN showed higher precision and recall values across most categories. The confusion matrix demonstrated a strong diagonal pattern, indicating that the CNN made accurate predictions with minimal confusion between cl"
+    },
+    {
+      "page": 86,
+      "pattern": "Testing",
+      "snippet": "86 The ensemble model—combining ResNet18, DenseNet121, and GoogLeNet using majority voting—achieved:  Training Accuracy: up to 99.47%  Testing Accuracy: 85.27%  More balanced performance across some classes, but slightly lower precision in key classes compared to the CNN. Figure[28]: classification report of ensemble model Figure[29]: Confusion matrix of ensemble model"
+    },
+    {
+      "page": 87,
+      "pattern": "Validation",
+      "snippet": "87 Learning Curves: The CNN's training and validation accuracy and loss curves over 25 epochs showed: - Rapid convergence in the early epochs. - Smooth and consistent improvement without significant overfitting. - Efficient reduction in training and validation loss. Figure[30]: Training and Validation Accuracy and Loss Over Epochs of CNN model"
+    },
+    {
+      "page": 88,
+      "pattern": "Validation",
+      "snippet": "88 The ensemble model’s learning pattern was less smooth, likely due to the limitations of combining base learners that are not as deeply trained on complex image features as CNNs. Figure[31]: Training and Validation Accuracy and Loss Over Epochs of ensemble model"
+    },
+    {
+      "page": 90,
+      "pattern": "Testing",
+      "snippet": "90 Chapter6: Testing"
+    },
+    {
+      "page": 91,
+      "pattern": "Testing",
+      "snippet": "91 6.1 Unit Testing in Web APIs 1. Introduction to Unit Testing Unit testing is a foundational software engineering practice that focuses on testing individual components—such as methods, functions, or classes—in isolation. In web API development (whether using .NET, FastAPI, Django, Flask, Node.js, etc.), unit tests validate backend logic independently from external systems like databases, APIs, or cloud services. A solid unit testing strategy increases confidence in the codebase and helps maintain reliability over time. 2. P"
+    },
+    {
+      "page": 92,
+      "pattern": "Testing",
+      "snippet": "92 To improve test coverage and overall system reliability, the following enhancements are planned:  Endpoint/Controller Testing: Validating API routes/controllers using mocked or in- memory service layers.  Input Validation & Error Handling Tests: Ensuring that incorrect or malformed inputs are properly handled with meaningful error responses.  Integration Testing: Introducing real dependencies (e.g., test databases, APIs) to test multiple components together.  Coverage Expansion: Including more scenarios across modules, such as authentication, file handling, concurrency, and edge cases. Figure[32]: Doctor service tests in .NET A"
+    },
+    {
+      "page": 93,
+      "pattern": "test",
+      "snippet": "93 Figure[33]: Token service tests in .NET API"
+    },
+    {
+      "page": 94,
+      "pattern": "Testing",
+      "snippet": "94 Figure[34]: Authentication service tests in .NET API Figure[35]: Testing a Viral pneumonia diagnosed chest X-ray in fastAPI"
+    },
+    {
+      "page": 95,
+      "pattern": "Testing",
+      "snippet": "95 Figure[36]: Testing a Normal diagnosed chest X-ray in fastAPI Figure[37]: Testing a Normal diagnosed chest X-ray in fastAPI Figure[38]: Testing a Lung-Opacity diagnosed chest X-ray in fastAPI"
+    },
+    {
+      "page": 96,
+      "pattern": "test",
+      "snippet": "96 1. Application: We have thoroughly tested each screen within the app and switched between screens to ensure there are no errors in the user interface. 2. Server: Application to Server and Server to Application: We have tested the communication between the application and the server to ensure it is error-free. This involves:  Accurately receiving images on the server from the application.  Correctly sending and receiving information between the server and the application.  Ensuring the speed of data collection and transmission between the applicat"
+    },
+    {
+      "page": 97,
+      "pattern": "Testing",
+      "snippet": "97 We used manual testing and here were the test cases: Project Name Multi Classification Chest X-Ray using Deep Learning Priority High Test Case Author Aya Saleh, Nahed Mortada and Esraa Eid Test Case Reviewers Whole Team Test Case ID Test Scenario Test Case Test Steps Expected Results Actual Results Status TC_SIGNUP_002 Verify the Sign-up Enter Valid Information 1-Enter Username 2-Enter Email 3-Enter Password 4-Click on Sign-up Successful Sign-up As Expected Success TC_SIGNUP_002 Verify the Sign-up Enter an Email already used befo"
+    },
+    {
+      "page": 98,
+      "pattern": "test",
+      "snippet": "98 Test Case ID Test Scenario Test Case Test Steps Expected Results Actual Results Status TC_LOGIN_003 Verify the Login Enter Valid Email& Valid Password 1-Enter Email 2-Enter Password 3-Click on Login Successful Login As Expected Success TC_LOGIN_003 Verify the Login Enter Valid Email& Invalid Password 1-Enter Email 2-Enter Password 3-Click on Login A message “Wrong Password” As Expected Success TC_LOGIN_003 Verify the Login Enter Invalid Email& Valid Password 1-Enter Email 2-Enter Password 3-Click on Login A message"
+    },
+    {
+      "page": 99,
+      "pattern": "Testing",
+      "snippet": "Steps Expected Results Actual Results Status TC_LOGOUT_005 Verify Log-out Click on Log out 1-Click on Log out Log out and redirect to welcome screen As Expected Success Table[17]: Verify Log-Out of users 6.2 Integration Testing Integration testing is a level of software testing where individual components of a software system are combined and tested as a group. In our project, this involved combining the various modules of the chest X-ray classification system—such as data preprocessing, model inference, and result visualization—into a unified pipeline. The goal of this testing phase was to ensure that all components work together correctly, the data flows seamlessly between them, and the ov"
+    },
+    {
+      "page": 100,
+      "pattern": "Testing",
+      "snippet": "After applying preprocessing and data augmentation techniques (rotation, zoom, and flipping), the dataset contained approximately 34,000 images. We divided the data into 80% for training, 10% for validation, and 10% for testing. We used a CNN model with optimized hyperparameters and the Adam optimizer (learning rate = 0.0001). After several iterations, the model achieved an accuracy of 94%, significantly outperforming our earlier ensemble attempts."
+    },
+    {
+      "page": 101,
+      "pattern": "Integration",
+      "snippet": "r professional use, followed by a broader public release.  Enhanced Chatbot Features: Allow users to upload X-ray images and receive chatbot- generated feedback, including summarization of doctor notes.  Sound Speaker Integration: Implement an audio feature that reads out the predicted diagnosis, improving accessibility for visually impaired users. By implementing these features, we aim to deliver a more comprehensive and accessible diagnostic tool for chest-related diseases using medical imaging."
+    }
+  ],
+  "headings": [
+    {
+      "page": 1,
+      "line": "1 42110213 Omar Reda Sayed"
+    },
+    {
+      "page": 1,
+      "line": "2 42120004 Nahed Mortada Ali"
+    },
+    {
+      "page": 1,
+      "line": "3 42110294 Aya Saleh Almasry"
+    },
+    {
+      "page": 1,
+      "line": "4 42110043 Yousef Saad Mohamed"
+    },
+    {
+      "page": 1,
+      "line": "5 42110306 Esraa Eid Ahmed"
+    },
+    {
+      "page": 5,
+      "line": "Chapter 1: introduction"
+    },
+    {
+      "page": 5,
+      "line": "1.1 Overview ………………………………………………….…………………………..12"
+    },
+    {
+      "page": 5,
+      "line": "1.2 Motivation ……………………………………………….……………………………12"
+    },
+    {
+      "page": 5,
+      "line": "1.3 Objective ……………………………………………….……………………………..13"
+    },
+    {
+      "page": 5,
+      "line": "1.4 Aim …………………………………………………….……………………………...13"
+    },
+    {
+      "page": 5,
+      "line": "1.5 Scope …………………………................…….............................................................14"
+    },
+    {
+      "page": 5,
+      "line": "1.6 General constraints…………………………………….………………………………14"
+    },
+    {
+      "page": 5,
+      "line": "Chapter 2 Background and Previous work"
+    },
+    {
+      "page": 5,
+      "line": "2.1 Background………………………………………….……………………..………… 17"
+    },
+    {
+      "page": 5,
+      "line": "2.2 Previous work……………………………………….………………………..………..22"
+    },
+    {
+      "page": 5,
+      "line": "Chapter 3 planning and analysis"
+    },
+    {
+      "page": 5,
+      "line": "3.1 Planning………………………………………………………………………………..27"
+    },
+    {
+      "page": 5,
+      "line": "3.1.1 Feasibility study and estimated cost …………………………………………30"
+    },
+    {
+      "page": 5,
+      "line": "3.1.2 Gantt chart …………………………………………………………………...31"
+    },
+    {
+      "page": 5,
+      "line": "3.2 Analysis and limitations of existing system…………………………………………...32"
+    },
+    {
+      "page": 5,
+      "line": "3.3 Need for new system…………………………………………………………………..34"
+    },
+    {
+      "page": 5,
+      "line": "3.4 Analysis of new system……………………………………………………………......35"
+    },
+    {
+      "page": 5,
+      "line": "3.4.1 User Requirement……………………………….35"
+    },
+    {
+      "page": 5,
+      "line": "3.4.2 System Requirements……..…………………….36"
+    },
+    {
+      "page": 5,
+      "line": "3.4.3 Domain Requirements …..……………………...37"
+    },
+    {
+      "page": 5,
+      "line": "3.4.4 Functional Requirements..………………………39"
+    },
+    {
+      "page": 5,
+      "line": "3.4.5 Non- Functional Requirements..………………...44"
+    },
+    {
+      "page": 5,
+      "line": "3.5 Advantages of new system………………………………………………….………….46"
+    },
+    {
+      "page": 5,
+      "line": "3.6 User characteristics…………………………………………………….……………….47"
+    },
+    {
+      "page": 5,
+      "line": "Chapter 4: design"
+    },
+    {
+      "page": 5,
+      "line": "4.1 Design and Implementation Constraints………………………………..……………...52"
+    },
+    {
+      "page": 5,
+      "line": "4.2 Assumptions and dependencies…………………………………………….………….54"
+    },
+    {
+      "page": 5,
+      "line": "4.3 Risks and risk management………………………….……………………………….. 55"
+    },
+    {
+      "page": 5,
+      "line": "4.4 Design of database ERD…..……………………………………………………….…..57"
+    },
+    {
+      "page": 5,
+      "line": "4.4.1 Entity Relationship Diagram…………………….57"
+    },
+    {
+      "page": 5,
+      "line": "4.4.2 Mapping of Entity Relationship Diagram ………57"
+    },
+    {
+      "page": 5,
+      "line": "4.5 Class diagram…………………………………………………….…………………….58"
+    },
+    {
+      "page": 5,
+      "line": "4.6 Use case diagram………………………………………………………………….……59"
+    },
+    {
+      "page": 5,
+      "line": "4.6.1 Primary Use-case Diagram………………………59"
+    },
+    {
+      "page": 5,
+      "line": "4.6.2 Use-case Scenarios………………………………60"
+    },
+    {
+      "page": 5,
+      "line": "4.7 Activity diagram……………………………………………..………………………..61"
+    },
+    {
+      "page": 5,
+      "line": "4.8 Sequence diagram………..……………………………………….…………………..64"
+    },
+    {
+      "page": 6,
+      "line": "4.9 State diagram……………………………………………………………..…………..65"
+    },
+    {
+      "page": 6,
+      "line": "Chapter 5: Implementation"
+    },
+    {
+      "page": 6,
+      "line": "5.1 Software Architecture………………………………………………………..……….67"
+    },
+    {
+      "page": 6,
+      "line": "5.2 User Interface………………..………………………………………………………..80"
+    },
+    {
+      "page": 6,
+      "line": "5.3 Results and Discussion………………………………………………………………..84"
+    },
+    {
+      "page": 6,
+      "line": "Chapter 6: Testing"
+    },
+    {
+      "page": 6,
+      "line": "6.1 Unit Testing ……………………………………………………….…………………..91"
+    },
+    {
+      "page": 6,
+      "line": "6.2 Integration Testing…………………………………………………………………….99"
+    },
+    {
+      "page": 11,
+      "line": "Chapter 1: introduction"
+    },
+    {
+      "page": 12,
+      "line": "Chapter 1: introduction"
+    },
+    {
+      "page": 12,
+      "line": "1.1 Overview"
+    },
+    {
+      "page": 12,
+      "line": "1.2 Motivation"
+    },
+    {
+      "page": 13,
+      "line": "1.3 Objectives"
+    },
+    {
+      "page": 13,
+      "line": "1.4 Aim"
+    },
+    {
+      "page": 14,
+      "line": "1.5 Scope"
+    },
+    {
+      "page": 14,
+      "line": "1.6 General Constraints"
+    },
+    {
+      "page": 16,
+      "line": "Chapter 2:"
+    },
+    {
+      "page": 17,
+      "line": "Chapter 2 Background and Previous work"
+    },
+    {
+      "page": 17,
+      "line": "2.1 Background:"
+    },
+    {
+      "page": 22,
+      "line": "2.2 Previous work:"
+    },
+    {
+      "page": 26,
+      "line": "Chapter 3:"
+    },
+    {
+      "page": 27,
+      "line": "3.1 Planning"
+    },
+    {
+      "page": 30,
+      "line": "3.1.1 Feasibility Study and Estimated Cost"
+    },
+    {
+      "page": 31,
+      "line": "3.1.2 Gantt Chart"
+    },
+    {
+      "page": 32,
+      "line": "3.2 Analysis for Chest X-Ray Pneumonia Detection:"
+    },
+    {
+      "page": 33,
+      "line": "3.2 Limitations for Chest X-Ray Pneumonia Detection:"
+    },
+    {
+      "page": 34,
+      "line": "3.3 Need for a New System"
+    },
+    {
+      "page": 35,
+      "line": "3.4 Analysis of New System:"
+    },
+    {
+      "page": 35,
+      "line": "3.4.1 User Requirements:"
+    },
+    {
+      "page": 36,
+      "line": "3.4.2 System Requirements:"
+    },
+    {
+      "page": 39,
+      "line": "3.4.3 Functional Requirements:"
+    },
+    {
+      "page": 44,
+      "line": "3.4.4 Non-Functional Requirements:"
+    },
+    {
+      "page": 46,
+      "line": "3.5 Advantages of the New System"
+    },
+    {
+      "page": 47,
+      "line": "3.6 User Characteristics"
+    },
+    {
+      "page": 52,
+      "line": "Chapter 4: design"
+    },
+    {
+      "page": 53,
+      "line": "Chapter 4: design"
+    },
+    {
+      "page": 53,
+      "line": "4.1 Design and Implementation Constraints:"
+    },
+    {
+      "page": 53,
+      "line": "4.1.1 Technical Constraints"
+    },
+    {
+      "page": 53,
+      "line": "4.1.2 Regulatory and Legal Constraints"
+    },
+    {
+      "page": 53,
+      "line": "4.1.3 Resource Constraints"
+    },
+    {
+      "page": 54,
+      "line": "4.2 Assumptions and Dependencies"
+    },
+    {
+      "page": 54,
+      "line": "4.2.1 Assumptions"
+    },
+    {
+      "page": 54,
+      "line": "4.2.2 Dependencies"
+    },
+    {
+      "page": 54,
+      "line": "19 Radiography Database hosted on Kaggle. Continuous access to updated, medically"
+    },
+    {
+      "page": 55,
+      "line": "4.3 Risks and Risk Management"
+    },
+    {
+      "page": 55,
+      "line": "4.3.1 Technical Risks"
+    },
+    {
+      "page": 55,
+      "line": "4.3.2 Security and Privacy Risks"
+    },
+    {
+      "page": 56,
+      "line": "4.3.3 Operational Risks"
+    },
+    {
+      "page": 56,
+      "line": "4.3.4 Ethical Risks"
+    },
+    {
+      "page": 57,
+      "line": "4.4 Design of database ERD"
+    },
+    {
+      "page": 57,
+      "line": "4.4.1 Entity Relationship Diagram"
+    },
+    {
+      "page": 57,
+      "line": "4.4.2 Mapping of Entity Relationship Diagram"
+    },
+    {
+      "page": 58,
+      "line": "4.4.3 Class Diagram"
+    },
+    {
+      "page": 59,
+      "line": "4.5 Use case diagram"
+    },
+    {
+      "page": 59,
+      "line": "4.5.1 Primary Use-case Diagram:"
+    },
+    {
+      "page": 60,
+      "line": "4.5.2 Use-case scenario"
+    },
+    {
+      "page": 61,
+      "line": "4.6 Activity Diagram"
+    },
+    {
+      "page": 64,
+      "line": "4.7 Sequence Diagram"
+    },
+    {
+      "page": 65,
+      "line": "4.8 State Diagram"
+    },
+    {
+      "page": 67,
+      "line": "5.1 Software Architecture"
+    },
+    {
+      "page": 68,
+      "line": "1.1 Input Data"
+    },
+    {
+      "page": 68,
+      "line": "1.2 Preprocessing"
+    },
+    {
+      "page": 68,
+      "line": "1.3 Data Augmentation"
+    },
+    {
+      "page": 68,
+      "line": "1.4 Dataset Organization"
+    },
+    {
+      "page": 69,
+      "line": "1.5 Dataset Split"
+    },
+    {
+      "page": 69,
+      "line": "1.6 Data Loading"
+    },
+    {
+      "page": 70,
+      "line": "2.2 ResNet-18"
+    },
+    {
+      "page": 71,
+      "line": "2.2 DenseNet-121"
+    },
+    {
+      "page": 80,
+      "line": "5.2 User Interface"
+    },
+    {
+      "page": 84,
+      "line": "5.3 Results and Discussion"
+    },
+    {
+      "page": 91,
+      "line": "6.1 Unit Testing in Web APIs"
+    },
+    {
+      "page": 99,
+      "line": "6.2 Integration Testing"
+    }
+  ]
+}
