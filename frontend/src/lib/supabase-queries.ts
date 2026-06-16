@@ -315,12 +315,15 @@ export async function getListing(id: string) {
   const d = data as any;
   const profile = d.profiles as { full_name: string | null; phone: string | null; whatsapp_number: string | null } | null;
   const agency  = d.agencies  as { name: string | null; phone: string | null } | null;
+  // Pick the first non-empty value (treats "" / whitespace as missing).
+  const firstNonEmpty = (...vals: (string | null | undefined)[]) =>
+    vals.map((v) => v?.trim()).find((v) => v) ?? null;
   const listing = {
     ...data,
     housemates: housematesRes.data ?? [],
     similar_listings: [],
-    contact_phone: profile?.phone ?? profile?.whatsapp_number ?? agency?.phone ?? null,
-    contact_name:  profile?.full_name ?? agency?.name ?? null,
+    contact_phone: firstNonEmpty(profile?.phone, profile?.whatsapp_number, agency?.phone),
+    contact_name:  firstNonEmpty(profile?.full_name, agency?.name),
   } as unknown as ListingDetailWithSimilar;
   return { data: listing, error: null };
 }
