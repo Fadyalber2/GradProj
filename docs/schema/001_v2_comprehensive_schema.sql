@@ -2,10 +2,10 @@
 -- AXIOM V2 — Comprehensive Schema Migration
 -- Version: 001
 -- Date: 2026-03-02
--- Description: Complete V2 schema with all 13 tables.
+-- Description: Complete V2 schema for the current retained tables.
 --   Fixes missing core fields (bedrooms, bathrooms, size_sqm),
---   adds neighborhoods lookup, housemates table, Egypt-specific
---   listing fields, and lifestyle preferences for AI matching.
+--   adds neighborhoods lookup, Egypt-specific listing fields,
+--   and lifestyle preferences for AI matching.
 --
 -- Run in Supabase SQL Editor (or via Alembic migration).
 -- Assumes: pgvector extension already enabled.
@@ -39,7 +39,6 @@ CREATE TYPE property_type AS ENUM (
 -- sold/rented = deal closed (owner marks manually)
 CREATE TYPE listing_status AS ENUM ('active', 'pending', 'rejected', 'sold', 'rented');
 
-CREATE TYPE application_status AS ENUM ('pending', 'approved', 'rejected');
 CREATE TYPE project_status     AS ENUM ('upcoming', 'in_progress', 'completed');
 CREATE TYPE viewing_status     AS ENUM ('pending', 'confirmed', 'cancelled', 'completed');
 
@@ -261,73 +260,6 @@ CREATE POLICY listings_owner_all ON listings
   FOR ALL USING (owner_id = auth.uid());
 
 
--- ── Table 6: housemates ──────────────────────────────────────────────────────
--- Current residents displayed on a shared housing listing card.
--- Separate from listing_applications (which tracks applicants, not residents).
--- When an application is approved, a housemates row may be auto-created.
-
-CREATE TABLE housemates (
-  id         uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-  listing_id uuid        NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
-  user_id    uuid        REFERENCES profiles(id) ON DELETE SET NULL, -- optional profile link
-  name       text        NOT NULL,
-  age        integer,
-  occupation text,
-  avatar_url text,
-  -- Display tags: 'student', 'quiet', 'morning_person', 'friendly', 'clean', etc.
-  tags       text[]      NOT NULL DEFAULT '{}',
-  created_at timestamptz DEFAULT now()
-);
-
-CREATE INDEX idx_housemates_listing ON housemates (listing_id);
-
-ALTER TABLE housemates ENABLE ROW LEVEL SECURITY;
-CREATE POLICY housemates_public_read ON housemates
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM listings l
-      WHERE l.id = listing_id AND l.status = 'active' AND l.deleted_at IS NULL
-    )
-  );
-CREATE POLICY housemates_owner_write ON housemates
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM listings l
-      WHERE l.id = listing_id AND l.owner_id = auth.uid()
-    )
-  );
-
-
--- ── Table 7: listing_applications ───────────────────────────────────────────
--- Applications to shared housing rooms. Stores lifestyle data + AI compatibility.
-
-CREATE TABLE listing_applications (
-  id                  uuid               PRIMARY KEY DEFAULT gen_random_uuid(),
-  listing_id          uuid               NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
-  applicant_id        uuid               NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  -- lifestyle_data: snapshot of applicant's lifestyle preferences at application time
-  lifestyle_data      jsonb,
-  compatibility_score integer            CHECK (compatibility_score BETWEEN 0 AND 100),
-  status              application_status NOT NULL DEFAULT 'pending',
-  message             text,
-  created_at          timestamptz        DEFAULT now(),
-  updated_at          timestamptz        DEFAULT now(),
-  UNIQUE (listing_id, applicant_id)
-);
-
-CREATE INDEX idx_applications_listing   ON listing_applications (listing_id);
-CREATE INDEX idx_applications_applicant ON listing_applications (applicant_id);
-
-ALTER TABLE listing_applications ENABLE ROW LEVEL SECURITY;
-CREATE POLICY applications_read ON listing_applications
-  FOR SELECT USING (
-    applicant_id = auth.uid() OR
-    EXISTS (SELECT 1 FROM listings WHERE id = listing_id AND owner_id = auth.uid())
-  );
-CREATE POLICY applications_insert ON listing_applications
-  FOR INSERT WITH CHECK (applicant_id = auth.uid());
-
-
 -- ── Table 8: favorites ───────────────────────────────────────────────────────
 
 CREATE TABLE favorites (
@@ -408,32 +340,6 @@ CREATE TRIGGER on_new_message
 
 -- Enable Realtime on messages
 ALTER PUBLICATION supabase_realtime ADD TABLE messages;
-
-
--- ── Table 11: notifications ──────────────────────────────────────────────────
-
-CREATE TABLE notifications (
-  id         uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id    uuid        NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  type       text        NOT NULL CHECK (type IN (
-               'new_message', 'listing_approved', 'listing_rejected',
-               'viewing_confirmed', 'application_received', 'application_approved',
-               'application_rejected'
-             )),
-  title      text        NOT NULL,
-  body       text        NOT NULL,
-  metadata   jsonb,
-  is_read    boolean     NOT NULL DEFAULT false,
-  created_at timestamptz DEFAULT now()
-);
-
-CREATE INDEX idx_notifications_user ON notifications (user_id, is_read) WHERE is_read = false;
-
-ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
-CREATE POLICY notifications_owner ON notifications FOR ALL USING (user_id = auth.uid());
-
--- Enable Realtime on notifications
-ALTER PUBLICATION supabase_realtime ADD TABLE notifications;
 
 
 -- ── Table 12: blog_posts ─────────────────────────────────────────────────────
@@ -579,18 +485,6 @@ BEGIN
   ORDER BY c.last_message_at DESC NULLS LAST;
 END;
 $$;
-
--- Returns total unread notification count for a user (for bell badge).
-CREATE OR REPLACE FUNCTION get_unread_notification_count(p_user_id uuid)
-RETURNS bigint LANGUAGE plpgsql SECURITY DEFINER AS $$
-DECLARE count bigint;
-BEGIN
-  SELECT COUNT(*) INTO count FROM notifications
-  WHERE user_id = p_user_id AND is_read = false;
-  RETURN count;
-END;
-$$;
-
 
 -- ── Seed Data: neighborhoods ─────────────────────────────────────────────────
 -- ~70 major Egyptian cities and their key neighborhoods.

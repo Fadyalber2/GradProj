@@ -41,7 +41,7 @@ export default function SharedHousingPage() {
           <h1 className="mt-2 text-3xl font-black text-white md:text-5xl">Find a room that fits your life</h1>
         </div>
         <p className="max-w-xl text-sm leading-6 text-gray-400">
-          Filter by house rules, open spots, bills, and room style. Applications go to the owner for review.
+          Filter by house rules, occupied spots, bills, and room style.
         </p>
       </section>
 

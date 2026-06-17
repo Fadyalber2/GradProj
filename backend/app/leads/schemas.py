@@ -4,7 +4,7 @@ from typing import Optional
 
 class CreateLeadRequest(BaseModel):
     listing_id: str
-    source: str  # "whatsapp_click" | "schedule_viewing"
+    source: str  # "whatsapp_click"
 
 
 class LeadResponse(BaseModel):

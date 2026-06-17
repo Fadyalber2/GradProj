@@ -31,6 +31,29 @@ logger = logging.getLogger(__name__)
 CONCURRENCY = 10
 
 
+def _blog_content_to_text(content: object) -> str:
+    """Flatten the blog editor's JSON block content into searchable text."""
+    if isinstance(content, str):
+        return content.strip()
+    if not isinstance(content, list):
+        return ""
+
+    parts: list[str] = []
+    for block in content:
+        if not isinstance(block, dict):
+            continue
+
+        text = block.get("text")
+        if isinstance(text, str) and text.strip():
+            parts.append(text.strip())
+
+        items = block.get("items")
+        if isinstance(items, list):
+            parts.extend(str(item).strip() for item in items if str(item).strip())
+
+    return " ".join(parts).strip()
+
+
 # ─── Listings ─────────────────────────────────────────────────────────────────
 
 
@@ -189,12 +212,12 @@ async def embed_all_blog() -> tuple[int, int]:
     Returns (done, failures).
     """
     try:
-        # Try fetching published posts first; fall back to all posts if no status column
+        # Try the current blog schema first; fall back for older schemas.
         try:
             result = (
                 supabase_admin.table("blog_posts")
-                .select("id, title, excerpt, content")
-                .eq("status", "published")
+                .select("id, title, lead, content")
+                .eq("is_published", True)
                 .execute()
             )
         except Exception:
@@ -222,8 +245,8 @@ async def embed_all_blog() -> tuple[int, int]:
     async def _embed_one(row: dict) -> bool:
         post_id = str(row["id"])
         title = row.get("title", "")
-        excerpt = (row.get("excerpt") or "").strip()
-        content = (row.get("content") or "").strip()
+        excerpt = (row.get("excerpt") or row.get("lead") or "").strip()
+        content = _blog_content_to_text(row.get("content"))
 
         chunk_text = f"{title}. {excerpt}. {content[:500]}".strip()
         # Collapse extra dots/spaces from missing fields

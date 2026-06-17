@@ -17,7 +17,7 @@ and a local **Ollama** instance for AI inference.
 | Database       | Supabase / PostgreSQL + pgvector              |
 | Auth           | Supabase Auth (JWT, ES256 / HS256)            |
 | AI inference   | Ollama (`axiom-llm`, `nomic-embed-text`)      |
-| Notifications  | Supabase Realtime + in-DB notifications table |
+| Contact flow   | WhatsApp lead capture through `/api/leads`     |
 | SMS OTP        | Twilio Verify                                 |
 | Object storage | Supabase Storage (listing images)             |
 | Config         | `.env` via Pydantic `Settings`                |
@@ -34,16 +34,15 @@ app.add_middleware(CORSMiddleware, origins=[frontend_url, "localhost:3000"])
 /api/auth          ← authentication & profiles
 /api/listings      ← property CRUD + search
 /api/dashboard     ← unified user dashboard
-/api/messages      ← messaging & blocking
-/api/notifications ← in-app notifications
 /api/agencies      ← agency pages
-/api/viewings      ← viewing-request booking
 /api/blog          ← blog articles
 /api/admin         ← admin panel
 /api/ai            ← all AI features
 /api/uploads       ← image upload to Supabase Storage
-/api/applications  ← shared-housing applications
 /api/projects      ← real estate projects
+/api/leads         ← WhatsApp lead capture
+/api/universities  ← university area pages
+/api/subscriptions ← owner plan checkout/status
 
 GET /api/health → { "status": "ok", "version": "2.0.0" }
 ```
@@ -130,13 +129,11 @@ Authorization: Bearer <supabase-jwt>
 | Method | Path                              | Auth             | Notes                                                                          |
 | ------ | --------------------------------- | ---------------- | ------------------------------------------------------------------------------ |
 | GET    | `/api/listings`                   | None             | Paginated (12/page); filters: category, city, price, bedrooms, sort_by         |
-| GET    | `/api/listings/{id}`              | None             | Full detail + 6 similar listings + housemates; increments views_count          |
+| GET    | `/api/listings/{id}`              | None             | Full detail + 6 similar listings; increments views_count                       |
 | POST   | `/api/listings`                   | Required         | Creates with status=pending; triggers fraud scoring + embeddings in background |
 | PUT    | `/api/listings/{id}`              | Required (owner) | Updates; re-generates RAG chunk                                                |
 | DELETE | `/api/listings/{id}`              | Required (owner) | Soft-delete (sets deleted_at); removes from knowledge_chunks                   |
 | POST   | `/api/listings/{id}/favorite`     | Required         | Toggle favorite via RPC                                                        |
-| POST   | `/api/listings/{id}/apply`        | Required         | Apply to shared housing; notifies owner                                        |
-| GET    | `/api/listings/{id}/applications` | Required (owner) | List all applications for listing                                              |
 
 ### Background tasks on POST/PUT
 
@@ -192,51 +189,22 @@ Single endpoint that returns everything the dashboard page needs:
     "saved_properties": 0
   },
   "listings": [ ...user's own listings ],
-  "recent_messages": [ ...last 5 conversations ],
+  "listings_count": 0,
+  "active_count": 0,
+  "pending_count": 0,
   "liked_properties": [ ...favorites ],
-  "upcoming_viewings": [ ...next 10 viewings ]
+  "liked_count": 0
 }
 ```
 
 ---
 
-## Messaging — `messages/router.py`
+## Retired Surfaces
 
-### Conversation model
-
-A conversation is between exactly two users (`user_a_id`, `user_b_id`).
-Status values: `pending | accepted | rejected | blocked`.
-
-### Endpoints
-
-| Method | Path                               | Notes                                       |
-| ------ | ---------------------------------- | ------------------------------------------- |
-| GET    | `/api/messages/conversations`      | List all conversations                      |
-| POST   | `/api/messages/conversations`      | Start or get existing conversation          |
-| GET    | `/api/messages/conversations/{id}` | Fetch messages (paginated)                  |
-| POST   | `/api/messages/conversations/{id}` | Send a message                              |
-| POST   | `/api/messages/block`              | Block a user (rejects active conversations) |
-| DELETE | `/api/messages/block/{user_id}`    | Unblock                                     |
-
-Blocked users cannot initiate conversations or send messages to the blocker.
-
----
-
-## Viewing Requests — `viewings/router.py`
-
-| Method | Path                 | Notes                                              |
-| ------ | -------------------- | -------------------------------------------------- |
-| POST   | `/api/viewings`      | Request a viewing (status=pending)                 |
-| PUT    | `/api/viewings/{id}` | Confirm or cancel (owner only; notifies requester) |
-
----
-
-## Applications (Shared Housing) — `applications/router.py`
-
-| Method | Path                     | Notes                             |
-| ------ | ------------------------ | --------------------------------- |
-| POST   | `/api/applications`      | Apply to a shared-housing listing |
-| PUT    | `/api/applications/{id}` | Approve or reject (owner only)    |
+Booking, viewing-request, in-app messaging, in-app notifications, shared-housing
+applications, and housemate tables/routes have been removed. Shared housing now
+uses the unified listing model, and listers manage occupied spots directly with
+`filled_spots`.
 
 ---
 
@@ -255,7 +223,7 @@ with `ADMIN_USERNAME` / `ADMIN_PASSWORD` from config (24-hour expiry).
 | Listings | `PUT /api/admin/listings/{id}/reject`    | status → rejected with reason               |
 | Users    | `GET /api/admin/users`                   | All users (paginated)                       |
 | Users    | `PUT /api/admin/users/{id}/verify`       | Grant is_verified_seller badge              |
-| Stats    | `GET /api/admin/stats`                   | Totals: users, listings by status, messages |
+| Stats    | `GET /api/admin/stats`                   | Totals: users, listings by status, leads, content |
 
 ---
 
@@ -289,14 +257,9 @@ Per-token streaming timeout is 30 seconds to prevent hangs on stalled responses.
 | `listings`             | id, owner_id, category, status, embedding (vector 768), fraud_score, deleted_at                 | Full property data                   |
 | `listings_images`      | id, listing_id, url                                                                             | S3/Storage URLs                      |
 | `favorites`            | user_id, listing_id                                                                             | Toggled via RPC                      |
-| `housemates`           | id, listing_id, user_id, name, age, occupation, tags, lifestyle_preferences                     | Shared-housing residents             |
-| `conversations`        | id, user_a_id, user_b_id, status, initiated_by                                                  | Two-party messaging                  |
-| `messages`             | id, conversation_id, sender_id, text, created_at                                                | Message content                      |
-| `viewings`             | id, listing_id, requester_id, owner_id, scheduled_at, status, notes                             | Booking requests                     |
-| `listing_applications` | id, listing_id, applicant_id, status, message, lifestyle_data, compatibility_score              | Shared housing applications          |
 | `knowledge_chunks`     | id, source_type, source_id, chunk_text, embedding (vector 768), metadata (JSONB)                | RAG corpus                           |
-| `blocked_users`        | blocker_id, blocked_id, reason                                                                  | Block list                           |
-| `notifications`        | id, user_id, type, title, body, metadata (JSONB), read_at                                       | In-app notifications                 |
+| `leads`                | id, user_id, listing_id, agency_id, contact_name, contact_phone, source, is_billable            | WhatsApp lead capture                |
+| `subscriptions`        | user_id, plan, status, stripe_customer_id, stripe_subscription_id                               | Owner listing plans                  |
 
 ### Enums
 
@@ -354,19 +317,11 @@ backend/
 │   │   └── router.py
 │   ├── dashboard/
 │   │   └── router.py
-│   ├── messages/
-│   │   └── router.py
-│   ├── viewings/
-│   │   └── router.py
-│   ├── applications/
-│   │   └── router.py
 │   ├── admin/
 │   │   └── router.py
 │   ├── agencies/
 │   │   └── router.py
 │   ├── projects/
-│   │   └── router.py
-│   ├── notifications/
 │   │   └── router.py
 │   ├── blog/
 │   │   └── router.py

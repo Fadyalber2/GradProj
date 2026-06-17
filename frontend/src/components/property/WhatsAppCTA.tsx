@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MessageCircle, CalendarDays, Loader2 } from "lucide-react";
+import { MessageCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter, usePathname } from "next/navigation";
@@ -11,16 +11,14 @@ interface WhatsAppCTAProps {
   listingId: string;
   contactPhone: string | null | undefined;
   contactName: string | null | undefined;
-  showSchedule?: boolean;
 }
 
 async function openWhatsApp(
   listingId: string,
-  source: "whatsapp_click" | "schedule_viewing",
 ): Promise<void> {
   const data = await api.post<{ whatsapp_url: string; already_existed: boolean }>(
     "/api/leads",
-    { listing_id: listingId, source },
+    { listing_id: listingId, source: "whatsapp_click" },
   );
   window.open(data.whatsapp_url, "_blank", "noopener,noreferrer");
 }
@@ -29,12 +27,11 @@ export default function WhatsAppCTA({
   listingId,
   contactPhone,
   contactName,
-  showSchedule = true,
 }: WhatsAppCTAProps) {
   const { user } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
-  const [loading, setLoading] = useState<"contact" | "schedule" | null>(null);
+  const [loading, setLoading] = useState(false);
 
   if (!contactPhone) {
     return (
@@ -52,11 +49,11 @@ export default function WhatsAppCTA({
     action();
   }
 
-  async function handleClick(source: "whatsapp_click" | "schedule_viewing") {
+  async function handleClick() {
     requireAuth(async () => {
-      setLoading(source === "whatsapp_click" ? "contact" : "schedule");
+      setLoading(true);
       try {
-        await openWhatsApp(listingId, source);
+        await openWhatsApp(listingId);
       } catch (err) {
         let message = "Could not open WhatsApp. Please try again.";
         if (err instanceof ApiError) {
@@ -70,7 +67,7 @@ export default function WhatsAppCTA({
         }
         toast.error(message);
       } finally {
-        setLoading(null);
+        setLoading(false);
       }
     });
   }
@@ -83,27 +80,12 @@ export default function WhatsAppCTA({
         </p>
       )}
 
-      {showSchedule && (
-        <button
-          onClick={() => handleClick("schedule_viewing")}
-          disabled={loading !== null}
-          className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover disabled:opacity-60 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-        >
-          {loading === "schedule" ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <CalendarDays className="h-4 w-4" />
-          )}
-          Schedule a Viewing
-        </button>
-      )}
-
       <button
-        onClick={() => handleClick("whatsapp_click")}
-        disabled={loading !== null}
-        className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+        onClick={handleClick}
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-[background-color,opacity,transform] duration-150 ease-out hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
       >
-        {loading === "contact" ? (
+        {loading ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
           <MessageCircle className="h-4 w-4" />

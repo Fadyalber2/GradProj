@@ -74,33 +74,16 @@ async def stripe_webhook(request: Request):
     event_type = _field(event, "type")
     obj = _field(_field(event, "data"), "object")
     try:
-        if event_type == "payment_intent.succeeded":
-            from app.bookings.router import _create_booking_from_paid_intent
-            _create_booking_from_paid_intent(obj)
-        elif event_type == "payment_intent.canceled":
-            # Revert the listing lock set when the PaymentIntent was created.
-            md = _field(obj, "metadata") or {}
-            listing_id = (md.get("listing_id") if isinstance(md, dict) else None)
-            if listing_id:
-                try:
-                    supabase_admin.table("listings").update({"status": "active"}).eq(
-                        "id", listing_id
-                    ).eq("status", "pending_payment").execute()
-                except Exception as e:
-                    logger.error("Failed to revert listing %s from pending_payment: %s", listing_id, e)
-        elif event_type in (
+        if event_type in (
             "customer.subscription.created",
             "customer.subscription.updated",
             "customer.subscription.deleted",
         ):
             _sync_subscription(obj)
     except HTTPException:
-        # Re-raise known HTTP errors (e.g. 409 duplicate booking) — these are
-        # idempotent; returning non-2xx would cause Stripe to retry unnecessarily.
         raise
     except Exception as e:
         # Log and return 500 so Stripe retries the webhook (up to 3 days).
-        # Swallowing here would mean a charged user with no booking and no retry.
         logger.error("Stripe webhook handler failed for event %s: %s", event_type, e)
         raise HTTPException(status_code=500, detail="Webhook processing failed")
 

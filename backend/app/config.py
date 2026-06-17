@@ -18,8 +18,8 @@ class Settings(BaseSettings):
     ollama_embed_model: str = "nomic-embed-text"
     admin_username: str = "admin"
     admin_password: str = "changeme"
-    # Separate signing secret for admin JWTs — prevents user-token → admin-token forgery.
-    # If left empty, falls back to jwt_secret (backward-compat for existing deployments).
+    # Separate signing secret for admin JWTs; prevents user-token to admin-token forgery.
+    # If left empty, falls back to jwt_secret for existing deployments.
     admin_jwt_secret: str = ""
     redis_url: str = ""
     sentry_dsn: str = ""
@@ -31,10 +31,6 @@ class Settings(BaseSettings):
     stripe_publishable_key: str = ""
     stripe_price_basic: str = ""   # Stripe recurring price id for Basic
     stripe_price_pro: str = ""     # Stripe recurring price id for Pro
-
-    # Monetization (platform fees, EGP). See payment-monetization-model spec.
-    # Sales are lead-gen only (WhatsApp contact) — no sale payment fees.
-    rent_booking_fee: float = 2000.0        # flat deposit to secure a rent booking
 
     model_config = SettingsConfigDict(env_file=BACKEND_DIR / ".env", extra="ignore")
 

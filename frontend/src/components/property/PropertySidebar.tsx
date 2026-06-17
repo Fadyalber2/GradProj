@@ -51,7 +51,6 @@ export default function PropertySidebar({ property }: PropertySidebarProps) {
               listingId={property.id}
               contactPhone={property.contactPhone}
               contactName={property.contactName}
-              showSchedule={false}
             />
           </div>
 

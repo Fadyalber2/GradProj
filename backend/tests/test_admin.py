@@ -14,7 +14,7 @@ def _admin_header() -> dict:
         "iat": int(time.time()),
         "exp": int(time.time()) + 3600,
     }
-    token = jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
+    token = jwt.encode(payload, settings.admin_jwt_secret or settings.jwt_secret, algorithm="HS256")
     return {"Authorization": f"Bearer {token}"}
 
 

@@ -27,7 +27,7 @@ import {
   Users, Home, Building2, FolderOpen,
   TrendingUp, AlertTriangle, Clock, CheckCircle,
   Search, Plus, RefreshCw, X, ChevronRight, Trash2,
-  BedDouble, Upload, Loader2, PhoneCall, Sparkles,
+  BedDouble, Upload, Loader2, Sparkles,
 } from "lucide-react";
 import type { ElementType } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -245,6 +245,7 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "payment_plan", label: "Payment Plan JSON", type: "json", helper: "Example: {\"type\":\"cash\"}" },
       { key: "room_type", label: "Room Type", type: "select", options: ["ensuite", "private", "shared"] },
       { key: "total_spots", label: "Total Spots", type: "number" },
+      { key: "filled_spots", label: "Occupied Spots", type: "number" },
       { key: "availability", label: "Availability", type: "select", options: ["available", "limited", "full"] },
       { key: "utilities_included", label: "Utilities Included", type: "select", options: ["true", "false"] },
       { key: "bathroom_type", label: "Bathroom Type", type: "select", options: ["private", "shared", "ensuite"] },
@@ -285,6 +286,7 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "payment_plan", label: "Payment Plan JSON", type: "json", helper: "Example: {\"type\":\"cash\"}" },
       { key: "room_type", label: "Room Type", type: "select", options: ["ensuite", "private", "shared"] },
       { key: "total_spots", label: "Total Spots", type: "number" },
+      { key: "filled_spots", label: "Occupied Spots", type: "number" },
       { key: "availability", label: "Availability", type: "select", options: ["available", "limited", "full"] },
       { key: "utilities_included", label: "Utilities Included", type: "select", options: ["true", "false"] },
       { key: "bathroom_type", label: "Bathroom Type", type: "select", options: ["private", "shared", "ensuite"] },
@@ -292,7 +294,6 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "amenities", label: "Amenities", type: "tags", helper: "Comma-separated. Public cards and detail pages use these." },
       { key: "private_amenities", label: "Private Room Features", type: "tags" },
       { key: "shared_amenities", label: "Shared Home Features", type: "tags" },
-      { key: "housemates", label: "Housemates JSON", type: "json", helper: "Optional for shared housing. Example: [{\"name\":\"Mona\",\"tags\":[\"quiet\",\"student\"]}]" },
       { key: "images", label: "Listing Images", type: "image_list", helper: "Upload or paste URLs for each photo. First image is the cover." },
     ],
   },
@@ -473,74 +474,13 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "is_published", label: "Published", type: "select", options: ["true", "false"] },
     ],
   },
-  bookings: {
-    title: "Bookings",
-    apiSection: "bookings",
-    searchPlaceholder: "Search by listing",
-    readOnly: true,
-    extraFilters: [
-      { key: "status", label: "Status", type: "select", options: ["pending_confirmation", "active", "completed", "cancelled"] },
-      { key: "booking_type", label: "Type", type: "select", options: ["rent", "sale"] },
-    ],
-    columns: [
-      { key: "id", label: "ID", render: (v) => <span className="font-mono text-xs text-slate-500">{String(v ?? "").slice(0, 8)}...</span> },
-      { key: "listing_title", label: "Listing" },
-      { key: "renter_name", label: "Renter" },
-      { key: "owner_name", label: "Owner" },
-      { key: "total_price", label: "Total", render: (v) => formatPrice(v) },
-      { key: "platform_cut_amount", label: "Platform", render: (v) => formatPrice(v) },
-      { key: "owner_amount", label: "Owner", render: (v) => formatPrice(v) },
-      {
-        key: "payment_state", label: "Payment",
-        render: (v) => {
-          const value = String(v ?? "");
-          const color = value === "payout sent" ? "green" : value.includes("paid") ? "yellow" : "gray";
-          return <Badge color={color}>{value || "legacy/manual"}</Badge>;
-        },
-      },
-      {
-        key: "stripe_payment_intent_id",
-        label: "PaymentIntent",
-        render: (v) => v ? <span className="font-mono text-xs text-slate-500">{String(v)}</span> : "—",
-      },
-      {
-        key: "stripe_transfer_id",
-        label: "Transfer",
-        render: (v) => v ? <span className="font-mono text-xs text-slate-500">{String(v)}</span> : "—",
-      },
-      { key: "booking_type", label: "Type", render: (v) => <Badge color={v === "sale" ? "green" : "blue"}>{String(v ?? "")}</Badge> },
-      {
-        key: "status", label: "Status",
-        render: (v) => <Badge color={v === "active" ? "green" : v === "pending_confirmation" ? "yellow" : v === "completed" ? "blue" : "gray"}>{String(v ?? "")}</Badge>,
-      },
-      { key: "created_at", label: "Date", render: (v) => formatDate(v) },
-    ],
-    editFields: [],
-  },
-  notifications: {
-    title: "Notifications",
-    apiSection: "notifications",
-    searchPlaceholder: "Search…",
-    readOnly: true,
-    columns: [
-      { key: "title", label: "Title" },
-      { key: "message", label: "Message" },
-      { key: "type", label: "Type" },
-      {
-        key: "is_read", label: "Read",
-        render: (v) => <Badge color={v ? "gray" : "blue"}>{v ? "Read" : "Unread"}</Badge>,
-      },
-      { key: "created_at", label: "Date", render: (v) => formatDate(v) },
-    ],
-    editFields: [],
-  },
   leads: {
     title: "Leads",
     apiSection: "leads",
     searchPlaceholder: "Search by buyer name…",
     readOnly: true,
     extraFilters: [
-      { key: "source", label: "Source", type: "select", options: ["whatsapp_click", "schedule_viewing"] },
+      { key: "source", label: "Source", type: "select", options: ["whatsapp_click"] },
       { key: "is_billable", label: "Billable", type: "select", options: ["true", "false"] },
     ],
     columns: [
@@ -551,9 +491,7 @@ const SECTIONS: Record<string, SectionConfig> = {
       {
         key: "source", label: "Source",
         render: (v) => (
-          <Badge color={v === "schedule_viewing" ? "green" : "blue"}>
-            {v === "schedule_viewing" ? "Viewing" : "Contact"}
-          </Badge>
+          <Badge color="blue">Contact</Badge>
         ),
       },
       {
@@ -1205,6 +1143,7 @@ function AdminListingEditForm({
         if (value !== "shared_housing") {
           next.room_type = "";
           next.total_spots = null;
+          next.filled_spots = null;
           next.availability = "";
           next.utilities_included = "";
           next.bathroom_type = "";
@@ -1234,6 +1173,13 @@ function AdminListingEditForm({
     if (category === "for_sale" && !asText(form.title_deed_status).trim()) nextErrors.title_deed_status = "Title deed is required";
     if (isShared && !asText(form.room_type).trim()) nextErrors.room_type = "Room type is required";
     if (isShared && !asText(form.bathroom_type).trim()) nextErrors.bathroom_type = "Bathroom type is required";
+    if (isShared) {
+      const totalSpots = toNumber(form.total_spots);
+      const filledSpots = toNumber(form.filled_spots) ?? 0;
+      if (totalSpots !== null && (filledSpots < 0 || filledSpots > totalSpots)) {
+        nextErrors.filled_spots = "Occupied spots must be between 0 and total spots";
+      }
+    }
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   }
@@ -1278,6 +1224,7 @@ function AdminListingEditForm({
       payment_plan: category === "for_sale" ? form.payment_plan || { type: "cash" } : null,
       room_type: isShared ? asText(form.room_type) || null : null,
       total_spots: isShared ? toNumber(form.total_spots) : null,
+      filled_spots: isShared ? (toNumber(form.filled_spots) ?? 0) : null,
       availability: isShared ? asText(form.availability || "available") : null,
       utilities_included: isShared ? form.utilities_included === "true" : null,
       bathroom_type: isShared ? asText(form.bathroom_type) || null : null,
@@ -1545,6 +1492,9 @@ function AdminListingEditForm({
             </FieldShell>
             <FieldShell label="Total Spots">
               <input type="number" value={asText(form.total_spots)} onChange={(e) => setField("total_spots", e.target.value)} className={inputClass} />
+            </FieldShell>
+            <FieldShell label="Occupied Spots" error={errors.filled_spots}>
+              <input type="number" value={asText(form.filled_spots)} onChange={(e) => setField("filled_spots", e.target.value)} className={inputClass} />
             </FieldShell>
             <FieldShell label="Availability">
               <select value={asText(form.availability || "available")} onChange={(e) => setField("availability", e.target.value)} className={inputClass}>
@@ -2625,7 +2575,6 @@ function DashboardOverview({ onNavigate }: { onNavigate: AdminNavigate }) {
     { label: "Pending Review", key: "pending_listings", icon: Clock, color: "orange", section: "listings", filters: { status: "pending" } },
     { label: "Flagged Fraud", key: "flagged_listings", icon: AlertTriangle, color: "red", section: "fraud" },
     { label: "Agencies", key: "total_agencies", icon: Building2, color: "purple", section: "agencies" },
-    { label: "Bookings", key: "total_bookings", icon: PhoneCall, color: "blue", section: "bookings" },
     { label: "Leads", key: "total_leads", icon: TrendingUp, color: "green", section: "leads" },
     { label: "Shared Housing", key: "total_shared_housing", icon: BedDouble, color: "orange", section: "listings", filters: { category: "shared_housing" } },
   ];
@@ -2633,7 +2582,6 @@ function DashboardOverview({ onNavigate }: { onNavigate: AdminNavigate }) {
   const quickActions = [
     { label: "Manage Users", section: "users", icon: Users, color: "blue" },
     { label: "Review Listings", section: "pending-approvals", icon: Home, color: "green" },
-    { label: "Bookings", section: "bookings", icon: PhoneCall, color: "purple" },
     { label: "Fraud Queue", section: "fraud", icon: AlertTriangle, color: "red" },
   ] as const;
 
@@ -2652,7 +2600,7 @@ function DashboardOverview({ onNavigate }: { onNavigate: AdminNavigate }) {
           Live database
         </p>
         <h2 className="text-3xl font-semibold tracking-tight text-zinc-950">Platform control room</h2>
-        <p className="mt-2 text-sm leading-6 text-zinc-500">A current snapshot of listings, moderation queues, bookings, leads, and content moving through AXIOM.</p>
+        <p className="mt-2 text-sm leading-6 text-zinc-500">A current snapshot of listings, moderation queues, leads, and content moving through AXIOM.</p>
       </div>
 
       {/* Stats grid */}

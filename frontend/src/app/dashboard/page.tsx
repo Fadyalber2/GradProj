@@ -8,12 +8,7 @@ import MyListings from "@/components/dashboard/MyListings";
 import dynamic from "next/dynamic";
 const AddListingModal = dynamic(() => import("@/components/dashboard/AddListingModal"), { ssr: false });
 import LikedProperties from "@/components/dashboard/LikedProperties";
-import MyViewings from "@/components/dashboard/MyViewings";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
-import ApplicationsReceivedTab from "@/components/dashboard/ApplicationsReceivedTab";
-import BookingsReceivedTab from "@/components/dashboard/BookingsReceivedTab";
-import MyApplicationsTab from "@/components/dashboard/MyApplicationsTab";
-import MyBookingsTab from "@/components/dashboard/MyBookingsTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { dashboardQueries } from "@/lib/queries";
@@ -24,7 +19,6 @@ import type { ApiAnalyticsStat, ApiDashboardListing } from "@/types/api";
 import type {
   AnalyticsStat,
   DashboardListing,
-  DashboardViewingBrief,
 } from "@/types";
 
 // Mappers
@@ -140,15 +134,6 @@ export default function DashboardPage() {
   const analyticsStats: AnalyticsStat[] = data.analytics.map(mapAnalytics);
 
   const listings = (data?.listings ?? []).map(mapListing);
-  const viewings: DashboardViewingBrief[] = (data?.upcoming_viewings ?? []).map((viewing) => ({
-    id: viewing.id,
-    listingTitle: viewing.listing_title,
-    listingImage: viewing.listing_image ?? "",
-    scheduledAt: viewing.scheduled_at,
-    status: ["pending", "confirmed", "cancelled"].includes(viewing.status)
-      ? (viewing.status as DashboardViewingBrief["status"])
-      : "pending",
-  }));
 
   return (
     <div className="relative min-h-[calc(100dvh-64px)] overflow-hidden bg-[#0f0f0f]">
@@ -167,7 +152,7 @@ export default function DashboardPage() {
                   Manage your AXIOM workspace.
                 </h1>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-white/58">
-                  {data.profile.full_name || data.profile.email}, keep your profile, listing pipeline, saved homes, bookings, and applications in one place.
+                  {data.profile.full_name || data.profile.email}, keep your profile, listing pipeline, and saved homes in one place.
                 </p>
               </div>
 
@@ -175,7 +160,7 @@ export default function DashboardPage() {
                 {[
                   ["Listings", data.listings_count],
                   ["Saved", data.liked_count],
-                  ["Pending", data.pending_applications],
+                  ["Pending", data.pending_count],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
@@ -212,52 +197,20 @@ export default function DashboardPage() {
           profile={data.profile}
           listingsCount={data.listings_count}
           likedCount={data.liked_count}
-          pendingApplications={data.pending_applications}
+          pendingCount={data.pending_count}
         />
         <DashboardStats stats={analyticsStats} />
 
         <Tabs defaultValue="listings" className="space-y-5">
           <TabsList className="h-auto w-full flex-wrap justify-start gap-2 rounded-[1.25rem] border border-white/10 bg-[#151515] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
             <TabsTrigger value="listings" className="rounded-lg px-3 py-2 data-[state=active]:border-primary/30 data-[state=active]:bg-primary/12 data-[state=active]:text-white">Listings</TabsTrigger>
-            <TabsTrigger value="bookings-received" className="rounded-lg px-3 py-2 data-[state=active]:border-primary/30 data-[state=active]:bg-primary/12 data-[state=active]:text-white">Booking inbox</TabsTrigger>
-            <TabsTrigger value="my-bookings" className="rounded-lg px-3 py-2 data-[state=active]:border-primary/30 data-[state=active]:bg-primary/12 data-[state=active]:text-white">My bookings</TabsTrigger>
-            <TabsTrigger value="applications-received" className="rounded-lg px-3 py-2 data-[state=active]:border-primary/30 data-[state=active]:bg-primary/12 data-[state=active]:text-white">
-              Applications inbox
-              {data?.pending_applications ? (
-                <span className="ml-1 rounded-full bg-primary px-1.5 text-[10px] text-white">
-                  {data.pending_applications}
-                </span>
-              ) : null}
-            </TabsTrigger>
-            <TabsTrigger value="my-applications" className="rounded-lg px-3 py-2 data-[state=active]:border-primary/30 data-[state=active]:bg-primary/12 data-[state=active]:text-white">My applications</TabsTrigger>
             <TabsTrigger value="liked" className="rounded-lg px-3 py-2 data-[state=active]:border-primary/30 data-[state=active]:bg-primary/12 data-[state=active]:text-white">Saved</TabsTrigger>
-            <TabsTrigger value="viewings" className="rounded-lg px-3 py-2 data-[state=active]:border-primary/30 data-[state=active]:bg-primary/12 data-[state=active]:text-white">Viewings</TabsTrigger>
           </TabsList>
           <TabsContent value="listings">
             <MyListings listings={listings} onAddNew={() => setModalOpen(true)} />
           </TabsContent>
-          <TabsContent value="bookings-received">
-            <BookingsReceivedTab />
-          </TabsContent>
-          <TabsContent value="my-bookings">
-            <MyBookingsTab />
-          </TabsContent>
-          <TabsContent value="applications-received">
-            <ApplicationsReceivedTab listings={data?.listings ?? []} />
-          </TabsContent>
-          <TabsContent value="my-applications">
-            <MyApplicationsTab />
-          </TabsContent>
           <TabsContent value="liked">
             <LikedProperties />
-          </TabsContent>
-          <TabsContent value="viewings">
-            <MyViewings viewings={viewings} />
-            {!viewings.length && (
-              <div className="rounded-2xl border border-white/10 bg-[#151515] p-10 text-center text-gray-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-                No upcoming viewings.
-              </div>
-            )}
           </TabsContent>
         </Tabs>
         <AddListingModal open={modalOpen} onClose={() => setModalOpen(false)} />

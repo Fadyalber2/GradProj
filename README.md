@@ -44,11 +44,11 @@ ollama create axiom-llm -f path/to/Modelfile
 - Property listings — for sale, for rent, shared housing
 - AI chatbot with RAG and inline listing cards (SSE streaming)
 - Natural language property search (filter extraction + pgvector)
-- Personalized recommendations, roommate compatibility scoring
+- Personalized recommendations and shared-housing compatibility scoring
 - Listing description generator (bilingual AR/EN)
 - AI amenity content moderation
 - Fraud detection scoring
-- Dashboard with listing management, viewings, messages
+- Dashboard with listing management, saved homes, and profile settings
 - Admin approval queue for listings
 
 ---
@@ -60,8 +60,8 @@ ollama create axiom-llm -f path/to/Modelfile
 | `/` | Homepage |
 | `/find-homes` | Property search with filters and NLP |
 | `/property/[id]` | Property detail (all categories incl. shared housing) |
-| `/dashboard` | User dashboard — listings, viewings, messages |
-| `/messages` | Inbox and conversations |
+| `/dashboard` | User dashboard: listings, saved homes, profile |
+| `/messages` | Removed: WhatsApp lead capture replaces in-app messaging |
 | `/agencies` | Real estate developers directory |
 | `/agencies/[slug]` | Agency detail with projects and listings |
 | `/project/[id]` | Development project detail |

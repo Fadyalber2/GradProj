@@ -70,9 +70,7 @@ export async function getStats() {
     total_projects: number;
     total_shared_housing: number;
     total_blog_posts: number;
-    total_bookings: number;
     total_leads: number;
-    total_notifications: number;
     flagged_listings: number;
     pending_listings: number;
     active_listings: number;

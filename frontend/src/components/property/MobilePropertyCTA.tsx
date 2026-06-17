@@ -36,7 +36,6 @@ export default function MobilePropertyCTA({
             listingId={listingId}
             contactPhone={contactPhone}
             contactName={contactName}
-            showSchedule={false}
           />
         </div>
       </div>

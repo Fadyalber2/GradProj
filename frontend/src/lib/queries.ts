@@ -11,14 +11,7 @@ import type {
   BlogPostBrief,
   DashboardResponse,
   ApiProfileResponse,
-  ApiNotification,
-  ApplicationBrief,
-  MyApplicationBrief,
   ListingBrief,
-  ListingLifestylePreferences,
-  BookingBrief,
-  BookingFees,
-  CreatePaymentIntentResponse,
   SubscriptionStatus,
 } from "@/types/api";
 
@@ -213,95 +206,6 @@ export const updateProfileMutation = {
     api.put<ApiProfileResponse>("/api/auth/me", data),
 };
 
-// â”€â”€ Applications â”€â”€
-
-export const applicationsQueries = {
-  my: () => ({
-    queryKey: ["applications", "my"],
-    queryFn: () => api.get<MyApplicationBrief[]>("/api/applications/my"),
-  }),
-
-  receivedForListing: (listingId: string) => ({
-    queryKey: ["applications", "listing", listingId],
-    queryFn: () =>
-      api.get<ApplicationBrief[]>(`/api/listings/${listingId}/applications`),
-  }),
-};
-
-export const createApplicationMutation = {
-  mutationFn: (data: {
-    listing_id: string;
-    message: string;
-    lifestyle_data: ListingLifestylePreferences;
-  }) => api.post<ApplicationBrief>("/api/applications", data),
-};
-
-export const updateApplicationMutation = {
-  mutationFn: ({
-    id,
-    status,
-  }: {
-    id: string;
-    status: "approved" | "rejected";
-  }) => api.put<ApplicationBrief>(`/api/applications/${id}`, { status }),
-};
-
-// â”€â”€ Bookings â”€â”€
-
-export const bookingsQueries = {
-  my: () => ({
-    queryKey: ["bookings", "my"],
-    queryFn: () => api.get<BookingBrief[]>("/api/bookings/my"),
-  }),
-
-  received: () => ({
-    queryKey: ["bookings", "received"],
-    queryFn: () => api.get<BookingBrief[]>("/api/bookings/received"),
-  }),
-
-  detail: (id: string) => ({
-    queryKey: ["bookings", id],
-    queryFn: () => api.get<BookingBrief>(`/api/bookings/${id}`),
-  }),
-
-  byIntent: (intentId: string) => ({
-    queryKey: ["bookings", "intent", intentId],
-    queryFn: () => api.get<BookingBrief>(`/api/bookings/by-intent/${intentId}`),
-  }),
-
-  fees: () => ({
-    queryKey: ["bookings", "fees"],
-    queryFn: () => api.get<BookingFees>("/api/bookings/fees"),
-    staleTime: 60 * 60 * 1000,
-  }),
-};
-
-export const createPaymentIntentMutation = {
-  mutationFn: (data: {
-    listing_id: string;
-    booking_type: "rent";
-    start_date?: string | null;
-    duration_months?: number | null;
-  }) => api.post<CreatePaymentIntentResponse>("/api/bookings/payment-intent", data),
-};
-
-export const confirmBookingMutation = {
-  mutationFn: (id: string) => api.post<BookingBrief>(`/api/bookings/${id}/confirm`),
-};
-
-export const vacateBookingMutation = {
-  mutationFn: (id: string) => api.post<BookingBrief>(`/api/bookings/${id}/vacate`),
-};
-
-export const cancelBookingMutation = {
-  mutationFn: (id: string) => api.post<BookingBrief>(`/api/bookings/${id}/refund`),
-};
-
-export const requestDisbursementMutation = {
-  mutationFn: ({ id, month }: { id: string; month: number }) =>
-    api.post(`/api/bookings/${id}/disbursements/${month}/request`),
-};
-
 // â”€â”€ Recommendations â”€â”€
 
 export const recommendationsQueries = {
@@ -312,27 +216,6 @@ export const recommendationsQueries = {
         params: params as Record<string, string | number | boolean | undefined>,
       }),
   }),
-};
-
-// ── Notifications ──
-
-export const notificationsQueries = {
-  list: () => ({
-    queryKey: ["notifications"],
-    queryFn: () => api.get<ApiNotification[]>("/api/notifications"),
-  }),
-};
-
-export const markNotificationReadMutation = {
-  mutationFn: (notificationId: string) =>
-    api.put<{ id: string; is_read: boolean }>(
-      `/api/notifications/${notificationId}/read`
-    ),
-};
-
-export const markAllNotificationsReadMutation = {
-  mutationFn: () =>
-    api.put<{ message: string }>("/api/notifications/read-all"),
 };
 
 // ── AI / RAG search ──

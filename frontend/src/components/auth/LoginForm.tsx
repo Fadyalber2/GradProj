@@ -122,7 +122,7 @@ export default function LoginForm() {
               Welcome back
             </h1>
             <p className="mt-2 text-sm leading-6 text-white/60">
-              Sign in to open your dashboard, saved homes, and conversations.
+              Sign in to open your dashboard, listings, and saved homes.
             </p>
           </div>
           <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-emerald-300/20 bg-emerald-300/10 text-emerald-200 sm:flex">

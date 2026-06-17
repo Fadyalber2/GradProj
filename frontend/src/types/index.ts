@@ -62,24 +62,6 @@ export interface SignUpData {
 
 // ── Notification types ──
 
-export type NotificationType =
-  | "listing_approved"
-  | "listing_rejected"
-  | "viewing_confirmed"
-  | "application_received"
-  | "application_approved"
-  | "application_rejected";
-
-export interface Notification {
-  id: string;
-  type: string;
-  title: string;
-  body: string;
-  is_read: boolean;
-  metadata?: Record<string, unknown>;
-  created_at: string;
-}
-
 // ── UI / mock-data types ──
 
 export interface Listing {
@@ -224,24 +206,6 @@ export interface ProjectDetail {
   documents: ProjectDocument[];
 }
 
-export interface Housemate {
-  name: string;
-  age: number;
-  occupation: string;
-  avatar: string;
-  tags: string[];
-  lifestylePreferences?: {
-    gender_preference?: string | null;
-    smoking_allowed?: boolean | null;
-    pets_allowed?: boolean | null;
-    guests_policy?: string | null;
-    noise_level?: string | null;
-    cleanliness?: string | null;
-    sleep_schedule?: string | null;
-    occupation_type?: string | null;
-  } | null;
-}
-
 export interface SharedAmenity {
   icon: string;
   label: string;
@@ -250,7 +214,6 @@ export interface SharedAmenity {
 export interface SimilarRoom {
   id: string;
   title: string;
-  housemates: string;
   price: number;
   image: string;
 }
@@ -271,7 +234,6 @@ export interface SharedHousingDetail {
   bathroom: string;
   furnishing: string;
   description: string[];
-  housemates: Housemate[];
   privateAmenities: SharedAmenity[];
   sharedAmenities: SharedAmenity[];
   similarRooms: SimilarRoom[];
@@ -388,13 +350,6 @@ export interface LikedProperty {
   addedAgo: string;
 }
 
-export interface DashboardViewingBrief {
-  id: string;
-  listingTitle: string;
-  listingImage: string;
-  scheduledAt: string;
-  status: "pending" | "confirmed" | "cancelled";
-}
 
 export interface PropertyDetail {
   id: string;
@@ -443,7 +398,6 @@ export interface PropertyDetail {
   bathroomType?: string;
   privateAmenities?: SharedAmenity[];
   sharedAmenities?: SharedAmenity[];
-  housemates?: Housemate[];
   contactPhone?: string | null;
   contactName?: string | null;
 }
@@ -481,4 +435,3 @@ export interface RelatedArticle {
   date: string;
   readTime: string;
 }
-

@@ -53,18 +53,6 @@ export interface NeighborhoodBrief {
 
 // ── Listings ──
 
-export interface HousemateResponse {
-  id: string;
-  listing_id: string | null;
-  user_id: string | null;
-  name: string;
-  age: number | null;
-  occupation: string | null;
-  avatar_url: string | null;
-  tags: string[];
-  lifestyle_preferences?: ListingLifestylePreferences | null;
-}
-
 export interface ListingBrief {
   id: string;
   title: string;
@@ -125,7 +113,6 @@ export interface ListingDetail extends ListingBrief {
   bathroom_type: string | null;
   private_amenities: string[];
   shared_amenities: string[];
-  housemates: HousemateResponse[];
   contact_phone: string | null;
   contact_name: string | null;
 }
@@ -273,14 +260,6 @@ export interface ApiAnalyticsStat {
   trend_up: boolean;
 }
 
-export interface ApiViewingBrief {
-  id: string;
-  listing_title: string;
-  listing_image: string | null;
-  scheduled_at: string;
-  status: string;
-}
-
 export interface DashboardResponse {
   profile: ApiProfileResponse;
   listings: ApiDashboardListing[];
@@ -290,114 +269,6 @@ export interface DashboardResponse {
   analytics: ApiAnalyticsStat[];
   liked_properties: LikedPropertyBrief[];
   liked_count: number;
-  upcoming_viewings: ApiViewingBrief[];
-  pending_applications: number;
-}
-
-// â”€â”€ Applications â”€â”€
-
-export interface ApplicationBrief {
-  id: string;
-  listing_id: string;
-  listing_title: string;
-  listing_image: string | null;
-  applicant_id: string;
-  applicant_name: string | null;
-  applicant_avatar: string | null;
-  status: "pending" | "approved" | "rejected";
-  message: string;
-  lifestyle_data: ListingLifestylePreferences | null;
-  compatibility_score: number | null;
-  created_at: string;
-}
-
-export interface MyApplicationBrief {
-  id: string;
-  listing_id: string;
-  listing_title: string | null;
-  listing_image: string | null;
-  listing_location: string;
-  status: "pending" | "approved" | "rejected";
-  compatibility_score: number | null;
-  created_at: string;
-}
-
-// â”€â”€ Bookings â”€â”€
-
-export interface BookingDisbursement {
-  id: string;
-  booking_id: string;
-  month_number: number;
-  amount: number;
-  scheduled_date: string;
-  status: "scheduled" | "released";
-  owner_requested_at: string | null;
-  released_at: string | null;
-  created_at: string;
-}
-
-export interface BookingBrief {
-  id: string;
-  listing_id: string;
-  listing_title: string | null;
-  listing_image: string | null;
-  listing_location: string | null;
-  renter_id: string;
-  owner_id: string;
-  booking_type: "rent" | "sale";
-  listing_category?: "for_rent" | "for_sale" | "shared_housing" | null;
-  start_date: string | null;
-  end_date: string | null;
-  duration_months: number | null;
-  monthly_price: number | null;
-  total_price: number;
-  platform_cut_pct: number;
-  platform_cut_amount: number;
-  owner_amount: number;
-  stripe_payment_intent_id?: string | null;
-  stripe_transfer_id?: string | null;
-  status:
-    | "pending_confirmation"
-    | "active"
-    | "completed"
-    | "cancelled";
-  renter_confirmed_at: string | null;
-  tenant_vacated_at: string | null;
-  vacated_by: string | null;
-  disbursements: BookingDisbursement[];
-  renter_name?: string | null;
-  renter_avatar?: string | null;
-  created_at: string;
-}
-
-export interface CreateBookingResponse {
-  booking_id: string;
-  total_price: number;
-  platform_cut_amount: number;
-  owner_amount: number;
-  booking_type: "rent" | "sale";
-}
-
-export interface BookingPaymentPreview {
-  listing_id: string;
-  booking_type: "rent" | "sale";
-  start_date: string | null;
-  duration_months: number | null;
-  monthly_price: number | null;
-  /** The platform fee charged now (reservation fee or booking deposit). */
-  total_price: number;
-  fee_kind: "reservation" | "booking_deposit";
-}
-
-export interface CreatePaymentIntentResponse {
-  client_secret: string;
-  payment_intent_id: string;
-  booking_preview: BookingPaymentPreview;
-}
-
-export interface BookingFees {
-  rent_booking_fee: number;
-  currency: string;
 }
 
 // ── Shared Housing (legacy — remove when Task 14 redirect is in place) ──
@@ -424,7 +295,6 @@ export interface ApiSharedHousingDetail {
   description: string | null;
   verified: boolean;
   owner_id: string;
-  housemates: HousemateResponse[];
 }
 
 // ── Universities ──
@@ -473,17 +343,3 @@ export interface SubscriptionStatus {
   trial_ends_at: string | null;
   current_period_end: string | null;
 }
-
-// ── Notifications ──
-
-export interface ApiNotification {
-  id: string;
-  user_id: string;
-  type: string;
-  title: string;
-  body: string | null;
-  metadata: Record<string, unknown> | null;
-  is_read: boolean;
-  created_at: string;
-}
-

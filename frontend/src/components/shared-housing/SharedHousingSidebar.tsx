@@ -5,14 +5,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
 import type { SharedHousingDetail } from "@/types";
-import type { ListingDetailWithSimilar } from "@/types/api";
-import CompatibilityScore from "@/components/shared-housing/CompatibilityScore";
 import WhatsAppCTA from "@/components/property/WhatsAppCTA";
 import { formatEGP } from "@/lib/utils";
 
 interface SharedHousingSidebarProps {
   housing: SharedHousingDetail;
-  listing: ListingDetailWithSimilar;
   contactPhone?: string | null;
   contactName?: string | null;
 }
@@ -60,7 +57,6 @@ export default function SharedHousingSidebar({
             listingId={housing.id}
             contactPhone={contactPhone}
             contactName={contactName}
-            showSchedule={false}
           />
         </div>
 
@@ -69,12 +65,6 @@ export default function SharedHousingSidebar({
           <span>Secure verification via Axiom Shield</span>
         </div>
       </div>
-
-      {/* Compatibility score */}
-      <CompatibilityScore
-        housingId={housing.id}
-        tenantTagsList={housing.housemates.map((h) => h.tags)}
-      />
 
       {/* Similar rooms */}
       {housing.similarRooms.length > 0 && (
@@ -102,7 +92,6 @@ export default function SharedHousingSidebar({
                   <h4 className="text-white text-sm font-semibold truncate group-hover:text-primary transition-colors">
                     {room.title}
                   </h4>
-                  <p className="text-gray-400 text-xs">{room.housemates}</p>
                   <p className="text-white text-sm font-bold mt-1">
                     {formatEGP(room.price)}/month
                   </p>

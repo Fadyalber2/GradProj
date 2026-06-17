@@ -26,7 +26,6 @@ def _normalize_phone(phone: str) -> str:
 
 _TEMPLATES = {
     "whatsapp_click": "Hi, I'm {name}, I'm interested in your listing: {title} ({price} EGP).",
-    "schedule_viewing": "Hi, I'm {name}, I'd like to schedule a viewing for: {title} ({price} EGP).",
 }
 
 
@@ -36,7 +35,7 @@ async def create_lead(
     current_user: dict = Depends(get_current_user),
 ):
     if body.source not in _TEMPLATES:
-        raise HTTPException(status_code=422, detail="Invalid source. Must be 'whatsapp_click' or 'schedule_viewing'.")
+        raise HTTPException(status_code=422, detail="Invalid source. Must be 'whatsapp_click'.")
 
     # Phone number doubles as the WhatsApp number; fall back accordingly.
     user_phone: str | None = current_user.get("phone") or current_user.get("whatsapp_number")

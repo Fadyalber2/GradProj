@@ -765,10 +765,10 @@ async def test_fraud_llm_no_market_context_fallback(mock_supabase):
     assert 0.0 <= score <= 1.0
 
 
-# ─── Compatibility housemates + profile tests (REQ-RAG-12) ───────────────────
+# ─── Compatibility profile tests (REQ-RAG-12) ────────────────────────────────
 
-def test_compatibility_with_housemates(client, mock_supabase, auth_header):
-    """compute_compatibility returns housemate_notes field from LLM response."""
+def test_compatibility_with_listing_preferences(client, mock_supabase, auth_header):
+    """compute_compatibility returns a score from listing/user lifestyle data."""
     _, mock_admin = mock_supabase
     import app.ai.router as ai_router
     from unittest.mock import AsyncMock, MagicMock
@@ -801,14 +801,9 @@ def test_compatibility_with_housemates(client, mock_supabase, auth_header):
         _r(user_profile_data),
     ]
 
-    # Housemates query uses .limit() not .single() — set its own chain
-    mock_admin.table().select().eq().limit().execute.return_value.data = [
-        {"name": "Ahmed", "age": 25, "occupation": "Engineer", "tags": ["quiet"], "user_id": None}
-    ]
-
     ai_router.ollama.health = AsyncMock(return_value=True)
     ai_router.ollama.generate = AsyncMock(
-        return_value='{"score": 82, "reasons": ["Non-smoker match"], "housemate_notes": ["Ahmed seems compatible — both quiet professionals"]}'
+        return_value='{"score": 82, "reasons": ["Non-smoker match"]}'
     )
 
     resp = client.post(
@@ -820,9 +815,7 @@ def test_compatibility_with_housemates(client, mock_supabase, auth_header):
     assert resp.status_code == 200
     data = resp.json()
     assert data["compatibility_score"] == 82
-    assert isinstance(data["housemate_notes"], list)
-    assert len(data["housemate_notes"]) == 1
-    assert "Ahmed" in data["housemate_notes"][0]
+    assert data["reasons"] == ["Non-smoker match"]
 
 
 def test_compatibility_user_profile_merges_with_body(client, mock_supabase, auth_header):
@@ -855,14 +848,11 @@ def test_compatibility_user_profile_merges_with_body(client, mock_supabase, auth
         _r(user_profile_data),
     ]
 
-    # No housemates
-    mock_admin.table().select().eq().limit().execute.return_value.data = []
-
     captured_prompt = {}
 
     async def fake_generate(prompt, system=""):
         captured_prompt["value"] = prompt
-        return '{"score": 70, "reasons": ["Reasonable match"], "housemate_notes": []}'
+        return '{"score": 70, "reasons": ["Reasonable match"]}'
 
     ai_router.ollama.health = AsyncMock(return_value=True)
     ai_router.ollama.generate = fake_generate
@@ -878,8 +868,7 @@ def test_compatibility_user_profile_merges_with_body(client, mock_supabase, auth
     # The merged prompt should contain pets_allowed: true (body overrode stored false)
     prompt_text = captured_prompt.get("value", "")
     assert "pets_allowed" in prompt_text
-    # housemate_notes returned as empty list when LLM returns []
-    assert resp.json()["housemate_notes"] == []
+    assert resp.json()["reasons"] == ["Reasonable match"]
 
 
 # ─── _detect_property_search unit tests ──────────────────────────────────────

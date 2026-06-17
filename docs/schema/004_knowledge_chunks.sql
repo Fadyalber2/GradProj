@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS knowledge_chunks (
 
 -- 2. Indexes
 
--- Source lookup (for re-chunking / invalidation by source)
-CREATE INDEX IF NOT EXISTS idx_chunks_source
+-- Source lookup and upsert target (for re-chunking / invalidation by source)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_chunks_source
   ON knowledge_chunks (source_type, source_id);
 
 -- Full-text search GIN index (English)

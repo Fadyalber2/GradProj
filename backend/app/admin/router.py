@@ -191,9 +191,7 @@ async def admin_stats(_admin: str = Depends(get_admin)):
     total_blog_posts = _count("blog_posts")
 
     # Transactions (stub — no payments table yet)
-    total_bookings = _count("bookings")
     total_leads = _count("leads")
-    total_notifications = _count("notifications")
 
     # Verified sellers
     try:
@@ -209,9 +207,7 @@ async def admin_stats(_admin: str = Depends(get_admin)):
         "total_projects": total_projects,
         "total_shared_housing": total_shared_housing,
         "total_blog_posts": total_blog_posts,
-        "total_bookings": total_bookings,
         "total_leads": total_leads,
-        "total_notifications": total_notifications,
         "flagged_listings": flagged_listings,
         "pending_listings": pending_listings,
         "active_listings": active_listings,
@@ -262,7 +258,6 @@ async def admin_create_listing(
     _admin: str = Depends(get_admin),
 ):
     """Admin-create a listing (bypasses normal flow)."""
-    housemates = body.pop("housemates", []) or []
     body.pop("id", None)
     body.pop("neighborhoods", None)
     body.pop("profiles", None)
@@ -278,27 +273,6 @@ async def admin_create_listing(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create listing")
     listing = result.data[0]
-
-    if listing.get("category") == "shared_housing" and isinstance(housemates, list):
-        rows = []
-        for mate in housemates:
-            if not isinstance(mate, dict) or not mate.get("name"):
-                continue
-            rows.append({
-                "listing_id": listing["id"],
-                "user_id": mate.get("user_id"),
-                "name": mate["name"],
-                "age": mate.get("age"),
-                "occupation": mate.get("occupation"),
-                "avatar_url": mate.get("avatar_url"),
-                "tags": mate.get("tags") or [],
-                "lifestyle_preferences": mate.get("lifestyle_preferences") or {},
-            })
-        if rows:
-            try:
-                supabase_admin.table("housemates").insert(rows).execute()
-            except Exception:
-                pass
 
     return listing
 
@@ -385,40 +359,14 @@ async def admin_delete_listing(
     listing_id: str,
     _admin: str = Depends(get_admin),
 ):
-    """Soft-delete a listing and notify the owner."""
+    """Soft-delete a listing."""
     from datetime import datetime, timezone
-    # Fetch owner info before deleting so we can notify them
-    try:
-        listing_result = (
-            supabase_admin.table("listings")
-            .select("id, owner_id, title")
-            .eq("id", listing_id)
-            .single()
-            .execute()
-        )
-    except Exception:
-        listing_result = None
-
     try:
         supabase_admin.table("listings").update(
             {"deleted_at": datetime.now(timezone.utc).isoformat()}
         ).eq("id", listing_id).execute()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete listing")
-
-    # Notify owner
-    if listing_result and listing_result.data:
-        listing = listing_result.data
-        try:
-            supabase_admin.table("notifications").insert({
-                "user_id": listing["owner_id"],
-                "type": "listing_removed",
-                "title": "Listing Removed",
-                "body": f"Your listing \"{listing['title']}\" has been removed by an administrator.",
-                "metadata": {"listing_id": listing_id},
-            }).execute()
-        except Exception:
-            pass
 
     return {"message": "Listing deleted"}
 
@@ -458,17 +406,6 @@ async def admin_approve_listing(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to approve listing")
 
-    try:
-        supabase_admin.table("notifications").insert({
-            "user_id": listing["owner_id"],
-            "type": "listing_approved",
-            "title": "Listing Approved",
-            "body": f"Your listing '{listing['title']}' has been approved and is now live!",
-            "metadata": {"listing_id": listing_id},
-        }).execute()
-    except Exception:
-        pass
-
     return {"message": "Listing approved", "listing": result.data[0] if result.data else {}}
 
 
@@ -504,17 +441,6 @@ async def admin_reject_listing(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to reject listing")
-
-    try:
-        supabase_admin.table("notifications").insert({
-            "user_id": listing["owner_id"],
-            "type": "listing_rejected",
-            "title": "Listing Rejected",
-            "body": f"Your listing '{listing['title']}' was not approved. Reason: {body.reason}",
-            "metadata": {"listing_id": listing_id, "reason": body.reason},
-        }).execute()
-    except Exception:
-        pass
 
     return {"message": "Listing rejected", "reason": body.reason, "listing": result.data[0] if result.data else {}}
 
@@ -1045,96 +971,7 @@ async def admin_review_fraud(
     return {"message": f"Listing {action}d", "listing": result.data[0]}
 
 
-# ─── Notifications (read-only admin view) ────────────────────────────────────
-
-@router.get("/notifications")
-async def admin_list_notifications(
-    search: str | None = Query(None),
-    page: int = Query(1, ge=1),
-    per_page: int = Query(20, ge=1, le=100),
-    _admin: str = Depends(get_admin),
-):
-    """List all notifications (admin, read-only)."""
-    offset = (page - 1) * per_page
-    query = supabase_admin.table("notifications").select("*", count="exact")
-    if search:
-        query = query.ilike("title", f"%{search}%")
-
-    try:
-        result = query.order("created_at", desc=True).range(offset, offset + per_page - 1).execute()
-    except Exception as e:
-        logger.error("admin DB error: %s", e)
-        raise HTTPException(status_code=500, detail="Internal server error")
-
-    return _paged(result.data or [], result.count or 0, page, per_page)
-
-
 # ─── Transactions (stub — no payments table yet) ─────────────────────────────
-
-@router.get("/bookings")
-async def admin_list_bookings(
-    search: str | None = Query(None),
-    status: str | None = Query(None),
-    booking_type: str | None = Query(None),
-    page: int = Query(1, ge=1),
-    per_page: int = Query(20, ge=1, le=100),
-    _admin: str = Depends(get_admin),
-):
-    """List live booking activity for the admin business view."""
-    offset = (page - 1) * per_page
-    query = supabase_admin.table("bookings").select(
-        "id, booking_type, status, total_price, platform_cut_amount, owner_amount, "
-        "start_date, end_date, created_at, stripe_payment_intent_id, stripe_transfer_id, "
-        "listings(title), renter:profiles!bookings_renter_id_fkey(full_name, email), "
-        "owner:profiles!bookings_owner_id_fkey(full_name, email)",
-        count="exact",
-    )
-    if status:
-        query = query.eq("status", status)
-    if booking_type:
-        query = query.eq("booking_type", booking_type)
-    if search:
-        query = query.ilike("listings.title", f"%{search}%")
-
-    try:
-        result = query.order("created_at", desc=True).range(offset, offset + per_page - 1).execute()
-    except Exception as e:
-        logger.error("admin DB error: %s", e)
-        raise HTTPException(status_code=500, detail="Internal server error")
-
-    rows = []
-    for row in result.data or []:
-        listing = row.get("listings") or {}
-        renter = row.get("renter") or {}
-        owner = row.get("owner") or {}
-        rows.append({
-            "id": row.get("id"),
-            "listing_title": listing.get("title"),
-            "renter_name": renter.get("full_name") or renter.get("email"),
-            "owner_name": owner.get("full_name") or owner.get("email"),
-            "booking_type": row.get("booking_type"),
-            "status": row.get("status"),
-            "total_price": row.get("total_price"),
-            "platform_cut_amount": row.get("platform_cut_amount"),
-            "owner_amount": row.get("owner_amount"),
-            "stripe_payment_intent_id": row.get("stripe_payment_intent_id"),
-            "stripe_transfer_id": row.get("stripe_transfer_id"),
-            "payment_state": (
-                "payout sent"
-                if row.get("stripe_transfer_id")
-                else "confirmed, payout pending"
-                if row.get("stripe_payment_intent_id") and row.get("status") == "active"
-                else "paid, waiting confirmation"
-                if row.get("stripe_payment_intent_id")
-                else "legacy/manual"
-            ),
-            "start_date": row.get("start_date"),
-            "end_date": row.get("end_date"),
-            "created_at": row.get("created_at"),
-        })
-
-    return _paged(rows, result.count or 0, page, per_page)
-
 
 @router.get("/transactions")
 async def admin_list_transactions(

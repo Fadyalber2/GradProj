@@ -26,7 +26,6 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
     - analytics (views, active/pending listings, favorites count)
     - user's own listings
     - favorited properties
-    - upcoming viewings
     """
     user_id = current_user["id"]
 
@@ -71,21 +70,6 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
     total_views = sum(l.get("views_count", 0) for l in user_listings)
     active_count = sum(1 for l in user_listings if l.get("status") == "active")
     pending_count = sum(1 for l in user_listings if l.get("status") == "pending")
-
-    listing_ids = [l["id"] for l in user_listings]
-    try:
-        pending_apps_result = (
-            supabase_admin.table("listing_applications")
-            .select("id", count="exact")
-            .in_("listing_id", listing_ids)
-            .eq("status", "pending")
-            .execute()
-            if listing_ids
-            else None
-        )
-        pending_applications = pending_apps_result.count if pending_apps_result else 0
-    except Exception:
-        pending_applications = 0
 
     # Favorites count
     try:
@@ -173,33 +157,6 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
     except Exception:
         pass
 
-    # ── Upcoming Viewings ─────────────────────────────────────────────────────
-    upcoming_viewings = []
-    try:
-        now_iso = __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat()
-        viewings_result = (
-            supabase_admin.table("viewings")
-            .select("id, scheduled_at, status, listings(title, images)")
-            .or_(f"requester_id.eq.{user_id},owner_id.eq.{user_id}")
-            .in_("status", ["pending", "confirmed"])
-            .gte("scheduled_at", now_iso)
-            .order("scheduled_at", desc=False)
-            .limit(10)
-            .execute()
-        )
-        for v in viewings_result.data or []:
-            listing_data = v.get("listings") or {}
-            images = listing_data.get("images") or []
-            upcoming_viewings.append({
-                "id": v["id"],
-                "listing_title": listing_data.get("title", ""),
-                "listing_image": images[0] if images else None,
-                "scheduled_at": v["scheduled_at"],
-                "status": v["status"],
-            })
-    except Exception:
-        pass
-
     return {
         "profile": profile,
         "analytics": analytics,
@@ -209,6 +166,4 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
         "pending_count": pending_count,
         "liked_properties": liked_properties,
         "liked_count": favorites_count,
-        "upcoming_viewings": upcoming_viewings,
-        "pending_applications": pending_applications,
     }

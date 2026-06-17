@@ -4,12 +4,9 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends, Query
 from app.listings.schemas import (
     CreateListingRequest,
     UpdateListingRequest,
-    ApplyRequest,
     ListingBriefResponse,
     ListingDetailResponse,
     ListingsPageResponse,
-    ApplicationDetailResponse,
-    HousemateResponse,
 )
 from app.database import supabase_admin
 from app.dependencies import get_current_user, get_optional_user
@@ -269,20 +266,6 @@ async def get_listing(
     except Exception:
         pass
 
-    # Fetch housemates for shared housing
-    housemates: list[dict] = []
-    if listing.get("category") == "shared_housing":
-        try:
-            hm_result = (
-                supabase_admin.table("housemates")
-                .select("*")
-                .eq("listing_id", listing_id)
-                .execute()
-            )
-            housemates = hm_result.data or []
-        except Exception:
-            pass
-
     # ── Resolve WhatsApp contact info ─────────────────────────────────────────
     contact_phone: str | None = None
     contact_name: str | None = None
@@ -390,20 +373,6 @@ async def get_listing(
         "bathroom_type": listing.get("bathroom_type"),
         "private_amenities": listing.get("private_amenities") or [],
         "shared_amenities": listing.get("shared_amenities") or [],
-        "housemates": [
-            {
-                "id": h["id"],
-                "listing_id": h.get("listing_id"),
-                "user_id": h.get("user_id"),
-                "name": h["name"],
-                "age": h.get("age"),
-                "occupation": h.get("occupation"),
-                "avatar_url": h.get("avatar_url"),
-                "tags": h.get("tags") or [],
-                "lifestyle_preferences": h.get("lifestyle_preferences") or {},
-            }
-            for h in housemates
-        ],
         "created_at": listing.get("created_at", ""),
         "contact_phone": contact_phone,
         "contact_name": contact_name,
@@ -432,7 +401,6 @@ async def create_listing(
     active_count = service.count_active_listings(current_user["id"])
     _enforce_listing_quota(active_count, sub)
     listing_data = body.model_dump(exclude_none=True)
-    housemates = listing_data.pop("housemates", [])
     listing_data["owner_id"] = current_user["id"]
     listing_data["status"] = "pending"
     listing_data["is_new"] = True
@@ -451,23 +419,6 @@ async def create_listing(
 
     listing_id = result.data[0]["id"]
 
-    if listing_data.get("category") == "shared_housing" and housemates:
-        rows = [
-            {
-                **housemate,
-                "listing_id": listing_id,
-                "tags": housemate.get("tags") or [],
-                "lifestyle_preferences": housemate.get("lifestyle_preferences") or {},
-            }
-            for housemate in housemates
-            if housemate.get("name")
-        ]
-        if rows:
-            try:
-                supabase_admin.table("housemates").insert(rows).execute()
-            except Exception:
-                pass
-
     # Run fraud scoring + embedding generation in the background
     background_tasks.add_task(_score_and_approve, listing_id, listing_data)
     background_tasks.add_task(embed_listing, listing_id)
@@ -484,17 +435,6 @@ async def _score_and_approve(listing_id: str, listing_data: dict):
             supabase_admin.table("listings").update(
                 {"status": "active", "fraud_score": fraud_score}
             ).eq("id", listing_id).execute()
-
-            # Notify the owner
-            owner_id = listing_data.get("owner_id")
-            if owner_id:
-                supabase_admin.table("notifications").insert({
-                    "user_id": owner_id,
-                    "type": "listing_approved",
-                    "title": "Listing Approved",
-                    "body": f"Your listing \"{listing_data.get('title', '')}\" has been auto-approved.",
-                    "metadata": {"listing_id": listing_id},
-                }).execute()
         else:
             # Store the score but keep pending for manual review
             supabase_admin.table("listings").update(
@@ -610,190 +550,3 @@ async def toggle_favorite(
         raise HTTPException(status_code=500, detail="Failed to toggle favorite")
 
     return {"favorited": favorited, "listing_id": listing_id}
-
-
-# ─── POST /api/listings/{id}/apply ───────────────────────────────────────────
-
-@router.post("/{listing_id}/apply")
-async def apply_to_listing(
-    listing_id: str,
-    body: ApplyRequest,
-    current_user: dict = Depends(get_current_user),
-):
-    """Apply to a shared housing listing."""
-    user_id = current_user["id"]
-
-    # Verify listing exists, is shared_housing and active
-    try:
-        listing_check = (
-            supabase_admin.table("listings")
-            .select("id, category, status, owner_id")
-            .eq("id", listing_id)
-            .is_("deleted_at", "null")
-            .single()
-            .execute()
-        )
-    except Exception:
-        raise HTTPException(status_code=404, detail="Listing not found")
-
-    if not listing_check.data:
-        raise HTTPException(status_code=404, detail="Listing not found")
-
-    listing = listing_check.data
-    if listing.get("category") != "shared_housing":
-        raise HTTPException(status_code=400, detail="This listing is not shared housing")
-    if listing.get("status") != "active":
-        raise HTTPException(status_code=400, detail="Listing is not active")
-    if listing.get("owner_id") == user_id:
-        raise HTTPException(status_code=400, detail="Cannot apply to your own listing")
-
-    # Check for duplicate application
-    try:
-        existing = (
-            supabase_admin.table("listing_applications")
-            .select("id, status")
-            .eq("listing_id", listing_id)
-            .eq("applicant_id", user_id)
-            .execute()
-        )
-        if existing.data:
-            raise HTTPException(status_code=409, detail="Already applied to this listing")
-    except HTTPException:
-        raise
-    except Exception:
-        pass
-
-    # Calculate a basic compatibility score (0-100)
-    # Full AI scoring can be done in the ai/compatibility endpoint
-    compatibility_score = None
-
-    application_data = {
-        "listing_id": listing_id,
-        "applicant_id": user_id,
-        "status": "pending",
-    }
-    if body.message:
-        application_data["message"] = body.message
-    if body.lifestyle_data:
-        application_data["lifestyle_data"] = body.lifestyle_data
-    if compatibility_score is not None:
-        application_data["compatibility_score"] = compatibility_score
-
-    try:
-        result = (
-            supabase_admin.table("listing_applications")
-            .insert(application_data)
-            .select("id, status, compatibility_score")
-            .single()
-            .execute()
-        )
-    except Exception as e:
-        logger.error("submit_application failed: %s", e)
-        raise HTTPException(status_code=500, detail="Failed to submit application")
-
-    # Notify the listing owner
-    try:
-        supabase_admin.table("notifications").insert({
-            "user_id": listing["owner_id"],
-            "type": "application_received",
-            "title": "New Application",
-            "body": f"{current_user.get('full_name', 'Someone')} applied to your listing",
-            "metadata": {"listing_id": listing_id, "application_id": result.data["id"]},
-        }).execute()
-    except Exception:
-        pass
-
-    return {
-        "id": result.data["id"],
-        "compatibility_score": result.data.get("compatibility_score"),
-        "status": result.data["status"],
-    }
-
-
-# ─── GET /api/listings/{id}/applications ─────────────────────────────────────
-
-@router.get("/{listing_id}/applications", response_model=list[ApplicationDetailResponse])
-async def get_applications(
-    listing_id: str,
-    current_user: dict = Depends(get_current_user),
-):
-    """Get all applications for a listing. Owner only."""
-    # Verify ownership
-    try:
-        check = (
-            supabase_admin.table("listings")
-            .select("owner_id")
-            .eq("id", listing_id)
-            .is_("deleted_at", "null")
-            .single()
-            .execute()
-        )
-    except Exception:
-        raise HTTPException(status_code=404, detail="Listing not found")
-
-    if not check.data:
-        raise HTTPException(status_code=404, detail="Listing not found")
-    if check.data["owner_id"] != current_user["id"]:
-        raise HTTPException(status_code=403, detail="Not the listing owner")
-
-    try:
-        result = (
-            supabase_admin.table("listing_applications")
-            .select("*")
-            .eq("listing_id", listing_id)
-            .order("created_at", desc=True)
-            .execute()
-        )
-    except Exception as e:
-        logger.error("listings DB error: %s", e)
-        raise HTTPException(status_code=500, detail="Internal server error")
-
-    listing_title = None
-    listing_image = None
-    try:
-        listing_info = (
-            supabase_admin.table("listings")
-            .select("title, images")
-            .eq("id", listing_id)
-            .single()
-            .execute()
-        ).data or {}
-        listing_title = listing_info.get("title")
-        listing_images = listing_info.get("images") or []
-        listing_image = listing_images[0] if listing_images else None
-    except Exception:
-        pass
-
-    applications = []
-    for row in result.data or []:
-        profile = {}
-        try:
-            profile = (
-                supabase_admin.table("profiles")
-                .select("full_name, avatar_url")
-                .eq("id", row["applicant_id"])
-                .single()
-                .execute()
-            ).data or {}
-        except Exception:
-            pass
-        applications.append({
-            "id": row["id"],
-            "listing_id": row["listing_id"],
-            "listing_title": listing_title,
-            "listing_image": listing_image,
-            "applicant_id": row["applicant_id"],
-            "applicant_name": profile.get("full_name"),
-            "applicant_avatar": profile.get("avatar_url"),
-            "compatibility_score": row.get("compatibility_score"),
-            "status": row["status"],
-            "message": row.get("message"),
-            "lifestyle_data": row.get("lifestyle_data"),
-            "created_at": row.get("created_at", ""),
-        })
-
-    return applications
-
-
-# Note: PUT /api/applications/{id} is handled by app/applications/router.py
-# registered in main.py as /api/applications — not nested here under /api/listings.

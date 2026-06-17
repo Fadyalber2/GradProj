@@ -40,11 +40,6 @@ def test_dashboard_returns_structure(client, mock_supabase, auth_header):
     fav_count_result.count = 3
     mock_admin.table.return_value.select.return_value.eq.return_value.execute.return_value = fav_count_result
 
-    # RPC: get_user_conversations → empty list is fine
-    rpc_result = MagicMock()
-    rpc_result.data = []
-    mock_admin.rpc.return_value.execute.return_value = rpc_result
-
     # Liked properties (favorites join)
     fav_join_result = MagicMock()
     fav_join_result.data = [
@@ -66,11 +61,6 @@ def test_dashboard_returns_structure(client, mock_supabase, auth_header):
     ]
     mock_admin.table.return_value.select.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value = fav_join_result
 
-    # Viewings → empty
-    viewings_result = MagicMock()
-    viewings_result.data = []
-    mock_admin.table.return_value.select.return_value.or_.return_value.in_.return_value.gte.return_value.order.return_value.limit.return_value.execute.return_value = viewings_result
-
     resp = client.get("/api/dashboard/me", headers=auth_header)
     assert resp.status_code == 200
     data = resp.json()
@@ -80,10 +70,8 @@ def test_dashboard_returns_structure(client, mock_supabase, auth_header):
     assert "analytics" in data
     assert "listings" in data
     assert "liked_properties" in data
-    assert "upcoming_viewings" in data
     assert "listings_count" in data
     assert "liked_count" in data
-    assert "pending_applications" in data
     assert data["liked_properties"][0]["category"] == "shared_housing"
     assert data["liked_properties"][0]["price_period"] == "monthly"
 

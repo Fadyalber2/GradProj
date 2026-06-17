@@ -29,16 +29,6 @@ type DescLang = "english" | "arabic" | "both";
 type ListingCategory = "for_rent" | "for_sale" | "shared_housing";
 type ListingStep = 0 | 1 | 2;
 
-interface HousemateDraft {
-  name: string;
-  age: string;
-  occupation: string;
-  tags: string;
-  cleanliness: string;
-  sleep_schedule: string;
-  noise_level: string;
-}
-
 interface FormState {
   title: string;
   category: ListingCategory;
@@ -59,6 +49,7 @@ interface FormState {
   payment_plan: string;
   room_type: string;
   total_spots: string;
+  filled_spots: string;
   bathroom_type: string;
   utilities_included: boolean;
   gender_preference: string;
@@ -69,7 +60,6 @@ interface FormState {
   amenities: string[];
   private_amenities: string[];
   shared_amenities: string[];
-  housemates: HousemateDraft[];
   description: string;
   descLang: DescLang;
 }
@@ -85,6 +75,7 @@ interface FormErrors {
   title_deed_status?: string;
   room_type?: string;
   total_spots?: string;
+  filled_spots?: string;
   bathroom_type?: string;
 }
 
@@ -108,6 +99,7 @@ const INITIAL_FORM: FormState = {
   payment_plan: "cash",
   room_type: "private",
   total_spots: "1",
+  filled_spots: "0",
   bathroom_type: "shared",
   utilities_included: true,
   gender_preference: "female",
@@ -118,7 +110,6 @@ const INITIAL_FORM: FormState = {
   amenities: ["Parking"],
   private_amenities: ["Private Room"],
   shared_amenities: ["Central AC", "Elevator"],
-  housemates: [],
   description: "",
   descLang: "english",
 };
@@ -133,7 +124,7 @@ const CATEGORY_COPY: Record<
     priceLabel: "Monthly Rent",
     priceHint: "Rental listings need lease terms, move-in timing, furnishing, and core room details.",
     detailTitle: "Rental Details",
-    detailHint: "Set the monthly rent and rental conditions tenants need before booking.",
+    detailHint: "Set the monthly rent and rental conditions tenants need before contacting you.",
   },
   for_sale: {
     priceLabel: "Sale Price",
@@ -249,44 +240,6 @@ export default function AddListingModal({
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  function addHousemate() {
-    setForm((prev) => ({
-      ...prev,
-      housemates: [
-        ...prev.housemates,
-        {
-          name: "",
-          age: "",
-          occupation: "",
-          tags: "",
-          cleanliness: "average",
-          sleep_schedule: "flexible",
-          noise_level: "moderate",
-        },
-      ],
-    }));
-  }
-
-  function updateHousemate<K extends keyof HousemateDraft>(
-    index: number,
-    key: K,
-    value: HousemateDraft[K]
-  ) {
-    setForm((prev) => ({
-      ...prev,
-      housemates: prev.housemates.map((mate, mateIndex) =>
-        mateIndex === index ? { ...mate, [key]: value } : mate
-      ),
-    }));
-  }
-
-  function removeHousemate(index: number) {
-    setForm((prev) => ({
-      ...prev,
-      housemates: prev.housemates.filter((_, mateIndex) => mateIndex !== index),
-    }));
-  }
-
   function handleCategoryChange(category: ListingCategory) {
     setForm((prev) => ({
       ...prev,
@@ -307,6 +260,7 @@ export default function AddListingModal({
           : "",
       room_type: category === "shared_housing" ? prev.room_type || "private" : "",
       total_spots: category === "shared_housing" ? prev.total_spots || "1" : "",
+      filled_spots: category === "shared_housing" ? prev.filled_spots || "0" : "",
       bathroom_type:
         category === "shared_housing" ? prev.bathroom_type || "shared" : "",
       availability:
@@ -502,8 +456,12 @@ export default function AddListingModal({
 
       if (form.category === "shared_housing") {
         if (!form.room_type) newErrors.room_type = "Choose room type";
-        if (!form.total_spots || Number(form.total_spots) <= 0)
+        const totalSpots = Number(form.total_spots);
+        const filledSpots = Number(form.filled_spots || 0);
+        if (!form.total_spots || totalSpots <= 0)
           newErrors.total_spots = "Enter available spots";
+        if (filledSpots < 0 || filledSpots > totalSpots)
+          newErrors.filled_spots = "Occupied spots must be between 0 and total spots";
         if (!form.bathroom_type) newErrors.bathroom_type = "Choose bathroom type";
         if (!form.available_date)
           newErrors.available_date = "Choose an available date";
@@ -583,6 +541,10 @@ export default function AddListingModal({
           form.category === "shared_housing"
             ? Number(form.total_spots || 1)
             : null,
+        filled_spots:
+          form.category === "shared_housing"
+            ? Number(form.filled_spots || 0)
+            : null,
         availability:
           form.category === "shared_housing" ? form.availability || null : null,
         utilities_included:
@@ -602,25 +564,6 @@ export default function AddListingModal({
           form.category === "shared_housing" ? form.private_amenities : [],
         shared_amenities:
           form.category === "shared_housing" ? form.shared_amenities : [],
-        housemates:
-          form.category === "shared_housing"
-            ? form.housemates
-                .filter((mate) => mate.name.trim())
-                .map((mate) => ({
-                  name: mate.name.trim(),
-                  age: mate.age ? Number(mate.age) : null,
-                  occupation: mate.occupation.trim() || null,
-                  tags: mate.tags
-                    .split(",")
-                    .map((tag) => tag.trim())
-                    .filter(Boolean),
-                  lifestyle_preferences: {
-                    cleanliness: mate.cleanliness,
-                    sleep_schedule: mate.sleep_schedule,
-                    noise_level: mate.noise_level,
-                  },
-                }))
-            : [],
         description: form.description,
         amenities:
           form.category === "shared_housing"
@@ -1209,14 +1152,15 @@ export default function AddListingModal({
                     </div>
                     <div className="space-y-1.5">
                       <label className="block text-sm font-medium text-gray-300">
-                        Open Spots <span className="text-red-400">*</span>
+                        Total Spots <span className="text-red-400">*</span>
                       </label>
                       <input
                         type="number"
+                        min="1"
                         value={form.total_spots}
                         onChange={(e) => {
                           setField("total_spots", e.target.value);
-                          setErrors((p) => ({ ...p, total_spots: undefined }));
+                          setErrors((p) => ({ ...p, total_spots: undefined, filled_spots: undefined }));
                         }}
                         className={`w-full bg-input-dark border rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm ${
                           errors.total_spots ? "border-red-500" : "border-white/10"
@@ -1225,6 +1169,29 @@ export default function AddListingModal({
                       {errors.total_spots && (
                         <p className="text-red-400 text-xs flex items-center gap-1">
                           <AlertCircle className="h-3 w-3" /> {errors.total_spots}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-gray-300">
+                        Occupied Spots
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max={form.total_spots || undefined}
+                        value={form.filled_spots}
+                        onChange={(e) => {
+                          setField("filled_spots", e.target.value);
+                          setErrors((p) => ({ ...p, filled_spots: undefined }));
+                        }}
+                        className={`w-full bg-input-dark border rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm ${
+                          errors.filled_spots ? "border-red-500" : "border-white/10"
+                        }`}
+                      />
+                      {errors.filled_spots && (
+                        <p className="text-red-400 text-xs flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {errors.filled_spots}
                         </p>
                       )}
                     </div>
@@ -1435,7 +1402,7 @@ export default function AddListingModal({
                     <div className="mb-4">
                       <h3 className="text-sm font-bold text-white">Shared Features</h3>
                       <p className="mt-1 text-xs text-gray-500">
-                        Home and building features shared with housemates.
+                        Home and building features included with the shared space.
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -1509,109 +1476,6 @@ export default function AddListingModal({
                         className="flex-1 bg-input-dark border border-dashed border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm"
                       />
                     </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 md:col-span-2">
-                    <div className="mb-4 flex items-start justify-between gap-4">
-                      <div>
-                        <h3 className="text-sm font-bold text-white">Current Housemates</h3>
-                        <p className="mt-1 text-xs text-gray-500">
-                          Listing-specific profiles shown on the page and used as roommate context.
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={addHousemate}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-2 text-xs font-bold text-gray-200 transition hover:border-primary/50 hover:text-white"
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                        Add
-                      </button>
-                    </div>
-
-                    {form.housemates.length === 0 ? (
-                      <p className="rounded-xl border border-dashed border-white/10 px-4 py-3 text-sm text-gray-500">
-                        Add the people already living here so applicants see real housemate data.
-                      </p>
-                    ) : (
-                      <div className="space-y-3">
-                        {form.housemates.map((mate, index) => (
-                          <div key={index} className="rounded-xl border border-white/10 bg-input-dark p-3">
-                            <div className="mb-3 flex items-center justify-between gap-3">
-                              <p className="text-xs font-bold uppercase tracking-wide text-gray-500">
-                                Housemate {index + 1}
-                              </p>
-                              <button
-                                type="button"
-                                onClick={() => removeHousemate(index)}
-                                className="rounded-lg p-1.5 text-gray-500 transition hover:bg-white/10 hover:text-white"
-                                aria-label="Remove housemate"
-                              >
-                                <X className="h-4 w-4" />
-                              </button>
-                            </div>
-                            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                              <input
-                                type="text"
-                                value={mate.name}
-                                onChange={(e) => updateHousemate(index, "name", e.target.value)}
-                                placeholder="Name"
-                                className="rounded-xl border border-white/10 bg-card-dark px-3 py-2.5 text-sm text-white outline-none focus:border-primary"
-                              />
-                              <input
-                                type="number"
-                                min="18"
-                                value={mate.age}
-                                onChange={(e) => updateHousemate(index, "age", e.target.value)}
-                                placeholder="Age"
-                                className="rounded-xl border border-white/10 bg-card-dark px-3 py-2.5 text-sm text-white outline-none focus:border-primary"
-                              />
-                              <input
-                                type="text"
-                                value={mate.occupation}
-                                onChange={(e) => updateHousemate(index, "occupation", e.target.value)}
-                                placeholder="Occupation"
-                                className="rounded-xl border border-white/10 bg-card-dark px-3 py-2.5 text-sm text-white outline-none focus:border-primary"
-                              />
-                              <input
-                                type="text"
-                                value={mate.tags}
-                                onChange={(e) => updateHousemate(index, "tags", e.target.value)}
-                                placeholder="Tags, comma separated"
-                                className="rounded-xl border border-white/10 bg-card-dark px-3 py-2.5 text-sm text-white outline-none focus:border-primary md:col-span-3"
-                              />
-                              <select
-                                value={mate.cleanliness}
-                                onChange={(e) => updateHousemate(index, "cleanliness", e.target.value)}
-                                className="rounded-xl border border-white/10 bg-card-dark px-3 py-2.5 text-sm text-white outline-none focus:border-primary"
-                              >
-                                <option value="very_clean">Very clean</option>
-                                <option value="average">Average clean</option>
-                                <option value="relaxed">Relaxed clean</option>
-                              </select>
-                              <select
-                                value={mate.sleep_schedule}
-                                onChange={(e) => updateHousemate(index, "sleep_schedule", e.target.value)}
-                                className="rounded-xl border border-white/10 bg-card-dark px-3 py-2.5 text-sm text-white outline-none focus:border-primary"
-                              >
-                                <option value="early_bird">Early bird</option>
-                                <option value="night_owl">Night owl</option>
-                                <option value="flexible">Flexible schedule</option>
-                              </select>
-                              <select
-                                value={mate.noise_level}
-                                onChange={(e) => updateHousemate(index, "noise_level", e.target.value)}
-                                className="rounded-xl border border-white/10 bg-card-dark px-3 py-2.5 text-sm text-white outline-none focus:border-primary"
-                              >
-                                <option value="quiet">Quiet</option>
-                                <option value="moderate">Moderate noise</option>
-                                <option value="lively">Lively</option>
-                              </select>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
                   </div>
 
                   {amenityError && (

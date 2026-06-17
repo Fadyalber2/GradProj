@@ -117,14 +117,13 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
   "bathroom_type": null,
   "private_amenities": null,
   "shared_amenities": null,
-  "housemates": null,
 
   "contact_phone": "201234567890",
   "contact_name": "Agency or Owner Name"
 }
 ```
 
-> Shared housing fields (`total_spots`, `housemates`, etc.) are `null` for non-shared listings.
+> Shared housing fields (`total_spots`, `filled_spots`, etc.) are `null` for non-shared listings.
 > `contact_phone` is stripped of the leading `+` for direct use in `wa.me/` URLs. `null` if no phone is on record.
 
 ---
@@ -151,8 +150,11 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
     { "label": "Total Views", "value": "1,234", "trend_percent": 12.5, "trend_up": true }
   ],
   "listings": [ApiDashboardListing],
+  "listings_count": 3,
+  "active_count": 2,
+  "pending_count": 1,
   "liked_properties": [LikedPropertyBrief],
-  "upcoming_viewings": [ApiViewingBrief]
+  "liked_count": 4
 }
 ```
 
@@ -185,20 +187,6 @@ city=Cairo&min_price=5000&max_price=20000&bedrooms=2
   "created_at": "ISO8601"
 }
 ```
-
-### ApiViewingBrief
-
-```json
-{
-  "id": "uuid",
-  "listing_title": "string",
-  "listing_image": "url",
-  "scheduled_at": "ISO8601",
-  "status": "pending|confirmed|cancelled"
-}
-```
-
----
 
 ## Leads
 
@@ -262,15 +250,6 @@ Response:
 
 ---
 
-## Viewings
-
-| Method | Path                 | Auth | Description                         |
-| ------ | -------------------- | ---- | ----------------------------------- |
-| POST   | `/api/viewings`      | Yes  | Request a viewing.                  |
-| PUT    | `/api/viewings/{id}` | Yes  | Confirm or cancel (owner confirms). |
-
----
-
 ## AI
 
 | Method | Path                       | Auth | Description                                                                  |
@@ -278,7 +257,7 @@ Response:
 | POST   | `/api/ai/search`           | No   | Natural language search → structured filters + results.                      |
 | POST   | `/api/ai/chat`             | No   | Streaming chatbot (SSE). Emits `listing_refs` event with matched properties. |
 | GET    | `/api/ai/recommendations`  | Yes  | Property recommendations based on favorites.                                 |
-| POST   | `/api/ai/compatibility`    | Yes  | Roommate compatibility score for a listing application.                      |
+| POST   | `/api/ai/compatibility`    | Yes  | Shared-housing compatibility from user/profile preferences and listing data. |
 | POST   | `/api/ai/description`      | Yes  | Generate bilingual listing description.                                      |
 | POST   | `/api/ai/validate-amenity` | Yes  | Validate and classify an amenity string.                                     |
 

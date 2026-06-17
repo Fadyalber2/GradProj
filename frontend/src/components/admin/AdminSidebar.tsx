@@ -10,8 +10,6 @@ import {
   FolderOpen,
   Home,
   FileText,
-  ArrowLeftRight,
-  Bell,
   AlertTriangle,
   Clock,
   LogOut,
@@ -56,7 +54,6 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: "agencies", label: "Agencies", icon: Building2 },
       { id: "universities", label: "Universities", icon: GraduationCap },
-      { id: "bookings", label: "Bookings", icon: ArrowLeftRight },
       { id: "leads", label: "Leads", icon: PhoneCall },
     ],
   },
@@ -64,7 +61,6 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Content",
     items: [
       { id: "blog", label: "Blog Posts", icon: FileText },
-      { id: "notifications", label: "Notifications", icon: Bell },
     ],
   },
   {

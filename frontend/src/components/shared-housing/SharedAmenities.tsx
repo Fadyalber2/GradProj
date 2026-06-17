@@ -98,7 +98,7 @@ export default function SharedAmenities({
             <Users className="h-4 w-4" /> Shared Features
           </h3>
           <p className="mb-3 text-xs text-gray-500">
-            Home and building features shared with the housemates.
+            Home and building features included with the shared space.
           </p>
           <div className="grid grid-cols-1 gap-2">
             {sharedAmenities.length > 0 ? (

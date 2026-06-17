@@ -1,6 +1,6 @@
 # AXIOM V2 — Roadmap & Current Status
 
-Last updated: 2026-06-12
+Last updated: 2026-06-17
 
 ---
 
@@ -10,7 +10,7 @@ Last updated: 2026-06-12
 | ------------------------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Frontend (Next.js)             | ✅ Built      | All pages, zero TypeScript errors, builds clean                                                                                                              |
 | Backend (FastAPI)              | ✅ Built      | All routers implemented, server starts successfully                                                                                                          |
-| Database schema                | ✅ Designed   | 11-table schema, enums, indexes, RLS policies defined                                                                                                        |
+| Database schema                | ✅ Designed   | Active Supabase schema; retired booking, viewing, messaging, shared-housing applications, housemates, and notification tables removed                          |
 | AI models                      | ✅ Registered | `axiom-llm:latest` + `nomic-embed-text` in Ollama                                                                                                            |
 | Authentication                 | ✅ Wired      | Supabase auth + JWT middleware protection                                                                                                                    |
 | AI Chatbot                     | ✅ Wired      | SSE streaming RAG chat, property intent detection, inline listing cards                                                                                      |
@@ -23,10 +23,10 @@ Last updated: 2026-06-12
 | Admin CRUD overhaul            | Done          | Live DB-backed admin views; unified Add/Edit/View/action UI; Listings Add uses dashboard wizard; Listings Edit is category-aware; shared housing is a Listings category filter |
 | WhatsApp lead capture          | ✅ Done       | Messaging system removed; WhatsApp CTAs + leads table + admin view live                                                                                      |
 | Responsive design (400–1200px) | ✅ Done       | FilterSidebar Sheet drawer, admin Sheet hamburger, all page grids fixed                                                                                      |
-| All-new features implementation | ✅ Done       | Shared housing applications/search, housemates in Add Listing, fee-based Stripe booking/payment flow (rent = flat booking deposit, sale = 1% capped reservation fee), single platform account (no Connect/payout), webhook-created bookings, refund/cancel endpoint, `payments` ledger, liked properties wired to `favorites` DB table, dashboard tabs fully live |
+| All-new features implementation | ✅ Done       | Shared housing search, owner-managed occupied spot counts, owner subscriptions, WhatsApp lead capture, `payments` ledger retained for platform accounting, liked properties wired to `favorites` DB table, dashboard tabs fully live |
 | Partner Universities           | ✅ Done       | DB table, backend CRUD, admin dashboard section, list page, detail page with hero/sidebar/listings |
 | Deployment                     | ⚠️ Infra ready | Dockerfile + railway.toml + GitHub Actions CI committed; Railway/Vercel deploy itself not done                                                              |
-| Backend tests                  | ✅ Green      | 123/123 passing (rate-limit fixture, chat_stream mocks, shared-housing booking test)                                                                        |
+| Backend tests                  | ✅ Green      | Latest local pytest pass after retiring booking, viewing, applications, housemates, and notifications                                                       |
 
 ---
 
@@ -39,8 +39,8 @@ Last updated: 2026-06-12
 | `/property/[id]`       | ✅    | ✅        | Direct Supabase — handles regular + shared_housing                   |
 | `/shared-housing`      | ✅    | ✅        | Dedicated shared-housing search with filters and recommendations     |
 | `/shared-housing/[id]` | ✅    | —         | Redirects to `/property/[id]`                                        |
-| `/dashboard`           | ✅    | ✅        | Backend `/api/dashboard/me`, avatar upload, WhatsApp/member-since profile sync, bookings/applications tabs |
-| `/booking/[id]`        | ✅    | ✅        | Backend-wired booking detail — renter confirms (status → active), cancel/refund returns the fee and reverts the listing to active; no owner payout (platform keeps fee) |
+| `/dashboard`           | ✅    | ✅        | Backend `/api/dashboard/me`, avatar upload, WhatsApp/member-since profile sync, listings/saved/profile surface |
+| `/booking/[id]`        | —     | —         | Removed — online booking flow retired |
 | `/messages`            | —     | —         | Removed — replaced by WhatsApp lead capture                          |
 | `/login`               | ✅    | ✅        | Supabase email, Facebook OAuth, and phone OTP auth wired             |
 | `/signup`              | ✅    | ✅        | Single role, Supabase wired                                          |
@@ -64,7 +64,7 @@ Last updated: 2026-06-12
 | RAG Chatbot             | `POST /api/ai/chat`             | ✅ Live — SSE streaming + inline listing cards |
 | Natural Language Search | `POST /api/ai/search`           | ✅ Live — filter extraction + pgvector         |
 | Recommendations         | `GET /api/ai/recommendations`   | ✅ Built                                       |
-| Roommate Compatibility  | `POST /api/ai/compatibility`    | ✅ Built                                       |
+| Shared-Housing Compatibility | `POST /api/ai/compatibility` | ✅ Built — compares user/profile preferences with listing preferences |
 | Description Generator   | `POST /api/ai/description`      | ✅ Built — bilingual AR/EN                     |
 | Amenity Validation      | `POST /api/ai/validate-amenity` | ✅ Built — wired in AddListingModal            |
 | Fraud Detection         | Internal                        | ✅ Built                                       |
@@ -76,12 +76,12 @@ Last updated: 2026-06-12
 1. **Apply remaining SQL migrations** — run `backend/sql/2026-05-15_all_new_features.sql` in Supabase (payments model + subscriptions migrations already applied to live DB)
 2. **Configure Stripe subscription prices** — create recurring EGP prices for Basic (199) + Pro (499) in Stripe dashboard, set `STRIPE_PRICE_BASIC` / `STRIPE_PRICE_PRO` in `backend/.env`
 3. **Rotate Stripe keys** — old keys exist in git history pre-`.env` removal; rotate in Stripe dashboard
-4. **Subscription + payment QA** — `stripe listen --forward-to localhost:8000/api/stripe/webhook`, test: free listing cap (402 on 2nd listing), trial activation, Basic/Pro checkout + webhook sync, lapse sweep pausing + grace delete, AI description quota gate, rent/sale booking deposit flow
+4. **Subscription QA** — `stripe listen --forward-to localhost:8000/api/stripe/webhook`, test: free listing cap (402 on 2nd listing), trial activation, Basic/Pro checkout + webhook sync, lapse sweep pausing + grace delete, AI description quota gate
 5. **Recreate `backend/.env`** — file is missing locally; copy from `.env.example` and fill rotated keys (backend cannot start without it)
 6. **Deployment** — deploy to Vercel (frontend) + Railway (backend); CI workflow, Dockerfile, and railway.toml are already in the repo
-7. **Replace demoBookings.ts** — `HousematesSection` still reads confirmed housemates from the demo layer instead of real bookings
+7. **Security/performance advisors** — Supabase still reports pre-existing RLS/function/storage/index advisory items; review before production
 
-Done since 2026-05-31: shared_housing bookable (flat EGP 2000 deposit), homepage fully live, `/pricing` in navbar, booking fee served by `GET /api/bookings/fees` (no frontend hardcode), 123/123 backend tests green, dead code purged (mock constants, sale reservation config/branches), deployment infra committed.
+Done since 2026-05-31: shared housing search live, homepage fully live, `/pricing` in navbar, booking/viewing/messaging/application/notification surfaces retired, housemates replaced by owner-managed occupied spot counts, Supabase cleanup migrations added, demo booking layer removed, dead code purged, deployment infra committed.
 
 ---
 

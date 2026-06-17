@@ -9,8 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@stripe/react-stripe-js": "^6.4.0",
-    "@stripe/stripe-js": "^9.7.0",
     "@supabase/supabase-js": "^2.97.0",
     "@tanstack/react-query": "^5.90.21",
     "@tiptap/pm": "^3.22.4",

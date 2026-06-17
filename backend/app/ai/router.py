@@ -965,8 +965,8 @@ async def compute_compatibility(
     current_user: dict = Depends(get_current_user),
 ):
     """
-    Compute a roommate compatibility score (0-100) between the current user
-    and a shared housing listing, using real housemates and stored user profile.
+    Compute a lifestyle compatibility score (0-100) between the current user
+    and a shared housing listing, using listing preferences and stored user profile.
     Returns {ai_unavailable: true} if Ollama is down.
     """
     if not await ollama.health():
@@ -993,37 +993,6 @@ async def compute_compatibility(
 
     listing_prefs = listing.get("lifestyle_preferences") or {}
 
-    # Step 2: Query housemates for this listing
-    housemates: list[dict] = []
-    try:
-        housemates_result = (
-            supabase_admin.table("housemates")
-            .select("name, age, occupation, tags, user_id")
-            .eq("listing_id", body.listing_id)
-            .limit(10)
-            .execute()
-        )
-        housemates = housemates_result.data or []
-    except Exception:
-        pass  # fail-open: proceed without housemate data
-
-    # Step 3: For housemates with user_id, fetch their lifestyle_preferences
-    housemate_profiles: dict[str, dict] = {}
-    housemate_user_ids = [h["user_id"] for h in housemates if h.get("user_id")]
-    if housemate_user_ids:
-        try:
-            hp_result = (
-                supabase_admin.table("profiles")
-                .select("id, lifestyle_preferences")
-                .in_("id", housemate_user_ids)
-                .execute()
-            )
-            for row in (hp_result.data or []):
-                if row.get("lifestyle_preferences"):
-                    housemate_profiles[row["id"]] = row["lifestyle_preferences"]
-        except Exception:
-            pass  # fail-open
-
     # Step 4: Fetch current user's stored profile
     stored_user_prefs: dict = {}
     try:
@@ -1048,38 +1017,14 @@ async def compute_compatibility(
     # Step 5: Merge — body.lifestyle_data overrides stored prefs
     merged_user_prefs = {**stored_user_prefs, **body.lifestyle_data}
 
-    # Step 6: Build housemate context string
-    housemate_lines = []
-    for h in housemates:
-        parts = [h.get("name", "Unknown")]
-        if h.get("age"):
-            parts.append(f"age {h['age']}")
-        if h.get("occupation"):
-            parts.append(h["occupation"])
-        if h.get("tags"):
-            parts.append(f"tags: {', '.join(h['tags'])}")
-        uid = h.get("user_id")
-        if uid and uid in housemate_profiles:
-            lp = housemate_profiles[uid]
-            parts.append(f"lifestyle: {json.dumps(lp)}")
-        housemate_lines.append(" | ".join(parts))
-
-    housemate_context = (
-        "\n\nCURRENT HOUSEMATES:\n" + "\n".join(f"- {line}" for line in housemate_lines)
-        if housemate_lines
-        else ""
-    )
-
     # Step 7: LLM call with enriched prompt
     system = (
-        "You are a roommate compatibility expert. "
+        "You are a shared housing compatibility expert. "
         "Score compatibility between a person's lifestyle preferences and a shared housing listing. "
         "Consider: gender preference, smoking, pets, guests policy, noise level, "
         "cleanliness, sleep schedule, occupation. "
-        "If housemate information is provided, also note compatibility with current residents. "
         "Return ONLY a JSON object: "
-        "{\"score\": <0-100>, \"reasons\": [\"...\", \"...\"], \"housemate_notes\": [\"...\"]}"
-        f"{housemate_context}"
+        "{\"score\": <0-100>, \"reasons\": [\"...\", \"...\"]}"
     )
     prompt = (
         f"Listing preferences: {json.dumps(listing_prefs)}\n"
@@ -1095,23 +1040,17 @@ async def compute_compatibility(
             parsed = json.loads(json_str)
             score = max(0, min(100, int(parsed.get("score", 50))))
             reasons = parsed.get("reasons", [])
-            housemate_notes = parsed.get("housemate_notes", [])
-            if not isinstance(housemate_notes, list):
-                housemate_notes = []
         else:
             score = 50
             reasons = []
-            housemate_notes = []
     except Exception:
         score = 50
         reasons = []
-        housemate_notes = []
 
     return {
         "listing_id": body.listing_id,
         "compatibility_score": score,
         "reasons": reasons,
-        "housemate_notes": housemate_notes,
     }
 
 

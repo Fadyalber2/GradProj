@@ -8,7 +8,6 @@ import PropertyMap from "@/components/property/PropertyMap";
 import SharedHousingHero from "@/components/shared-housing/SharedHousingHero";
 import SharedHousingStats from "@/components/shared-housing/SharedHousingStats";
 import AboutHouse from "@/components/shared-housing/AboutHouse";
-import HousematesSection from "@/components/shared-housing/HousematesSection";
 import SharedAmenities from "@/components/shared-housing/SharedAmenities";
 import SharedHousingSidebar from "@/components/shared-housing/SharedHousingSidebar";
 import MobilePropertyCTA from "@/components/property/MobilePropertyCTA";
@@ -107,14 +106,6 @@ function mapProperty(data: ListingDetailWithSimilar): PropertyDetail {
     bathroomType: data.bathroom_type ?? undefined,
     privateAmenities: sharedAmenityGroups?.privateAmenities ?? [],
     sharedAmenities: sharedAmenityGroups?.sharedAmenities ?? [],
-    housemates: (data.housemates ?? []).map((h) => ({
-      name: h.name,
-      age: h.age ?? 0,
-      occupation: h.occupation ?? "Professional",
-      avatar: h.avatar_url ?? "",
-      tags: h.tags,
-      lifestylePreferences: h.lifestyle_preferences ?? null,
-    })),
     contactPhone: data.contact_phone ?? null,
     contactName: data.contact_name ?? null,
   };
@@ -138,7 +129,6 @@ function mapSharedHousing(property: PropertyDetail): SharedHousingDetail {
     bathroom: property.bathroomType ?? "Private",
     furnishing: property.furnishing ?? "Furnished",
     description: property.description,
-    housemates: property.housemates ?? [],
     privateAmenities: (property.privateAmenities ?? []).map(toAmenity),
     sharedAmenities: (property.sharedAmenities ?? []).map(toAmenity),
     similarRooms: [],
@@ -168,7 +158,6 @@ export default async function PropertyDetailPage({
             <div className="lg:w-[70%] space-y-12">
               <SharedHousingStats housing={housing} />
               <AboutHouse descriptions={housing.description} />
-              <HousematesSection listingId={property.id} housemates={housing.housemates} />
               <SharedAmenities
                 privateAmenities={housing.privateAmenities}
                 sharedAmenities={housing.sharedAmenities}
@@ -183,7 +172,6 @@ export default async function PropertyDetailPage({
             <div className="lg:w-[30%]">
               <SharedHousingSidebar
                 housing={housing}
-                listing={data}
                 contactPhone={property.contactPhone}
                 contactName={property.contactName}
               />

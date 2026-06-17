@@ -131,7 +131,7 @@ export default function SignUpForm() {
               Create your account
             </h1>
             <p className="mt-2 text-sm leading-6 text-white/60">
-              One profile for listings, saved searches, messages, and recommendations.
+              One profile for listings, saved searches, and recommendations.
             </p>
           </div>
           <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-emerald-300/20 bg-emerald-300/10 text-emerald-200 sm:flex">

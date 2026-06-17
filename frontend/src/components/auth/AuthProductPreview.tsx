@@ -170,7 +170,7 @@ function SignupPreview() {
             Property detail
           </div>
           <p className="text-xs leading-5 text-white/58">
-            Opens into the same property page with photos, map, owner contact, and booking actions.
+            Opens into the same property page with photos, map, saved homes, and owner contact.
           </p>
         </div>
       </div>
@@ -214,10 +214,10 @@ function LoginPreview() {
         <div className="rounded-2xl border border-white/10 bg-[#0f0f0f] p-4">
           <div className="mb-3 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/42">
             <MessageSquare className="h-3.5 w-3.5 text-primary" />
-            Conversations
+            Activity
           </div>
           <div className="space-y-2">
-            {["Viewing request sent", "Owner replied", "Application pending"].map((text) => (
+            {["Saved home updated", "Lead captured", "Application pending"].map((text) => (
               <div key={text} className="rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-white/64">
                 {text}
               </div>

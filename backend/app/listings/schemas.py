@@ -4,16 +4,6 @@ from typing import Literal, Optional, Any
 
 # ─── Request Bodies ──────────────────────────────────────────────────────────
 
-class HousemateInput(BaseModel):
-    user_id: Optional[str] = None
-    name: str
-    age: Optional[int] = None
-    occupation: Optional[str] = None
-    avatar_url: Optional[str] = None
-    tags: list[str] = []
-    lifestyle_preferences: Optional[dict[str, Any]] = None
-
-
 class CreateListingRequest(BaseModel):
     title: str
     description: Optional[str] = None
@@ -55,13 +45,13 @@ class CreateListingRequest(BaseModel):
     room_type: Optional[str] = None
     lifestyle_preferences: Optional[dict[str, Any]] = None
     total_spots: Optional[int] = None
+    filled_spots: Optional[int] = None
     availability: Optional[str] = None
     furnishing: Optional[str] = None
     utilities_included: Optional[bool] = None
     bathroom_type: Optional[str] = None
     private_amenities: list[str] = []
     shared_amenities: list[str] = []
-    housemates: list[HousemateInput] = []
     # Agency association
     agency_id: Optional[str] = None
     project_id: Optional[str] = None
@@ -96,21 +86,13 @@ class UpdateListingRequest(BaseModel):
     room_type: Optional[str] = None
     lifestyle_preferences: Optional[dict[str, Any]] = None
     total_spots: Optional[int] = None
+    filled_spots: Optional[int] = None
     availability: Optional[str] = None
     furnishing: Optional[str] = None
     utilities_included: Optional[bool] = None
     bathroom_type: Optional[str] = None
     private_amenities: Optional[list[str]] = None
     shared_amenities: Optional[list[str]] = None
-
-
-class ApplyRequest(BaseModel):
-    message: Optional[str] = None
-    lifestyle_data: Optional[dict[str, Any]] = None
-
-
-class UpdateApplicationRequest(BaseModel):
-    status: str  # "approved" | "rejected"
 
 
 # ─── Response Shapes ─────────────────────────────────────────────────────────
@@ -142,18 +124,6 @@ class ListingBriefResponse(BaseModel):
     available_date: Optional[str] = None
     views_count: int
     created_at: str
-
-
-class HousemateResponse(BaseModel):
-    id: str
-    listing_id: Optional[str] = None
-    user_id: Optional[str] = None
-    name: str
-    age: Optional[int] = None
-    occupation: Optional[str] = None
-    avatar_url: Optional[str] = None
-    tags: list[str] = []
-    lifestyle_preferences: Optional[dict[str, Any]] = None
 
 
 class ListingDetailResponse(BaseModel):
@@ -205,7 +175,6 @@ class ListingDetailResponse(BaseModel):
     bathroom_type: Optional[str] = None
     private_amenities: list[str] = []
     shared_amenities: list[str] = []
-    housemates: list[HousemateResponse] = []
     created_at: str
     contact_phone: Optional[str] = None
     contact_name: Optional[str] = None
@@ -216,18 +185,3 @@ class ListingsPageResponse(BaseModel):
     total: int
     page: int
     per_page: int
-
-
-class ApplicationDetailResponse(BaseModel):
-    id: str
-    listing_id: str
-    listing_title: Optional[str] = None
-    listing_image: Optional[str] = None
-    applicant_id: str
-    applicant_name: Optional[str] = None
-    applicant_avatar: Optional[str] = None
-    compatibility_score: Optional[int] = None
-    status: str
-    message: Optional[str] = None
-    lifestyle_data: Optional[dict[str, Any]] = None
-    created_at: str

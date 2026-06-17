@@ -297,17 +297,11 @@ export async function getListings(filters?: ListingFilters) {
 }
 
 export async function getListing(id: string) {
-  const [{ data, error }, housematesRes] = await Promise.all([
-    supabase
-      .from("listings")
-      .select("*, profiles!listings_owner_id_fkey(full_name, avatar_url, phone, whatsapp_number), agencies!listings_agency_id_fkey(name, phone)")
-      .eq("id", id)
-      .single(),
-    supabase
-      .from("housemates")
-      .select("id, listing_id, user_id, name, age, occupation, avatar_url, tags")
-      .eq("listing_id", id),
-  ]);
+  const { data, error } = await supabase
+    .from("listings")
+    .select("*, profiles!listings_owner_id_fkey(full_name, avatar_url, phone, whatsapp_number), agencies!listings_agency_id_fkey(name, phone)")
+    .eq("id", id)
+    .single();
 
   if (error || !data) return { data: null, error };
 
@@ -320,7 +314,6 @@ export async function getListing(id: string) {
     vals.map((v) => v?.trim()).find((v) => v) ?? null;
   const listing = {
     ...data,
-    housemates: housematesRes.data ?? [],
     similar_listings: [],
     contact_phone: firstNonEmpty(profile?.phone, profile?.whatsapp_number, agency?.phone),
     contact_name:  firstNonEmpty(profile?.full_name, agency?.name),

@@ -29,7 +29,7 @@ interface ProfileSettingsProps {
   profile: ApiProfileResponse;
   listingsCount: number;
   likedCount: number;
-  pendingApplications: number;
+  pendingCount: number;
 }
 
 type ProfileFormState = {
@@ -85,7 +85,7 @@ export default function ProfileSettings({
   profile,
   listingsCount,
   likedCount,
-  pendingApplications,
+  pendingCount,
 }: ProfileSettingsProps) {
   const queryClient = useQueryClient();
   const refreshProfile = useAuthStore((state) => state.refreshProfile);
@@ -312,7 +312,7 @@ export default function ProfileSettings({
               [
                 ["Listings", listingsCount],
                 ["Saved", likedCount],
-                ["Pending", pendingApplications],
+                ["Pending", pendingCount],
               ] as [string, number][]
             ).map(([label, value]) => (
               <div key={label} className="py-3 text-center">
