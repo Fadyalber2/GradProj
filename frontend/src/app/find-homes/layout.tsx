@@ -1,4 +1,6 @@
-import Navbar from "@/components/layout/Navbar";
+import dynamic from "next/dynamic";
+
+const Navbar = dynamic(() => import("@/components/layout/Navbar"), { ssr: false });
 
 export default function FindHomesLayout({
   children,

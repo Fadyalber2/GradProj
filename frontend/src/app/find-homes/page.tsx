@@ -126,6 +126,9 @@ export default function FindHomesPage() {
   // Parsed chips shown after submit
   const parsedChips = appliedQuery ? parseSearchQuery(appliedQuery) : null;
 
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => { setIsMounted(true); }, []);
+
   // Sync when URL ?q param changes (navbar search from any page)
   const urlQuery = searchParams.get("q") ?? "";
   useEffect(() => {
@@ -214,7 +217,7 @@ export default function FindHomesPage() {
 
           <div className="flex flex-wrap items-center gap-3">
             {/* Mobile filter trigger — hidden on desktop */}
-            <Sheet>
+            {isMounted && <Sheet>
               <SheetTrigger asChild>
                 <button aria-label="Open filters" className="lg:hidden inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-card-dark border border-white/10 text-white text-sm font-medium">
                   <SlidersHorizontal className="h-4 w-4" /> Filters
@@ -224,7 +227,7 @@ export default function FindHomesPage() {
                 <SheetTitle className="sr-only">Filters</SheetTitle>
                 <FilterSidebar {...filterProps} />
               </SheetContent>
-            </Sheet>
+            </Sheet>}
 
             {/* View mode toggle */}
             <div className="flex items-center bg-card-dark rounded-lg p-1 border border-white/5">
