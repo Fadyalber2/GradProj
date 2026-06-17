@@ -563,13 +563,40 @@ async def admin_delete_user(
     user_id: str,
     _admin: str = Depends(get_admin),
 ):
-    """Delete a user profile (does not remove Supabase auth user)."""
+    """Delete a user profile, related records, and the Supabase auth user (invalidates their JWT)."""
+    def _safe_delete(table: str, **filters):
+        """Delete rows ignoring errors from missing tables or missing columns."""
+        try:
+            q = supabase_admin.table(table).delete()
+            for col, val in filters.items():
+                q = q.eq(col, val)
+            q.execute()
+        except Exception as exc:
+            logger.warning("admin delete skip (%s): %s", table, exc)
+
+    # Delete child records first — each wrapped so a missing table won't abort the rest
+    _safe_delete("subscriptions", user_id=user_id)
+    _safe_delete("favorites", user_id=user_id)
+    _safe_delete("notifications", user_id=user_id)
+    _safe_delete("leads", user_id=user_id)
+    _safe_delete("bookings", renter_id=user_id)
+    _safe_delete("bookings", owner_id=user_id)
+    _safe_delete("payments", user_id=user_id)
+
+    # Delete the profile row
     try:
         supabase_admin.table("profiles").delete().eq("id", user_id).execute()
     except Exception as e:
-        logger.error("admin DB error: %s", e)
-        raise HTTPException(status_code=500, detail="Internal server error")
-    return {"message": "User profile deleted"}
+        logger.error("admin delete profiles error: %s", e)
+        raise HTTPException(status_code=500, detail=f"Failed to delete user: {str(e)}")
+
+    # Delete the Supabase auth user — immediately invalidates their JWT
+    try:
+        supabase_admin.auth.admin.delete_user(user_id)
+    except Exception as e:
+        logger.warning("admin delete auth user (non-fatal): %s", e)
+
+    return {"message": "User deleted"}
 
 
 # ─── Agencies ─────────────────────────────────────────────────────────────────

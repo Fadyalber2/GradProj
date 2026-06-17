@@ -1,4 +1,5 @@
 import logging
+import time
 import jwt
 from jwt.algorithms import ECAlgorithm
 import httpx
@@ -89,10 +90,46 @@ async def get_current_user(
             .execute()
         )
     except Exception:
-        raise HTTPException(status_code=401, detail="User profile not found")
+        result = None
 
-    if not result.data:
-        raise HTTPException(status_code=401, detail="User profile not found")
+    if not result or not result.data:
+        # Only auto-create a profile for brand-new JWTs (iat within last 5 min).
+        # This handles new OAuth signups where the DB trigger hasn't fired yet.
+        # It deliberately rejects deleted accounts whose old JWT is still floating.
+        iat = payload.get("iat", 0)
+        token_age_seconds = time.time() - iat
+        if token_age_seconds > 300:
+            raise HTTPException(status_code=401, detail="Account not found")
+
+        user_meta = payload.get("user_metadata") or {}
+        app_meta = payload.get("app_metadata") or {}
+        email = (
+            payload.get("email")
+            or user_meta.get("email")
+            or app_meta.get("email")
+            or ""
+        )
+        new_profile = {
+            "id": user_id,
+            "email": email,
+            "full_name": user_meta.get("full_name") or user_meta.get("name"),
+            "avatar_url": user_meta.get("avatar_url") or user_meta.get("picture"),
+            "role": "user",
+        }
+        try:
+            create_result = (
+                supabase_admin.table("profiles")
+                .insert(new_profile)
+                .execute()
+            )
+            if not create_result.data:
+                raise HTTPException(status_code=401, detail="User profile not found")
+            return create_result.data[0]
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Failed to auto-create profile for %s: %s", user_id, e)
+            raise HTTPException(status_code=401, detail="User profile not found")
 
     return result.data
 

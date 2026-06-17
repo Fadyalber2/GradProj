@@ -101,22 +101,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const user =
         await fetchProfile(session.access_token, 2, 600) ??
         await fetchProfileFromSupabase(session.user.id);
-      const resolvedUser: AuthUser = user ?? {
-        id: session.user.id,
-        email: session.user.email ?? "",
-        role: "user",
-        full_name: session.user.user_metadata?.full_name ?? null,
-        phone: null,
-        whatsapp_number: null,
-        country_code: null,
-        gender: null,
-        avatar_url: session.user.user_metadata?.avatar_url ?? null,
-        bio: null,
-        badges: [],
-        is_verified_seller: false,
-        birth_date: null,
-      };
-      set({ session, user: resolvedUser, isInitialized: true });
+      if (!user) {
+        // Profile missing — account was deleted. Sign out immediately.
+        await supabase.auth.signOut();
+        set({ session: null, user: null, isInitialized: true });
+      } else {
+        set({ session, user, isInitialized: true });
+      }
     } else {
       set({ isInitialized: true });
     }
@@ -131,22 +122,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             const user =
               await fetchProfile(session.access_token, 2, 600) ??
               await fetchProfileFromSupabase(session.user.id);
-            const resolvedUser: AuthUser = user ?? {
-              id: session.user.id,
-              email: session.user.email ?? "",
-              role: "user",
-              full_name: session.user.user_metadata?.full_name ?? null,
-              phone: null,
-              whatsapp_number: null,
-              country_code: null,
-              gender: null,
-              avatar_url: session.user.user_metadata?.avatar_url ?? null,
-              bio: null,
-              badges: [],
-              is_verified_seller: false,
-              birth_date: null,
-            };
-            set({ session, user: resolvedUser });
+            if (!user) {
+              // Profile missing — account was deleted. Sign out immediately.
+              await supabase.auth.signOut();
+              set({ session: null, user: null });
+            } else {
+              set({ session, user });
+            }
           }
         } else if (event === "SIGNED_OUT") {
           set({ session: null, user: null });

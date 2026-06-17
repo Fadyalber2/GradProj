@@ -26,13 +26,28 @@ def _epoch_to_iso(value):
     return datetime.fromtimestamp(int(value), tz=timezone.utc).isoformat()
 
 
+def _current_period_end(obj):
+    """Stripe API >=2025-03-31 (Basil) moved current_period_end off the subscription
+    root onto each subscription item. Fall back to the first item when absent."""
+    value = _field(obj, "current_period_end")
+    if value:
+        return value
+    items = _field(obj, "items")
+    data = _field(items, "data") if items is not None else None
+    if data:
+        return _field(data[0], "current_period_end")
+    return None
+
+
 def _sync_subscription(obj) -> None:
+    # In stripe-python >=8, StripeObject is NOT a dict subclass, so reach into
+    # metadata with _field (attribute access) rather than dict.get / isinstance(dict).
     md = _field(obj, "metadata") or {}
-    user_id = (md.get("user_id") if isinstance(md, dict) else None)
+    user_id = _field(md, "user_id")
     if not user_id:
         return
     status = _field(obj, "status")
-    plan = (md.get("plan") if isinstance(md, dict) else None) or "basic"
+    plan = _field(md, "plan") or "basic"
     if status in ("canceled", "unpaid", "incomplete_expired"):
         plan, status = "free", "canceled"
     # upsert: if the subscription row doesn't exist yet (e.g. customer.subscription.created
@@ -43,7 +58,7 @@ def _sync_subscription(obj) -> None:
         "status": status if status in ("active", "trialing", "past_due", "canceled") else "active",
         "stripe_subscription_id": _field(obj, "id"),
         "stripe_customer_id": _field(obj, "customer"),
-        "current_period_end": _epoch_to_iso(_field(obj, "current_period_end")),
+        "current_period_end": _epoch_to_iso(_current_period_end(obj)),
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }, on_conflict="user_id").execute()
     # Lazy import: lapse.py created in Task 6; only reached for live subscription events.

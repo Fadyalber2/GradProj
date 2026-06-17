@@ -77,3 +77,26 @@ def test_quota_gate_blocks_at_cap():
     assert exc.value.status_code == 402
     _enforce_listing_quota(active_count=0, sub=sub_free)
     _enforce_listing_quota(active_count=10, sub={"plan": "pro", "status": "active"})
+
+
+def test_webhook_reads_metadata_from_stripe_object():
+    """Regression: stripe-python >=8 StripeObject is NOT a dict subclass, so the
+    webhook must read metadata via attribute access, not isinstance(dict) + .get().
+    Previously this returned None -> paid users never got upgraded."""
+    from stripe import StripeObject
+    from app.stripe_webhooks.router import _field, _current_period_end
+
+    sub = StripeObject.construct_from({
+        "id": "sub_1",
+        "status": "active",
+        "customer": "cus_1",
+        "metadata": {"user_id": "u-123", "plan": "pro"},
+        "items": {"data": [{"current_period_end": 1781712517}]},
+    }, "key")
+
+    md = _field(sub, "metadata")
+    assert not isinstance(md, dict)  # the exact trap the old code fell into
+    assert _field(md, "user_id") == "u-123"
+    assert _field(md, "plan") == "pro"
+    # Basil API moved current_period_end onto items; helper must find it.
+    assert _current_period_end(sub) == 1781712517
