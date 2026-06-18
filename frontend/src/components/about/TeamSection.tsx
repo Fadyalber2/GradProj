@@ -5,28 +5,49 @@ import { motion } from "framer-motion";
 
 const TEAM = [
   {
-    name: "Sarah Jenkins",
+    name: "Fady Alber",
     role: "CEO & Co-Founder",
     image:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuB_4SvcWoGcNeLbmGkFWtvLLLbuDgZVAW1Vt0-MKRFxdPra44gHP1PGCvcdXlhWwgw49mX4x7YJaxJgkWwuw8J4g4zg_2lo8oRD90_zfTxebHh2iBxiJqMNehmKdDXP5r2pLHRFJ3kUmSLSjv21iDfPwCvoZBYSZ4-FLbYcaHclTWDCUSUeE-IbmSSqwbA2GdcVePVfZ-V39KGMmMiQRHot8o1UtZKxDkr0k6VtFsdgGpFqmRNltwxE5nB6Z7PCKiFkiPJ5G5S-ld--",
     bio: "Former Director of Urban Planning with a vision for smarter cities. Sarah leads our strategic growth and urban integration initiatives.",
   },
   {
-    name: "David Chen",
+    name: "Baher Mohamed",
     role: "Chief Technology Officer",
     image:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuBibdq75F1VTpKHQtvVZZwBvVl3R1E9pSbyET56uJKdzajSf9cOjRXTF9Wz9ZzE9ddO_eTDjp-yIQes4meJbG6FBtGUqNn-tiH2FMhwP6_HPIxcfVIBRrL-OA7ew46dttyWX-FZ9TwDEFS1-7MFT_LQbUbRmYdsai4BWEJlh3PVNb0REHIdcyg3-TpiQazIw10LwSxeyWrrBvxgnkhTYqvBvn2sFlnlBAc_r-kyHJK-s_ym8zTi9noH39hUeHAb2Dh0NICKgM_mX00Q",
     bio: "AI researcher specializing in predictive behavioral modeling. David architectures the core machine learning engine behind Axiom's matching system.",
   },
   {
-    name: "Elena Rodriguez",
+    name: "Abanoub Attia",
     role: "Head of Operations",
     image:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuCa0fy98t2PE0mzURm78ZcUB19Dxx-6i5y5L8ZoKj4xjXf54-xtPNemSEp1P7z8nHfaFIok9w7iE9m3xXPbuSNTmQaAVouVmLf8Bdbr-9PWR3DMAIqv590wXmphqQGuN6gGo66YRQ4WenHi9hM5k5CPX3zgiunyF1kVokyriOznJZpf8iUcLjciW0PT5NnPpFDFVyw_HlMzQ_YcKu4FdbTezBShp2uUQTOh9cPerlRFAVq0YmcJmoIAssiwMXT-AAWp5MzjccuRMZ8u",
     bio: "Scaling real estate networks across major metropolitan hubs. Elena ensures our platform operates smoothly across hundreds of global markets.",
   },
   {
-    name: "Marcus Thorne",
+    name: "Ehab Ashraf",
+    role: "VP of Product",
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuA3NBcgn5tNDlZemxp_zFAydpReYVPOG93ZwywoFZhhDT4gXhh4ocsOMgtJZVaHLmYVRIoPTVZIBCd58xRlR-hl5ocQTg8qoqWSiBiTuBB90XWU0a7fOP368BMyQfWX7AxKDAu0ShxBUPWJujYjbGxjXlQCkKrvBWaxS7UuCncMK0aSBObBA6jkCrNAlYF76PXke1CPRoL299b1y4NILgsz06UQLfip3OX4E2d_K4RmPhL2NzXjxuzprNNhDE7lJEjLmcXaWHt5fT5v",
+    bio: "Designing seamless digital experiences for the modern tenant. Marcus translates user needs into beautiful, functional platform features.",
+  },
+  {
+    name: "Youssef Mohamed ",
+    role: "VP of Product",
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuA3NBcgn5tNDlZemxp_zFAydpReYVPOG93ZwywoFZhhDT4gXhh4ocsOMgtJZVaHLmYVRIoPTVZIBCd58xRlR-hl5ocQTg8qoqWSiBiTuBB90XWU0a7fOP368BMyQfWX7AxKDAu0ShxBUPWJujYjbGxjXlQCkKrvBWaxS7UuCncMK0aSBObBA6jkCrNAlYF76PXke1CPRoL299b1y4NILgsz06UQLfip3OX4E2d_K4RmPhL2NzXjxuzprNNhDE7lJEjLmcXaWHt5fT5v",
+    bio: "Designing seamless digital experiences for the modern tenant. Marcus translates user needs into beautiful, functional platform features.",
+  },
+  {
+    name: "Abdelrahman Wael ",
+    role: "VP of Product",
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuA3NBcgn5tNDlZemxp_zFAydpReYVPOG93ZwywoFZhhDT4gXhh4ocsOMgtJZVaHLmYVRIoPTVZIBCd58xRlR-hl5ocQTg8qoqWSiBiTuBB90XWU0a7fOP368BMyQfWX7AxKDAu0ShxBUPWJujYjbGxjXlQCkKrvBWaxS7UuCncMK0aSBObBA6jkCrNAlYF76PXke1CPRoL299b1y4NILgsz06UQLfip3OX4E2d_K4RmPhL2NzXjxuzprNNhDE7lJEjLmcXaWHt5fT5v",
+    bio: "Designing seamless digital experiences for the modern tenant. Marcus translates user needs into beautiful, functional platform features.",
+  },
+  {
+    name: "Shrouk Saber",
     role: "VP of Product",
     image:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuA3NBcgn5tNDlZemxp_zFAydpReYVPOG93ZwywoFZhhDT4gXhh4ocsOMgtJZVaHLmYVRIoPTVZIBCd58xRlR-hl5ocQTg8qoqWSiBiTuBB90XWU0a7fOP368BMyQfWX7AxKDAu0ShxBUPWJujYjbGxjXlQCkKrvBWaxS7UuCncMK0aSBObBA6jkCrNAlYF76PXke1CPRoL299b1y4NILgsz06UQLfip3OX4E2d_K4RmPhL2NzXjxuzprNNhDE7lJEjLmcXaWHt5fT5v",

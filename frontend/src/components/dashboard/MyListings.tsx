@@ -137,7 +137,7 @@ export default function MyListings({ listings, onAddNew, onEdit }: MyListingsPro
                         </div>
                       </div>
                     </td>
-                    <td className="p-5 text-gray-400">{listing.location}</td>
+                    <td className="p-5 text-gray-400">{listing.location}</td> 
                     <td className="p-5">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${STATUS_STYLES[listing.status]}`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[listing.status]}`} />

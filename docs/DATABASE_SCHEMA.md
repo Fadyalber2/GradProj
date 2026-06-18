@@ -382,6 +382,91 @@ listings
 
 ---
 
+## ER-to-Relational Mapping (from ERD)
+
+Relational schema derived from the conceptual ERD by applying standard mapping rules:
+PKs are <u>underlined</u>, foreign keys are marked `*FK*`, each **multivalued attribute**
+(phone, images) becomes its own relation, and the **derived attribute** `age` is not stored.
+
+### Strong entities
+
+```
+user( user_id, full_name, email, gender, role, DOB )
+       └ PK: user_id        (age is derived from DOB → not stored)
+
+Blog_post( Blog_id, title, category, is_published, user_id* )
+       └ PK: Blog_id        FK user_id → user        (creates)
+
+Listing( listing_id, title, category, description, property_type,
+         price, status, bathrooms, bedrooms, city,
+         owner_id*, project_id*, agency_id*, university_id* )
+       └ PK: listing_id
+         FK owner_id      → user        (owns)
+         FK project_id    → Project     (contains)
+         FK agency_id     → Agency      (contains)
+         FK university_id → University  (Near)
+
+Lead( lead_id, source, contact_name, contact_phone, listing_id* )
+       └ PK: lead_id        FK listing_id → Listing   (Generates)
+
+Project( Project_id, Title, description, start_price, status )
+       └ PK: Project_id
+
+Agency( Agency_id, name, description, price, city )
+       └ PK: Agency_id
+
+University( University_id, name, description, type, city )
+       └ PK: University_id
+
+Payment( Payment_id, amount, status, payment_method, user_id* )
+       └ PK: Payment_id     FK user_id → user        (generates)
+
+Subscription( Subscription_id, time_end, status, plan, user_id* )
+       └ PK: Subscription_id  FK user_id → user      (has)
+
+Housemate( housemate_id, name, occupation, gender, listing_id* )
+       └ PK: housemate_id   FK listing_id → Listing  (Contains)
+
+KnowledgeChunk( knowledge_id, source, chunk_text, listing_id* )
+       └ PK: knowledge_id   FK listing_id → Listing  (Generated from)
+```
+
+### Multivalued-attribute relations
+
+```
+user_phone( user_id*, phone )
+       └ PK: (user_id, phone)        FK user_id → user
+
+project_phone( Project_id*, phone )
+       └ PK: (Project_id, phone)     FK Project_id → Project
+
+agency_phone( Agency_id*, phone )
+       └ PK: (Agency_id, phone)      FK Agency_id → Agency
+
+university_phone( University_id*, phone )
+       └ PK: (University_id, phone)  FK University_id → University
+
+listing_image( listing_id*, image_url )
+       └ PK: (listing_id, image_url) FK listing_id → Listing
+```
+
+### Relationship → FK placement summary
+
+| Relationship          | Type | Mapped via                          |
+|-----------------------|------|-------------------------------------|
+| user **creates** Blog post  | 1:N | `Blog_post.user_id`        |
+| user **owns** Listing       | 1:N | `Listing.owner_id`         |
+| user **has** Subscription   | 1:N | `Subscription.user_id`     |
+| user **generates** Payment  | 1:N | `Payment.user_id`          |
+| Listing **Generates** Lead  | 1:N | `Lead.listing_id`          |
+| Project **contains** Listing| 1:N | `Listing.project_id`       |
+| Agency **contains** Listing | 1:N | `Listing.agency_id`        |
+| Listing **Near** University | N:1 | `Listing.university_id`    |
+| Listing **Contains** Housemate | 1:N | `Housemate.listing_id`  |
+| Listing **Generated from** KnowledgeChunk | 1:N | `KnowledgeChunk.listing_id` |
+
+---
+
 ## Mapping Table (Logical → Physical)
 
 | Entity          | Table Name         | PK Type    | Soft Delete | Timestamps          |

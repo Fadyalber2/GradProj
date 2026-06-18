@@ -19,7 +19,7 @@ export default function HomePage() {
       <VibeMatchesSection />
       <HowItWorksSection />
       <NeighborhoodGuides />
-      <TestimonialsSection />
+      {/* <TestimonialsSection /> */}
       <TrustedPartners />
       <CTASection />
     </>

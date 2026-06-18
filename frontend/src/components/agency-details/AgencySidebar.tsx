@@ -85,10 +85,7 @@ export default function AgencySidebar({ agency }: AgencySidebarProps) {
         </div>
 
         {/* CTA buttons */}
-        <button className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-3.5 rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 mb-3 cursor-pointer">
-          <FileText className="h-4 w-4" />
-          Request Sales Kit
-        </button>
+
         {agency.website ? (
           <a
             href={agency.website}

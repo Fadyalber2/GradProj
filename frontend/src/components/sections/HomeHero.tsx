@@ -106,22 +106,19 @@ export default function HomeHero() {
         {/* Stats */}
         <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-gray-400 font-medium">
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-green-500" /> 12,400+
+            <span className="w-2 h-2 rounded-full bg-green-500" />
             Listings
           </span>
           <span className="flex items-center gap-1.5">
-            <Users className="h-3 w-3" /> 3,200 Roommates
+            <Users className="h-3 w-3" /> Roommates
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="text-primary">♥</span> 94% Match Rate
+            <span className="text-primary">♥</span>  Match Rate
           </span>
         </div>
 
         {/* Trust badge */}
-        <div className="mt-12 text-xs text-green-500/80 font-medium flex items-center justify-center gap-2 uppercase tracking-wide">
-          <ShieldCheck className="h-3.5 w-3.5" /> Trusted by 50,000+ residents
-          across Egypt
-        </div>
+
       </motion.div>
     </section>
   );

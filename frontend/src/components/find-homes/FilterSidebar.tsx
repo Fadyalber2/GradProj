@@ -38,7 +38,7 @@ const LEASE_OPTIONS: FilterOption[] = [
 const ROOM_OPTIONS: FilterOption[] = [
   { label: "Private", value: "private" },
   { label: "Shared", value: "shared" },
-  { label: "Ensuite", value: "ensuite" },
+  { label: "bathroom included", value: "ensuite" },
 ];
 
 const AMENITIES = [

@@ -21,12 +21,12 @@ export default function CTASection() {
           roommates today.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
+          {/* <Link
             href="/signup"
             className="bg-white text-primary font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition-colors shadow-lg"
           >
             Get Started Free
-          </Link>
+          </Link> */}
           <Link
             href="/find-homes"
             className="bg-transparent border border-white text-white font-bold py-3 px-8 rounded-full hover:bg-white/10 transition-colors"

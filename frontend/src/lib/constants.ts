@@ -7,8 +7,9 @@ import type {
 } from "@/types";
 
 export const NAV_ITEMS: NavItem[] = [
+
+  { label: "Home", href: "/" },
   { label: "Find Homes", href: "/find-homes" },
-  { label: "Shared Housing", href: "/find-homes?category=shared_housing" },
   { label: "Agencies", href: "/agencies" },
   { label: "Pricing", href: "/pricing" },
   { label: "Blog", href: "/blog" },
