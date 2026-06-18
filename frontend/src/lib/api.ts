@@ -47,6 +47,7 @@ async function request<T>(
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    "X-Request-ID": crypto.randomUUID(),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(API_BASE_URL.includes("ngrok") ? { "ngrok-skip-browser-warning": "true" } : {}),
     ...options.headers,
@@ -103,6 +104,7 @@ export async function serverFetch<T>(
     const res = await fetch(`${API_BASE_URL}${path}`, {
       headers: {
         "Content-Type": "application/json",
+        "X-Request-ID": crypto.randomUUID(),
         ...(API_BASE_URL.includes("ngrok") ? { "ngrok-skip-browser-warning": "true" } : {}),
         ...options.headers,
       },
