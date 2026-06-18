@@ -29,6 +29,13 @@ def configure_logging(level: str = "INFO") -> None:
                     "formatter": "default",
                 }
             },
+            "loggers": {
+                # Third-party libraries — always WARNING regardless of app level
+                "httpcore": {"level": "WARNING", "propagate": True},
+                "httpx": {"level": "WARNING", "propagate": True},
+                "hpack": {"level": "WARNING", "propagate": True},
+                "uvicorn.access": {"level": "WARNING", "propagate": True},
+            },
             "root": {"handlers": ["console"], "level": level},
         }
     )
