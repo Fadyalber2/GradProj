@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import DashboardStats from "@/components/dashboard/DashboardStats";
 import MyListings from "@/components/dashboard/MyListings";
 import dynamic from "next/dynamic";
@@ -93,6 +93,7 @@ function mapAnalytics(stat: ApiAnalyticsStat): AnalyticsStat {
 export default function DashboardPage() {
   const { user, isInitialized } = useAuthStore();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
   const { data, isLoading, isError } = useQuery({
     ...dashboardQueries.me(),
@@ -105,7 +106,7 @@ export default function DashboardPage() {
     }
   }, [isInitialized, user, router]);
 
-  if (isLoading) {
+  if (!isInitialized || isLoading) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <Skeleton className="mb-8 h-72 rounded-[1.75rem] bg-white/10" />
@@ -213,7 +214,11 @@ export default function DashboardPage() {
             <LikedProperties />
           </TabsContent>
         </Tabs>
-        <AddListingModal open={modalOpen} onClose={() => setModalOpen(false)} />
+        <AddListingModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onSuccess={() => queryClient.invalidateQueries({ queryKey: ["dashboard", "me"] })}
+        />
       </div>
     </div>
   );
