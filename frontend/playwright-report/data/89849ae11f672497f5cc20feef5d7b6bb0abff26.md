@@ -1,0 +1,632 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: find-homes\filters.spec.ts >> applying category filter updates listing count and resets to page 1
+- Location: tests\find-homes\filters.spec.ts:3:5
+
+# Error details
+
+```
+Test timeout of 30000ms exceeded.
+```
+
+```
+Error: locator.click: Target page, context or browser has been closed
+```
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "AXIOM" [ref=e6] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e7]:
+          - link "Find Homes" [ref=e8] [cursor=pointer]:
+            - /url: /find-homes
+          - link "Shared Housing" [ref=e9] [cursor=pointer]:
+            - /url: /find-homes?category=shared_housing
+          - link "Agencies" [ref=e10] [cursor=pointer]:
+            - /url: /agencies
+          - link "Pricing" [ref=e11] [cursor=pointer]:
+            - /url: /pricing
+          - link "Blog" [ref=e12] [cursor=pointer]:
+            - /url: /blog
+          - link "About Us" [ref=e13] [cursor=pointer]:
+            - /url: /about
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - img [ref=e17]
+          - textbox "Search city, neighborhood..." [ref=e20]
+        - button "Testuser1 Testuser1" [ref=e22]:
+          - img "Testuser1" [ref=e24]
+          - generic [ref=e25]: Testuser1
+          - img [ref=e26]
+  - main [ref=e28]:
+    - complementary [ref=e29]:
+      - complementary [ref=e30]:
+        - generic [ref=e31]:
+          - heading "Filters" [level=2] [ref=e32]:
+            - img [ref=e33]
+            - text: Filters
+          - button "Reset all filters" [ref=e34]: Reset All
+        - generic [ref=e35]:
+          - generic [ref=e36]:
+            - heading "Category" [level=3] [ref=e37]
+            - generic [ref=e38]:
+              - button "Rent" [ref=e39]
+              - button "Sale" [ref=e40]
+              - button "Shared" [ref=e41]
+          - generic [ref=e42]:
+            - heading "Property Type" [level=3] [ref=e43]
+            - generic [ref=e44]:
+              - button "Apartment" [ref=e45]
+              - button "Villa" [ref=e46]
+              - button "Studio" [ref=e47]
+              - button "Duplex" [ref=e48]
+              - button "Penthouse" [ref=e49]
+              - button "Townhouse" [ref=e50]
+              - button "Twin House" [ref=e51]
+              - button "Chalet" [ref=e52]
+              - button "Office" [ref=e53]
+              - button "Commercial" [ref=e54]
+              - button "Land" [ref=e55]
+          - generic [ref=e56]:
+            - heading "Price Range (EGP)" [level=3] [ref=e57]
+            - generic [ref=e58]:
+              - generic [ref=e59]:
+                - text: Min price
+                - spinbutton "Min price" [ref=e60]
+              - generic [ref=e61]:
+                - text: Max price
+                - spinbutton "Max price" [ref=e62]
+          - generic [ref=e63]:
+            - heading "Rooms" [level=3] [ref=e64]
+            - generic [ref=e65]:
+              - generic [ref=e66]:
+                - paragraph [ref=e67]: Bedrooms
+                - generic [ref=e68]:
+                  - button "1" [ref=e69]
+                  - button "2" [ref=e70]
+                  - button "3" [ref=e71]
+                  - button "4" [ref=e72]
+                  - button "5" [ref=e73]
+              - generic [ref=e74]:
+                - paragraph [ref=e75]: Bathrooms
+                - generic [ref=e76]:
+                  - button "1" [ref=e77]
+                  - button "2" [ref=e78]
+                  - button "3" [ref=e79]
+                  - button "4" [ref=e80]
+                  - button "5" [ref=e81]
+          - generic [ref=e82]:
+            - heading "Size (sqm)" [level=3] [ref=e83]
+            - generic [ref=e84]:
+              - generic [ref=e85]:
+                - text: Min size
+                - spinbutton "Min size" [ref=e86]
+              - generic [ref=e87]:
+                - text: Max size
+                - spinbutton "Max size" [ref=e88]
+          - generic [ref=e89]:
+            - heading "Rental Details" [level=3] [ref=e90]
+            - generic [ref=e91]:
+              - button "Monthly" [ref=e92]
+              - button "Yearly" [ref=e93]
+          - generic [ref=e94]:
+            - heading "Shared Housing" [level=3] [ref=e95]
+            - generic [ref=e96]:
+              - generic [ref=e97]:
+                - button "Private" [ref=e98]
+                - button "Shared" [ref=e99]
+                - button "Ensuite" [ref=e100]
+              - generic [ref=e101] [cursor=pointer]:
+                - generic [ref=e102]: Utilities included
+                - checkbox "Utilities included" [ref=e103]
+          - generic [ref=e104]:
+            - heading "Amenities" [level=3] [ref=e105]
+            - generic [ref=e106]:
+              - generic [ref=e107] [cursor=pointer]:
+                - checkbox "Parking" [ref=e108]
+                - generic [ref=e109]: Parking
+              - generic [ref=e110] [cursor=pointer]:
+                - checkbox "Gym" [ref=e111]
+                - generic [ref=e112]: Gym
+              - generic [ref=e113] [cursor=pointer]:
+                - checkbox "Security" [ref=e114]
+                - generic [ref=e115]: Security
+              - generic [ref=e116] [cursor=pointer]:
+                - checkbox "Elevator" [ref=e117]
+                - generic [ref=e118]: Elevator
+              - generic [ref=e119] [cursor=pointer]:
+                - checkbox "Garden" [ref=e120]
+                - generic [ref=e121]: Garden
+              - generic [ref=e122] [cursor=pointer]:
+                - checkbox "Central AC" [ref=e123]
+                - generic [ref=e124]: Central AC
+              - generic [ref=e125] [cursor=pointer]:
+                - checkbox "Balcony" [ref=e126]
+                - generic [ref=e127]: Balcony
+              - generic [ref=e128] [cursor=pointer]:
+                - checkbox "Swimming Pool" [ref=e129]
+                - generic [ref=e130]: Swimming Pool
+              - generic [ref=e131] [cursor=pointer]:
+                - checkbox "Furnished" [ref=e132]
+                - generic [ref=e133]: Furnished
+              - generic [ref=e134] [cursor=pointer]:
+                - checkbox "Rooftop" [ref=e135]
+                - generic [ref=e136]: Rooftop
+              - generic [ref=e137] [cursor=pointer]:
+                - checkbox "Pet Friendly" [ref=e138]
+                - generic [ref=e139]: Pet Friendly
+              - generic [ref=e140] [cursor=pointer]:
+                - checkbox "CCTV" [ref=e141]
+                - generic [ref=e142]: CCTV
+              - generic [ref=e143] [cursor=pointer]:
+                - checkbox "Doorman" [ref=e144]
+                - generic [ref=e145]: Doorman
+        - button "Apply Filters" [ref=e147]
+    - generic [ref=e148]:
+      - generic [ref=e149]:
+        - generic [ref=e150]:
+          - heading "Find Homes" [level=1] [ref=e151]
+          - paragraph [ref=e152]: Showing 115 properties
+        - generic [ref=e153]:
+          - generic [ref=e154]:
+            - button "Grid" [ref=e155]:
+              - img [ref=e156]
+              - text: Grid
+            - button "List" [ref=e161]:
+              - img [ref=e162]
+              - text: List
+          - combobox [ref=e165]:
+            - option "Recommended" [selected]
+            - 'option "Price: Low to High"'
+            - 'option "Price: High to Low"'
+            - option "Most Viewed"
+      - generic [ref=e167]:
+        - generic [ref=e168]:
+          - generic:
+            - img
+          - textbox "Search by location, name, budget… or describe your ideal home" [ref=e169]
+        - button "Search" [ref=e170]:
+          - img [ref=e171]
+          - text: Search
+      - generic [ref=e174]:
+        - link "Id laboris do quam m NEW For Sale Remove from saved Id laboris do quam m Voluptatem commodi e Studio 69 EGP 3 Beds 2 Baths 32 m²" [ref=e177] [cursor=pointer]:
+          - /url: /property/2bc0b5ef-4df8-481e-9e95-38b20e47d2a0
+          - generic [ref=e178]:
+            - img "Id laboris do quam m" [ref=e179]
+            - generic [ref=e180]:
+              - generic [ref=e181]: NEW
+              - generic [ref=e182]: For Sale
+            - button "Remove from saved" [ref=e183]:
+              - img [ref=e184]
+          - generic [ref=e186]:
+            - generic [ref=e187]:
+              - generic [ref=e188]:
+                - heading "Id laboris do quam m" [level=3] [ref=e189]
+                - paragraph [ref=e190]:
+                  - img [ref=e191]
+                  - generic [ref=e194]: Voluptatem commodi e
+                - generic [ref=e195]:
+                  - img [ref=e196]
+                  - generic [ref=e199]: Studio
+              - generic [ref=e200]: 69 EGP
+            - generic [ref=e201]:
+              - generic [ref=e202]:
+                - img [ref=e203]
+                - text: 3 Beds
+              - generic [ref=e206]:
+                - img [ref=e207]
+                - text: 2 Baths
+              - generic [ref=e210]:
+                - img [ref=e211]
+                - text: 32 m²
+        - link "Voluptas dolor id t NEW For Rent Save property Voluptas dolor id t Eveniet autem sunt Chalet 42 EGP /month 3 Beds 2 Baths 85 m²" [ref=e219] [cursor=pointer]:
+          - /url: /property/e2adbc19-bbaa-4037-a2eb-63e00402d7d5
+          - generic [ref=e220]:
+            - img "Voluptas dolor id t" [ref=e221]
+            - generic [ref=e222]:
+              - generic [ref=e223]: NEW
+              - generic [ref=e224]: For Rent
+            - button "Save property" [ref=e225]:
+              - img [ref=e226]
+          - generic [ref=e228]:
+            - generic [ref=e229]:
+              - generic [ref=e230]:
+                - heading "Voluptas dolor id t" [level=3] [ref=e231]
+                - paragraph [ref=e232]:
+                  - img [ref=e233]
+                  - generic [ref=e236]: Eveniet autem sunt
+                - generic [ref=e237]:
+                  - img [ref=e238]
+                  - generic [ref=e241]: Chalet
+              - generic [ref=e242]:
+                - text: 42 EGP
+                - generic [ref=e243]: /month
+            - generic [ref=e244]:
+              - generic [ref=e245]:
+                - img [ref=e246]
+                - text: 3 Beds
+              - generic [ref=e249]:
+                - img [ref=e250]
+                - text: 2 Baths
+              - generic [ref=e253]:
+                - img [ref=e254]
+                - text: 85 m²
+        - link "Explicabo Est sed d NEW For Sale Save property Explicabo Est sed d Dolorem officia arch Office 28 EGP 3 Beds 2 Baths 16 m²" [ref=e262] [cursor=pointer]:
+          - /url: /property/66f1556e-d46e-4ac0-ae12-596a85811e4c
+          - generic [ref=e263]:
+            - img "Explicabo Est sed d" [ref=e264]
+            - generic [ref=e265]:
+              - generic [ref=e266]: NEW
+              - generic [ref=e267]: For Sale
+            - button "Save property" [ref=e268]:
+              - img [ref=e269]
+          - generic [ref=e271]:
+            - generic [ref=e272]:
+              - generic [ref=e273]:
+                - heading "Explicabo Est sed d" [level=3] [ref=e274]
+                - paragraph [ref=e275]:
+                  - img [ref=e276]
+                  - generic [ref=e279]: Dolorem officia arch
+                - generic [ref=e280]:
+                  - img [ref=e281]
+                  - generic [ref=e284]: Office
+              - generic [ref=e285]: 28 EGP
+            - generic [ref=e286]:
+              - generic [ref=e287]:
+                - img [ref=e288]
+                - text: 3 Beds
+              - generic [ref=e291]:
+                - img [ref=e292]
+                - text: 2 Baths
+              - generic [ref=e295]:
+                - img [ref=e296]
+                - text: 16 m²
+        - link "شقه ف المعادي NEW For Rent Save property شقه ف المعادي المعادي شارع العاصمه Apartment 18 EGP /month 3 Beds 2 Baths 33 m²" [ref=e304] [cursor=pointer]:
+          - /url: /property/7f886676-07b9-4269-b87b-3ecea27f980b
+          - generic [ref=e305]:
+            - img "شقه ف المعادي" [ref=e306]
+            - generic [ref=e307]:
+              - generic [ref=e308]: NEW
+              - generic [ref=e309]: For Rent
+            - button "Save property" [ref=e310]:
+              - img [ref=e311]
+          - generic [ref=e313]:
+            - generic [ref=e314]:
+              - generic [ref=e315]:
+                - heading "شقه ف المعادي" [level=3] [ref=e316]
+                - paragraph [ref=e317]:
+                  - img [ref=e318]
+                  - generic [ref=e321]: المعادي شارع العاصمه
+                - generic [ref=e322]:
+                  - img [ref=e323]
+                  - generic [ref=e326]: Apartment
+              - generic [ref=e327]:
+                - text: 18 EGP
+                - generic [ref=e328]: /month
+            - generic [ref=e329]:
+              - generic [ref=e330]:
+                - img [ref=e331]
+                - text: 3 Beds
+              - generic [ref=e334]:
+                - img [ref=e335]
+                - text: 2 Baths
+              - generic [ref=e338]:
+                - img [ref=e339]
+                - text: 33 m²
+        - link "Suscipit elit nostr NEW Shared Remove from saved Suscipit elit nostr Quia laborum ea aute Land 84 EGP /month 3 Beds 2 Baths 11 m²" [ref=e347] [cursor=pointer]:
+          - /url: /property/1c8dd386-d51a-43a7-9f1f-4d03ab364f56
+          - generic [ref=e348]:
+            - img "Suscipit elit nostr" [ref=e349]
+            - generic [ref=e350]:
+              - generic [ref=e351]: NEW
+              - generic [ref=e352]: Shared
+            - button "Remove from saved" [ref=e353]:
+              - img [ref=e354]
+          - generic [ref=e356]:
+            - generic [ref=e357]:
+              - generic [ref=e358]:
+                - heading "Suscipit elit nostr" [level=3] [ref=e359]
+                - paragraph [ref=e360]:
+                  - img [ref=e361]
+                  - generic [ref=e364]: Quia laborum ea aute
+                - generic [ref=e365]:
+                  - img [ref=e366]
+                  - generic [ref=e369]: Land
+              - generic [ref=e370]:
+                - text: 84 EGP
+                - generic [ref=e371]: /month
+            - generic [ref=e372]:
+              - generic [ref=e373]:
+                - img [ref=e374]
+                - text: 3 Beds
+              - generic [ref=e377]:
+                - img [ref=e378]
+                - text: 2 Baths
+              - generic [ref=e381]:
+                - img [ref=e382]
+                - text: 11 m²
+        - link "Modern Studio in Sheikh Zayed NEW For Rent Save property Modern Studio in Sheikh Zayed Downtown, Sheikh Zayed Studio 8,344,610 EGP /month 1 Bed 2 Baths 182 m²" [ref=e390] [cursor=pointer]:
+          - /url: /property/e7e20792-e088-43a4-912c-3fe00ca97203
+          - generic [ref=e391]:
+            - img "Modern Studio in Sheikh Zayed" [ref=e392]
+            - generic [ref=e393]:
+              - generic [ref=e394]: NEW
+              - generic [ref=e395]: For Rent
+            - button "Save property" [ref=e396]:
+              - img [ref=e397]
+          - generic [ref=e399]:
+            - generic [ref=e400]:
+              - generic [ref=e401]:
+                - heading "Modern Studio in Sheikh Zayed" [level=3] [ref=e402]
+                - paragraph [ref=e403]:
+                  - img [ref=e404]
+                  - generic [ref=e407]: Downtown, Sheikh Zayed
+                - generic [ref=e408]:
+                  - img [ref=e409]
+                  - generic [ref=e412]: Studio
+              - generic [ref=e413]:
+                - text: 8,344,610 EGP
+                - generic [ref=e414]: /month
+            - generic [ref=e415]:
+              - generic [ref=e416]:
+                - img [ref=e417]
+                - text: 1 Bed
+              - generic [ref=e420]:
+                - img [ref=e421]
+                - text: 2 Baths
+              - generic [ref=e424]:
+                - img [ref=e425]
+                - text: 182 m²
+        - link "3 Bedroom Apartment in Mohamed Rahim St. NEW Shared Save property 3 Bedroom Apartment in Mohamed Rahim St. Mohamed Rahim St., El Yasmeen 3, El Yasmeen, New Cairo City, Cairo Apartment 7,800,000 EGP /month 3 Beds 2 Baths 200 m²" [ref=e433] [cursor=pointer]:
+          - /url: /property/f5850ead-4184-4fe0-b2f2-af39c32950c1
+          - generic [ref=e434]:
+            - img "3 Bedroom Apartment in Mohamed Rahim St." [ref=e435]
+            - generic [ref=e436]:
+              - generic [ref=e437]: NEW
+              - generic [ref=e438]: Shared
+            - button "Save property" [ref=e439]:
+              - img [ref=e440]
+          - generic [ref=e442]:
+            - generic [ref=e443]:
+              - generic [ref=e444]:
+                - heading "3 Bedroom Apartment in Mohamed Rahim St." [level=3] [ref=e445]
+                - paragraph [ref=e446]:
+                  - img [ref=e447]
+                  - generic [ref=e450]: Mohamed Rahim St., El Yasmeen 3, El Yasmeen, New Cairo City, Cairo
+                - generic [ref=e451]:
+                  - img [ref=e452]
+                  - generic [ref=e455]: Apartment
+              - generic [ref=e456]:
+                - text: 7,800,000 EGP
+                - generic [ref=e457]: /month
+            - generic [ref=e458]:
+              - generic [ref=e459]:
+                - img [ref=e460]
+                - text: 3 Beds
+              - generic [ref=e463]:
+                - img [ref=e464]
+                - text: 2 Baths
+              - generic [ref=e467]:
+                - img [ref=e468]
+                - text: 200 m²
+        - link "4 Bedroom Villa in The Estates NEW For Sale Save property 4 Bedroom Villa in The Estates The Estates, Sheikh Zayed Compounds, Sheikh Zayed City, Giza Villa 29,000,000 EGP 4 Beds 4 Baths 425 m²" [ref=e476] [cursor=pointer]:
+          - /url: /property/d7005209-3dde-48d1-aa54-e6aeccb72190
+          - generic [ref=e477]:
+            - img "4 Bedroom Villa in The Estates" [ref=e478]
+            - generic [ref=e479]:
+              - generic [ref=e480]: NEW
+              - generic [ref=e481]: For Sale
+            - button "Save property" [ref=e482]:
+              - img [ref=e483]
+          - generic [ref=e485]:
+            - generic [ref=e486]:
+              - generic [ref=e487]:
+                - heading "4 Bedroom Villa in The Estates" [level=3] [ref=e488]
+                - paragraph [ref=e489]:
+                  - img [ref=e490]
+                  - generic [ref=e493]: The Estates, Sheikh Zayed Compounds, Sheikh Zayed City, Giza
+                - generic [ref=e494]:
+                  - img [ref=e495]
+                  - generic [ref=e498]: Villa
+              - generic [ref=e499]: 29,000,000 EGP
+            - generic [ref=e500]:
+              - generic [ref=e501]:
+                - img [ref=e502]
+                - text: 4 Beds
+              - generic [ref=e505]:
+                - img [ref=e506]
+                - text: 4 Baths
+              - generic [ref=e509]:
+                - img [ref=e510]
+                - text: 425 m²
+        - link "3 Bedroom Villa in Cleopatra Square NEW Shared Save property 3 Bedroom Villa in Cleopatra Square Cleopatra Square, 26th of July Corridor, 6 October City, Giza Villa 2,000,000 EGP /month 3 Beds 3 Baths 431 m²" [ref=e518] [cursor=pointer]:
+          - /url: /property/da4ec0d2-4f04-4efc-ac02-a12c4951c459
+          - generic [ref=e519]:
+            - img "3 Bedroom Villa in Cleopatra Square" [ref=e520]
+            - generic [ref=e521]:
+              - generic [ref=e522]: NEW
+              - generic [ref=e523]: Shared
+            - button "Save property" [ref=e524]:
+              - img [ref=e525]
+          - generic [ref=e527]:
+            - generic [ref=e528]:
+              - generic [ref=e529]:
+                - heading "3 Bedroom Villa in Cleopatra Square" [level=3] [ref=e530]
+                - paragraph [ref=e531]:
+                  - img [ref=e532]
+                  - generic [ref=e535]: Cleopatra Square, 26th of July Corridor, 6 October City, Giza
+                - generic [ref=e536]:
+                  - img [ref=e537]
+                  - generic [ref=e540]: Villa
+              - generic [ref=e541]:
+                - text: 2,000,000 EGP
+                - generic [ref=e542]: /month
+            - generic [ref=e543]:
+              - generic [ref=e544]:
+                - img [ref=e545]
+                - text: 3 Beds
+              - generic [ref=e548]:
+                - img [ref=e549]
+                - text: 3 Baths
+              - generic [ref=e552]:
+                - img [ref=e553]
+                - text: 431 m²
+        - link "3 Bedroom Apartment in VYE Sodic Compound NEW For Sale Save property 3 Bedroom Apartment in VYE Sodic Compound VYE Sodic Compound, Sheikh Zayed, Giza Apartment 2,129,000 EGP 3 Beds 3 Baths 167 m²" [ref=e561] [cursor=pointer]:
+          - /url: /property/4a890ab4-fadf-4a93-a83a-35f1c41b8430
+          - generic [ref=e562]:
+            - img "3 Bedroom Apartment in VYE Sodic Compound" [ref=e563]
+            - generic [ref=e564]:
+              - generic [ref=e565]: NEW
+              - generic [ref=e566]: For Sale
+            - button "Save property" [ref=e567]:
+              - img [ref=e568]
+          - generic [ref=e570]:
+            - generic [ref=e571]:
+              - generic [ref=e572]:
+                - heading "3 Bedroom Apartment in VYE Sodic Compound" [level=3] [ref=e573]
+                - paragraph [ref=e574]:
+                  - img [ref=e575]
+                  - generic [ref=e578]: VYE Sodic Compound, Sheikh Zayed, Giza
+                - generic [ref=e579]:
+                  - img [ref=e580]
+                  - generic [ref=e583]: Apartment
+              - generic [ref=e584]: 2,129,000 EGP
+            - generic [ref=e585]:
+              - generic [ref=e586]:
+                - img [ref=e587]
+                - text: 3 Beds
+              - generic [ref=e590]:
+                - img [ref=e591]
+                - text: 3 Baths
+              - generic [ref=e594]:
+                - img [ref=e595]
+                - text: 167 m²
+        - link "2 Bedroom Apartment in Mazarine NEW For Sale Save property 2 Bedroom Apartment in Mazarine Mazarine, New Alamein City, Al Alamein, North Coast Apartment 4,230,000 EGP 2 Beds 2 Baths 133 m²" [ref=e603] [cursor=pointer]:
+          - /url: /property/b3accd84-b9f3-4d6a-82f9-b6e66ea257e3
+          - generic [ref=e604]:
+            - img "2 Bedroom Apartment in Mazarine" [ref=e605]
+            - generic [ref=e606]:
+              - generic [ref=e607]: NEW
+              - generic [ref=e608]: For Sale
+            - button "Save property" [ref=e609]:
+              - img [ref=e610]
+          - generic [ref=e612]:
+            - generic [ref=e613]:
+              - generic [ref=e614]:
+                - heading "2 Bedroom Apartment in Mazarine" [level=3] [ref=e615]
+                - paragraph [ref=e616]:
+                  - img [ref=e617]
+                  - generic [ref=e620]: Mazarine, New Alamein City, Al Alamein, North Coast
+                - generic [ref=e621]:
+                  - img [ref=e622]
+                  - generic [ref=e625]: Apartment
+              - generic [ref=e626]: 4,230,000 EGP
+            - generic [ref=e627]:
+              - generic [ref=e628]:
+                - img [ref=e629]
+                - text: 2 Beds
+              - generic [ref=e632]:
+                - img [ref=e633]
+                - text: 2 Baths
+              - generic [ref=e636]:
+                - img [ref=e637]
+                - text: 133 m²
+        - link "3 Bedroom Apartment in Madinaty NEW Shared Save property 3 Bedroom Apartment in Madinaty Madinaty, Cairo Apartment 7,900,000 EGP /month 3 Beds 2 Baths 165 m²" [ref=e645] [cursor=pointer]:
+          - /url: /property/67802671-5be5-412f-8d9e-86d7c903f41d
+          - generic [ref=e646]:
+            - img "3 Bedroom Apartment in Madinaty" [ref=e647]
+            - generic [ref=e648]:
+              - generic [ref=e649]: NEW
+              - generic [ref=e650]: Shared
+            - button "Save property" [ref=e651]:
+              - img [ref=e652]
+          - generic [ref=e654]:
+            - generic [ref=e655]:
+              - generic [ref=e656]:
+                - heading "3 Bedroom Apartment in Madinaty" [level=3] [ref=e657]
+                - paragraph [ref=e658]:
+                  - img [ref=e659]
+                  - generic [ref=e662]: Madinaty, Cairo
+                - generic [ref=e663]:
+                  - img [ref=e664]
+                  - generic [ref=e667]: Apartment
+              - generic [ref=e668]:
+                - text: 7,900,000 EGP
+                - generic [ref=e669]: /month
+            - generic [ref=e670]:
+              - generic [ref=e671]:
+                - img [ref=e672]
+                - text: 3 Beds
+              - generic [ref=e675]:
+                - img [ref=e676]
+                - text: 2 Baths
+              - generic [ref=e679]:
+                - img [ref=e680]
+                - text: 165 m²
+      - generic [ref=e686]:
+        - button [disabled] [ref=e687]:
+          - img [ref=e688]
+        - button "1" [ref=e690]
+        - button "2" [ref=e691]
+        - button "3" [ref=e692]
+        - generic [ref=e693]: ...
+        - button "10" [ref=e694]
+        - button [ref=e695]:
+          - img [ref=e696]
+  - button "Open AI chat" [ref=e700]:
+    - img [ref=e702]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e710] [cursor=pointer]:
+    - img [ref=e711]
+  - alert [ref=e714]
+```
+
+# Test source
+
+```ts
+  1  | import { test, expect } from "@playwright/test";
+  2  | 
+  3  | test("applying category filter updates listing count and resets to page 1", async ({ page }) => {
+  4  |   await page.goto("/find-homes");
+  5  | 
+  6  |   // Wait for initial load
+  7  |   await expect(page.locator(".animate-spin").first()).not.toBeVisible({ timeout: 15_000 });
+  8  |   const initialCountText = await page.getByText(/showing \d+/i).textContent();
+  9  | 
+  10 |   // Select category "For Rent" in the filter sidebar
+  11 |   await page.getByRole("radio", { name: /for rent/i })
+  12 |     .first()
+  13 |     .click()
+  14 |     .catch(() =>
+> 15 |       page.getByLabel(/for rent/i).first().click()
+     |                                            ^ Error: locator.click: Target page, context or browser has been closed
+  16 |     );
+  17 | 
+  18 |   // Click Apply if sidebar has an apply button
+  19 |   const applyBtn = page.getByRole("button", { name: /apply/i });
+  20 |   if (await applyBtn.isVisible()) await applyBtn.click();
+  21 | 
+  22 |   await expect(page.locator(".animate-spin").first()).not.toBeVisible({ timeout: 15_000 });
+  23 | 
+  24 |   // Count may differ from initial
+  25 |   await expect(page.getByText(/showing \d+/i)).toBeVisible();
+  26 | 
+  27 |   // Page indicator back to 1
+  28 |   const activePage = page.locator("[aria-current='page'], [aria-label='Page 1']").first();
+  29 |   if (await activePage.isVisible()) {
+  30 |     await expect(activePage).toBeVisible();
+  31 |   }
+  32 | });
+  33 | 
+```
