@@ -67,10 +67,10 @@ export default function LikeButton({ id, size = "sm", className = "" }: LikeButt
       className={`
         ${isLg
           ? "w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 border border-white/10"
-          : "w-8 h-8 rounded-full bg-black/50 hover:bg-white"}
-        flex items-center justify-center backdrop-blur-sm transition-colors duration-150
+          : "w-11 h-11 rounded-full bg-black/60 hover:bg-white/90 border border-white/20 shadow-lg shadow-black/30"}
+        flex items-center justify-center backdrop-blur-sm transition-all duration-150
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white
-        ${liked ? "text-red-500" : isLg ? "text-white hover:text-red-500" : "text-white hover:text-red-500"}
+        ${liked ? "text-red-500" : "text-white hover:text-red-500"}
         ${className}
       `}
     >

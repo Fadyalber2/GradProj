@@ -63,11 +63,14 @@ export default function AuthCallbackPage() {
 
       // Show modal for any OAuth user who hasn't filled in phone/gender/birth_date
       if (isOAuthSession(session) && isProfileIncomplete(currentUser)) {
+        document.cookie = "axiom-onboarding-pending=1; path=/; SameSite=Lax; max-age=86400";
         setUser(currentUser);
         setShowCompletionModal(true);
         return;
       }
 
+      // Clear any stale onboarding cookie before entering the app
+      document.cookie = "axiom-onboarding-pending=; path=/; max-age=0; SameSite=Lax";
       router.replace("/dashboard");
     };
 
@@ -88,6 +91,7 @@ export default function AuthCallbackPage() {
   }, [router]);
 
   const handleModalClose = () => {
+    document.cookie = "axiom-onboarding-pending=; path=/; max-age=0; SameSite=Lax";
     setShowCompletionModal(false);
     router.replace("/dashboard");
   };

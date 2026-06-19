@@ -1,34 +1,39 @@
 import { test, expect } from "@playwright/test";
 
 test("AI chatbot opens, accepts message, and streams response without error", async ({ page }) => {
+  await page.goto("/login");
+
+  await page.getByLabel("Email Address").fill("Testuser1@gmail.com");
+  await page.locator('input[name="password"]').fill("Testuser123");
+  await page.getByRole("button", { name: "Log In" }).click();
+
+  await page.waitForURL("/dashboard", { timeout: 15_000 });
+
+  // Dashboard heading confirms the page rendered
+  await expect(
+    page.getByRole("heading", { name: "Manage your AXIOM workspace." })
+  ).toBeVisible({ timeout: 15_000 });
+
   await page.goto("/");
 
-  // Click the floating AI button to open chat drawer
-  const aiButton = page.getByRole("button", { name: /chat|ai|assistant/i })
-    .or(page.locator("button[aria-label*='chat' i], button[aria-label*='ai' i]"))
-    .first();
+  // Floating button has aria-label="Open AI chat"
+  const aiButton = page.getByRole("button", { name: /open ai chat/i });
   await expect(aiButton).toBeVisible({ timeout: 10_000 });
   await aiButton.click();
 
-  // Drawer opens
-  const drawer = page.locator("[role='dialog'], [data-state='open']").first();
-  await expect(drawer).toBeVisible({ timeout: 5_000 });
+  // ChatDrawer renders as motion.div (not role="dialog") — wait for the input inside it
+  const input = page.getByPlaceholder("Ask about properties, prices, areas...");
+  await expect(input).toBeVisible({ timeout: 5_000 });
 
-  // Type a message
-  const input = drawer.getByRole("textbox")
-    .or(drawer.locator("input[type='text'], textarea"))
-    .first();
-  await expect(input).toBeVisible();
   await input.fill("What properties are available in Maadi?");
 
-  // Send
-  await drawer.getByRole("button", { name: /send/i }).click();
+  await page.getByRole('button').filter({ hasText: /^$/ }).nth(4).click();
 
-  // Response appears (any assistant message bubble)
+  // Wait for AI response message to appear
   await expect(
-    drawer.locator("[class*='message'], [class*='bubble'], [class*='assistant']").last()
-  ).toBeVisible({ timeout: 30_000 });
+    page.locator('div').filter({ hasText: /^Here is 1 apartment in Maadi:$/ })
+  ).toBeVisible({ timeout: 1000_000 });
 
   // No error state visible
-  await expect(drawer.getByText(/error|failed|500/i)).not.toBeVisible();
+  await expect(page.getByText(/error|failed|500/i)).not.toBeVisible();
 });

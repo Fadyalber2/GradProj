@@ -21,8 +21,8 @@ export interface ListingFilters {
   property_type?: string;
   min_price?: number;
   max_price?: number;
-  bedrooms?: number;
-  bathrooms?: number;
+  bedrooms?: number[];
+  bathrooms?: number[];
   min_size_sqm?: number;
   max_size_sqm?: number;
   lease_type?: string;
@@ -223,8 +223,8 @@ export async function getListings(filters?: ListingFilters) {
 
   if (filters?.category) query = query.eq("category", filters.category);
   if (filters?.property_type) query = query.eq("property_type", filters.property_type);
-  if (filters?.bedrooms) query = query.eq("bedrooms", filters.bedrooms);
-  if (filters?.bathrooms) query = query.eq("bathrooms", filters.bathrooms);
+  if (filters?.bedrooms?.length) query = query.in("bedrooms", filters.bedrooms);
+  if (filters?.bathrooms?.length) query = query.in("bathrooms", filters.bathrooms);
   if (filters?.min_size_sqm) query = query.gte("size_sqm", filters.min_size_sqm);
   if (filters?.max_size_sqm) query = query.lte("size_sqm", filters.max_size_sqm);
   if (filters?.lease_type) query = query.eq("lease_type", filters.lease_type);
@@ -248,7 +248,7 @@ export async function getListings(filters?: ListingFilters) {
     if (maxPrice && !filters.max_price) query = query.lte("price", maxPrice);
 
     // Parsed structural filters — only apply if not already set
-    if (bedrooms != null && !filters.bedrooms) query = query.eq("bedrooms", bedrooms);
+    if (bedrooms != null && !filters.bedrooms?.length) query = query.in("bedrooms", [bedrooms]);
     if (propertyType && !filters.property_type) query = query.eq("property_type", propertyType);
     if (category && !filters.category) query = query.eq("category", category);
 

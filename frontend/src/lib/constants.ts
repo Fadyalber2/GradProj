@@ -97,7 +97,6 @@ export const QUICK_LINKS: FooterLink[] = [
   { label: "Agencies", href: "/agencies" },
   { label: "About Us", href: "/about" },
   { label: "Blog", href: "/blog" },
-  { label: "Contact", href: "/contact" },
 ];
 
 export const LEGAL_LINKS: FooterLink[] = [

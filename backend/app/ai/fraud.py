@@ -20,8 +20,31 @@ async def score_listing(listing: dict) -> float:
       - Owner reputation: 0.2
       - LLM consistency: 0.5
 
+    Hard rules (return 1.0 immediately, no LLM needed):
+      - price <= 10 EGP
+      - size_sqm <= 5
+      - no description
+
     If Ollama is down the LLM component returns 0.0 (fail-open).
     """
+    # Hard rule: suspiciously low price
+    price = listing.get("price")
+    if price is not None and float(price) <= 10:
+        return 1.0
+
+    # Hard rule: impossibly small area
+    size = listing.get("size_sqm")
+    if size is not None and float(size) <= 5:
+        return 1.0
+
+    # Hard rule: missing description is high-risk, skip LLM
+    if not listing.get("description"):
+        price_score = await _price_anomaly(listing)
+        reputation_score = await _owner_reputation(listing.get("owner_id", ""))
+        # Missing description counts as 0.6 LLM-equivalent risk
+        total = (price_score * 0.3) + (reputation_score * 0.2) + (0.6 * 0.5)
+        return round(min(1.0, max(0.0, total)), 3)
+
     price_score = await _price_anomaly(listing)
     reputation_score = await _owner_reputation(listing.get("owner_id", ""))
     llm_score = await _llm_consistency(listing)

@@ -37,8 +37,11 @@ export default function SearchListingCard({ listing }: SearchListingCardProps) {
       whileHover={{ y: -5, scale: 1.01 }}
       whileTap={{ scale: 0.98 }}
       transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-      className="will-change-transform"
+      className="relative will-change-transform"
     >
+      {/* Like button lives OUTSIDE <Link> so mobile taps never bubble to navigation */}
+      <LikeButton id={String(listing.id)} className="absolute right-3 top-3 z-10" />
+
       <Link
         href={`/property/${listing.id}`}
         className="group block cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-card-dark shadow-lg transition-all duration-300 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -65,8 +68,6 @@ export default function SearchListingCard({ listing }: SearchListingCardProps) {
               </span>
             )}
           </div>
-
-          <LikeButton id={String(listing.id)} className="absolute bottom-3 right-3" />
         </div>
 
         <div className="p-5">

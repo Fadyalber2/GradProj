@@ -37,7 +37,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/authStore";
+import { subscriptionQuery } from "@/lib/queries";
+import TierBadge from "@/components/ui/TierBadge";
 
 interface NavbarProps {
   variant?: "overlay" | "sticky";
@@ -48,7 +51,11 @@ export default function Navbar({ variant = "overlay" }: NavbarProps) {
   const [navSearch, setNavSearch] = useState("");
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user, logout, isInitialized } = useAuthStore();
+  const { data: sub } = useQuery({
+    ...subscriptionQuery,
+    enabled: isInitialized && !!user,
+  });
 
   const isSticky = variant === "sticky";
 
@@ -204,9 +211,12 @@ export default function Navbar({ variant = "overlay" }: NavbarProps) {
                           </span>
                         )}
                       </div>
-                      <span className="hidden lg:block text-sm font-medium text-white max-w-[100px] truncate">
-                        {user.full_name ?? user.email}
-                      </span>
+                      <div className="hidden lg:flex lg:items-center lg:gap-1.5">
+                        <span className="text-sm font-medium text-white max-w-[90px] truncate">
+                          {user.full_name ?? user.email}
+                        </span>
+                        {sub && <TierBadge plan={sub.plan} />}
+                      </div>
                       <ChevronDown className="h-3.5 w-3.5 text-gray-400 group-data-[state=open]:rotate-180 transition-transform hidden lg:block" />
                     </button>
                   </DropdownMenuTrigger>
@@ -238,9 +248,12 @@ export default function Navbar({ variant = "overlay" }: NavbarProps) {
                           <p className="text-sm font-semibold text-white truncate">
                             {user.full_name ?? "User"}
                           </p>
-                          <p className="text-xs text-gray-400 truncate">
-                            {user.email}
-                          </p>
+                          <div className="mt-0.5 flex items-center gap-1.5">
+                            <p className="text-xs text-gray-400 truncate">
+                              {user.email}
+                            </p>
+                            {sub && <TierBadge plan={sub.plan} />}
+                          </div>
                         </div>
                       </div>
                     </DropdownMenuLabel>
@@ -391,9 +404,12 @@ export default function Navbar({ variant = "overlay" }: NavbarProps) {
                             )}
                           </div>
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-white">
-                              {user.full_name ?? "User"}
-                            </p>
+                            <div className="flex items-center gap-2">
+                              <p className="truncate text-sm font-semibold text-white">
+                                {user.full_name ?? "User"}
+                              </p>
+                              {sub && <TierBadge plan={sub.plan} />}
+                            </div>
                             <p className="truncate text-xs text-white/45">
                               {user.email}
                             </p>

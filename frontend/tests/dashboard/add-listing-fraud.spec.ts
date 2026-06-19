@@ -1,35 +1,42 @@
 import { test, expect } from "@playwright/test";
 
-// Fill FRAUD_LISTING_* in .env.test with values that trigger the fraud AI
-test("submit fraud-seed listing → status shows pending", async ({ page }) => {
-  const fraudTitle   = process.env.FRAUD_LISTING_TITLE!;
-  const fraudAddress = process.env.FRAUD_LISTING_ADDRESS!;
-  const fraudPrice   = process.env.FRAUD_LISTING_PRICE!;
+test("submit fraud listing → status shows Pending Review in My Listings table", async ({ page }) => {
+  await page.goto("/login");
+
+  await page.getByLabel("Email Address").fill("Testuser1@gmail.com");
+  await page.locator('input[name="password"]').fill("Testuser123");
+  await page.getByRole("button", { name: "Log In" }).click();
+
+  await page.waitForURL("/dashboard", { timeout: 15_000 });
+
+  // Dashboard heading confirms the page rendered
+  await expect(
+    page.getByRole("heading", { name: "Manage your AXIOM workspace." })
+  ).toBeVisible({ timeout: 15_000 });
 
   await page.goto("/dashboard");
-  await expect(page.getByText("Manage your AXIOM workspace")).toBeVisible({ timeout: 10_000 });
+  await expect(
+    page.getByRole("heading", { name: /manage your axiom workspace/i })
+  ).toBeVisible({ timeout: 10_000 });
 
   await page.getByRole("button", { name: /add listing/i }).click();
   await expect(page.getByRole("heading", { name: /add new listing/i })).toBeVisible();
 
+  const modal = page.getByRole("dialog");
+
   // ── Step 0: Basics ────────────────────────────────────────────────
-  await page.getByLabel(/listing name|title/i).fill(fraudTitle);
-  await page.getByLabel(/address/i).fill(fraudAddress);
-  await page.getByRole("button", { name: /next|continue|details/i }).click();
+  await modal.getByPlaceholder(/modern apartment/i).fill("Fraud Test Listing");
+  await modal.getByPlaceholder(/enter property address/i).fill("456 Test Street, Cairo");
+  await page.getByRole("button", { name: /details/i }).click();
 
   // ── Step 1: Details ───────────────────────────────────────────────
-  await page.getByLabel(/price/i).fill(fraudPrice);
-  await page.getByLabel(/size/i).fill("80");
+  await modal.locator('input[type="number"]').first().fill("9000");
+  await modal.locator('input[type="number"]').nth(1).fill("80");
 
-  const leaseSelect = page.getByLabel(/lease type/i);
-  if (await leaseSelect.isVisible()) await leaseSelect.selectOption("monthly");
+  const availDate = modal.locator('input[type="date"]');
+  if (await availDate.isVisible()) await availDate.fill("2025-12-12");
 
-  await page.getByLabel(/minimum stay/i).fill("12");
-
-  const availDate = page.getByLabel(/available date/i);
-  if (await availDate.isVisible()) await availDate.fill("2026-08-01");
-
-  await page.getByRole("button", { name: /next|photos/i }).click();
+  await page.getByRole("button", { name: /photos/i }).click();
 
   // ── Step 2: Submit ────────────────────────────────────────────────
   await page.getByRole("button", { name: /submit for review/i }).click();
@@ -37,8 +44,6 @@ test("submit fraud-seed listing → status shows pending", async ({ page }) => {
   await expect(page.getByRole("heading", { name: /add new listing/i }))
     .not.toBeVisible({ timeout: 20_000 });
 
-  // Fraud-flagged listing shows as "pending" not "active"
-  await expect(
-    page.getByText(/pending/i).first()
-  ).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("Fraud Test Listing")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(/pending review/i)).toBeVisible({ timeout: 15_000 });
 });

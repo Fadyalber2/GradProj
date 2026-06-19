@@ -62,8 +62,8 @@ export interface FilterValues {
   propertyType: string;
   minPrice?: number;
   maxPrice?: number;
-  bedrooms?: number;
-  bathrooms?: number;
+  bedrooms?: number[];
+  bathrooms?: number[];
   minSize?: number;
   maxSize?: number;
   leaseType: string;
@@ -329,9 +329,16 @@ function NumberChips({
 }: {
   label: string;
   options: number[];
-  value?: number;
-  onChange: (value?: number) => void;
+  value?: number[];
+  onChange: (value?: number[]) => void;
 }) {
+  const selected = value ?? [];
+  const toggle = (option: number) => {
+    const next = selected.includes(option)
+      ? selected.filter((v) => v !== option)
+      : [...selected, option];
+    onChange(next.length > 0 ? next : undefined);
+  };
   return (
     <div>
       <p className="mb-2 text-xs font-medium text-gray-500">{label}</p>
@@ -340,9 +347,9 @@ function NumberChips({
           <button
             key={option}
             type="button"
-            onClick={() => onChange(value === option ? undefined : option)}
+            onClick={() => toggle(option)}
             className={`h-8 min-w-8 rounded-full border px-3 text-xs font-semibold transition-colors ${
-              value === option
+              selected.includes(option)
                 ? "border-primary bg-primary text-white"
                 : "border-white/20 bg-transparent text-gray-400 hover:border-primary hover:text-white"
             }`}

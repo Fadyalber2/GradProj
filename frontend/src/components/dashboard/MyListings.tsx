@@ -3,7 +3,9 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { PlusCircle, Pencil, Trash2, ImageIcon, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { PlusCircle, Pencil, Trash2, ImageIcon, Loader2, Eye } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteListingMutation } from "@/lib/queries";
 import type { DashboardListing } from "@/types";
@@ -39,6 +41,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default function MyListings({ listings, onAddNew, onEdit }: MyListingsProps) {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
@@ -110,7 +113,18 @@ export default function MyListings({ listings, onAddNew, onEdit }: MyListingsPro
                 </tr>
               ) : (
                 listings.map((listing) => (
-                  <tr key={listing.id} className="group transition-colors duration-150 hover:bg-white/[0.03]">
+                  <tr
+                    key={listing.id}
+                    onClick={(e) => {
+                      // Prevent navigation if the user clicked an interactive element (button, link, etc.)
+                      const target = e.target as HTMLElement;
+                      if (target.closest("button") || target.closest("a")) {
+                        return;
+                      }
+                      router.push(`/property/${listing.id}`);
+                    }}
+                    className="group cursor-pointer transition-colors duration-150 hover:bg-white/[0.03]"
+                  >
                     <td className="p-5">
                       <div className="flex items-center gap-4">
                         {listing.image ? (
@@ -131,13 +145,13 @@ export default function MyListings({ listings, onAddNew, onEdit }: MyListingsPro
                           <p className="text-gray-500 text-xs">ID: {listing.listingId}</p>
                           {listing.status === "paused" && (
                             <p className="mt-1 text-xs text-amber-400">
-                              Hidden — <a href="/pricing" className="underline hover:text-amber-300">subscribe to restore</a>. Deleted after grace period.
+                              Hidden — <a href="/pricing" onClick={(e) => e.stopPropagation()} className="underline hover:text-amber-300">subscribe to restore</a>. Deleted after grace period.
                             </p>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="p-5 text-gray-400">{listing.location}</td> 
+                    <td className="p-5 text-gray-400">{listing.location}</td>
                     <td className="p-5">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${STATUS_STYLES[listing.status]}`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[listing.status]}`} />
@@ -153,17 +167,11 @@ export default function MyListings({ listings, onAddNew, onEdit }: MyListingsPro
                     <td className="p-5 text-center text-gray-300">{listing.views}</td>
                     <td className="p-5 text-center">
                       <div className="flex flex-wrap items-center justify-center gap-2">
-                        {onEdit && (
-                          <button
-                            onClick={() => onEdit(listing.id)}
-                            className="rounded-lg p-2 text-gray-400 transition-[background-color,color,transform] duration-150 hover:bg-white/10 hover:text-white active:scale-[0.96]"
-                            title="Edit listing"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
-                        )}
                         <button
-                          onClick={() => handleDeleteClick(listing.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClick(listing.id);
+                          }}
                           className="rounded-lg p-2 text-gray-400 transition-[background-color,color,transform] duration-150 hover:bg-red-500/10 hover:text-red-400 active:scale-[0.96]"
                           title="Delete listing"
                         >

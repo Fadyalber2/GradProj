@@ -21,6 +21,12 @@ export function middleware(request: NextRequest) {
     request.cookies.get("sb-access-token")?.value;
 
   const isAuthenticated = !!token;
+  const onboardingPending = !!request.cookies.get("axiom-onboarding-pending")?.value;
+
+  // Block protected routes until onboarding is complete
+  if (onboardingPending && protectedRoutes.some((r) => pathname.startsWith(r))) {
+    return NextResponse.redirect(new URL("/auth/callback", request.url));
+  }
 
   // Redirect authenticated users away from auth pages
   if (isAuthenticated && authRoutes.some((r) => pathname.startsWith(r))) {

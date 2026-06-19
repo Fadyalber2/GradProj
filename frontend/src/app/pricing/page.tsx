@@ -23,6 +23,7 @@ import {
 } from "@/lib/queries";
 import { formatEGP } from "@/lib/utils";
 import type { SubscriptionStatus } from "@/types/api";
+import { useAuthStore } from "@/stores/authStore";
 
 type PlanKey = "free" | "basic" | "pro";
 
@@ -499,6 +500,7 @@ function AgencyPanel() {
 
 export default function PricingPage() {
   const queryClient = useQueryClient();
+  const { user, isInitialized } = useAuthStore();
   const [cancelSuccess, setCancelSuccess] = useState(false);
   const [checkoutTarget, setCheckoutTarget] = useState<"basic" | "pro" | null>(null);
 
@@ -507,7 +509,10 @@ export default function PricingPage() {
     isError,
     isLoading,
     refetch,
-  } = useQuery<SubscriptionStatus>(subscriptionQuery);
+  } = useQuery<SubscriptionStatus>({
+    ...subscriptionQuery,
+    enabled: isInitialized && !!user,
+  });
 
   const trialMutation = useMutation({
     ...startTrialMutation,

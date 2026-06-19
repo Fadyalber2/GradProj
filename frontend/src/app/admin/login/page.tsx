@@ -24,8 +24,8 @@ export default function AdminLoginPage() {
     try {
       await adminLogin(username, password);
       router.replace("/admin/dashboard");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Login failed");
+    } catch {
+      setError("Invalid credentials. Please try again.");
     } finally {
       setLoading(false);
     }

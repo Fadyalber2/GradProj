@@ -39,6 +39,28 @@ def _current_period_end(obj):
     return None
 
 
+def _sync_checkout_session(obj) -> None:
+    if _field(obj, "mode") != "subscription":
+        return
+    md = _field(obj, "metadata") or {}
+    user_id = _field(md, "user_id") or _field(obj, "client_reference_id")
+    if not user_id:
+        return
+    plan = _field(md, "plan") or "basic"
+    sub_id = _field(obj, "subscription")
+    customer_id = _field(obj, "customer")
+    supabase_admin.table("subscriptions").upsert({
+        "user_id": user_id,
+        "plan": plan,
+        "status": "active",
+        "stripe_subscription_id": sub_id if isinstance(sub_id, str) else None,
+        "stripe_customer_id": customer_id if isinstance(customer_id, str) else None,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }, on_conflict="user_id").execute()
+    from app.subscriptions.lapse import pause_excess_for_user
+    pause_excess_for_user(user_id)
+
+
 def _sync_subscription(obj) -> None:
     # In stripe-python >=8, StripeObject is NOT a dict subclass, so reach into
     # metadata with _field (attribute access) rather than dict.get / isinstance(dict).
@@ -89,7 +111,9 @@ async def stripe_webhook(request: Request):
     event_type = _field(event, "type")
     obj = _field(_field(event, "data"), "object")
     try:
-        if event_type in (
+        if event_type == "checkout.session.completed":
+            _sync_checkout_session(obj)
+        elif event_type in (
             "customer.subscription.created",
             "customer.subscription.updated",
             "customer.subscription.deleted",

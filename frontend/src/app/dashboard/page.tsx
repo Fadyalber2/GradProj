@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import DashboardStats from "@/components/dashboard/DashboardStats";
 import MyListings from "@/components/dashboard/MyListings";
@@ -11,10 +11,11 @@ import LikedProperties from "@/components/dashboard/LikedProperties";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { dashboardQueries } from "@/lib/queries";
+import { dashboardQueries, subscriptionQuery } from "@/lib/queries";
 import { getListingPriceSuffix } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import { Home, Plus, Sparkles } from "lucide-react";
+import TierBadge from "@/components/ui/TierBadge";
 import type { ApiAnalyticsStat, ApiDashboardListing } from "@/types/api";
 import type {
   AnalyticsStat,
@@ -84,7 +85,7 @@ function mapAnalytics(stat: ApiAnalyticsStat): AnalyticsStat {
     }),
     bars: [26, 44, 36, 58, 49, 72, 63],
     trendPercent: `${Math.abs(stat.trend_percent)}%`,
-    trendUp: stat.trend_up,
+    trendUp: stat.label === "Pending Approval" ? !stat.trend_up : stat.trend_up,
   };
 }
 
@@ -93,10 +94,15 @@ function mapAnalytics(stat: ApiAnalyticsStat): AnalyticsStat {
 export default function DashboardPage() {
   const { user, isInitialized } = useAuthStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
   const { data, isLoading, isError } = useQuery({
     ...dashboardQueries.me(),
+    enabled: !!user?.id,
+  });
+  const { data: sub } = useQuery({
+    ...subscriptionQuery,
     enabled: !!user?.id,
   });
 
@@ -105,6 +111,12 @@ export default function DashboardPage() {
       router.replace("/login?redirect=/dashboard");
     }
   }, [isInitialized, user, router]);
+
+  useEffect(() => {
+    if (searchParams.get("sub") === "success") {
+      queryClient.invalidateQueries({ queryKey: ["subscription", "me"] });
+    }
+  }, [searchParams, queryClient]);
 
   if (!isInitialized || isLoading) {
     return (
@@ -145,9 +157,12 @@ export default function DashboardPage() {
           <div className="rounded-[1.35rem] border border-white/10 bg-[#101010] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] sm:p-6">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  User dashboard
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    User dashboard
+                  </div>
+                  {sub && <TierBadge plan={sub.plan} size="sm" />}
                 </div>
                 <h1 className="mt-4 max-w-3xl text-3xl font-black tracking-tight text-white sm:text-5xl">
                   Manage your AXIOM workspace.

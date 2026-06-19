@@ -77,8 +77,14 @@ export default function ProfileCompletionModal({
     setError("");
 
     // Validate
-    if (!form.phone.trim()) {
+    const rawPhone = form.phone.trim();
+    if (!rawPhone) {
       setError("Phone number is required.");
+      return;
+    }
+    // E.164-style: optional +, 7–15 digits, no letters or symbols
+    if (!/^\+?[0-9]{7,15}$/.test(rawPhone.replace(/[\s\-().]/g, ""))) {
+      setError("Enter a valid phone number (e.g. +201001234567).");
       return;
     }
     if (!form.gender) {
@@ -97,8 +103,8 @@ export default function ProfileCompletionModal({
     }
 
     const payload: UpdateProfileInput = {
-      phone: form.phone.trim(),
-      whatsapp_number: form.phone.trim(),
+      phone: rawPhone,
+      whatsapp_number: rawPhone,
       country_code: form.country_code.trim() || "+20",
       gender: form.gender as "male" | "female",
       birth_date: form.birth_date,
@@ -108,7 +114,7 @@ export default function ProfileCompletionModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && !mutation.isPending && onClose()}>
+    <Dialog open={open} onOpenChange={() => {}}>
       <DialogContent className="sm:max-w-md bg-[#151515] border-white/10 text-white" showCloseButton={false}>
         <DialogHeader>
           <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">

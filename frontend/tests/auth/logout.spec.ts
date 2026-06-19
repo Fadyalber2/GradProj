@@ -1,10 +1,10 @@
 import { test, expect } from "@playwright/test";
 
-test("logout clears session and blocks dashboard access", async ({ page }) => {
+test("logout clears session and WhatsApp contact redirects to login", async ({ page }) => {
   // Login first
   await page.goto("/login");
-  await page.getByLabel("Email Address").fill(process.env.TEST_USER_EMAIL!);
-  await page.locator('input[name="password"]').fill(process.env.TEST_USER_PASSWORD!);
+  await page.getByLabel("Email Address").fill("Testuser1@gmail.com");
+  await page.locator('input[name="password"]').fill("Testuser123");
   await page.getByRole("button", { name: "Log In" }).click();
   await page.waitForURL("/dashboard", { timeout: 15_000 });
 
@@ -18,8 +18,24 @@ test("logout clears session and blocks dashboard access", async ({ page }) => {
   // Should land on home or login
   await page.waitForURL(/\/(login)?$/, { timeout: 10_000 });
 
-  // Now /dashboard should redirect back to login
-  await page.goto("/dashboard");
+  // Go to a listing
+  await page.goto("/find-homes");
+  await expect(page.locator(".animate-spin").first()).not.toBeVisible({ timeout: 15_000 });
+
+  // Click on first listing to go to property detail
+  const firstCard = page.locator("a[href^='/property/']").first();
+  await expect(firstCard).toBeVisible({ timeout: 10_000 });
+  await firstCard.click();
+
+  await page.waitForURL(/\/property\//, { timeout: 10_000 });
+
+  // Click WhatsApp contact button
+  const whatsappBtn = page.getByRole("button", { name: /whatsapp|contact/i })
+    .or(page.getByText(/whatsapp/i))
+    .first();
+  await whatsappBtn.click();
+
+  // Should redirect to login page
   await page.waitForURL(/\/login/, { timeout: 10_000 });
   expect(page.url()).toContain("/login");
 });
