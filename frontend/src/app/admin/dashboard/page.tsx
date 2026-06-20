@@ -146,7 +146,6 @@ const SECTIONS: Record<string, SectionConfig> = {
     title: "Users",
     apiSection: "users",
     searchPlaceholder: "Search by name...",
-    extraFilters: [{ key: "role", label: "Role", type: "select", options: ["user", "admin"] }],
     columns: [
       { key: "full_name", label: "Name" },
       { key: "email", label: "Email" },
