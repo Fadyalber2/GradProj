@@ -493,7 +493,7 @@ function AgencyPanel() {
         </p>
       </div>
       <a
-        href="mailto:hello@axiom.eg?subject=Agency%20Plan%20Enquiry"
+        href="mailto:support@axiom.eg?subject=Pricing%20Enquiry"
         className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/14 bg-white/[0.045] px-4 py-3 text-sm font-semibold text-white transition-[background-color,border-color,transform] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] hover:border-white/24 hover:bg-white/[0.08] active:scale-[0.98]"
       >
         <Mail className="h-4 w-4" />
