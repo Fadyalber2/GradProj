@@ -245,15 +245,15 @@ export default function Navbar({ variant = "overlay" }: NavbarProps) {
                           )}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold text-white truncate">
-                            {user.full_name ?? "User"}
-                          </p>
-                          <div className="mt-0.5 flex items-center gap-1.5">
-                            <p className="text-xs text-gray-400 truncate">
-                              {user.email}
+                          <div className="flex items-center gap-1.5">
+                            <p className="text-sm font-semibold text-white truncate">
+                              {user.full_name ?? "User"}
                             </p>
                             {sub && <TierBadge plan={sub.plan} />}
                           </div>
+                          <p className="mt-0.5 text-xs text-gray-400 truncate">
+                            {user.email}
+                          </p>
                         </div>
                       </div>
                     </DropdownMenuLabel>

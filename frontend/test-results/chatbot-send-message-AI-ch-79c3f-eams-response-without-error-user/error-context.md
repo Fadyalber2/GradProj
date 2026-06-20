@@ -12,6 +12,10 @@
 # Error details
 
 ```
+Test timeout of 30000ms exceeded.
+```
+
+```
 Error: expect(locator).toBeVisible() failed
 
 Locator: locator('div').filter({ hasText: /^Here is 1 apartment in Maadi:$/ })
@@ -41,9 +45,9 @@ Call log:
   - link "About Us":
     - /url: /about
   - textbox "Search city, neighborhood..."
-  - button "Testuser1 Testuser1":
+  - button "Testuser1 Testuser1 Pro":
     - img "Testuser1"
-    - text: Testuser1
+    - text: Testuser1 Pro
 - main:
   - heading "Find a home that matches your vibe." [level=1]
   - paragraph: Experience a new way to live together with AI-powered compatibility matching designed for modern living.
@@ -69,27 +73,27 @@ Call log:
   - paragraph: Most viewed properties right now
   - link "View all listings →":
     - /url: /find-homes
-  - link "Modern Duplex in New Cairo For Sale Save property Modern Duplex in New Cairo Downtown, New Cairo Duplex 9,858,148 EGP 1 Bed 3 Baths 350 m²":
+  - button "Save property"
+  - link "Modern Duplex in New Cairo For Sale Modern Duplex in New Cairo Downtown, New Cairo Duplex 9,858,148 EGP 1 Bed 3 Baths 350 m²":
     - /url: /property/1ba9ebba-b4d5-465b-a1ef-de1fef084d10
     - img "Modern Duplex in New Cairo"
     - text: For Sale
-    - button "Save property"
     - heading "Modern Duplex in New Cairo" [level=3]
     - paragraph: Downtown, New Cairo
     - text: Duplex 9,858,148 EGP 1 Bed 3 Baths 350 m²
-  - link "2 Bedroom Apartment in Tag Sultan For Sale Save property 2 Bedroom Apartment in Tag Sultan Tag Sultan, Nasr City, Cairo Apartment 8,000,000 EGP 2 Beds 2 Baths 117 m²":
+  - button "Save property"
+  - link "2 Bedroom Apartment in Tag Sultan For Sale 2 Bedroom Apartment in Tag Sultan Tag Sultan, Nasr City, Cairo Apartment 8,000,000 EGP 2 Beds 2 Baths 117 m²":
     - /url: /property/03e89354-f91e-422a-b80e-89a353570072
     - img "2 Bedroom Apartment in Tag Sultan"
     - text: For Sale
-    - button "Save property"
     - heading "2 Bedroom Apartment in Tag Sultan" [level=3]
     - paragraph: Tag Sultan, Nasr City, Cairo
     - text: Apartment 8,000,000 EGP 2 Beds 2 Baths 117 m²
-  - link "7 Bedroom Twin House in El Khamayel Compound For Sale Save property 7 Bedroom Twin House in El Khamayel Compound El Khamayel Compound, Sheikh Zayed, Giza Twin House 25,000,000 EGP 7 Beds 5 Baths 450 m²":
+  - button "Save property"
+  - link "7 Bedroom Twin House in El Khamayel Compound For Sale 7 Bedroom Twin House in El Khamayel Compound El Khamayel Compound, Sheikh Zayed, Giza Twin House 25,000,000 EGP 7 Beds 5 Baths 450 m²":
     - /url: /property/96eeb24f-3645-4705-b269-709e66fbd246
     - img "7 Bedroom Twin House in El Khamayel Compound"
     - text: For Sale
-    - button "Save property"
     - heading "7 Bedroom Twin House in El Khamayel Compound" [level=3]
     - paragraph: El Khamayel Compound, Sheikh Zayed, Giza
     - text: Twin House 25,000,000 EGP 7 Beds 5 Baths 450 m²
@@ -164,7 +168,14 @@ Call log:
   - button
   - paragraph: © 2024 Axiom Platform. All rights reserved.
   - text: +20 100 000 0000 Cairo, Egypt
-- button "Open AI chat"
+- button "Close AI chat"
+- paragraph: AXIOM AI
+- paragraph: Your Egyptian property expert
+- button "Clear chat"
+- button "Close"
+- text: مرحباً / Hello — I speak Arabic and English. Tell me what you're looking for and I'll search our live listings across Egypt for you. What properties are available in Maadi? Here is
+- textbox "Ask about properties, prices, areas..." [disabled]
+- button [disabled]
 - region "Notifications alt+T"
 - alert
 ```

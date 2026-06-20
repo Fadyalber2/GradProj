@@ -12,20 +12,145 @@
 # Error details
 
 ```
-Error: locator.click: Target page, context or browser has been closed
-Call log:
-  - waiting for getByRole('button', { name: 'Log In' })
-    - locator resolved to <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-black text-white shadow-[0_16px_36px_rgba(255,90,60,0.22)] transition-[background-color,box-shadow,transform,opacity] duration-150 ease-out hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/40 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60">…</button>
-  - attempting click action
-    2 × waiting for element to be visible, enabled and stable
-      - element is not stable
-    - retrying click action
-    - waiting 20ms
-    2 × waiting for element to be visible, enabled and stable
-      - element is not stable
-    - retrying click action
-      - waiting 100ms
+Error: expect(locator).toBeVisible() failed
 
+Locator: getByRole('button', { name: /upgrade/i }).first()
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" with timeout 5000ms
+  - waiting for getByRole('button', { name: /upgrade/i }).first()
+
+```
+
+```yaml
+- navigation:
+  - link "AXIOM":
+    - /url: /
+  - link "Home":
+    - /url: /
+  - link "Find Homes":
+    - /url: /find-homes
+  - link "Agencies":
+    - /url: /agencies
+  - link "Pricing":
+    - /url: /pricing
+  - link "Blog":
+    - /url: /blog
+  - link "About Us":
+    - /url: /about
+  - textbox "Search city, neighborhood..."
+  - button "Testuser1 Testuser1 Pro":
+    - img "Testuser1"
+    - text: Testuser1 Pro
+- main:
+  - text: Owner pricing
+  - heading "Pay for the selling motion you actually use." [level=1]
+  - paragraph: Start with one listing, then scale into AI descriptions, stronger placement, and portfolio reporting when your inventory needs it.
+  - complementary:
+    - paragraph: Current plan
+    - paragraph: pro
+    - text: Active listings 15/20 AI descriptions used 1/50 AI remaining 49 Renewal Jul 17, 2026
+    - button "Cancel plan"
+  - article:
+    - paragraph: First listing
+    - heading "Free" [level=2]
+    - paragraph: Free
+    - paragraph: Publish one property and learn how AXIOM demand behaves.
+    - term: Listings
+    - definition: "1"
+    - term: AI quota
+    - definition: None
+    - list:
+      - listitem: 1 active listing
+      - listitem: Standard visibility
+      - listitem: Manual listing copy
+    - text: Included in pro
+  - article:
+    - paragraph: Best owner fit
+    - heading "Basic" [level=2]
+    - text: 199 EGP per month
+    - paragraph: For active owners who want stronger placement and AI support.
+    - term: Listings
+    - definition: "5"
+    - term: AI quota
+    - definition: "10"
+    - list:
+      - listitem: 5 active listings
+      - listitem: 10 AI descriptions each month
+      - listitem: Priority listing placement
+      - listitem: Email support
+    - text: Included in pro
+  - article:
+    - paragraph: Portfolio scale
+    - heading "Pro" [level=2]
+    - text: 499 EGP per month
+    - paragraph: For teams managing multiple homes, rooms, and buyer leads.
+    - term: Listings
+    - definition: "20"
+    - term: AI quota
+    - definition: "50"
+    - list:
+      - listitem: 20 active listings
+      - listitem: 50 AI descriptions each month
+      - listitem: Featured listing slots
+      - listitem: Analytics dashboard
+      - listitem: Priority support
+    - text: Active plan
+  - paragraph: Agency plan
+  - paragraph: For developers and agencies that need unlimited inventory, a dedicated account manager, custom integrations, and SLA support.
+  - link "Contact us":
+    - /url: mailto:hello@axiom.eg?subject=Agency%20Plan%20Enquiry
+- contentinfo:
+  - link "AXIOM":
+    - /url: /
+  - paragraph: The first AI-powered real estate platform in Egypt designed for compatibility and trust. Find your vibe today.
+  - link "Facebook":
+    - /url: "#"
+    - img
+  - link "Instagram":
+    - /url: "#"
+    - img
+  - link "Twitter":
+    - /url: "#"
+    - img
+  - link "LinkedIn":
+    - /url: "#"
+    - img
+  - heading "Quick Links" [level=3]
+  - list:
+    - listitem:
+      - link "Home":
+        - /url: /
+    - listitem:
+      - link "Search Listings":
+        - /url: /find-homes
+    - listitem:
+      - link "Agencies":
+        - /url: /agencies
+    - listitem:
+      - link "About Us":
+        - /url: /about
+    - listitem:
+      - link "Blog":
+        - /url: /blog
+  - heading "Legal" [level=3]
+  - list:
+    - listitem: Terms & Conditions
+    - listitem: Privacy Policy
+    - listitem: Cookie Policy
+    - listitem: Fraud Prevention
+  - heading "Newsletter" [level=3]
+  - paragraph: Subscribe to get the latest market trends and vibe checks.
+  - textbox "Your email"
+  - button
+  - paragraph: © 2024 Axiom Platform. All rights reserved.
+  - text: +20 100 000 0000 Cairo, Egypt
+- button "Open AI chat"
+- region "Notifications alt+T"
+- alert
 ```
 
 # Test source
@@ -50,8 +175,7 @@ Call log:
   17 |   await page.goto("/login");
   18 |   await page.getByLabel("Email Address").fill("Testuser1@gmail.com");
   19 |   await page.locator('input[name="password"]').fill("Testuser123");
-> 20 |   await page.getByRole("button", { name: "Log In" }).click();
-     |                                                      ^ Error: locator.click: Target page, context or browser has been closed
+  20 |   await page.getByRole("button", { name: "Log In" }).click();
   21 |   await page.waitForURL("/dashboard", { timeout: 15_000 });
   22 | 
   23 |   await page.goto("/pricing");
@@ -61,7 +185,8 @@ Call log:
   27 |   await expect(page.getByRole("heading", { level: 2, name: /basic/i })).toBeVisible();
   28 | 
   29 |   const upgradeBtn = page.getByRole("button", { name: /upgrade/i }).first();
-  30 |   await expect(upgradeBtn).toBeVisible();
+> 30 |   await expect(upgradeBtn).toBeVisible();
+     |                            ^ Error: expect(locator).toBeVisible() failed
   31 |   await upgradeBtn.click();
   32 | 
   33 |   await page.waitForURL(/stripe/, { timeout: 15_000 });
