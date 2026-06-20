@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms & Conditions — AXIOM",
+  description: "Terms and conditions for using the AXIOM real estate platform.",
+};
+
 export default function TermsPage() {
   return (
     <main className="min-h-screen bg-[#0f0f0f] py-16 px-4">

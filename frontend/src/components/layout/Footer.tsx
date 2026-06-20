@@ -114,7 +114,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-600">
-          <p>&copy; 2024 Axiom Platform. All rights reserved.</p>
+          <p>&copy; 2026 AXIOM. All rights reserved.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
             <span className="flex items-center gap-1">
               <Phone className="h-2.5 w-2.5" /> +20 100 000 0000

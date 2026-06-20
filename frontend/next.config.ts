@@ -40,6 +40,8 @@ const nextConfig: NextConfig = {
         hostname: "*.supabase.in",
         pathname: "/storage/v1/object/public/**",
       },
+      // Allows blog post hero images from any HTTPS source.
+      // Revisit once blog image domains are known (e.g. Cloudinary, Unsplash).
       {
         protocol: "https",
         hostname: "**",

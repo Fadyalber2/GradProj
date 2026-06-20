@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy — AXIOM",
+  description: "How AXIOM collects, uses, and protects your personal data.",
+};
+
 export default function PrivacyPage() {
   return (
     <main className="min-h-screen bg-[#0f0f0f] py-16 px-4">

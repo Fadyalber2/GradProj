@@ -2427,7 +2427,6 @@ function DashboardOverview({ onNavigate }: { onNavigate: AdminNavigate }) {
     blue:   { border: "border-sky-100",    bg: "bg-sky-50",    hover: "hover:border-sky-300 hover:bg-sky-100",       icon: "text-sky-600"   },
     green:  { border: "border-emerald-100", bg: "bg-emerald-50", hover: "hover:border-emerald-300 hover:bg-emerald-100", icon: "text-emerald-600" },
     purple: { border: "border-zinc-200", bg: "bg-zinc-50", hover: "hover:border-zinc-300 hover:bg-zinc-100", icon: "text-zinc-700" },
-    red:    { border: "border-red-100",    bg: "bg-red-50",    hover: "hover:border-red-300 hover:bg-red-100",       icon: "text-red-600"    },
   };
 
   return (

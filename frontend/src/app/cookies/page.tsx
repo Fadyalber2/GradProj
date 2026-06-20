@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Cookie Policy — AXIOM",
+  description: "How AXIOM uses cookies and similar tracking technologies.",
+};
+
 export default function CookiesPage() {
   return (
     <main className="min-h-screen bg-[#0f0f0f] py-16 px-4">

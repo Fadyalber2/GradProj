@@ -39,7 +39,7 @@ export default function TrustedPartners() {
           <div className="flex gap-6 animate-marquee w-max">
             {[...partnerNames, ...partnerNames].map((name, i) => (
               <div
-                key={i}
+                key={`${name}-${i}`}
                 className="flex-shrink-0 flex items-center justify-center h-12 px-5 rounded-xl border border-white/10 bg-white/[0.03] min-w-[130px]"
               >
                 <span className="text-white/60 font-semibold text-sm whitespace-nowrap">
