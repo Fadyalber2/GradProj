@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Check, ChevronRight, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
 import OAuthButton from "@/components/auth/OAuthButton";
-import { GoogleIcon, FacebookIcon } from "@/components/auth/OAuthIcons";
+import { GoogleIcon } from "@/components/auth/OAuthIcons";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -78,6 +78,13 @@ export default function SignUpForm() {
     if (!submittedPhone) {
       setError("Phone number is required.");
       return;
+    }
+    if (countryCode === "+20") {
+      const egyptianPhone = submittedPhone.replace(/\D/g, "");
+      if (!/^01[0125][0-9]{8}$/.test(egyptianPhone)) {
+        setError("Phone number must be a valid Egyptian number (e.g. 01012345678).");
+        return;
+      }
     }
     if (!tosAccepted) {
       setError("You must accept the Terms of Service.");
@@ -354,9 +361,8 @@ export default function SignUpForm() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+        <div className="grid grid-cols-1 gap-3">
           <OAuthButton provider="google" label="Google" icon={<GoogleIcon />} />
-          <OAuthButton provider="facebook" label="Facebook" icon={<FacebookIcon />} />
         </div>
 
         <div className="mt-6 text-center">
