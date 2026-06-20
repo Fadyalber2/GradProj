@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
+import ViewTracker from "@/components/property/ViewTracker";
 import PropertyHero from "@/components/property/PropertyHero";
 import PropertyInfo from "@/components/property/PropertyInfo";
 import PropertySidebar from "@/components/property/PropertySidebar";
@@ -152,6 +153,7 @@ export default async function PropertyDetailPage({
     const housing = mapSharedHousing(property);
     return (
       <div className="max-w-[1600px] mx-auto pb-28 md:pb-20">
+        <ViewTracker listingId={property.id} />
         <SharedHousingHero housing={housing} />
         <div className="px-4 sm:px-6 lg:px-8 mt-8">
           <div className="flex flex-col lg:flex-row gap-12">
@@ -192,6 +194,7 @@ export default async function PropertyDetailPage({
   // Regular property layout
   return (
     <main className="max-w-[1600px] mx-auto pb-28 md:pb-20">
+      <ViewTracker listingId={property.id} />
       <PropertyHero property={property} />
       <div className="px-4 sm:px-6 lg:px-8 mt-8">
         <div className="flex flex-col lg:flex-row gap-12">
