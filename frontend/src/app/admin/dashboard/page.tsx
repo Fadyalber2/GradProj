@@ -179,7 +179,7 @@ const SECTIONS: Record<string, SectionConfig> = {
     canCreate: true,
     extraFilters: [
       { key: "category", label: "Category", type: "select", options: ["for_rent", "for_sale", "shared_housing"] },
-      { key: "status", label: "Status", type: "select", options: ["active", "pending", "rejected", "sold", "rented"] },
+      { key: "status", label: "Status", type: "select", options: ["active", "pending", "draft", "rejected", "sold", "rented"] },
       { key: "property_type", label: "Type", type: "select", options: ["apartment", "villa", "studio", "duplex", "penthouse", "chalet", "land", "commercial"] },
     ],
     columns: [
@@ -213,7 +213,16 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "bedrooms", label: "Beds" },
       {
         key: "status", label: "Status",
-        render: (v) => <Badge color={v === "active" ? "green" : v === "pending" ? "yellow" : v === "sold" ? "blue" : "gray"}>{String(v ?? "")}</Badge>,
+        render: (v) => {
+          const color =
+            v === "active" ? "green" :
+            v === "pending" ? "yellow" :
+            v === "sold" ? "blue" :
+            v === "draft" ? "gray" :
+            v === "rejected" ? "red" :
+            "purple";
+          return <Badge color={color}>{String(v ?? "")}</Badge>;
+        },
       },
       { key: "created_at", label: "Created", render: (v) => formatDate(v) },
     ],
@@ -237,7 +246,7 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "furnishing", label: "Furnishing", type: "select", options: ["furnished", "semi_furnished", "unfurnished"] },
       { key: "property_type", label: "Type", type: "select", options: ["apartment", "villa", "studio", "duplex", "penthouse", "chalet", "land", "commercial"] },
       { key: "category", label: "Category", type: "select", options: ["for_rent", "for_sale", "shared_housing"] },
-      { key: "status", label: "Status", type: "select", options: ["active", "pending", "rejected", "sold", "rented"] },
+      { key: "status", label: "Status", type: "select", options: ["active", "pending", "draft", "rejected", "sold", "rented"] },
       { key: "lease_type", label: "Lease Type", type: "select", options: ["monthly", "yearly"] },
       { key: "min_stay_months", label: "Minimum Stay (months)", type: "number" },
       { key: "available_date", label: "Available Date", type: "date" },
@@ -278,7 +287,7 @@ const SECTIONS: Record<string, SectionConfig> = {
       { key: "furnishing", label: "Furnishing", type: "select", options: ["furnished", "semi_furnished", "unfurnished"] },
       { key: "property_type", label: "Type", type: "select", options: ["apartment", "villa", "studio", "duplex", "penthouse", "chalet", "land", "commercial"], required: true },
       { key: "category", label: "Category", type: "select", options: ["for_rent", "for_sale", "shared_housing"], required: true },
-      { key: "status", label: "Status", type: "select", options: ["active", "pending", "rejected"], helper: "Defaults to active if left blank." },
+      { key: "status", label: "Status", type: "select", options: ["active", "pending", "draft", "rejected"], helper: "Defaults to active if left blank." },
       { key: "lease_type", label: "Lease Type", type: "select", options: ["monthly", "yearly"] },
       { key: "min_stay_months", label: "Minimum Stay (months)", type: "number" },
       { key: "available_date", label: "Available Date", type: "date" },
@@ -1316,7 +1325,7 @@ function AdminListingEditForm({
         </FieldShell>
         <FieldShell label="Status">
           <select value={asText(form.status)} onChange={(e) => setField("status", e.target.value)} className={inputClass}>
-            {["active", "pending", "rejected", "sold", "rented"].map((status) => <option key={status} value={status}>{status}</option>)}
+            {["active", "pending", "draft", "rejected", "sold", "rented"].map((status) => <option key={status} value={status}>{status}</option>)}
           </select>
         </FieldShell>
         <FieldShell label="Agency">

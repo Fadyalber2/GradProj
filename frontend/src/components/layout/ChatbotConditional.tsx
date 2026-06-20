@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import FloatingAIButton from "@/components/layout/FloatingAIButton";
 
-const HIDDEN_PATHS = ["/login", "/signup", "/forgot-password", "/auth/"];
+const HIDDEN_PATHS = ["/login", "/signup", "/forgot-password", "/auth/", "/admin"];
 
 export default function ChatbotConditional() {
   const pathname = usePathname();
