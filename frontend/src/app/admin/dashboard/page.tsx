@@ -187,11 +187,14 @@ const SECTIONS: Record<string, SectionConfig> = {
       {
         key: "owner_id",
         label: "Owner",
-        render: (_v, row) => {
+        render: (v, row) => {
           const owner = row.profiles as Record<string, unknown> | null | undefined;
-          const label = owner?.full_name || owner?.email;
-          return label ? (
-            <span className="font-semibold text-zinc-800">{String(label)}</span>
+          const name = owner?.full_name || owner?.email;
+          return name ? (
+            <div className="min-w-0">
+              <p className="font-semibold text-zinc-800 truncate">{String(name)}</p>
+              <p className="text-xs text-zinc-400 font-mono truncate">{String(v ?? "")}</p>
+            </div>
           ) : (
             <Badge color="red">No owner</Badge>
           );
