@@ -1,47 +1,54 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 
-const EGYPTIAN_PARTNERS = [
-  { name: "SODIC", sub: "Real Estate" },
-  { name: "Emaar Misr", sub: "Developments" },
-  { name: "Palm Hills", sub: "Developments" },
-  { name: "TMG", sub: "Talaat Moustafa Group" },
-  { name: "Hyde Park", sub: "Properties" },
-  { name: "Sixth of October", sub: "Development" },
+const FALLBACK = [
+  "SODIC",
+  "Emaar Misr",
+  "Palm Hills",
+  "TMG",
+  "Hyde Park",
+  "Sixth of October",
 ];
 
 export default function TrustedPartners() {
+  const { data: agenciesData } = useQuery({
+    queryKey: ["agencies", "partners"],
+    queryFn: async () => {
+      const result = await api.get<{ agencies: Array<{ id: string; name: string }> }>(
+        "/api/agencies?limit=20"
+      );
+      return result.agencies ?? [];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const partnerNames =
+    agenciesData && agenciesData.length > 0
+      ? agenciesData.map((a) => a.name)
+      : FALLBACK;
+
   return (
     <section className="py-12 bg-[#101010]">
       <div className="max-w-7xl mx-auto px-4 text-center">
         <p className="text-primary text-[10px] font-bold tracking-widest uppercase mb-8">
           Trusted Partners
         </p>
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="flex flex-wrap justify-center gap-8 md:gap-14"
-        >
-          {EGYPTIAN_PARTNERS.map((partner) => (
-            <div
-              key={partner.name}
-              className="flex flex-col items-center gap-1 opacity-40 hover:opacity-100 transition-opacity duration-300"
-            >
-              <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white font-black text-xs tracking-tight">
-                {partner.name
-                  .split(" ")
-                  .map((w) => w[0])
-                  .join("")
-                  .slice(0, 3)}
+        <div className="overflow-hidden w-full">
+          <div className="flex gap-6 animate-marquee w-max">
+            {[...partnerNames, ...partnerNames].map((name, i) => (
+              <div
+                key={i}
+                className="flex-shrink-0 flex items-center justify-center h-12 px-5 rounded-xl border border-white/10 bg-white/[0.03] min-w-[130px]"
+              >
+                <span className="text-white/60 font-semibold text-sm whitespace-nowrap">
+                  {name}
+                </span>
               </div>
-              <span className="text-white font-bold text-xs">{partner.name}</span>
-              <span className="text-gray-600 text-[10px]">{partner.sub}</span>
-            </div>
-          ))}
-        </motion.div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
