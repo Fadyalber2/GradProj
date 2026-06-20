@@ -8,6 +8,7 @@ import type { AnalyticsStat } from "@/types";
 
 interface DashboardStatsProps {
   stats: AnalyticsStat[];
+  listingCap?: number;
 }
 
 const ICON_MAP: Record<string, ElementType> = {
@@ -25,7 +26,7 @@ function getNumericValue(value: string | number) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function getHealth(stat: AnalyticsStat) {
+function getHealth(stat: AnalyticsStat, listingCap?: number) {
   const value = getNumericValue(stat.value);
   const label = stat.label.toLowerCase();
 
@@ -39,10 +40,11 @@ function getHealth(stat: AnalyticsStat) {
   }
 
   if (label.includes("active")) {
+    const cap = listingCap ?? 10;
     return {
       label: "Portfolio depth",
-      percent: Math.max(0, Math.min(100, (value / 10) * 100)),
-      detail: `${value} of 10 target`,
+      percent: Math.max(0, Math.min(100, (value / cap) * 100)),
+      detail: `${value} of ${cap} target`,
     };
   }
 
@@ -61,14 +63,14 @@ function getHealth(stat: AnalyticsStat) {
   };
 }
 
-export default function DashboardStats({ stats }: DashboardStatsProps) {
+export default function DashboardStats({ stats, listingCap }: DashboardStatsProps) {
   if (!stats.length) return null;
 
   return (
     <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {stats.map((stat, index) => {
         const Icon = ICON_MAP[stat.icon] ?? Eye;
-        const health = getHealth(stat);
+        const health = getHealth(stat, listingCap);
         return (
           <motion.div
             key={stat.label}
@@ -81,20 +83,22 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
               <div className={`rounded-xl p-3 ${stat.iconBg}`}>
                 <Icon className={`h-5 w-5 ${stat.iconColor}`} />
               </div>
-              <span
-                className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-bold ${
-                  stat.trendUp
-                    ? "border-emerald-400/15 bg-emerald-400/10 text-emerald-300"
-                    : "border-red-400/15 bg-red-400/10 text-red-300"
-                }`}
-              >
-                {stat.trendUp ? (
-                  <TrendingUp className="h-3 w-3" />
-                ) : (
-                  <TrendingDown className="h-3 w-3" />
-                )}
-                {stat.trendPercent}
-              </span>
+              {stat.trendPercent && stat.trendPercent !== "0%" && stat.trendPercent !== "0" && (
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-bold ${
+                    stat.trendUp
+                      ? "border-emerald-400/15 bg-emerald-400/10 text-emerald-300"
+                      : "border-red-400/15 bg-red-400/10 text-red-300"
+                  }`}
+                >
+                  {stat.trendUp ? (
+                    <TrendingUp className="h-3 w-3" />
+                  ) : (
+                    <TrendingDown className="h-3 w-3" />
+                  )}
+                  {stat.trendPercent}
+                </span>
+              )}
             </div>
             <div className="mt-5">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">{stat.label}</p>

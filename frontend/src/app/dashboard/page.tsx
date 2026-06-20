@@ -215,7 +215,7 @@ export default function DashboardPage() {
           likedCount={data.liked_count}
           pendingCount={data.pending_count}
         />
-        <DashboardStats stats={analyticsStats} />
+        <DashboardStats stats={analyticsStats} listingCap={sub?.listing_cap} />
 
         <Tabs defaultValue="listings" className="space-y-5">
           <TabsList className="h-auto w-full flex-wrap justify-start gap-2 rounded-[1.25rem] border border-white/10 bg-[#151515] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
