@@ -20,7 +20,7 @@ import {
   FURNISHING_OPTIONS,
 } from "@/lib/constants";
 import { api } from "@/lib/api";
-import { calculatePlatformFee, formatEGP } from "@/lib/utils";
+import { formatEGP } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { subscriptionQuery } from "@/lib/queries";
 import Link from "next/link";
@@ -595,7 +595,6 @@ export default function AddListingModal({
     (a) => !(LISTING_AMENITIES as readonly string[]).includes(a)
   );
   const priceNumber = Number(form.price);
-  const feePreview = priceNumber > 0 ? calculatePlatformFee(priceNumber) : null;
   const recurringPrice = form.category === "for_rent" || form.category === "shared_housing";
   const categoryCopy = CATEGORY_COPY[form.category];
   const showSaleDeliveryDate =
@@ -609,10 +608,10 @@ export default function AddListingModal({
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={closeModal} />
 
       <div className="flex min-h-screen items-center justify-center p-4 sm:p-0">
-        <div className="relative transform overflow-hidden rounded-3xl bg-card-dark text-left shadow-2xl sm:my-8 w-[95vw] max-w-3xl max-h-[90vh] overflow-y-auto border border-white/10">
+        <div className="relative transform rounded-3xl bg-card-dark text-left shadow-2xl sm:my-8 w-[95vw] max-w-4xl border border-white/10 flex flex-col" style={{ maxHeight: "min(90vh, 860px)" }}>
 
           {/* Header */}
-          <div className="bg-black/20 px-4 py-5 sm:px-8 border-b border-white/5 flex justify-between items-center">
+          <div className="bg-black/20 px-4 py-5 sm:px-8 border-b border-white/5 flex justify-between items-center flex-shrink-0">
             <h3 className="text-xl font-bold text-white">{title}</h3>
             <button
               onClick={closeModal}
@@ -623,7 +622,7 @@ export default function AddListingModal({
           </div>
 
           {/* Form body */}
-          <div className="px-4 py-6 sm:px-8 space-y-8 max-h-[70vh] overflow-y-auto">
+          <div className="px-4 py-6 sm:px-8 space-y-8 overflow-y-auto flex-1 min-h-0">
             <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-black/20 p-2">
               {STEPS.map((label, index) => {
                 const active = step === index;
@@ -819,28 +818,6 @@ export default function AddListingModal({
                     <p className="text-red-400 text-xs flex items-center gap-1">
                       <AlertCircle className="h-3 w-3" /> {errors.price}
                     </p>
-                  )}
-                  {feePreview && (
-                    <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-xs">
-                      <div className="flex items-center justify-between gap-3 text-gray-400">
-                        <span>{recurringPrice ? "Your price" : "Listing price"}</span>
-                        <span className="font-semibold text-white">
-                          {formatEGP(priceNumber)}{recurringPrice ? " / month" : ""}
-                        </span>
-                      </div>
-                      <div className="mt-1 flex items-center justify-between gap-3 text-gray-400">
-                        <span>Platform fee (5%)</span>
-                        <span className="font-semibold text-gray-200">
-                          - {formatEGP(feePreview.platformFee)}{recurringPrice ? " / month" : ""}
-                        </span>
-                      </div>
-                      <div className="mt-2 flex items-center justify-between gap-3 border-t border-white/10 pt-2 text-gray-300">
-                        <span>You receive</span>
-                        <span className="font-bold text-primary">
-                          {formatEGP(feePreview.ownerReceives)}{recurringPrice ? " / month" : ""}
-                        </span>
-                      </div>
-                    </div>
                   )}
                 </div>
 
@@ -1691,7 +1668,7 @@ export default function AddListingModal({
           </div>
 
           {/* Footer */}
-          <div className="bg-black/20 px-4 py-5 sm:px-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="bg-black/20 px-4 py-5 sm:px-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 flex-shrink-0 bg-card-dark">
             <p className="text-xs text-gray-500 shrink-0">
               {footerNote}
             </p>
