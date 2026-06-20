@@ -10,7 +10,6 @@ import {
   FolderOpen,
   Home,
   FileText,
-  AlertTriangle,
   Clock,
   LogOut,
   ShieldCheck,
@@ -62,10 +61,6 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: "blog", label: "Blog Posts", icon: FileText },
     ],
-  },
-  {
-    label: "Moderation",
-    items: [{ id: "fraud", label: "Fraud Queue", icon: AlertTriangle, alert: true }],
   },
 ];
 

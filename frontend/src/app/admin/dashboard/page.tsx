@@ -11,7 +11,6 @@ import {
   isLoggedIn,
   listItems,
   rejectListing,
-  reviewFraud,
   updateItem,
 } from "@/lib/admin/api";
 import { supabase } from "@/lib/supabase";
@@ -2380,176 +2379,6 @@ function PendingApprovalsView() {
   );
 }
 
-// ── Fraud Queue View ───────────────────────────────────────────────────────────
-
-function FraudView() {
-  const [data, setData] = useState<Record<string, unknown>[]>([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [actioning, setActioning] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await listItems<Record<string, unknown>>("fraud", { page, per_page: 15 });
-      setData(res.data);
-      setTotal(res.total);
-      setTotalPages(res.total_pages);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to load");
-    } finally {
-      setLoading(false);
-    }
-  }, [page]);
-
-  useEffect(() => { load(); }, [load]);
-
-  async function handleAction(id: string, action: "approve" | "reject") {
-    setActioning(id);
-    try {
-      await reviewFraud(id, action);
-      load();
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Action failed");
-    } finally {
-      setActioning(null);
-    }
-  }
-
-  const columns: Column[] = [
-    { key: "title", label: "Listing" },
-    { key: "price", label: "Price", render: (v) => formatPrice(v) },
-    { key: "location", label: "Location" },
-    {
-      key: "fraud_score", label: "Fraud Score",
-      render: (v) => {
-        const score = Number(v ?? 0);
-        const color = score > 0.7 ? "text-red-600" : score > 0.4 ? "text-orange-500" : "text-emerald-600";
-        const bg = score > 0.7 ? "bg-red-50" : score > 0.4 ? "bg-orange-50" : "bg-emerald-50";
-        return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${color} ${bg}`}>
-            {(score * 100).toFixed(0)}%
-          </span>
-        );
-      },
-    },
-    { key: "created_at", label: "Created", render: (v) => formatDate(v) },
-  ];
-
-  return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold text-slate-900">Fraud Queue</h2>
-          {!loading && total > 0 && (
-            <span className="text-xs font-semibold text-red-600 bg-red-50 border border-red-100 px-2.5 py-1 rounded-full">
-              {total} flagged
-            </span>
-          )}
-        </div>
-      </div>
-
-      {error && (
-        <div className="flex items-center gap-3 bg-red-50 border border-red-100 text-red-700 text-sm px-4 py-3 rounded-xl">
-          <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200">
-                {columns.map((col) => (
-                  <th key={col.key} className="text-left px-4 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">{col.label}</th>
-                ))}
-                <th className="text-right px-4 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {loading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className="animate-pulse">
-                    {columns.map((c) => (
-                      <td key={c.key} className="px-4 py-3.5">
-                        <div className="h-4 bg-slate-100 rounded-full w-3/4" />
-                      </td>
-                    ))}
-                    <td className="px-4 py-3.5">
-                      <div className="h-7 bg-slate-100 rounded-lg w-28 ml-auto" />
-                    </td>
-                  </tr>
-                ))
-              ) : data.length === 0 ? (
-                <tr>
-                  <td colSpan={columns.length + 1} className="px-4 py-16 text-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center">
-                        <CheckCircle className="w-5 h-5 text-emerald-500" />
-                      </div>
-                      <div>
-                        <p className="text-slate-600 font-medium text-sm">No flagged listings</p>
-                        <p className="text-slate-400 text-xs mt-0.5">All listings are clear</p>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                data.map((row) => (
-                  <tr key={String(row.id)} className="hover:bg-slate-50 transition-colors">
-                    {columns.map((col) => (
-                      <td key={col.key} className="px-4 py-3.5 text-slate-700">
-                        {col.render ? col.render(row[col.key], row) : String(row[col.key] ?? "—")}
-                      </td>
-                    ))}
-                    <td className="px-4 py-3.5">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleAction(String(row.id), "approve")}
-                          disabled={actioning === String(row.id)}
-                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg disabled:opacity-60 transition"
-                        >
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => handleAction(String(row.id), "reject")}
-                          disabled={actioning === String(row.id)}
-                          className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg disabled:opacity-60 transition"
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/60">
-            <span className="text-xs text-slate-500">{total} flagged listings</span>
-            <div className="flex items-center gap-2">
-              <button onClick={() => setPage((p) => p - 1)} disabled={page <= 1} className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-white disabled:opacity-40 transition">
-                <ChevronRight className="w-3.5 h-3.5 rotate-180" />
-              </button>
-              <span className="text-xs text-slate-600 font-medium">{page} / {totalPages}</span>
-              <button onClick={() => setPage((p) => p + 1)} disabled={page >= totalPages} className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-white disabled:opacity-40 transition">
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 // ── Dashboard Overview ─────────────────────────────────────────────────────────
 
 type AdminNavigate = (section: string, filters?: Record<string, string>) => void;
@@ -2573,7 +2402,6 @@ function DashboardOverview({ onNavigate }: { onNavigate: AdminNavigate }) {
     { label: "Total Users", key: "total_users", icon: Users, color: "blue", section: "users" },
     { label: "Active Listings", key: "active_listings", icon: Home, color: "green", section: "listings", filters: { status: "active" } },
     { label: "Pending Review", key: "pending_listings", icon: Clock, color: "orange", section: "listings", filters: { status: "pending" } },
-    { label: "Flagged Fraud", key: "flagged_listings", icon: AlertTriangle, color: "red", section: "fraud" },
     { label: "Agencies", key: "total_agencies", icon: Building2, color: "purple", section: "agencies" },
     { label: "Leads", key: "total_leads", icon: TrendingUp, color: "green", section: "leads" },
     { label: "Shared Housing", key: "total_shared_housing", icon: BedDouble, color: "orange", section: "listings", filters: { category: "shared_housing" } },
@@ -2582,7 +2410,6 @@ function DashboardOverview({ onNavigate }: { onNavigate: AdminNavigate }) {
   const quickActions = [
     { label: "Manage Users", section: "users", icon: Users, color: "blue" },
     { label: "Review Listings", section: "pending-approvals", icon: Home, color: "green" },
-    { label: "Fraud Queue", section: "fraud", icon: AlertTriangle, color: "red" },
   ] as const;
 
   const actionColors = {
@@ -2665,7 +2492,6 @@ export default function AdminDashboardPage() {
 
   function renderSection() {
     if (activeSection === "dashboard") return <DashboardOverview onNavigate={navigateAdmin} />;
-    if (activeSection === "fraud") return <FraudView />;
     if (activeSection === "pending-approvals") return <PendingApprovalsView />;
     if (SECTIONS[activeSection]) return <SectionView sectionId={activeSection} initialFilters={sectionFilters} />;
     return <p className="text-slate-400">Section not found</p>;
