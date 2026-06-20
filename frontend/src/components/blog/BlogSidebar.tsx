@@ -106,31 +106,6 @@ export default function BlogSidebar({
         </div>
       </div>
 
-      <div className="bg-card-dark p-7 rounded-2xl border border-white/10 relative overflow-hidden">
-        <h3 className="text-white font-bold text-xl mb-2 relative z-10">
-          Cairo market notes
-        </h3>
-        <p className="text-gray-400 text-sm mb-6 relative z-10 leading-relaxed">
-          Weekly reads on rent movement, shared homes, and areas worth watching.
-        </p>
-        <form
-          className="space-y-3 relative z-10"
-          onSubmit={(e) => e.preventDefault()}
-        >
-          <input
-            type="email"
-            placeholder="Enter your email"
-            className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
-          />
-          <button
-            type="submit"
-            className="w-full bg-primary hover:bg-primary-hover active:scale-[0.98] text-white font-semibold py-3 rounded-lg transition-[background-color,transform] duration-200 ease-out shadow-lg shadow-primary/20"
-          >
-            Subscribe
-          </button>
-        </form>
-      </div>
-
       <Link
         href="/find-homes"
         className="group flex items-center justify-between rounded-2xl border border-primary/30 bg-primary/10 p-5 text-sm font-semibold text-white transition-[border-color,background-color,transform] duration-200 ease-out hover:border-primary hover:bg-primary/15 active:scale-[0.99]"

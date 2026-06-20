@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import ArticleHero from "@/components/blog-article/ArticleHero";
 import ArticleBody from "@/components/blog-article/ArticleBody";
 import ArticleSidebar from "@/components/blog-article/ArticleSidebar";
-import NewsletterCTA from "@/components/blog-article/NewsletterCTA";
 import RelatedArticles from "@/components/blog-article/RelatedArticles";
 import { getBlogPost } from "@/lib/supabase-queries";
 import { formatDate } from "@/lib/utils";
@@ -61,7 +60,6 @@ export default async function BlogArticlePage({
         <ArticleBody article={article} />
         <ArticleSidebar article={article} />
       </div>
-      <NewsletterCTA />
       <RelatedArticles articles={relatedArticles} />
     </>
   );
