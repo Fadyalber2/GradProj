@@ -196,7 +196,6 @@ function PlanCard({
   const isRecommended =
     plan.highlight &&
     !isCurrent &&
-    !isTrial &&
     !isLowerTier &&
     subscriptionPlanRank(currentPlan) < PLAN_RANK[plan.key];
   const Icon = plan.icon;
@@ -288,7 +287,13 @@ function PlanCard({
           </div>
         )}
 
-        {plan.key !== "free" && !isCurrent && !isTrial && !isLowerTier && (
+        {isTrial && (
+            <p className="mb-2 text-center text-xs text-white/40">
+              Converting from trial to paid
+            </p>
+          )}
+
+        {plan.key !== "free" && !isCurrent && !isLowerTier && (
           <button
             onClick={() => onUpgrade(plan.key as "basic" | "pro")}
             disabled={loadingCheckout || accountUnavailable}
@@ -321,10 +326,10 @@ function PlanCard({
           </div>
         )}
 
-        {(isCurrent || isTrial) && plan.key !== "free" && (
+        {isCurrent && plan.key !== "free" && (
           <div className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-primary/35 bg-primary/12 px-4 py-3 text-sm font-semibold text-primary">
             <Check className="h-4 w-4" />
-            {isTrial ? "Trial active" : "Active plan"}
+            Active plan
           </div>
         )}
 
