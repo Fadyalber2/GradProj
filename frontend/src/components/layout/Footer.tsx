@@ -86,31 +86,30 @@ export default function Footer() {
             <ul className="space-y-3 text-xs text-gray-500">
               {LEGAL_LINKS.map((link) => (
                 <li key={link.href}>
-                  <span
+                  <Link
+                    href={link.href}
+                    className="hover:text-primary transition-colors"
                   >
                     {link.label}
-                  </span>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Newsletter */}
+          {/* Contact Support */}
           <div>
-            <h3 className="text-white font-bold mb-6 text-sm">Newsletter</h3>
-            <p className="text-gray-500 text-xs mb-4">
-              Subscribe to get the latest market trends and vibe checks.
+            <h3 className="text-white font-bold mb-6 text-sm">Support</h3>
+            <p className="text-gray-500 text-xs mb-4 leading-relaxed">
+              Have a question or need help? Our support team is here for you.
             </p>
-            <div className="flex">
-              <input
-                type="email"
-                placeholder="Your email"
-                className="bg-white/5 border border-white/10 text-white text-xs rounded-l-lg py-2.5 px-4 focus:outline-none focus:border-primary w-full"
-              />
-              <button className="bg-primary hover:bg-primary-hover text-white px-3 rounded-r-lg transition-colors">
-                <Send className="h-3.5 w-3.5" />
-              </button>
-            </div>
+            <a
+              href="mailto:support@axiom.eg"
+              className="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-colors"
+            >
+              <Send className="h-3 w-3" />
+              Contact Support
+            </a>
           </div>
         </div>
 

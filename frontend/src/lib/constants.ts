@@ -100,10 +100,9 @@ export const QUICK_LINKS: FooterLink[] = [
 ];
 
 export const LEGAL_LINKS: FooterLink[] = [
-  { label: "Terms & Conditions", href: "/terms" },
   { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms & Conditions", href: "/terms" },
   { label: "Cookie Policy", href: "/cookies" },
-  { label: "Fraud Prevention", href: "/fraud-prevention" },
 ];
 
 /* ── Listing form options ─────────────────────────────────── */
